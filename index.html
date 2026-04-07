@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=es/index.html">
+    <title>MyGolfLab - Redirecting...</title>
+    <script>
+        // Detect browser language and redirect accordingly
+        const lang = navigator.language || navigator.userLanguage;
+        const langCode = lang.split('-')[0].toLowerCase();
+        
+        if (langCode === 'pt') {
+            window.location.href = 'pt/index.html';
+        } else if (langCode === 'en') {
+            window.location.href = 'en/index.html';
+        } else {
+            // Default to Spanish
+            window.location.href = 'es/index.html';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting to <a href="es/index.html">MyGolfLab</a>...</p>
+</body>
+</html>

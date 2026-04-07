@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Library | MyGolfLab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            --primary-dark: #14b8a6;
+            --primary-glow: rgba(45, 212, 191, 0.3);
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border: #262626;
+            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-heading: 'Barlow Condensed', sans-serif;
+            --font-body: 'Barlow', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
+
+        /* Language Selector */
+        .lang-selector {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg-elevated);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .lang-btn {
+            padding: 0.35rem 0.6rem;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .lang-btn:hover { color: var(--text-secondary); }
+        .lang-btn.active { background: var(--primary); color: var(--bg-dark); }
+
+        .hamburger {
+            width: 44px; height: 44px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        .hamburger:hover { background: var(--bg-card); border-color: var(--primary); }
+        .hamburger span {
+            width: 18px; height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0; right: -100%;
+            width: 100%; max-width: 400px;
+            height: 100vh;
+            background: var(--bg-dark);
+            z-index: 999;
+            padding: 6rem 2rem 2rem;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border);
+        }
+        .mobile-menu.active { right: 0; }
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+        .menu-links { display: flex; flex-direction: column; gap: 0.5rem; }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
+        .menu-link.active { background: var(--bg-elevated); color: var(--text-primary); border-left: 3px solid var(--primary); }
+        .menu-link svg { width: 22px; height: 22px; opacity: 0.6; }
+        .menu-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+        .menu-cta {
+            display: block;
+            text-align: center;
+            padding: 1rem 2rem;
+            background: var(--gradient-1);
+            color: var(--bg-dark);
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-radius: 12px;
+            margin-top: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+
+        .menu-lang-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .menu-lang-btn {
+            flex: 1;
+            padding: 0.75rem;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .menu-lang-btn:hover { color: var(--text-secondary); border-color: var(--text-muted); }
+        .menu-lang-btn.active { background: var(--primary); color: var(--bg-dark); border-color: var(--primary); }
+
+        /* Page Header */
+        .page-header {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+        }
+        .page-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 1rem;
+        }
+        .page-header p {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Content */
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 2rem 6rem;
+        }
+
+        .category-section { margin-bottom: 4rem; }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .category-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(45, 212, 191, 0.05) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .category-icon svg { width: 24px; height: 24px; color: var(--primary); }
+        .category-header h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .video-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .video-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-thumb {
+            aspect-ratio: 16/9;
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .video-thumb svg {
+            width: 48px; height: 48px;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        .video-duration {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .video-info { padding: 1.25rem; }
+        .video-info h3 {
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.25rem;
+        }
+        .video-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .video-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .video-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .video-meta svg { width: 14px; height: 14px; }
+
+        .coming-soon {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            border-radius: 20px;
+        }
+        .coming-soon h3 {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.5rem;
+        }
+        .coming-soon p { color: var(--text-muted); }
+
+        /* Footer */
+        .footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        .footer p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-left">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                </div>
+                MYGOLFLAB
+            </a>
+            <div class="lang-selector">
+                <button class="lang-btn" onclick="switchLang('es')">ES</button>
+                <button class="lang-btn active" onclick="switchLang('en')">EN</button>
+                <button class="lang-btn" onclick="switchLang('pt')">PT</button>
+            </div>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <div class="mobile-menu-overlay" id="menuOverlay"></div>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="menu-links">
+            <a href="index.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Home
+            </a>
+            <a href="coach-ai.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+                AI Coach
+            </a>
+            <a href="library.html" class="menu-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Library
+            </a>
+            <a href="performance.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Performance
+            </a>
+            <a href="pricing.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Pricing
+            </a>
+            <div class="menu-divider"></div>
+            <a href="about.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                About the Coach
+            </a>
+        </div>
+        <a href="index.html#waitlist" class="menu-cta">Join the Waitlist</a>
+        <div class="menu-lang-selector">
+            <button class="menu-lang-btn" onclick="switchLang('es')">Español</button>
+            <button class="menu-lang-btn active" onclick="switchLang('en')">English</button>
+            <button class="menu-lang-btn" onclick="switchLang('pt')">Português</button>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Video Library</h1>
+        <p>Complete instruction for every part of your game—from full swing fundamentals to scoring shots.</p>
+    </header>
+
+    <!-- Content -->
+    <main class="content">
+        <!-- Full Swing -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                </div>
+                <h2>Full Swing</h2>
+            </div>
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">12:34</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>The Setup Position</h3>
+                        <p>Building a foundation for consistency</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.4k views</span>
+                            <span>Beginner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">18:22</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Weight Transfer</h3>
+                        <p>Load and shift for more power</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.8k views</span>
+                            <span>Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">15:45</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Wrist Conditions at Impact</h3>
+                        <p>The key positions for solid contact</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 3.1k views</span>
+                            <span>Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Short Game -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <h2>Chipping & Pitching</h2>
+            </div>
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">10:15</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Chip Shot Fundamentals</h3>
+                        <p>Simple technique for consistent chips</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.5k views</span>
+                            <span>Beginner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">14:30</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Pitch Distance Control</h3>
+                        <p>Dial in your 30-60 yard shots</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 980 views</span>
+                            <span>Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Putting -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg>
+                </div>
+                <h2>Putting</h2>
+            </div>
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">11:20</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Putt Setup & Alignment</h3>
+                        <p>Start the ball on your intended line</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.1k views</span>
+                            <span>Beginner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-thumb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span class="video-duration">16:45</span>
+                    </div>
+                    <div class="video-info">
+                        <h3>Advanced Green Reading</h3>
+                        <p>See the break before you putt</p>
+                        <div class="video-meta">
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.7k views</span>
+                            <span>Advanced</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </div>
+                <h2>Complete Courses</h2>
+            </div>
+            <div class="coming-soon">
+                <h3>Coming Soon</h3>
+                <p>Multi-week comprehensive courses on swing transformation, short game mastery, and mental game.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">MYGOLFLAB</div>
+        <p>© 2026 MyGolfLab. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        hamburger.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (mobileMenu.classList.contains('active')) toggleMenu();
+            });
+        });
+
+        function switchLang(lang) {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            window.location.href = '../' + lang + '/' + currentPage;
+        }
+    </script>
+</body>
+</html>
