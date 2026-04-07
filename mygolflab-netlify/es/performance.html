@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Rendimiento | MyGolfLab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            --primary-dark: #14b8a6;
+            --primary-glow: rgba(45, 212, 191, 0.3);
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border: #262626;
+            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-heading: 'Barlow Condensed', sans-serif;
+            --font-body: 'Barlow', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            letter-spacing: 0.05em;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon svg { width: 20px; height: 20px; fill: var(--bg-dark); }
+
+        .lang-selector {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .lang-btn {
+            padding: 0.35rem 0.65rem;
+            font-family: var(--font-body);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lang-btn:hover { color: var(--text-secondary); }
+        .lang-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .hamburger {
+            width: 44px; height: 44px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover { background: var(--bg-card); border-color: var(--primary); }
+        .hamburger span { width: 18px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s ease; }
+        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0; right: -100%;
+            width: 100%; max-width: 400px;
+            height: 100vh;
+            background: var(--bg-dark);
+            z-index: 999;
+            padding: 6rem 2rem 2rem;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid var(--border);
+        }
+        .mobile-menu.active { right: 0; }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+
+        .menu-links { display: flex; flex-direction: column; gap: 0.5rem; }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .menu-link:hover, .menu-link.active { background: var(--bg-elevated); color: var(--text-primary); }
+        .menu-link.active { border-left: 3px solid var(--primary); }
+        .menu-link svg { width: 22px; height: 22px; opacity: 0.6; }
+        .menu-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+        .menu-cta {
+            display: block;
+            text-align: center;
+            padding: 1rem 2rem;
+            background: var(--gradient-1);
+            color: var(--bg-dark);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            margin-top: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+
+        .page-header {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            background: var(--gradient-subtle);
+        }
+
+        .page-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-family: var(--font-body);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            max-width: 800px;
+            margin: -2rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            letter-spacing: 0.02em;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem 6rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--text-primary);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .drill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .drill-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .drill-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .drill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .drill-category {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            background: rgba(45, 212, 191, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+        }
+
+        .drill-difficulty {
+            display: flex;
+            gap: 3px;
+        }
+
+        .drill-difficulty span {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .drill-difficulty.beginner span:nth-child(1) { background: var(--primary); }
+        .drill-difficulty.intermediate span:nth-child(1),
+        .drill-difficulty.intermediate span:nth-child(2) { background: var(--primary); }
+        .drill-difficulty.advanced span { background: var(--primary); }
+
+        .drill-card h3 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+            margin-bottom: 0.5rem;
+        }
+
+        .drill-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .drill-meta {
+            display: flex;
+            gap: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .drill-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .drill-meta svg { width: 14px; height: 14px; }
+
+        .leaderboard-section {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .section-header a {
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .leaderboard-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 100px;
+            padding: 1rem 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .leaderboard-row:last-child { border-bottom: none; }
+
+        .leaderboard-row.header {
+            background: var(--bg-elevated);
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .rank {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+        }
+
+        .rank.gold { color: #fbbf24; }
+        .rank.silver { color: #94a3b8; }
+        .rank.bronze { color: #d97706; }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .player-avatar {
+            width: 36px; height: 36px;
+            background: var(--bg-elevated);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .player-name { font-weight: 500; }
+
+        .player-score {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .player-drills {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav { padding: 1rem; }
+            .nav-left { gap: 1rem; }
+            .lang-selector { padding: 0.15rem; }
+            .lang-btn { padding: 0.25rem 0.5rem; font-size: 0.7rem; }
+        }
+
+        @media (max-width: 600px) {
+            .leaderboard-row { grid-template-columns: 40px 1fr 80px; }
+            .player-drills { display: none; }
+        }
+
+        .footer {
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .footer p { font-size: 0.875rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-left">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>
+                MYGOLFLAB
+            </a>
+            <div class="lang-selector">
+                <button class="lang-btn active" onclick="switchLang('es')">ES</button>
+                <button class="lang-btn" onclick="switchLang('en')">EN</button>
+                <button class="lang-btn" onclick="switchLang('pt')">PT</button>
+            </div>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <div class="mobile-menu-overlay" id="menuOverlay"></div>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="menu-links">
+            <a href="index.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Inicio
+            </a>
+            <a href="coach-ai.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+                Coach IA
+            </a>
+            <a href="library.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Videoteca
+            </a>
+            <a href="performance.html" class="menu-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Centro de Rendimiento
+            </a>
+            <a href="pricing.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Precios
+            </a>
+            <div class="menu-divider"></div>
+            <a href="about.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                Sobre el Coach
+            </a>
+        </div>
+        <a href="index.html#waitlist" class="menu-cta">Únete a la Lista</a>
+    </div>
+
+    <header class="page-header">
+        <h1>Centro de Rendimiento</h1>
+        <p>500+ drills diseñados para construir habilidades reales. Sigue tu progreso, compite en el leaderboard y sube de nivel.</p>
+    </header>
+
+    <div class="stats-banner">
+        <div class="stat-card">
+            <div class="stat-number">500+</div>
+            <div class="stat-label">Drills</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">12</div>
+            <div class="stat-label">Categorías</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Niveles</div>
+        </div>
+    </div>
+
+    <main class="content">
+        <div class="filter-tabs">
+            <button class="filter-tab active">Todos los Drills</button>
+            <button class="filter-tab">Swing Completo</button>
+            <button class="filter-tab">Juego Corto</button>
+            <button class="filter-tab">Putting</button>
+            <button class="filter-tab">Velocidad</button>
+            <button class="filter-tab">Flexibilidad</button>
+            <button class="filter-tab">Juego Mental</button>
+        </div>
+
+        <div class="drill-grid">
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Swing Completo</span>
+                    <div class="drill-difficulty beginner">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Drill del Paso</h3>
+                <p>Desarrolla la transferencia de peso correcta al dar un paso hacia tu swing. Construye potencia desde el suelo.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 10 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 847 completados</span>
+                </div>
+            </div>
+
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Putting</span>
+                    <div class="drill-difficulty intermediate">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Drill de la Puerta</h3>
+                <p>Dos tees crean una puerta apenas más ancha que tu putter. Entrena control de cara y precisión en la línea de salida.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 15 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 1.2k completados</span>
+                </div>
+            </div>
+
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Juego Corto</span>
+                    <div class="drill-difficulty advanced">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Desafío Par 18</h3>
+                <p>9 hoyos alrededor del green, par 2 cada uno. Pon a prueba tus up-and-downs bajo presión.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 25 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 634 completados</span>
+                </div>
+            </div>
+
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Velocidad</span>
+                    <div class="drill-difficulty intermediate">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Protocolo Speed Stick</h3>
+                <p>Entrenamiento de sobrecarga progresiva con palos pesados. Aumenta velocidad de cabeza 5-8%.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 20 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 521 completados</span>
+                </div>
+            </div>
+
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Swing Completo</span>
+                    <div class="drill-difficulty beginner">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Setup con Varillas</h3>
+                <p>Usa varillas de alineación para perfeccionar tu aim y posición de bola en cada tiro.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 5 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 2.1k completados</span>
+                </div>
+            </div>
+
+            <div class="drill-card">
+                <div class="drill-header">
+                    <span class="drill-category">Juego Mental</span>
+                    <div class="drill-difficulty intermediate">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <h3>Constructor de Rutina Pre-Tiro</h3>
+                <p>Diseña y practica una rutina consistente que despeje tu mente y prepare tu cuerpo.</p>
+                <div class="drill-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 15 min</span>
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> 389 completados</span>
+                </div>
+            </div>
+        </div>
+
+        <section class="leaderboard-section">
+            <div class="section-header">
+                <h2>Leaderboard Semanal</h2>
+                <a href="#">Ver ranking completo →</a>
+            </div>
+            <div class="leaderboard-table">
+                <div class="leaderboard-row header">
+                    <span>Pos</span>
+                    <span>Jugador</span>
+                    <span>Puntos</span>
+                    <span>Drills</span>
+                </div>
+                <div class="leaderboard-row">
+                    <span class="rank gold">1</span>
+                    <div class="player-info">
+                        <div class="player-avatar">JM</div>
+                        <span class="player-name">Juan M.</span>
+                    </div>
+                    <span class="player-score">2,450</span>
+                    <span class="player-drills">32 drills</span>
+                </div>
+                <div class="leaderboard-row">
+                    <span class="rank silver">2</span>
+                    <div class="player-info">
+                        <div class="player-avatar">SK</div>
+                        <span class="player-name">Sara K.</span>
+                    </div>
+                    <span class="player-score">2,180</span>
+                    <span class="player-drills">28 drills</span>
+                </div>
+                <div class="leaderboard-row">
+                    <span class="rank bronze">3</span>
+                    <div class="player-info">
+                        <div class="player-avatar">RL</div>
+                        <span class="player-name">Roberto L.</span>
+                    </div>
+                    <span class="player-score">1,920</span>
+                    <span class="player-drills">25 drills</span>
+                </div>
+                <div class="leaderboard-row">
+                    <span class="rank">4</span>
+                    <div class="player-info">
+                        <div class="player-avatar">MT</div>
+                        <span class="player-name">Miguel T.</span>
+                    </div>
+                    <span class="player-score">1,755</span>
+                    <span class="player-drills">22 drills</span>
+                </div>
+                <div class="leaderboard-row">
+                    <span class="rank">5</span>
+                    <div class="player-info">
+                        <div class="player-avatar">AC</div>
+                        <span class="player-name">Ana C.</span>
+                    </div>
+                    <span class="player-score">1,640</span>
+                    <span class="player-drills">21 drills</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-logo">MYGOLFLAB</div>
+        <p>© 2026 MyGolfLab. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        hamburger.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', toggleMenu);
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', () => { if (mobileMenu.classList.contains('active')) toggleMenu(); });
+        });
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        function switchLang(lang) {
+            const currentPath = window.location.pathname;
+            const pageName = currentPath.split('/').pop() || 'index.html';
+            window.location.href = `../${lang}/${pageName}`;
+        }
+    </script>
+</body>
+</html>
