@@ -1,569 +1,2136 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach IA | MyGolfLab</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
-            --font-display: 'Bebas Neue', sans-serif;
-            --font-heading: 'Barlow Condensed', sans-serif;
-            --font-body: 'Barlow', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach IA — MyGolfLab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-card: #111111;
+      --bg-elevated: #1a1a1a;
+      --bg-input: #0f0f0f;
+      --accent: #2dd4bf;
+      --accent-dim: rgba(45,212,191,0.15);
+      --accent-glow: rgba(45,212,191,0.3);
+      --gold: #D4C5A9;
+      --gold-dim: rgba(212,197,169,0.15);
+      --text-primary: #f5f5f5;
+      --text-secondary: #a3a3a3;
+      --text-muted: #666666;
+      --border: #1e1e1e;
+      --border-light: #2a2a2a;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --green: #10b981;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-heading: 'Barlow Condensed', sans-serif;
+      --font-body: 'Barlow', sans-serif;
+      /* Category colors */
+      --cat-fullswing: #2dd4bf;
+      --cat-chipping: #f59e0b;
+      --cat-putting: #8b5cf6;
+      --cat-bunker: #ef4444;
+      --cat-wedges: #3b82f6;
+      --cat-preshot: #ec4899;
+      --cat-visualization: #06b6d4;
+      --cat-mental: #10b981;
+    }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Navigation */
-        .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-        }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .logo-icon {
-            width: 32px; height: 32px;
-            background: var(--gradient-1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        /* Language Selector */
-        .lang-selector {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--bg-elevated);
-            padding: 0.25rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .lang-btn {
-            padding: 0.35rem 0.6rem;
-            font-family: var(--font-body);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        .lang-btn:hover { color: var(--text-secondary); }
-        .lang-btn.active { background: var(--primary); color: var(--bg-dark); }
+    /* ==================== HEADER ==================== */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
 
-        .hamburger {
-            width: 44px; height: 44px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-        }
-        .hamburger:hover { background: var(--bg-card); border-color: var(--primary); }
-        .hamburger span {
-            width: 18px; height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        /* Mobile Menu */
-        .mobile-menu {
-            position: fixed;
-            top: 0; right: -100%;
-            width: 100%; max-width: 400px;
-            height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999;
-            padding: 6rem 2rem 2rem;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid var(--border);
-        }
-        .mobile-menu.active { right: 0; }
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 998;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
-        .menu-links { display: flex; flex-direction: column; gap: 0.5rem; }
-        .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link.active { background: var(--bg-elevated); color: var(--text-primary); border-left: 3px solid var(--primary); }
-        .menu-link svg { width: 22px; height: 22px; opacity: 0.6; }
-        .menu-divider { height: 1px; background: var(--border); margin: 1rem 0; }
-        .menu-cta {
-            display: block;
-            text-align: center;
-            padding: 1rem 2rem;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 12px;
-            margin-top: 1rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+    .logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: 2px;
+    }
+    .logo span { color: var(--accent); }
 
-        .menu-lang-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-        }
-        .menu-lang-btn {
-            flex: 1;
-            padding: 0.75rem;
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        .menu-lang-btn:hover { color: var(--text-secondary); border-color: var(--text-muted); }
-        .menu-lang-btn.active { background: var(--primary); color: var(--bg-dark); border-color: var(--primary); }
+    .desktop-nav { display: flex; gap: 28px; align-items: center; }
+    .desktop-nav a {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transition: color 0.2s;
+    }
+    .desktop-nav a:hover, .desktop-nav a.active { color: var(--accent); }
 
-        /* Page Header */
-        .page-header {
-            padding: 8rem 2rem 4rem;
-            text-align: center;
-            background: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
-        }
-        .page-header h1 {
-            font-family: var(--font-display);
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 1rem;
-        }
-        .page-header h1 span {
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .page-header p {
-            font-family: var(--font-body);
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+    .hamburger span {
+      width: 24px; height: 2px;
+      background: var(--text-primary);
+      transition: all 0.3s;
+    }
 
-        /* Content */
-        .content {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 2rem 6rem;
-        }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: rgba(10,10,10,0.98);
+      backdrop-filter: blur(20px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      z-index: 999;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: 3px;
+    }
+    .mobile-menu a:hover { color: var(--accent); }
 
-        /* AI Demo */
-        .ai-demo {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2rem;
-            margin-bottom: 4rem;
-        }
-        .demo-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .demo-avatar {
-            width: 48px; height: 48px;
-            background: var(--gradient-1);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .demo-avatar svg { width: 24px; height: 24px; color: var(--bg-dark); }
-        .demo-info h3 {
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-        }
-        .demo-info p { font-size: 0.85rem; color: var(--text-muted); }
+    @media (max-width: 768px) {
+      .desktop-nav { display: none; }
+      .hamburger { display: flex; }
+    }
 
-        .chat-messages {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .chat-msg {
-            padding: 1rem 1.25rem;
-            border-radius: 16px;
-            max-width: 85%;
-            line-height: 1.5;
-        }
-        .chat-msg.user {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-        .chat-msg.ai {
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, rgba(20, 184, 166, 0.05) 100%);
-            border: 1px solid rgba(45, 212, 191, 0.2);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
+    /* ==================== HERO ==================== */
+    .hero {
+      padding: 120px 24px 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
 
-        /* Section Title */
-        .section-title {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(45,212,191,0.2);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .hero-badge .pulse {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
 
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 4rem;
-        }
-        .feature-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: border-color 0.2s ease, transform 0.2s ease;
-        }
-        .feature-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .feature-icon {
-            width: 48px; height: 48px;
-            background: rgba(45, 212, 191, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        .feature-icon svg { width: 28px; height: 28px; color: var(--primary); }
-        .feature-card h3 {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 0.5rem;
-        }
-        .feature-card p { color: var(--text-secondary); font-size: 0.95rem; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; }
+    }
 
-        /* CTA Section */
-        .cta-section {
-            text-align: center;
-            padding: 3rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-        }
-        .cta-section h3 {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 1rem;
-        }
-        .cta-section p {
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 14px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--primary-glow); }
-        .btn-primary svg { width: 20px; height: 20px; }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      letter-spacing: 3px;
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--accent); }
 
-        /* Footer */
-        .footer {
-            padding: 3rem 2rem;
-            border-top: 1px solid var(--border);
-            text-align: center;
-        }
-        .footer-logo {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-        .footer p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
-    </style>
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    /* ==================== MAIN CONTAINER ==================== */
+    .main-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ==================== UPLOAD SECTION ==================== */
+    .upload-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .upload-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .upload-tab {
+      flex: 1;
+      padding: 16px;
+      text-align: center;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .upload-tab.active {
+      color: var(--accent);
+    }
+    .upload-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 20%; right: 20%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .upload-tab:hover { color: var(--text-secondary); }
+
+    .upload-tab-icon {
+      display: block;
+      margin: 0 auto 6px;
+      width: 24px; height: 24px;
+    }
+
+    .tab-content { display: none; padding: 40px; }
+    .tab-content.active { display: block; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed var(--border-light);
+      border-radius: 12px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .drop-zone-icon {
+      width: 64px; height: 64px;
+      margin: 0 auto 20px;
+      opacity: 0.5;
+    }
+
+    .drop-zone h3 {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .drop-zone p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .drop-zone input { display: none; }
+
+    /* Webcam */
+    .webcam-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16/9;
+      margin-bottom: 20px;
+    }
+    .webcam-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .webcam-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-muted);
+      gap: 12px;
+    }
+
+    .webcam-controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Video preview */
+    .video-preview {
+      display: none;
+      margin-top: 24px;
+    }
+    .video-preview.visible { display: block; }
+
+    .video-preview-inner {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+    .video-preview video {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+    }
+    .video-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+    }
+    .video-info-name {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+    }
+    .video-info-size {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .remove-video {
+      background: none;
+      border: 1px solid var(--border-light);
+      color: var(--red);
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .remove-video:hover {
+      background: rgba(239,68,68,0.1);
+      border-color: var(--red);
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding: 16px 40px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-top: 24px;
+    }
+    .btn-primary:hover { background: #5eead4; transform: translateY(-1px); }
+    .btn-primary:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 12px 24px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==================== ANALYSIS SECTION ==================== */
+    .analysis-section {
+      display: none;
+      margin-top: 40px;
+    }
+    .analysis-section.visible { display: block; }
+
+    /* Loading */
+    .analysis-loading {
+      display: none;
+      text-align: center;
+      padding: 60px 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .analysis-loading.visible { display: block; }
+
+    .loading-spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border-light);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .loading-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: color 0.3s;
+    }
+    .loading-step.active { color: var(--accent); }
+    .loading-step.done { color: var(--green); }
+    .loading-step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border-light);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .loading-step.active .loading-step-dot { background: var(--accent); }
+    .loading-step.done .loading-step-dot { background: var(--green); }
+
+    /* Frames preview */
+    .frames-preview {
+      display: none;
+      margin-top: 24px;
+    }
+    .frames-preview.visible { display: block; }
+
+    .frames-label {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+
+    .frames-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+    }
+    .frames-grid img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .frame-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* ==================== RESULTS ==================== */
+    .analysis-results {
+      display: none;
+    }
+    .analysis-results.visible { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .result-score {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .score-low { background: rgba(239,68,68,0.15); color: var(--red); border: 2px solid var(--red); }
+    .score-mid { background: rgba(245,158,11,0.15); color: var(--amber); border: 2px solid var(--amber); }
+    .score-high { background: rgba(16,185,129,0.15); color: var(--green); border: 2px solid var(--green); }
+
+    .result-summary h2 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .result-summary p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Diagnosis cards */
+    .diagnosis-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .diagnosis-card-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .diagnosis-number {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .diagnosis-card-header h3 {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .diagnosis-severity {
+      margin-left: auto;
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 100px;
+    }
+    .severity-high { background: rgba(239,68,68,0.15); color: var(--red); }
+    .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
+    .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
+
+    .diagnosis-card-body {
+      padding: 24px;
+    }
+
+    .diagnosis-what, .diagnosis-fix, .diagnosis-drills {
+      margin-bottom: 20px;
+    }
+    .diagnosis-what:last-child, .diagnosis-fix:last-child, .diagnosis-drills:last-child {
+      margin-bottom: 0;
+    }
+
+    .diagnosis-label {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Drill referrals */
+    .drill-referral {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .drill-referral:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .drill-referral:last-child { margin-bottom: 0; }
+
+    .drill-cat-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .drill-referral-info {
+      flex: 1;
+    }
+    .drill-referral-name {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .drill-referral-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .drill-referral-arrow {
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+
+    /* Library referral */
+    .library-referral {
+      margin-top: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--accent-dim), var(--gold-dim));
+      border: 1px solid rgba(45,212,191,0.2);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .library-referral h3 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .library-referral p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .library-referral a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #0a0a0a;
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .library-referral a:hover { background: #5eead4; }
+
+    /* New analysis */
+    .new-analysis-btn {
+      margin-top: 24px;
+      width: 100%;
+      padding: 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .new-analysis-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==================== QUESTIONNAIRE ==================== */
+    .questionnaire-section {
+      display: none;
+      margin-top: 40px;
+    }
+    .questionnaire-section.visible { display: block; }
+
+    .questionnaire-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .questionnaire-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .questionnaire-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .q-field {
+      margin-bottom: 24px;
+    }
+    .q-field:last-of-type { margin-bottom: 0; }
+
+    .q-label {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .q-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .q-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+    .q-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .q-input::placeholder {
+      color: var(--text-muted);
+    }
+    .q-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .q-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+    .q-actions .btn-primary { flex: 1; margin-top: 0; }
+
+    .q-skip {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      padding: 16px 24px;
+      transition: color 0.2s;
+    }
+    .q-skip:hover { color: var(--text-secondary); }
+
+    .frames-mini {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 24px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .frames-mini img {
+      height: 56px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      opacity: 0.7;
+    }
+
+    /* ==================== MODE SELECTOR ==================== */
+    .mode-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .mode-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .mode-tab:hover {
+      border-color: var(--border-light);
+      color: var(--text-secondary);
+    }
+    .mode-tab.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==================== CHAT ==================== */
+    .chat-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      height: 520px;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+    .chat-bubble {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .assistant-bubble {
+      align-self: flex-start;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+    .user-bubble {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #0a0a0a;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble-label {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+    .chat-bubble-text {
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+    }
+    .user-bubble .chat-bubble-text {
+      color: #0a0a0a;
+    }
+
+    .chat-typing {
+      align-self: flex-start;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 18px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+    }
+    .typing-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      align-items: flex-end;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      resize: none;
+      max-height: 120px;
+      line-height: 1.4;
+    }
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .chat-input::placeholder { color: var(--text-muted); }
+
+    .chat-send-btn {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: #0a0a0a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .chat-send-btn:hover { background: #5eead4; transform: scale(1.05); }
+    .chat-send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+    /* ==================== METHODOLOGY ==================== */
+    .methodology-section {
+      margin-top: 60px;
+      padding: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .methodology-section h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .methodology-section > p {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .method-item {
+      padding: 20px;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .method-item h4 {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .method-item p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ==================== FOOTER ==================== */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+      .tab-content { padding: 24px; }
+      .drop-zone { padding: 40px 20px; }
+      .result-header { flex-direction: column; text-align: center; }
+      .diagnosis-card-header { flex-wrap: wrap; }
+      .diagnosis-severity { margin-left: 52px; margin-top: 4px; }
+      .methodology-section { padding: 24px; }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in-up {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+    /* Hidden canvas for frame extraction */
+    #extractionCanvas { display: none; }
+  </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-left">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
-                </div>
-                MYGOLFLAB
-            </a>
-            <div class="lang-selector">
-                <button class="lang-btn active" onclick="switchLang('es')">ES</button>
-                <button class="lang-btn" onclick="switchLang('en')">EN</button>
-                <button class="lang-btn" onclick="switchLang('pt')">PT</button>
-            </div>
-        </div>
-        <button class="hamburger" id="hamburger" aria-label="Menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
-    </nav>
 
-    <div class="mobile-menu-overlay" id="menuOverlay"></div>
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="index.html" class="logo">MY<span>GOLF</span>LAB</a>
+      <nav class="desktop-nav">
+        <a href="index.html">Inicio</a>
+        <a href="coach-ai.html" class="active">Coach IA</a>
+        <a href="library.html">Biblioteca</a>
+        <a href="training.html">Training Lab</a>
+        <a href="pricing.html">Precios</a>
+        <a href="about.html">El Coach</a>
+      </nav>
+      <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-links">
-            <a href="index.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Inicio
-            </a>
-            <a href="coach-ai.html" class="menu-link active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
-                Coach IA
-            </a>
-            <a href="library.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                Biblioteca
-            </a>
-            <a href="performance.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                Performance
-            </a>
-            <a href="pricing.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Precios
-            </a>
-            <div class="menu-divider"></div>
-            <a href="about.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-                Sobre el Coach
-            </a>
-        </div>
-        <a href="index.html#waitlist" class="menu-cta">Únete a la Lista</a>
-        <div class="menu-lang-selector">
-            <button class="menu-lang-btn active" onclick="switchLang('es')">Español</button>
-            <button class="menu-lang-btn" onclick="switchLang('en')">English</button>
-            <button class="menu-lang-btn" onclick="switchLang('pt')">Português</button>
-        </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Inicio</a>
+    <a href="coach-ai.html">Coach IA</a>
+    <a href="library.html">Biblioteca</a>
+    <a href="training.html">Training Lab</a>
+    <a href="pricing.html">Precios</a>
+    <a href="about.html">El Coach</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="pulse"></span>
+      Coach IA Activo
+    </div>
+    <h1>TU <span>COACH</span> DE GOLF CON IA</h1>
+    <p>Analiza tu swing con video o chatea directamente con Coach IA. Diagnóstico personalizado basado en la metodología MyGolfLab — sin moldes, adaptado a tu juego.</p>
+  </section>
+
+  <!-- MAIN -->
+  <div class="main-container">
+
+    <!-- MODE SELECTOR -->
+    <div class="mode-selector" id="modeSelector">
+      <button class="mode-tab active" id="modeSwing" onclick="switchMode('swing')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        Analizar Swing
+      </button>
+      <button class="mode-tab" id="modeChat" onclick="switchMode('chat')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Chat con Coach IA
+      </button>
     </div>
 
-    <!-- Page Header -->
-    <header class="page-header">
-        <h1>Tu <span>Coach IA</span> Personal</h1>
-        <p>Obtén análisis experto de tu swing y feedback personalizado—disponible 24/7, entrenado con metodología de coaching profesional.</p>
-    </header>
+    <!-- SWING MODE -->
+    <div id="swingMode">
 
-    <!-- Content -->
-    <main class="content">
-        <div class="ai-demo">
-            <div class="demo-header">
-                <div class="demo-avatar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg>
-                </div>
-                <div class="demo-info">
-                    <h3>MyGolfLab Coach IA</h3>
-                    <p>Analizando tu swing...</p>
-                </div>
-            </div>
-            <div class="chat-messages">
-                <div class="chat-msg user">Subí mi video de swing. ¿Qué estoy haciendo mal?</div>
-                <div class="chat-msg ai">Puedo ver algunas cosas en tu swing. Primero, tu peso se queda muy centrado durante el backswing—no estás cargando correctamente en tu cadera trasera. Esto limita tu potencia y dificulta la secuencia del downswing. Dado tu tipo de cuerpo, te recomendaría enfocarte en sentir más presión en tu talón derecho en la parte alta. ¿Quieres que te muestre un drill para esto?</div>
-                <div class="chat-msg user">Sí, muéstrame un drill</div>
-                <div class="chat-msg ai">Prueba el "Step Drill": Comienza con los pies juntos, luego da un paso hacia tu pie trasero mientras inicias el backswing. Esto exagera la transferencia de peso que necesitas. Haz 10 repeticiones, luego golpea 5 bolas enfocándote en esa misma sensación. He añadido esto a tu plan de práctica—lo encontrarás en el Centro de Performance.</div>
-            </div>
+    <!-- UPLOAD -->
+    <div class="upload-section" id="uploadSection">
+      <div class="upload-tabs">
+        <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload">
+          <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          Subir Video
+        </button>
+        <button class="upload-tab" onclick="switchTab('webcam')" id="tabWebcam">
+          <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+          </svg>
+          Grabar
+        </button>
+      </div>
+
+      <!-- Tab: Upload -->
+      <div class="tab-content active" id="contentUpload">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('videoInput').click()">
+          <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V3m0 0l4 4m-4-4L8 7"/>
+            <path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/>
+          </svg>
+          <h3>Arrastra tu video aquí</h3>
+          <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB)</p>
+          <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
         </div>
 
-        <h2 class="section-title">Qué Puede Hacer el Coach IA</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                </div>
-                <h3>Análisis de Video</h3>
-                <p>Sube tu swing y obtén un desglose detallado de mecánica, posiciones y qué trabajar.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                </div>
-                <h3>Feedback Personalizado</h3>
-                <p>Recomendaciones adaptadas a TU tipo de cuerpo, flexibilidad y patrones de movimiento—no tips genéricos.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                </div>
-                <h3>Prescripción de Drills</h3>
-                <p>Obtén drills específicos de nuestra biblioteca de 500+, automáticamente seleccionados para tus áreas de mejora.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </div>
-                <h3>Disponible 24/7</h3>
-                <p>Practica a medianoche o a las 6am—tu coach IA siempre está listo para ayudar con preguntas y análisis.</p>
-            </div>
+        <div class="video-preview" id="videoPreview">
+          <div class="video-preview-inner">
+            <video id="previewPlayer" controls></video>
+          </div>
+          <div class="video-info">
+            <span class="video-info-name" id="videoName"></span>
+            <span class="video-info-size" id="videoSize"></span>
+            <button class="remove-video" onclick="removeVideo()">Eliminar</button>
+          </div>
         </div>
 
-        <div class="cta-section">
-            <h3>¿Listo para entrenar más inteligente?</h3>
-            <p>Únete a la lista de espera y sé el primero en experimentar el coaching potenciado por IA.</p>
-            <a href="index.html#waitlist" class="btn-primary">
-                Únete a la Lista
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
+        <div class="frames-preview" id="framesPreview">
+          <div class="frames-label">Frames extraídos para análisis</div>
+          <div class="frames-grid" id="framesGrid"></div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-logo">MYGOLFLAB</div>
-        <p>© 2026 MyGolfLab. Todos los derechos reservados.</p>
-    </footer>
+        <button class="btn-primary" id="analyzeBtn" disabled onclick="showQuestionnaire()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          CONTINUAR
+        </button>
+      </div>
 
-    <script>
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
+      <!-- Tab: Webcam -->
+      <div class="tab-content" id="contentWebcam">
+        <div class="webcam-container" id="webcamContainer">
+          <div class="webcam-placeholder" id="webcamPlaceholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+            </svg>
+            <p>Presiona "Iniciar Cámara" para comenzar</p>
+          </div>
+          <video id="webcamVideo" autoplay muted playsinline style="display:none;"></video>
+        </div>
 
-        function toggleMenu() {
-            hamburger.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        <div class="webcam-controls">
+          <button class="btn-secondary" id="webcamStartBtn" onclick="startWebcam()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+            </svg>
+            Iniciar Cámara
+          </button>
+          <button class="btn-secondary" id="webcamRecordBtn" onclick="toggleRecording()" style="display:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/>
+            </svg>
+            Grabar
+          </button>
+          <button class="btn-secondary" id="webcamStopBtn" onclick="stopRecording()" style="display:none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
+            </svg>
+            Detener
+          </button>
+        </div>
+
+        <div class="video-preview" id="webcamPreview">
+          <div class="video-preview-inner">
+            <video id="webcamRecordedPlayer" controls></video>
+          </div>
+        </div>
+
+        <div class="frames-preview" id="webcamFramesPreview">
+          <div class="frames-label">Frames extraídos para análisis</div>
+          <div class="frames-grid" id="webcamFramesGrid"></div>
+        </div>
+
+        <button class="btn-primary" id="webcamAnalyzeBtn" disabled onclick="showQuestionnaire()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+          CONTINUAR
+        </button>
+      </div>
+    </div>
+
+    <!-- QUESTIONNAIRE -->
+    <div class="questionnaire-section" id="questionnaireSection">
+      <div class="questionnaire-card fade-in-up">
+        <div class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</div>
+        <div class="questionnaire-subtitle">Esto me ayuda a personalizar el análisis a tu nivel y a lo que realmente necesitas mejorar. Si prefieres, puedes saltar las preguntas.</div>
+
+        <div class="frames-mini" id="framesMini"></div>
+
+        <div class="q-field">
+          <div class="q-label">¿Cuál es tu hándicap o nivel?</div>
+          <div class="q-hint">Un número, o describe tu nivel (principiante, intermedio, etc.)</div>
+          <input type="text" class="q-input" id="qHandicap" placeholder="Ej: 18, scratch, principiante, llevo 6 meses jugando...">
+        </div>
+
+        <div class="q-field">
+          <div class="q-label">¿Cuál es tu problema principal?</div>
+          <div class="q-hint">Lo que más te cuesta o frustra en el campo</div>
+          <textarea class="q-input q-textarea" id="qProblema" placeholder="Ej: pierdo mucha distancia, no tengo consistencia, hago slice con el driver, mal contacto con los hierros..."></textarea>
+        </div>
+
+        <div class="q-field">
+          <div class="q-label">¿Qué te gustaría mejorar?</div>
+          <div class="q-hint">Tu objetivo con este análisis</div>
+          <input type="text" class="q-input" id="qObjetivo" placeholder="Ej: quiero más distancia, mejorar el contacto, eliminar el hook...">
+        </div>
+
+        <div class="q-actions">
+          <button class="q-skip" onclick="analyzeSwing()">Saltar →</button>
+          <button class="btn-primary" onclick="analyzeSwing()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            ANALIZAR MI SWING
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS LOADING -->
+    <div class="analysis-loading" id="analysisLoading">
+      <div class="loading-spinner"></div>
+      <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
+      <div class="loading-steps">
+        <div class="loading-step active" id="step1">
+          <span class="loading-step-dot"></span>
+          Extrayendo frames clave del video
+        </div>
+        <div class="loading-step" id="step2">
+          <span class="loading-step-dot"></span>
+          Analizando postura y alineación
+        </div>
+        <div class="loading-step" id="step3">
+          <span class="loading-step-dot"></span>
+          Evaluando mecánica del swing
+        </div>
+        <div class="loading-step" id="step4">
+          <span class="loading-step-dot"></span>
+          Generando diagnóstico y correcciones
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSIS RESULTS -->
+    <div class="analysis-results" id="analysisResults"></div>
+
+    </div><!-- END SWING MODE -->
+
+    <!-- CHAT MODE -->
+    <div id="chatMode" style="display:none;">
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-bubble assistant-bubble fade-in-up">
+            <div class="chat-bubble-label">Coach IA</div>
+            <div class="chat-bubble-text">¡Hola! Soy tu Coach IA de MyGolfLab. Pregúntame lo que quieras sobre técnica, estrategia, mentalidad, o cualquier duda sobre tu juego. Estoy acá para ayudarte.</div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chatInput" placeholder="Pregunta algo sobre tu juego..." rows="1" maxlength="1000"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- METHODOLOGY (visible in both modes) -->
+    <section class="methodology-section">
+      <h2>METODOLOGÍA MYGOLFLAB</h2>
+      <p>No existe un swing perfecto universal. Nuestro enfoque se basa en encontrar la receta personal de cada jugador — sin moldes, adaptado a tu cuerpo, tu nivel y tus objetivos.</p>
+      <div class="method-grid">
+        <div class="method-item">
+          <h4>Ground Forces</h4>
+          <p>Cómo usas el suelo es cómo generas velocidad. La transferencia de fuerzas desde los pies hacia el palo es la base de un swing eficiente y repetible.</p>
+        </div>
+        <div class="method-item">
+          <h4>Kinematic Sequence</h4>
+          <p>La secuencia correcta caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia, consistencia y salud articular.</p>
+        </div>
+        <div class="method-item">
+          <h4>Wrist Conditions</h4>
+          <p>La posición de tus muñecas controla la cara del palo, el ángulo de ataque y la compresión. Es lo que separa un buen contacto de uno mediocre.</p>
+        </div>
+        <div class="method-item">
+          <h4>Body Tilts</h4>
+          <p>Las inclinaciones del torso en cada fase del swing afectan la calidad del contacto, la trayectoria y tu capacidad de comprimir la bola consistentemente.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
+  </footer>
+
+  <!-- Hidden canvas for frame extraction -->
+  <canvas id="extractionCanvas"></canvas>
+
+  <script>
+    // ============================================================
+    // STATE
+    // ============================================================
+    let currentVideoFile = null;
+    let extractedFrames = []; // base64 images
+    let webcamStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+    let chatHistory = []; // for chat mode
+    let chatLoading = false;
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    function toggleMenu() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+
+    // ============================================================
+    // MODE SWITCHING (Swing vs Chat)
+    // ============================================================
+    function switchMode(mode) {
+      document.getElementById('modeSwing').classList.toggle('active', mode === 'swing');
+      document.getElementById('modeChat').classList.toggle('active', mode === 'chat');
+      document.getElementById('swingMode').style.display = mode === 'swing' ? '' : 'none';
+      document.getElementById('chatMode').style.display = mode === 'chat' ? '' : 'none';
+      if (mode === 'chat') {
+        const messagesEl = document.getElementById('chatMessages');
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        document.getElementById('chatInput').focus();
+      }
+    }
+
+    // ============================================================
+    // TAB SWITCHING (Upload vs Webcam)
+    // ============================================================
+    function switchTab(tab) {
+      document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      if (tab === 'upload') {
+        document.getElementById('tabUpload').classList.add('active');
+        document.getElementById('contentUpload').classList.add('active');
+      } else {
+        document.getElementById('tabWebcam').classList.add('active');
+        document.getElementById('contentWebcam').classList.add('active');
+      }
+    }
+
+    // ============================================================
+    // FILE UPLOAD / DROP
+    // ============================================================
+    const dropZone = document.getElementById('dropZone');
+    const videoInput = document.getElementById('videoInput');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('video/')) handleVideoFile(file);
+    });
+
+    videoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleVideoFile(file);
+    });
+
+    function handleVideoFile(file) {
+      if (file.size > 50 * 1024 * 1024) {
+        alert('El video no puede superar 50MB');
+        return;
+      }
+      currentVideoFile = file;
+      const url = URL.createObjectURL(file);
+      const player = document.getElementById('previewPlayer');
+      player.src = url;
+      document.getElementById('videoName').textContent = file.name;
+      document.getElementById('videoSize').textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      document.getElementById('videoPreview').classList.add('visible');
+      document.getElementById('dropZone').style.display = 'none';
+      document.getElementById('analyzeBtn').disabled = false;
+
+      // Extract frames once video loads
+      player.onloadeddata = () => extractFrames(player, 'framesGrid', 'framesPreview');
+    }
+
+    function removeVideo() {
+      currentVideoFile = null;
+      extractedFrames = [];
+      document.getElementById('previewPlayer').src = '';
+      document.getElementById('videoPreview').classList.remove('visible');
+      document.getElementById('framesPreview').classList.remove('visible');
+      document.getElementById('framesGrid').innerHTML = '';
+      document.getElementById('dropZone').style.display = '';
+      document.getElementById('analyzeBtn').disabled = true;
+      videoInput.value = '';
+    }
+
+    // ============================================================
+    // FRAME EXTRACTION (Canvas API)
+    // ============================================================
+    async function extractFrames(videoEl, gridId, previewId) {
+      extractedFrames = [];
+      const canvas = document.getElementById('extractionCanvas');
+      const ctx = canvas.getContext('2d');
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = '';
+
+      const duration = videoEl.duration;
+      if (!duration || duration < 0.5) return;
+
+      // Extract 6 frames at key swing positions
+      const numFrames = 6;
+      const labels = ['Setup', 'Takeaway', 'Top', 'Transición', 'Impacto', 'Follow-Through'];
+      const times = [];
+      for (let i = 0; i < numFrames; i++) {
+        times.push((duration / (numFrames + 1)) * (i + 1));
+      }
+
+      canvas.width = 640;
+      canvas.height = 360;
+
+      for (let i = 0; i < times.length; i++) {
+        const frame = await captureFrame(videoEl, times[i], canvas, ctx);
+        extractedFrames.push(frame);
+
+        const wrapper = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = frame;
+        const label = document.createElement('div');
+        label.className = 'frame-label';
+        label.textContent = labels[i] || `Frame ${i+1}`;
+        wrapper.appendChild(img);
+        wrapper.appendChild(label);
+        grid.appendChild(wrapper);
+      }
+
+      document.getElementById(previewId).classList.add('visible');
+    }
+
+    function captureFrame(video, time, canvas, ctx) {
+      return new Promise((resolve) => {
+        video.currentTime = time;
+        video.onseeked = () => {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+      });
+    }
+
+    // ============================================================
+    // WEBCAM
+    // ============================================================
+    async function startWebcam() {
+      try {
+        webcamStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        const vid = document.getElementById('webcamVideo');
+        vid.srcObject = webcamStream;
+        vid.style.display = 'block';
+        document.getElementById('webcamPlaceholder').style.display = 'none';
+        document.getElementById('webcamStartBtn').style.display = 'none';
+        document.getElementById('webcamRecordBtn').style.display = '';
+      } catch (err) {
+        alert('No se pudo acceder a la cámara. Asegúrate de dar permiso.');
+      }
+    }
+
+    function toggleRecording() {
+      if (isRecording) return;
+      recordedChunks = [];
+      const options = { mimeType: 'video/webm;codecs=vp9' };
+      try {
+        mediaRecorder = new MediaRecorder(webcamStream, options);
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(webcamStream);
+      }
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunks.push(e.data);
+      };
+      
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        currentVideoFile = new File([blob], 'swing-recording.webm', { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const player = document.getElementById('webcamRecordedPlayer');
+        player.src = url;
+        document.getElementById('webcamPreview').classList.add('visible');
+        document.getElementById('webcamAnalyzeBtn').disabled = false;
+        player.onloadeddata = () => extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview');
+      };
+      
+      mediaRecorder.start();
+      isRecording = true;
+      document.getElementById('webcamRecordBtn').style.display = 'none';
+      document.getElementById('webcamStopBtn').style.display = '';
+      // Visual feedback
+      document.getElementById('webcamContainer').style.border = '2px solid var(--red)';
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        document.getElementById('webcamStopBtn').style.display = 'none';
+        document.getElementById('webcamRecordBtn').style.display = '';
+        document.getElementById('webcamContainer').style.border = 'none';
+      }
+    }
+
+    // ============================================================
+    // QUESTIONNAIRE
+    // ============================================================
+    function showQuestionnaire() {
+      if (extractedFrames.length === 0) {
+        alert('Esperando extracción de frames...');
+        return;
+      }
+      // Hide upload, show questionnaire
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('questionnaireSection').classList.add('visible');
+
+      // Show mini frames in questionnaire
+      const mini = document.getElementById('framesMini');
+      mini.innerHTML = '';
+      extractedFrames.forEach(f => {
+        const img = document.createElement('img');
+        img.src = f;
+        mini.appendChild(img);
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // ANALYSIS — CLAUDE VISION API
+    // ============================================================
+    async function analyzeSwing() {
+      if (extractedFrames.length === 0) {
+        alert('Esperando extracción de frames...');
+        return;
+      }
+
+      // Gather questionnaire data
+      const handicap = document.getElementById('qHandicap')?.value?.trim() || '';
+      const problema = document.getElementById('qProblema')?.value?.trim() || '';
+      const objetivo = document.getElementById('qObjetivo')?.value?.trim() || '';
+
+      // Show loading
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('questionnaireSection').classList.remove('visible');
+      document.getElementById('analysisLoading').classList.add('visible');
+      document.getElementById('analysisResults').classList.remove('visible');
+      document.getElementById('analysisResults').innerHTML = '';
+
+      // Animate loading steps
+      animateLoadingSteps();
+
+      // Build messages with frames
+      const imageContent = extractedFrames.map((frame, i) => {
+        const labels = ['Setup/Address', 'Takeaway', 'Top del backswing', 'Transición/Downswing', 'Impacto', 'Follow-through/Finish'];
+        return [
+          {
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: 'image/jpeg',
+              data: frame.replace('data:image/jpeg;base64,', '')
+            }
+          },
+          {
+            type: 'text',
+            text: `Frame ${i+1}: ${labels[i] || 'Posición ' + (i+1)}`
+          }
+        ];
+      }).flat();
+
+      // Build context from questionnaire
+      let playerContext = '';
+      if (handicap || problema || objetivo) {
+        playerContext = `\n\nINFORMACIÓN DEL JUGADOR:`;
+        if (handicap) playerContext += `\n- Hándicap/Nivel: ${handicap}`;
+        if (problema) playerContext += `\n- Problema principal: ${problema}`;
+        if (objetivo) playerContext += `\n- Objetivo: ${objetivo}`;
+        playerContext += `\n\nUsa esta información para adaptar tu nivel de comunicación y enfocarte en lo que el jugador necesita.`;
+      }
+
+      const userMessage = [
+        ...imageContent,
+        {
+          type: 'text',
+          text: `Analiza estos 6 frames de mi swing de golf. Son frames secuenciales extraídos del mismo video: setup, takeaway, top del backswing, transición, impacto y follow-through.${playerContext}
+
+Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en formato JSON válido sin backticks ni texto adicional, con esta estructura exacta:
+
+{
+  "score": <número del 1 al 100>,
+  "resumen": "<resumen general en 1-2 oraciones, directo y personalizado al nivel del jugador>",
+  "nivel": "<principiante|intermedio|avanzado>",
+  "diagnosticos": [
+    {
+      "titulo": "<nombre corto del error>",
+      "severidad": "<alta|media|baja>",
+      "que_pasa": "<explicación clara de qué está mal, su CAUSA RAÍZ (no solo el síntoma), y cómo afecta el vuelo de la bola y la consistencia>",
+      "como_corregirlo": "<instrucciones específicas, accionables, paso a paso. Incluye cómo se SIENTE la corrección, no solo cómo se ve. Dale algo práctico para trabajar HOY>",
+      "drills_recomendados": [
+        {
+          "id": "<id del drill del Training Lab, ej: fs-01>",
+          "nombre": "<nombre del drill>",
+          "categoria": "<fullswing|chipping|putting|bunker|wedges|preshot|visualization|mental>",
+          "por_que": "<breve explicación de por qué este drill ayuda con ESTE error específico>"
         }
+      ],
+      "video_biblioteca": "<nombre descriptivo del video de la Biblioteca que debería ver, ej: 'Transferencia de presión - Fundamentos', o null si no aplica>"
+    }
+  ]
+}`
+        }
+      ];
 
-        hamburger.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
-
-        document.querySelectorAll('.menu-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if (mobileMenu.classList.contains('active')) toggleMenu();
-            });
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            system: COACH_SYSTEM_PROMPT,
+            messages: [{ role: 'user', content: userMessage }]
+          })
         });
 
-        function switchLang(lang) {
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            window.location.href = '../' + lang + '/' + currentPage;
+        const data = await response.json();
+        const text = data.content.map(c => c.text || '').join('');
+        const clean = text.replace(/```json|```/g, '').trim();
+        const result = JSON.parse(clean);
+
+        // Hide loading, show results
+        document.getElementById('analysisLoading').classList.remove('visible');
+        renderResults(result);
+
+      } catch (err) {
+        console.error('Analysis error:', err);
+        document.getElementById('analysisLoading').classList.remove('visible');
+        document.getElementById('questionnaireSection').classList.remove('visible');
+        document.getElementById('uploadSection').style.display = '';
+        alert('Hubo un error al analizar el swing. Intenta de nuevo.');
+      }
+    }
+
+    function animateLoadingSteps() {
+      const steps = ['step1', 'step2', 'step3', 'step4'];
+      let current = 0;
+      const interval = setInterval(() => {
+        if (current > 0) {
+          document.getElementById(steps[current - 1]).classList.remove('active');
+          document.getElementById(steps[current - 1]).classList.add('done');
         }
-    </script>
+        if (current < steps.length) {
+          document.getElementById(steps[current]).classList.add('active');
+          current++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 2500);
+    }
+
+    // ============================================================
+    // RENDER RESULTS
+    // ============================================================
+    function renderResults(result) {
+      const container = document.getElementById('analysisResults');
+      
+      const scoreClass = result.score >= 70 ? 'score-high' : result.score >= 40 ? 'score-mid' : 'score-low';
+      const nivelText = result.nivel === 'principiante' ? 'Nivel Principiante' : result.nivel === 'intermedio' ? 'Nivel Intermedio' : 'Nivel Avanzado';
+
+      let html = `
+        <div class="result-header fade-in-up">
+          <div class="result-score ${scoreClass}">${result.score}</div>
+          <div class="result-summary">
+            <h2>DIAGNÓSTICO DE TU SWING</h2>
+            <p>${result.resumen}</p>
+            <span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">${nivelText}</span>
+          </div>
+        </div>
+      `;
+
+      // Category colors map
+      const catColors = {
+        fullswing: 'var(--cat-fullswing)',
+        chipping: 'var(--cat-chipping)',
+        putting: 'var(--cat-putting)',
+        bunker: 'var(--cat-bunker)',
+        wedges: 'var(--cat-wedges)',
+        preshot: 'var(--cat-preshot)',
+        visualization: 'var(--cat-visualization)',
+        mental: 'var(--cat-mental)'
+      };
+
+      result.diagnosticos.forEach((diag, i) => {
+        const sevClass = diag.severidad === 'alta' ? 'severity-high' : diag.severidad === 'media' ? 'severity-medium' : 'severity-low';
+        const sevText = diag.severidad === 'alta' ? 'Prioridad Alta' : diag.severidad === 'media' ? 'Prioridad Media' : 'Prioridad Baja';
+
+        let drillsHtml = '';
+        if (diag.drills_recomendados && diag.drills_recomendados.length > 0) {
+          drillsHtml = diag.drills_recomendados.map(drill => `
+            <a class="drill-referral" href="training.html#${drill.id}" title="${drill.por_que}">
+              <span class="drill-cat-dot" style="background:${catColors[drill.categoria] || 'var(--accent)'}"></span>
+              <div class="drill-referral-info">
+                <div class="drill-referral-name">${drill.id.toUpperCase()} — ${drill.nombre}</div>
+                <div class="drill-referral-desc">${drill.por_que}</div>
+              </div>
+              <span class="drill-referral-arrow">→</span>
+            </a>
+          `).join('');
+        }
+
+        let videoHtml = '';
+        if (diag.video_biblioteca) {
+          videoHtml = `
+            <a class="drill-referral" href="library.html" style="border-color:var(--gold);background:var(--gold-dim);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <div class="drill-referral-info">
+                <div class="drill-referral-name" style="color:var(--gold);">📹 ${diag.video_biblioteca}</div>
+                <div class="drill-referral-desc">Video explicativo en la Biblioteca</div>
+              </div>
+              <span class="drill-referral-arrow" style="color:var(--gold);">→</span>
+            </a>
+          `;
+        }
+
+        html += `
+          <div class="diagnosis-card fade-in-up delay-${i + 1}">
+            <div class="diagnosis-card-header">
+              <div class="diagnosis-number">${i + 1}</div>
+              <h3>${diag.titulo}</h3>
+              <span class="diagnosis-severity ${sevClass}">${sevText}</span>
+            </div>
+            <div class="diagnosis-card-body">
+              <div class="diagnosis-what">
+                <div class="diagnosis-label">🔍 Qué está pasando</div>
+                <div class="diagnosis-text">${diag.que_pasa}</div>
+              </div>
+              <div class="diagnosis-fix">
+                <div class="diagnosis-label">🔧 Cómo corregirlo</div>
+                <div class="diagnosis-text">${diag.como_corregirlo}</div>
+              </div>
+              ${(drillsHtml || videoHtml) ? `
+              <div class="diagnosis-drills">
+                <div class="diagnosis-label">🎯 Drills y recursos recomendados</div>
+                ${drillsHtml}
+                ${videoHtml}
+              </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      // Library referral
+      html += `
+        <div class="library-referral fade-in-up delay-3">
+          <h3>PROFUNDIZA EN TU CORRECCIÓN</h3>
+          <p>En la Biblioteca encontrarás videos explicativos detallados de Nico Parra sobre cada aspecto de tu swing. Y en Training Lab, drills específicos con variantes por nivel.</p>
+          <a href="library.html">
+            Ver Biblioteca
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <button class="new-analysis-btn" onclick="resetAnalysis()">
+          ↻ ANALIZAR OTRO SWING
+        </button>
+      `;
+
+      container.innerHTML = html;
+      container.classList.add('visible');
+    }
+
+    function resetAnalysis() {
+      currentVideoFile = null;
+      extractedFrames = [];
+      document.getElementById('analysisResults').classList.remove('visible');
+      document.getElementById('analysisResults').innerHTML = '';
+      document.getElementById('questionnaireSection').classList.remove('visible');
+      document.getElementById('uploadSection').style.display = '';
+      // Reset questionnaire
+      document.getElementById('qHandicap').value = '';
+      document.getElementById('qProblema').value = '';
+      document.getElementById('qObjetivo').value = '';
+      document.getElementById('framesMini').innerHTML = '';
+      // Reset upload tab
+      document.getElementById('videoPreview').classList.remove('visible');
+      document.getElementById('framesPreview').classList.remove('visible');
+      document.getElementById('framesGrid').innerHTML = '';
+      document.getElementById('dropZone').style.display = '';
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('previewPlayer').src = '';
+      // Reset webcam tab
+      document.getElementById('webcamPreview').classList.remove('visible');
+      document.getElementById('webcamFramesPreview').classList.remove('visible');
+      document.getElementById('webcamFramesGrid').innerHTML = '';
+      document.getElementById('webcamAnalyzeBtn').disabled = true;
+      // Reset loading steps
+      ['step1','step2','step3','step4'].forEach(id => {
+        document.getElementById(id).classList.remove('active','done');
+      });
+      document.getElementById('step1').classList.add('active');
+      // Scroll up
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // SYSTEM PROMPT — METODOLOGÍA MYGOLFLAB
+    // ============================================================
+    const COACH_SYSTEM_PROMPT = `Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.
+
+## QUIÉN ERES
+Analizas swings de golf con la metodología MyGolfLab — desarrollada por un coach profesional con experiencia en jugadores del PGA Tour, LIV Golf y juniors competitivos. Tu análisis es directo, técnico pero accesible. No eres un bot genérico de golf: corriges como un coach real que ve el swing de un alumno por primera vez.
+
+La filosofía central de MyGolfLab: no existe un swing perfecto universal. Tu trabajo es encontrar la receta personal de cada jugador — sin ponerlos a todos en el mismo molde.
+
+## PROCESO DE DIAGNÓSTICO (tu proceso mental antes de corregir)
+Antes de dar soluciones, siempre identificas la causa raíz. Tu proceso es:
+1. Identificar el SÍNTOMA (vuelo de pelota, dirección, calidad del contacto)
+2. Determinar si es un problema de CARA del palo, PATH (camino del palo), o AMBOS
+3. Buscar el ORIGEN: ¿es un problema de grip, condición de muñecas, plano de swing, secuencia o pivote?
+4. Evaluar si es MECÁNICO o de TIMING/COORDINACIÓN
+5. Dar máximo 2-3 correcciones concretas, nunca abrumar
+
+## ADAPTACIÓN POR NIVEL DE JUGADOR
+- **Alto hándicap (18+ o principiante):** Motivador pero honesto. Máximo 1-2 correcciones. Lenguaje simple. Refuerzo positivo en lo que está bien. Enfoque en fundamentos básicos (grip, postura, contacto).
+- **Intermedio (8-17):** Más técnico. Hablas de secuencia cinética, condición de muñecas, transferencia de peso. 2-3 correcciones con profundidad.
+- **Avanzado (0-7):** Terminología completa. Timing, lag, X-factor stretch, pressure shift patterns, face-to-path relationship. Detalles finos que marcan la diferencia bajo presión.
+
+## METODOLOGÍA FUNDAMENTAL (en orden de prioridad)
+
+### 1. GROUND FORCES (Fuerzas de reacción con el suelo)
+- El swing empieza desde el suelo. Cómo usas las fuerzas del suelo es cómo generas velocidad.
+- En el backswing: la presión se carga al pie trasero (60-70%).
+- En la transición: la presión se mueve al pie delantero ANTES de que los brazos bajen. Esto es CLAVE.
+- En el impacto: 80%+ de la presión debe estar en el pie delantero.
+- Error común: "early extension" o quedarse atrás — casi siempre es un problema de transferencia de presión.
+
+### 2. KINEMATIC SEQUENCE (Secuencia cinética)
+- La secuencia correcta es: caderas → torso → brazos → palo.
+- El downswing se INICIA con la rotación de cadera, NUNCA con los brazos.
+- La cadera debe rotar abierta (~40°) al momento del impacto.
+- Error común: "casting" o "over the top" — el jugador usa los brazos primero porque la cadera no lidera.
+- La separación cadera-hombros (X-factor) genera potencia.
+
+### 3. WRIST CONDITIONS (Condiciones de muñecas)
+- Shaft lean: el shaft debe inclinarse hacia el target en el impacto (manos delante de la bola).
+- Lag: mantener el ángulo entre el antebrazo y el shaft el mayor tiempo posible en el downswing.
+- Cara del palo: la posición de la muñeca izquierda (para diestros) controla si la cara está abierta, cerrada o cuadrada.
+- Flexión de muñeca izquierda = cara cerrada. Extensión = cara abierta.
+- Error común: "flipping" — las muñecas se sueltan antes del impacto, perdiendo compresión y control.
+
+### 4. BODY TILTS (Inclinaciones del torso)
+- Al impacto, el torso debe tener inclinación lateral hacia el lado trasero (alejándose del target).
+- Esto permite un ángulo de ataque descendente con hierros y ascendente con driver.
+- Las inclinaciones en cada fase del swing afectan contacto, trayectoria y compresión.
+- Error común: "hanging back" o "reverse spine angle" — el torso se inclina hacia el target en el backswing.
+
+### 5. POSTURA Y SETUP
+- Ancho de stance: aproximadamente ancho de hombros para hierros, un poco más ancho para driver.
+- Flexión de rodillas: ligera, atlética. No excesiva.
+- Inclinación desde la cadera (hip hinge): la espalda recta, no curvada.
+- Peso del cuerpo: distribuido en la parte media/anterior de los pies (no en los talones).
+- Posición de la bola: varía según el palo (adelante para driver, centro para hierros cortos).
+- Grip: verificar que no sea excesivamente fuerte o débil.
+
+## REGLAS DE ANÁLISIS
+
+1. **Identifica SOLO los 2-3 errores más fundamentales.** No listes 10 cosas. Un alumno necesita enfocarse en lo esencial.
+2. **Prioriza por impacto:** el error que más afecta la calidad del contacto y la consistencia va primero.
+3. **Sé directo y claro.** Habla como un coach real, no como un manual.
+4. **Cada corrección debe ser ACCIONABLE.** No digas "mejora tu rotación" — di exactamente QUÉ hacer y CÓMO SE SIENTE. Dale algo práctico para trabajar HOY.
+5. **Conecta cada error con su CAUSA RAÍZ, no solo el SÍNTOMA.** Si el jugador hace slice, no digas "la cara está abierta" — explica POR QUÉ está abierta (ej: grip débil + falta de rotación de cadera = cara abierta + path out-to-in = slice).
+6. **Recomienda drills específicos** del Training Lab de MyGolfLab.
+7. **Recomienda videos de la Biblioteca** donde Nico Parra explica la corrección con detalle.
+8. **Dale un score del 1-100** basado en los fundamentos (no en estética).
+9. **Determina el nivel** del jugador y adapta tu comunicación.
+10. **Siempre termina con algo práctico para trabajar hoy.** El jugador debe salir del análisis sabiendo exactamente qué hacer.
+
+## DRILLS DISPONIBLES (Training Lab)
+Los IDs siguen este formato:
+- Full Swing: fs-01 Escalera de Hierros, fs-02 9-Shot Grid, fs-03 Zona de Presión 60%, fs-04 Clutch Fairway Challenge, fs-05 Alignment Station, fs-06 Tempo Metrónomo, fs-07 Knockdown Control, fs-08 Lie Simulator, fs-09 Par 3 Pressure Round, fs-10 Cambio de Palo Rápido
+- Chipping: ch-01 Circle Drill, ch-02 Up & Down Challenge, ch-03 Landing Zone Precision, ch-04 Flop Shot Academy, ch-05 Chip con Cada Palo, ch-06 Rough Escape, ch-07 Bump & Run Maestro, ch-08 One-Handed Chip, ch-09 Par Save Simulator, ch-10 Texas Wedge Chip
+- Putting: pu-01 Gate Drill, pu-02 Clock Drill, pu-03 Ladder Distancia, pu-04 One-Ball Speed Control, pu-05 Eyes Closed Putting, pu-06 Make-It Pressure, pu-07 Break Reading School, pu-08 Putting Routine Timer, pu-09 2-Putt Zone, pu-10 Path & Face Control
+- Bunker: bk-01 a bk-10
+- Wedges: wg-01 Wedge Matrix, wg-02 50-Yard Master, wg-03 Scoring Zone Simulator, wg-04 Trajectory Control Wedges, wg-05 Wedge Clock System, wg-06 Wind Wedge Adjustment, wg-07 3/4 Swing Mastery, wg-08 Divot Pattern Check, wg-09 Approach Pressure Points, wg-10 Wedge Consistency Test
+- Pre-Shot Routine: pr-01 Rutina en 4 Pasos, pr-02 Commit or Reset, pr-03 Target Precision Focus, pr-04 Breath Integration, pr-05 Practice Swing con Propósito
+- Visualización: vi-01 Movie Rehearsal, vi-02 Resultado Positivo Forzado, vi-03 Hole Visualization Walk, vi-04 Sensory Swing Recall
+- Mental: mn-01 Emotional Reset Button, mn-02 10-Shot Mindfulness, mn-03 Acceptance Training, mn-04 Pressure Inoculation, mn-05 Self-Talk Audit, mn-06 Bounce-Back Drill
+
+## TONO
+- Directo. No adulador. No empieces con "¡Gran swing!" si tiene problemas claros.
+- Empático pero honesto. "Esto es muy común y se corrige rápido" es mejor que "tu swing está mal."
+- Técnico pero equilibrado con el rendimiento. No solo mecánica — conecta con resultados en la cancha.
+- En español. Natural, como hablaría un coach profesional latinoamericano. Sin chilenismos extremos, pero natural.
+- Si algo está bien, dilo brevemente. El foco es lo que hay que corregir.
+- Siempre termina con algo práctico para trabajar hoy.
+
+## FORMATO DE RESPUESTA
+Responde SIEMPRE en JSON válido con la estructura que se te pida. Sin markdown, sin backticks, sin texto fuera del JSON.`;
+
+    // Chat uses a simpler system prompt (no JSON requirement)
+    const CHAT_SYSTEM_PROMPT = `Eres Coach IA de MyGolfLab, un coach de golf virtual basado en la metodología MyGolfLab.
+
+Tu metodología se basa en encontrar la receta personal de cada jugador — no existe un swing perfecto universal. Los pilares son: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, y un setup sólido.
+
+PROCESO DE DIAGNÓSTICO:
+Antes de dar soluciones, identificas la causa raíz:
+1. Identificar el síntoma (vuelo de pelota, dirección, contacto)
+2. Determinar si es un problema de cara del palo, path, o ambos
+3. Buscar el origen: grip, condición de muñecas, plano de swing, secuencia o pivote
+4. Evaluar si es mecánico o de timing/coordinación
+5. Dar máximo 2-3 correcciones concretas
+
+ADAPTACIÓN POR NIVEL:
+- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple
+- Intermedio (8-17): más técnico, secuencia cinética, condiciones de muñecas
+- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión
+
+ESTILO:
+- Directo y conciso. Respuestas cortas y al grano — esto es un chat, no un ensayo.
+- Técnico pero equilibrado con el rendimiento.
+- Siempre termina con algo práctico para trabajar.
+- Empático pero honesto.
+- En español, natural.
+- Cuando sea relevante, recomienda drills del Training Lab o videos de la Biblioteca de MyGolfLab.
+
+Responde en texto plano (NO uses markdown, NO uses JSON). Sé conversacional y directo.`;
+
+    // ============================================================
+    // CHAT FUNCTIONALITY
+    // ============================================================
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+
+    // Enable/disable send button based on input
+    chatInput.addEventListener('input', () => {
+      chatSendBtn.disabled = !chatInput.value.trim() || chatLoading;
+      // Auto-resize textarea
+      chatInput.style.height = 'auto';
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+    });
+
+    // Enter to send (shift+enter for newline)
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (chatInput.value.trim() && !chatLoading) sendChatMessage();
+      }
+    });
+
+    async function sendChatMessage() {
+      const text = chatInput.value.trim();
+      if (!text || chatLoading) return;
+
+      chatLoading = true;
+      chatSendBtn.disabled = true;
+
+      // Add user message
+      const messagesEl = document.getElementById('chatMessages');
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble user-bubble fade-in-up';
+      userBubble.innerHTML = \`<div class="chat-bubble-text">\${escapeHtml(text)}</div>\`;
+      messagesEl.appendChild(userBubble);
+
+      // Add to history
+      chatHistory.push({ role: 'user', content: text });
+
+      // Clear input
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+
+      // Add typing indicator
+      const typingEl = document.createElement('div');
+      typingEl.className = 'chat-typing';
+      typingEl.id = 'chatTyping';
+      typingEl.innerHTML = \`
+        <div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      \`;
+      messagesEl.appendChild(typingEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: CHAT_SYSTEM_PROMPT,
+            messages: chatHistory.map(m => ({ role: m.role, content: m.content }))
+          })
+        });
+
+        const data = await response.json();
+        const reply = data.content?.[0]?.text || 'Error al responder. Intenta de nuevo.';
+
+        // Remove typing indicator
+        document.getElementById('chatTyping')?.remove();
+
+        // Add assistant message
+        chatHistory.push({ role: 'assistant', content: reply });
+        const assistantBubble = document.createElement('div');
+        assistantBubble.className = 'chat-bubble assistant-bubble fade-in-up';
+        assistantBubble.innerHTML = \`
+          <div class="chat-bubble-label">Coach IA</div>
+          <div class="chat-bubble-text">\${escapeHtml(reply)}</div>
+        \`;
+        messagesEl.appendChild(assistantBubble);
+
+      } catch (err) {
+        document.getElementById('chatTyping')?.remove();
+        const errorBubble = document.createElement('div');
+        errorBubble.className = 'chat-bubble assistant-bubble fade-in-up';
+        errorBubble.innerHTML = \`
+          <div class="chat-bubble-label">Coach IA</div>
+          <div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>
+        \`;
+        messagesEl.appendChild(errorBubble);
+      } finally {
+        chatLoading = false;
+        chatSendBtn.disabled = !chatInput.value.trim();
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+  </script>
 </body>
 </html>
