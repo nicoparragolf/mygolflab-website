@@ -1709,9 +1709,9 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
       ];
 
       try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch('/api/coach', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 4000,
@@ -2082,9 +2082,9 @@ Responde en texto plano (NO uses markdown, NO uses JSON). Sé conversacional y d
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       try {
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch('/api/coach', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 1024,
