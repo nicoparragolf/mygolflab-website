@@ -28,7 +28,6 @@
       --font-display: 'Bebas Neue', sans-serif;
       --font-heading: 'Barlow Condensed', sans-serif;
       --font-body: 'Barlow', sans-serif;
-      /* Category colors */
       --cat-fullswing: #2dd4bf;
       --cat-chipping: #f59e0b;
       --cat-putting: #8b5cf6;
@@ -49,7 +48,6 @@
       overflow-x: hidden;
     }
 
-    /* ==================== HEADER ==================== */
     header {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -133,7 +131,6 @@
       .hamburger { display: flex; }
     }
 
-    /* ==================== HERO ==================== */
     .hero {
       padding: 120px 24px 60px;
       text-align: center;
@@ -194,14 +191,12 @@
       line-height: 1.6;
     }
 
-    /* ==================== MAIN CONTAINER ==================== */
     .main-container {
       max-width: 900px;
       margin: 0 auto;
       padding: 0 24px 80px;
     }
 
-    /* ==================== UPLOAD SECTION ==================== */
     .upload-section {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -229,9 +224,7 @@
       transition: all 0.3s;
       position: relative;
     }
-    .upload-tab.active {
-      color: var(--accent);
-    }
+    .upload-tab.active { color: var(--accent); }
     .upload-tab.active::after {
       content: '';
       position: absolute;
@@ -251,7 +244,6 @@
     .tab-content { display: none; padding: 40px; }
     .tab-content.active { display: block; }
 
-    /* Drop zone */
     .drop-zone {
       border: 2px dashed var(--border-light);
       border-radius: 12px;
@@ -284,7 +276,6 @@
     }
     .drop-zone input { display: none; }
 
-    /* Webcam */
     .webcam-container {
       position: relative;
       border-radius: 12px;
@@ -315,7 +306,6 @@
       justify-content: center;
     }
 
-    /* Video preview */
     .video-preview {
       display: none;
       margin-top: 24px;
@@ -371,7 +361,6 @@
       border-color: var(--red);
     }
 
-    /* ==================== BUTTONS ==================== */
     .btn-primary {
       display: inline-flex;
       align-items: center;
@@ -422,14 +411,12 @@
       color: var(--accent);
     }
 
-    /* ==================== ANALYSIS SECTION ==================== */
     .analysis-section {
       display: none;
       margin-top: 40px;
     }
     .analysis-section.visible { display: block; }
 
-    /* Loading */
     .analysis-loading {
       display: none;
       text-align: center;
@@ -477,7 +464,6 @@
     .loading-step.active .loading-step-dot { background: var(--accent); }
     .loading-step.done .loading-step-dot { background: var(--green); }
 
-    /* Frames preview */
     .frames-preview {
       display: none;
       margin-top: 24px;
@@ -513,7 +499,6 @@
       margin-top: 4px;
     }
 
-    /* ==================== RESULTS ==================== */
     .analysis-results {
       display: none;
     }
@@ -556,7 +541,6 @@
       line-height: 1.5;
     }
 
-    /* Diagnosis cards */
     .diagnosis-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -608,16 +592,10 @@
     .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
     .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
 
-    .diagnosis-card-body {
-      padding: 24px;
-    }
+    .diagnosis-card-body { padding: 24px; }
 
-    .diagnosis-what, .diagnosis-fix, .diagnosis-drills {
-      margin-bottom: 20px;
-    }
-    .diagnosis-what:last-child, .diagnosis-fix:last-child, .diagnosis-drills:last-child {
-      margin-bottom: 0;
-    }
+    .diagnosis-what, .diagnosis-fix, .diagnosis-drills { margin-bottom: 20px; }
+    .diagnosis-what:last-child, .diagnosis-fix:last-child, .diagnosis-drills:last-child { margin-bottom: 0; }
 
     .diagnosis-label {
       font-family: var(--font-heading);
@@ -635,7 +613,6 @@
       line-height: 1.7;
     }
 
-    /* Drill referrals */
     .drill-referral {
       display: flex;
       align-items: center;
@@ -661,9 +638,7 @@
       flex-shrink: 0;
     }
 
-    .drill-referral-info {
-      flex: 1;
-    }
+    .drill-referral-info { flex: 1; }
     .drill-referral-name {
       font-family: var(--font-heading);
       font-size: 0.9rem;
@@ -681,7 +656,6 @@
       font-size: 1.2rem;
     }
 
-    /* Library referral */
     .library-referral {
       margin-top: 32px;
       padding: 24px;
@@ -720,7 +694,6 @@
     }
     .library-referral a:hover { background: #5eead4; }
 
-    /* New analysis */
     .new-analysis-btn {
       margin-top: 24px;
       width: 100%;
@@ -742,7 +715,6 @@
       color: var(--accent);
     }
 
-    /* ==================== QUESTIONNAIRE ==================== */
     .questionnaire-section {
       display: none;
       margin-top: 40px;
@@ -769,9 +741,7 @@
       line-height: 1.5;
     }
 
-    .q-field {
-      margin-bottom: 24px;
-    }
+    .q-field { margin-bottom: 24px; }
     .q-field:last-of-type { margin-bottom: 0; }
 
     .q-label {
@@ -801,9 +771,7 @@
       outline: none;
       border-color: var(--accent);
     }
-    .q-input::placeholder {
-      color: var(--text-muted);
-    }
+    .q-input::placeholder { color: var(--text-muted); }
     .q-textarea {
       min-height: 80px;
       resize: vertical;
@@ -846,7 +814,6 @@
       opacity: 0.7;
     }
 
-    /* ==================== MODE SELECTOR ==================== */
     .mode-selector {
       display: flex;
       gap: 8px;
@@ -881,7 +848,6 @@
       color: var(--accent);
     }
 
-    /* ==================== CHAT ==================== */
     .chat-container {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -936,9 +902,7 @@
       color: var(--text-secondary);
       white-space: pre-wrap;
     }
-    .user-bubble .chat-bubble-text {
-      color: #0a0a0a;
-    }
+    .user-bubble .chat-bubble-text { color: #0a0a0a; }
 
     .chat-typing {
       align-self: flex-start;
@@ -1006,7 +970,6 @@
     .chat-send-btn:hover { background: #5eead4; transform: scale(1.05); }
     .chat-send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
-    /* ==================== METHODOLOGY ==================== */
     .methodology-section {
       margin-top: 60px;
       padding: 40px;
@@ -1055,7 +1018,6 @@
       line-height: 1.6;
     }
 
-    /* ==================== FOOTER ==================== */
     footer {
       text-align: center;
       padding: 40px 24px;
@@ -1064,7 +1026,6 @@
       font-size: 0.85rem;
     }
 
-    /* ==================== RESPONSIVE ==================== */
     @media (max-width: 640px) {
       .tab-content { padding: 24px; }
       .drop-zone { padding: 40px 20px; }
@@ -1074,35 +1035,30 @@
       .methodology-section { padding: 24px; }
     }
 
-    /* ==================== ANIMATIONS ==================== */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .fade-in-up {
-      animation: fadeInUp 0.5s ease forwards;
-    }
+    .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
     .delay-1 { animation-delay: 0.1s; opacity: 0; }
     .delay-2 { animation-delay: 0.2s; opacity: 0; }
     .delay-3 { animation-delay: 0.3s; opacity: 0; }
 
-    /* Hidden canvas for frame extraction */
     #extractionCanvas { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header>
     <div class="header-inner">
-      <a href="index.html" class="logo">MY<span>GOLF</span>LAB</a>
+      <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
       <nav class="desktop-nav">
-        <a href="index.html">Inicio</a>
-        <a href="coach-ai.html" class="active">Coach IA</a>
-        <a href="library.html">Biblioteca</a>
-        <a href="training.html">Training Lab</a>
-        <a href="pricing.html">Precios</a>
-        <a href="about.html">El Coach</a>
+        <a href="/es/index.html">Inicio</a>
+        <a href="/es/coach-ai.html" class="active">Coach IA</a>
+        <a href="/es/library.html">Biblioteca</a>
+        <a href="/es/training.html">Training Lab</a>
+        <a href="/es/pricing.html">Precios</a>
+        <a href="/es/about.html">El Coach</a>
       </nav>
       <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -1111,15 +1067,14 @@
   </header>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html">Inicio</a>
-    <a href="coach-ai.html">Coach IA</a>
-    <a href="library.html">Biblioteca</a>
-    <a href="training.html">Training Lab</a>
-    <a href="pricing.html">Precios</a>
-    <a href="about.html">El Coach</a>
+    <a href="/es/index.html">Inicio</a>
+    <a href="/es/coach-ai.html">Coach IA</a>
+    <a href="/es/library.html">Biblioteca</a>
+    <a href="/es/training.html">Training Lab</a>
+    <a href="/es/pricing.html">Precios</a>
+    <a href="/es/about.html">El Coach</a>
   </div>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-badge">
       <span class="pulse"></span>
@@ -1129,10 +1084,8 @@
     <p>Analiza tu swing con video o chatea directamente con Coach IA. Diagnóstico personalizado basado en la metodología MyGolfLab — sin moldes, adaptado a tu juego.</p>
   </section>
 
-  <!-- MAIN -->
   <div class="main-container">
 
-    <!-- MODE SELECTOR -->
     <div class="mode-selector" id="modeSelector">
       <button class="mode-tab active" id="modeSwing" onclick="switchMode('swing')">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1148,10 +1101,8 @@
       </button>
     </div>
 
-    <!-- SWING MODE -->
     <div id="swingMode">
 
-    <!-- UPLOAD -->
     <div class="upload-section" id="uploadSection">
       <div class="upload-tabs">
         <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload">
@@ -1168,7 +1119,6 @@
         </button>
       </div>
 
-      <!-- Tab: Upload -->
       <div class="tab-content active" id="contentUpload">
         <div class="drop-zone" id="dropZone" onclick="document.getElementById('videoInput').click()">
           <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1204,7 +1154,6 @@
         </button>
       </div>
 
-      <!-- Tab: Webcam -->
       <div class="tab-content" id="contentWebcam">
         <div class="webcam-container" id="webcamContainer">
           <div class="webcam-placeholder" id="webcamPlaceholder">
@@ -1257,7 +1206,6 @@
       </div>
     </div>
 
-    <!-- QUESTIONNAIRE -->
     <div class="questionnaire-section" id="questionnaireSection">
       <div class="questionnaire-card fade-in-up">
         <div class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</div>
@@ -1295,7 +1243,6 @@
       </div>
     </div>
 
-    <!-- ANALYSIS LOADING -->
     <div class="analysis-loading" id="analysisLoading">
       <div class="loading-spinner"></div>
       <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
@@ -1319,12 +1266,10 @@
       </div>
     </div>
 
-    <!-- ANALYSIS RESULTS -->
     <div class="analysis-results" id="analysisResults"></div>
 
-    </div><!-- END SWING MODE -->
+    </div>
 
-    <!-- CHAT MODE -->
     <div id="chatMode" style="display:none;">
       <div class="chat-container" id="chatContainer">
         <div class="chat-messages" id="chatMessages">
@@ -1344,7 +1289,6 @@
       </div>
     </div>
 
-    <!-- METHODOLOGY (visible in both modes) -->
     <section class="methodology-section">
       <h2>METODOLOGÍA MYGOLFLAB</h2>
       <p>No existe un swing perfecto universal. Nuestro enfoque se basa en encontrar la receta personal de cada jugador — sin moldes, adaptado a tu cuerpo, tu nivel y tus objetivos.</p>
@@ -1369,37 +1313,26 @@
     </section>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
   </footer>
 
-  <!-- Hidden canvas for frame extraction -->
   <canvas id="extractionCanvas"></canvas>
 
   <script>
-    // ============================================================
-    // STATE
-    // ============================================================
     let currentVideoFile = null;
-    let extractedFrames = []; // base64 images
+    let extractedFrames = [];
     let webcamStream = null;
     let mediaRecorder = null;
     let recordedChunks = [];
     let isRecording = false;
-    let chatHistory = []; // for chat mode
+    let chatHistory = [];
     let chatLoading = false;
 
-    // ============================================================
-    // MOBILE MENU
-    // ============================================================
     function toggleMenu() {
       document.getElementById('mobileMenu').classList.toggle('open');
     }
 
-    // ============================================================
-    // MODE SWITCHING (Swing vs Chat)
-    // ============================================================
     function switchMode(mode) {
       document.getElementById('modeSwing').classList.toggle('active', mode === 'swing');
       document.getElementById('modeChat').classList.toggle('active', mode === 'chat');
@@ -1412,9 +1345,6 @@
       }
     }
 
-    // ============================================================
-    // TAB SWITCHING (Upload vs Webcam)
-    // ============================================================
     function switchTab(tab) {
       document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1427,9 +1357,6 @@
       }
     }
 
-    // ============================================================
-    // FILE UPLOAD / DROP
-    // ============================================================
     const dropZone = document.getElementById('dropZone');
     const videoInput = document.getElementById('videoInput');
 
@@ -1466,8 +1393,6 @@
       document.getElementById('videoPreview').classList.add('visible');
       document.getElementById('dropZone').style.display = 'none';
       document.getElementById('analyzeBtn').disabled = false;
-
-      // Extract frames once video loads
       player.onloadeddata = () => extractFrames(player, 'framesGrid', 'framesPreview');
     }
 
@@ -1483,9 +1408,6 @@
       videoInput.value = '';
     }
 
-    // ============================================================
-    // FRAME EXTRACTION (Canvas API)
-    // ============================================================
     async function extractFrames(videoEl, gridId, previewId) {
       extractedFrames = [];
       const canvas = document.getElementById('extractionCanvas');
@@ -1496,7 +1418,6 @@
       const duration = videoEl.duration;
       if (!duration || duration < 0.5) return;
 
-      // Extract 6 frames at key swing positions
       const numFrames = 6;
       const labels = ['Setup', 'Takeaway', 'Top', 'Transición', 'Impacto', 'Follow-Through'];
       const times = [];
@@ -1516,7 +1437,7 @@
         img.src = frame;
         const label = document.createElement('div');
         label.className = 'frame-label';
-        label.textContent = labels[i] || `Frame ${i+1}`;
+        label.textContent = labels[i] || 'Frame ' + (i+1);
         wrapper.appendChild(img);
         wrapper.appendChild(label);
         grid.appendChild(wrapper);
@@ -1535,9 +1456,6 @@
       });
     }
 
-    // ============================================================
-    // WEBCAM
-    // ============================================================
     async function startWebcam() {
       try {
         webcamStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1584,7 +1502,6 @@
       isRecording = true;
       document.getElementById('webcamRecordBtn').style.display = 'none';
       document.getElementById('webcamStopBtn').style.display = '';
-      // Visual feedback
       document.getElementById('webcamContainer').style.border = '2px solid var(--red)';
     }
 
@@ -1598,22 +1515,17 @@
       }
     }
 
-    // ============================================================
-    // QUESTIONNAIRE
-    // ============================================================
     function showQuestionnaire() {
       if (extractedFrames.length === 0) {
         alert('Esperando extracción de frames...');
         return;
       }
-      // Hide upload, show questionnaire
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('questionnaireSection').classList.add('visible');
 
-      // Show mini frames in questionnaire
       const mini = document.getElementById('framesMini');
       mini.innerHTML = '';
-      extractedFrames.forEach(f => {
+      extractedFrames.forEach(function(f) {
         const img = document.createElement('img');
         img.src = f;
         mini.appendChild(img);
@@ -1622,32 +1534,25 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ============================================================
-    // ANALYSIS — CLAUDE VISION API
-    // ============================================================
     async function analyzeSwing() {
       if (extractedFrames.length === 0) {
         alert('Esperando extracción de frames...');
         return;
       }
 
-      // Gather questionnaire data
-      const handicap = document.getElementById('qHandicap')?.value?.trim() || '';
-      const problema = document.getElementById('qProblema')?.value?.trim() || '';
-      const objetivo = document.getElementById('qObjetivo')?.value?.trim() || '';
+      const handicap = document.getElementById('qHandicap').value.trim();
+      const problema = document.getElementById('qProblema').value.trim();
+      const objetivo = document.getElementById('qObjetivo').value.trim();
 
-      // Show loading
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('questionnaireSection').classList.remove('visible');
       document.getElementById('analysisLoading').classList.add('visible');
       document.getElementById('analysisResults').classList.remove('visible');
       document.getElementById('analysisResults').innerHTML = '';
 
-      // Animate loading steps
       animateLoadingSteps();
 
-      // Build messages with frames
-      const imageContent = extractedFrames.map((frame, i) => {
+      const imageContent = extractedFrames.map(function(frame, i) {
         const labels = ['Setup/Address', 'Takeaway', 'Top del backswing', 'Transición/Downswing', 'Impacto', 'Follow-through/Finish'];
         return [
           {
@@ -1660,58 +1565,28 @@
           },
           {
             type: 'text',
-            text: `Frame ${i+1}: ${labels[i] || 'Posición ' + (i+1)}`
+            text: 'Frame ' + (i+1) + ': ' + (labels[i] || 'Posición ' + (i+1))
           }
         ];
-      }).flat();
+      }).reduce(function(acc, val) { return acc.concat(val); }, []);
 
-      // Build context from questionnaire
       let playerContext = '';
       if (handicap || problema || objetivo) {
-        playerContext = `\n\nINFORMACIÓN DEL JUGADOR:`;
-        if (handicap) playerContext += `\n- Hándicap/Nivel: ${handicap}`;
-        if (problema) playerContext += `\n- Problema principal: ${problema}`;
-        if (objetivo) playerContext += `\n- Objetivo: ${objetivo}`;
-        playerContext += `\n\nUsa esta información para adaptar tu nivel de comunicación y enfocarte en lo que el jugador necesita.`;
+        playerContext = '\n\nINFORMACIÓN DEL JUGADOR:';
+        if (handicap) playerContext += '\n- Hándicap/Nivel: ' + handicap;
+        if (problema) playerContext += '\n- Problema principal: ' + problema;
+        if (objetivo) playerContext += '\n- Objetivo: ' + objetivo;
+        playerContext += '\n\nUsa esta información para adaptar tu nivel de comunicación y enfocarte en lo que el jugador necesita.';
       }
 
-      const userMessage = [
-        ...imageContent,
-        {
-          type: 'text',
-          text: `Analiza estos 6 frames de mi swing de golf. Son frames secuenciales extraídos del mismo video: setup, takeaway, top del backswing, transición, impacto y follow-through.${playerContext}
+      const promptText = 'Analiza estos 6 frames de mi swing de golf. Son frames secuenciales extraídos del mismo video: setup, takeaway, top del backswing, transición, impacto y follow-through.' + playerContext + '\n\nDame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en formato JSON válido sin backticks ni texto adicional, con esta estructura exacta:\n\n{\n  "score": <número del 1 al 100>,\n  "resumen": "<resumen general en 1-2 oraciones>",\n  "nivel": "<principiante|intermedio|avanzado>",\n  "diagnosticos": [\n    {\n      "titulo": "<nombre corto del error>",\n      "severidad": "<alta|media|baja>",\n      "que_pasa": "<causa raíz y efecto>",\n      "como_corregirlo": "<instrucciones accionables>",\n      "drills_recomendados": [\n        {\n          "id": "<id del drill>",\n          "nombre": "<nombre>",\n          "categoria": "<categoria>",\n          "por_que": "<por qué ayuda>"\n        }\n      ],\n      "video_biblioteca": "<nombre del video o null>"\n    }\n  ]\n}';
 
-Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en formato JSON válido sin backticks ni texto adicional, con esta estructura exacta:
-
-{
-  "score": <número del 1 al 100>,
-  "resumen": "<resumen general en 1-2 oraciones, directo y personalizado al nivel del jugador>",
-  "nivel": "<principiante|intermedio|avanzado>",
-  "diagnosticos": [
-    {
-      "titulo": "<nombre corto del error>",
-      "severidad": "<alta|media|baja>",
-      "que_pasa": "<explicación clara de qué está mal, su CAUSA RAÍZ (no solo el síntoma), y cómo afecta el vuelo de la bola y la consistencia>",
-      "como_corregirlo": "<instrucciones específicas, accionables, paso a paso. Incluye cómo se SIENTE la corrección, no solo cómo se ve. Dale algo práctico para trabajar HOY>",
-      "drills_recomendados": [
-        {
-          "id": "<id del drill del Training Lab, ej: fs-01>",
-          "nombre": "<nombre del drill>",
-          "categoria": "<fullswing|chipping|putting|bunker|wedges|preshot|visualization|mental>",
-          "por_que": "<breve explicación de por qué este drill ayuda con ESTE error específico>"
-        }
-      ],
-      "video_biblioteca": "<nombre descriptivo del video de la Biblioteca que debería ver, ej: 'Transferencia de presión - Fundamentos', o null si no aplica>"
-    }
-  ]
-}`
-        }
-      ];
+      const userMessage = imageContent.concat([{ type: 'text', text: promptText }]);
 
       try {
         const response = await fetch('/api/coach', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 4000,
@@ -1721,11 +1596,10 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
         });
 
         const data = await response.json();
-        const text = data.content.map(c => c.text || '').join('');
+        const text = data.content.map(function(c) { return c.text || ''; }).join('');
         const clean = text.replace(/```json|```/g, '').trim();
         const result = JSON.parse(clean);
 
-        // Hide loading, show results
         document.getElementById('analysisLoading').classList.remove('visible');
         renderResults(result);
 
@@ -1741,7 +1615,7 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
     function animateLoadingSteps() {
       const steps = ['step1', 'step2', 'step3', 'step4'];
       let current = 0;
-      const interval = setInterval(() => {
+      const interval = setInterval(function() {
         if (current > 0) {
           document.getElementById(steps[current - 1]).classList.remove('active');
           document.getElementById(steps[current - 1]).classList.add('done');
@@ -1755,27 +1629,14 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
       }, 2500);
     }
 
-    // ============================================================
-    // RENDER RESULTS
-    // ============================================================
     function renderResults(result) {
       const container = document.getElementById('analysisResults');
       
       const scoreClass = result.score >= 70 ? 'score-high' : result.score >= 40 ? 'score-mid' : 'score-low';
       const nivelText = result.nivel === 'principiante' ? 'Nivel Principiante' : result.nivel === 'intermedio' ? 'Nivel Intermedio' : 'Nivel Avanzado';
 
-      let html = `
-        <div class="result-header fade-in-up">
-          <div class="result-score ${scoreClass}">${result.score}</div>
-          <div class="result-summary">
-            <h2>DIAGNÓSTICO DE TU SWING</h2>
-            <p>${result.resumen}</p>
-            <span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">${nivelText}</span>
-          </div>
-        </div>
-      `;
+      let html = '<div class="result-header fade-in-up"><div class="result-score ' + scoreClass + '">' + result.score + '</div><div class="result-summary"><h2>DIAGNÓSTICO DE TU SWING</h2><p>' + result.resumen + '</p><span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">' + nivelText + '</span></div></div>';
 
-      // Category colors map
       const catColors = {
         fullswing: 'var(--cat-fullswing)',
         chipping: 'var(--cat-chipping)',
@@ -1787,83 +1648,26 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
         mental: 'var(--cat-mental)'
       };
 
-      result.diagnosticos.forEach((diag, i) => {
+      result.diagnosticos.forEach(function(diag, i) {
         const sevClass = diag.severidad === 'alta' ? 'severity-high' : diag.severidad === 'media' ? 'severity-medium' : 'severity-low';
         const sevText = diag.severidad === 'alta' ? 'Prioridad Alta' : diag.severidad === 'media' ? 'Prioridad Media' : 'Prioridad Baja';
 
         let drillsHtml = '';
         if (diag.drills_recomendados && diag.drills_recomendados.length > 0) {
-          drillsHtml = diag.drills_recomendados.map(drill => `
-            <a class="drill-referral" href="training.html#${drill.id}" title="${drill.por_que}">
-              <span class="drill-cat-dot" style="background:${catColors[drill.categoria] || 'var(--accent)'}"></span>
-              <div class="drill-referral-info">
-                <div class="drill-referral-name">${drill.id.toUpperCase()} — ${drill.nombre}</div>
-                <div class="drill-referral-desc">${drill.por_que}</div>
-              </div>
-              <span class="drill-referral-arrow">→</span>
-            </a>
-          `).join('');
+          drillsHtml = diag.drills_recomendados.map(function(drill) {
+            return '<a class="drill-referral" href="/es/training.html#' + drill.id + '" title="' + drill.por_que + '"><span class="drill-cat-dot" style="background:' + (catColors[drill.categoria] || 'var(--accent)') + '"></span><div class="drill-referral-info"><div class="drill-referral-name">' + drill.id.toUpperCase() + ' — ' + drill.nombre + '</div><div class="drill-referral-desc">' + drill.por_que + '</div></div><span class="drill-referral-arrow">→</span></a>';
+          }).join('');
         }
 
         let videoHtml = '';
         if (diag.video_biblioteca) {
-          videoHtml = `
-            <a class="drill-referral" href="library.html" style="border-color:var(--gold);background:var(--gold-dim);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-              <div class="drill-referral-info">
-                <div class="drill-referral-name" style="color:var(--gold);">📹 ${diag.video_biblioteca}</div>
-                <div class="drill-referral-desc">Video explicativo en la Biblioteca</div>
-              </div>
-              <span class="drill-referral-arrow" style="color:var(--gold);">→</span>
-            </a>
-          `;
+          videoHtml = '<a class="drill-referral" href="/es/library.html" style="border-color:var(--gold);background:var(--gold-dim);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;"><polygon points="5 3 19 12 5 21 5 3"/></svg><div class="drill-referral-info"><div class="drill-referral-name" style="color:var(--gold);">📹 ' + diag.video_biblioteca + '</div><div class="drill-referral-desc">Video explicativo en la Biblioteca</div></div><span class="drill-referral-arrow" style="color:var(--gold);">→</span></a>';
         }
 
-        html += `
-          <div class="diagnosis-card fade-in-up delay-${i + 1}">
-            <div class="diagnosis-card-header">
-              <div class="diagnosis-number">${i + 1}</div>
-              <h3>${diag.titulo}</h3>
-              <span class="diagnosis-severity ${sevClass}">${sevText}</span>
-            </div>
-            <div class="diagnosis-card-body">
-              <div class="diagnosis-what">
-                <div class="diagnosis-label">🔍 Qué está pasando</div>
-                <div class="diagnosis-text">${diag.que_pasa}</div>
-              </div>
-              <div class="diagnosis-fix">
-                <div class="diagnosis-label">🔧 Cómo corregirlo</div>
-                <div class="diagnosis-text">${diag.como_corregirlo}</div>
-              </div>
-              ${(drillsHtml || videoHtml) ? `
-              <div class="diagnosis-drills">
-                <div class="diagnosis-label">🎯 Drills y recursos recomendados</div>
-                ${drillsHtml}
-                ${videoHtml}
-              </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
+        html += '<div class="diagnosis-card fade-in-up delay-' + (i + 1) + '"><div class="diagnosis-card-header"><div class="diagnosis-number">' + (i + 1) + '</div><h3>' + diag.titulo + '</h3><span class="diagnosis-severity ' + sevClass + '">' + sevText + '</span></div><div class="diagnosis-card-body"><div class="diagnosis-what"><div class="diagnosis-label">🔍 Qué está pasando</div><div class="diagnosis-text">' + diag.que_pasa + '</div></div><div class="diagnosis-fix"><div class="diagnosis-label">🔧 Cómo corregirlo</div><div class="diagnosis-text">' + diag.como_corregirlo + '</div></div>' + ((drillsHtml || videoHtml) ? '<div class="diagnosis-drills"><div class="diagnosis-label">🎯 Drills y recursos recomendados</div>' + drillsHtml + videoHtml + '</div>' : '') + '</div></div>';
       });
 
-      // Library referral
-      html += `
-        <div class="library-referral fade-in-up delay-3">
-          <h3>PROFUNDIZA EN TU CORRECCIÓN</h3>
-          <p>En la Biblioteca encontrarás videos explicativos detallados de Nico Parra sobre cada aspecto de tu swing. Y en Training Lab, drills específicos con variantes por nivel.</p>
-          <a href="library.html">
-            Ver Biblioteca
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-
-        <button class="new-analysis-btn" onclick="resetAnalysis()">
-          ↻ ANALIZAR OTRO SWING
-        </button>
-      `;
+      html += '<div class="library-referral fade-in-up delay-3"><h3>PROFUNDIZA EN TU CORRECCIÓN</h3><p>En la Biblioteca encontrarás videos explicativos detallados sobre cada aspecto de tu swing. Y en Training Lab, drills específicos con variantes por nivel.</p><a href="/es/library.html">Ver Biblioteca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div><button class="new-analysis-btn" onclick="resetAnalysis()">↻ ANALIZAR OTRO SWING</button>';
 
       container.innerHTML = html;
       container.classList.add('visible');
@@ -1876,171 +1680,41 @@ Dame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en format
       document.getElementById('analysisResults').innerHTML = '';
       document.getElementById('questionnaireSection').classList.remove('visible');
       document.getElementById('uploadSection').style.display = '';
-      // Reset questionnaire
       document.getElementById('qHandicap').value = '';
       document.getElementById('qProblema').value = '';
       document.getElementById('qObjetivo').value = '';
       document.getElementById('framesMini').innerHTML = '';
-      // Reset upload tab
       document.getElementById('videoPreview').classList.remove('visible');
       document.getElementById('framesPreview').classList.remove('visible');
       document.getElementById('framesGrid').innerHTML = '';
       document.getElementById('dropZone').style.display = '';
       document.getElementById('analyzeBtn').disabled = true;
       document.getElementById('previewPlayer').src = '';
-      // Reset webcam tab
       document.getElementById('webcamPreview').classList.remove('visible');
       document.getElementById('webcamFramesPreview').classList.remove('visible');
       document.getElementById('webcamFramesGrid').innerHTML = '';
       document.getElementById('webcamAnalyzeBtn').disabled = true;
-      // Reset loading steps
-      ['step1','step2','step3','step4'].forEach(id => {
+      ['step1','step2','step3','step4'].forEach(function(id) {
         document.getElementById(id).classList.remove('active','done');
       });
       document.getElementById('step1').classList.add('active');
-      // Scroll up
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ============================================================
-    // SYSTEM PROMPT — METODOLOGÍA MYGOLFLAB
-    // ============================================================
-    const COACH_SYSTEM_PROMPT = `Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.
+    const COACH_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.\n\n## QUIÉN ERES\nAnalizas swings de golf con la metodología MyGolfLab — desarrollada por un coach profesional con experiencia en jugadores del PGA Tour, LIV Golf y juniors competitivos. Tu análisis es directo, técnico pero accesible. No eres un bot genérico de golf: corriges como un coach real que ve el swing de un alumno por primera vez.\n\nLa filosofía central de MyGolfLab: no existe un swing perfecto universal. Tu trabajo es encontrar la receta personal de cada jugador — sin ponerlos a todos en el mismo molde.\n\n## PROCESO DE DIAGNÓSTICO\n1. Identificar el SÍNTOMA\n2. Determinar si es problema de CARA, PATH o AMBOS\n3. Buscar el ORIGEN: grip, muñecas, plano, secuencia o pivote\n4. Evaluar si es MECÁNICO o de TIMING\n5. Dar máximo 2-3 correcciones concretas\n\n## ADAPTACIÓN POR NIVEL\n- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple\n- Intermedio (8-17): más técnico, secuencia cinética, condición de muñecas\n- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión\n\n## METODOLOGÍA (en orden de prioridad)\n\n### 1. GROUND FORCES\n- El swing empieza desde el suelo\n- Backswing: presión al pie trasero (60-70%)\n- Transición: presión al pie delantero ANTES que los brazos bajen\n- Impacto: 80%+ de presión en pie delantero\n- Error común: early extension — casi siempre problema de transferencia de presión\n\n### 2. KINEMATIC SEQUENCE\n- Secuencia correcta: caderas → torso → brazos → palo\n- Downswing se INICIA con rotación de cadera, NUNCA con los brazos\n- Cadera debe rotar abierta (~40°) al impacto\n- Error común: casting o over the top\n\n### 3. WRIST CONDITIONS\n- Shaft lean: shaft inclinado hacia el target en el impacto\n- Lag: mantener ángulo antebrazo-shaft el mayor tiempo posible\n- Flexión de muñeca izquierda = cara cerrada. Extensión = cara abierta\n- Error común: flipping — muñecas se sueltan antes del impacto\n\n### 4. BODY TILTS\n- Al impacto: torso con inclinación lateral hacia el lado trasero\n- Error común: hanging back o reverse spine angle\n\n### 5. SETUP\n- Stance: ancho de hombros para hierros\n- Flexión de rodillas: ligera y atlética\n- Hip hinge: espalda recta\n- Peso: parte media/anterior de los pies\n\n## REGLAS\n1. Solo 2-3 errores fundamentales — nunca abrumar\n2. Prioriza por impacto en consistencia y contacto\n3. Directo y claro — habla como coach real\n4. Cada corrección ACCIONABLE — qué hacer y cómo se siente\n5. Causa raíz, no síntoma\n6. Recomienda drills del Training Lab\n7. Recomienda videos de la Biblioteca\n8. Score del 1-100 basado en fundamentos\n9. Determina nivel y adapta comunicación\n10. Termina con algo práctico para HOY\n\n## DRILLS DISPONIBLES\n- Full Swing: fs-01 Escalera de Hierros, fs-02 9-Shot Grid, fs-03 Zona de Presión 60%, fs-04 Clutch Fairway Challenge, fs-05 Alignment Station, fs-06 Tempo Metrónomo, fs-07 Knockdown Control, fs-08 Lie Simulator, fs-09 Par 3 Pressure Round, fs-10 Cambio de Palo Rápido\n- Chipping: ch-01 Circle Drill, ch-02 Up & Down Challenge, ch-03 Landing Zone Precision, ch-04 Flop Shot Academy, ch-05 Chip con Cada Palo, ch-06 Rough Escape, ch-07 Bump & Run Maestro, ch-08 One-Handed Chip, ch-09 Par Save Simulator, ch-10 Texas Wedge Chip\n- Putting: pu-01 Gate Drill, pu-02 Clock Drill, pu-03 Ladder Distancia, pu-04 One-Ball Speed Control, pu-05 Eyes Closed Putting, pu-06 Make-It Pressure, pu-07 Break Reading School, pu-08 Putting Routine Timer, pu-09 2-Putt Zone, pu-10 Path & Face Control\n- Wedges: wg-01 Wedge Matrix, wg-02 50-Yard Master, wg-03 Scoring Zone Simulator, wg-04 Trajectory Control Wedges, wg-05 Wedge Clock System, wg-06 Wind Wedge Adjustment, wg-07 3/4 Swing Mastery, wg-08 Divot Pattern Check, wg-09 Approach Pressure Points, wg-10 Wedge Consistency Test\n- Pre-Shot: pr-01 Rutina en 4 Pasos, pr-02 Commit or Reset, pr-03 Target Precision Focus, pr-04 Breath Integration, pr-05 Practice Swing con Propósito\n- Visualización: vi-01 Movie Rehearsal, vi-02 Resultado Positivo Forzado, vi-03 Hole Visualization Walk, vi-04 Sensory Swing Recall\n- Mental: mn-01 Emotional Reset Button, mn-02 10-Shot Mindfulness, mn-03 Acceptance Training, mn-04 Pressure Inoculation, mn-05 Self-Talk Audit, mn-06 Bounce-Back Drill\n\n## TONO\n- Directo. No adulador.\n- Empático pero honesto.\n- En español, natural, como coach profesional latinoamericano.\n- Si algo está bien, dilo brevemente.\n- Siempre termina con algo práctico para hoy.\n\n## FORMATO\nResponde SIEMPRE en JSON válido. Sin markdown, sin backticks, sin texto fuera del JSON.';
 
-## QUIÉN ERES
-Analizas swings de golf con la metodología MyGolfLab — desarrollada por un coach profesional con experiencia en jugadores del PGA Tour, LIV Golf y juniors competitivos. Tu análisis es directo, técnico pero accesible. No eres un bot genérico de golf: corriges como un coach real que ve el swing de un alumno por primera vez.
+    const CHAT_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, un coach de golf virtual basado en la metodología MyGolfLab.\n\nTu metodología se basa en encontrar la receta personal de cada jugador — no existe un swing perfecto universal. Los pilares son: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, y un setup sólido.\n\nPROCESO DE DIAGNÓSTICO:\n1. Identificar el síntoma\n2. Determinar si es problema de cara, path, o ambos\n3. Buscar el origen: grip, muñecas, plano, secuencia o pivote\n4. Evaluar si es mecánico o de timing\n5. Dar máximo 2-3 correcciones concretas\n\nADAPTACIÓN POR NIVEL:\n- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple\n- Intermedio (8-17): más técnico, secuencia cinética, condiciones de muñecas\n- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión\n\nESTILO:\n- Directo y conciso. Respuestas cortas y al grano.\n- Técnico pero equilibrado con el rendimiento.\n- Siempre termina con algo práctico para trabajar.\n- Empático pero honesto.\n- En español, natural.\n- Recomienda drills del Training Lab o videos de la Biblioteca cuando sea relevante.\n\nResponde en texto plano. No uses markdown ni JSON. Sé conversacional y directo.';
 
-La filosofía central de MyGolfLab: no existe un swing perfecto universal. Tu trabajo es encontrar la receta personal de cada jugador — sin ponerlos a todos en el mismo molde.
-
-## PROCESO DE DIAGNÓSTICO (tu proceso mental antes de corregir)
-Antes de dar soluciones, siempre identificas la causa raíz. Tu proceso es:
-1. Identificar el SÍNTOMA (vuelo de pelota, dirección, calidad del contacto)
-2. Determinar si es un problema de CARA del palo, PATH (camino del palo), o AMBOS
-3. Buscar el ORIGEN: ¿es un problema de grip, condición de muñecas, plano de swing, secuencia o pivote?
-4. Evaluar si es MECÁNICO o de TIMING/COORDINACIÓN
-5. Dar máximo 2-3 correcciones concretas, nunca abrumar
-
-## ADAPTACIÓN POR NIVEL DE JUGADOR
-- **Alto hándicap (18+ o principiante):** Motivador pero honesto. Máximo 1-2 correcciones. Lenguaje simple. Refuerzo positivo en lo que está bien. Enfoque en fundamentos básicos (grip, postura, contacto).
-- **Intermedio (8-17):** Más técnico. Hablas de secuencia cinética, condición de muñecas, transferencia de peso. 2-3 correcciones con profundidad.
-- **Avanzado (0-7):** Terminología completa. Timing, lag, X-factor stretch, pressure shift patterns, face-to-path relationship. Detalles finos que marcan la diferencia bajo presión.
-
-## METODOLOGÍA FUNDAMENTAL (en orden de prioridad)
-
-### 1. GROUND FORCES (Fuerzas de reacción con el suelo)
-- El swing empieza desde el suelo. Cómo usas las fuerzas del suelo es cómo generas velocidad.
-- En el backswing: la presión se carga al pie trasero (60-70%).
-- En la transición: la presión se mueve al pie delantero ANTES de que los brazos bajen. Esto es CLAVE.
-- En el impacto: 80%+ de la presión debe estar en el pie delantero.
-- Error común: "early extension" o quedarse atrás — casi siempre es un problema de transferencia de presión.
-
-### 2. KINEMATIC SEQUENCE (Secuencia cinética)
-- La secuencia correcta es: caderas → torso → brazos → palo.
-- El downswing se INICIA con la rotación de cadera, NUNCA con los brazos.
-- La cadera debe rotar abierta (~40°) al momento del impacto.
-- Error común: "casting" o "over the top" — el jugador usa los brazos primero porque la cadera no lidera.
-- La separación cadera-hombros (X-factor) genera potencia.
-
-### 3. WRIST CONDITIONS (Condiciones de muñecas)
-- Shaft lean: el shaft debe inclinarse hacia el target en el impacto (manos delante de la bola).
-- Lag: mantener el ángulo entre el antebrazo y el shaft el mayor tiempo posible en el downswing.
-- Cara del palo: la posición de la muñeca izquierda (para diestros) controla si la cara está abierta, cerrada o cuadrada.
-- Flexión de muñeca izquierda = cara cerrada. Extensión = cara abierta.
-- Error común: "flipping" — las muñecas se sueltan antes del impacto, perdiendo compresión y control.
-
-### 4. BODY TILTS (Inclinaciones del torso)
-- Al impacto, el torso debe tener inclinación lateral hacia el lado trasero (alejándose del target).
-- Esto permite un ángulo de ataque descendente con hierros y ascendente con driver.
-- Las inclinaciones en cada fase del swing afectan contacto, trayectoria y compresión.
-- Error común: "hanging back" o "reverse spine angle" — el torso se inclina hacia el target en el backswing.
-
-### 5. POSTURA Y SETUP
-- Ancho de stance: aproximadamente ancho de hombros para hierros, un poco más ancho para driver.
-- Flexión de rodillas: ligera, atlética. No excesiva.
-- Inclinación desde la cadera (hip hinge): la espalda recta, no curvada.
-- Peso del cuerpo: distribuido en la parte media/anterior de los pies (no en los talones).
-- Posición de la bola: varía según el palo (adelante para driver, centro para hierros cortos).
-- Grip: verificar que no sea excesivamente fuerte o débil.
-
-## REGLAS DE ANÁLISIS
-
-1. **Identifica SOLO los 2-3 errores más fundamentales.** No listes 10 cosas. Un alumno necesita enfocarse en lo esencial.
-2. **Prioriza por impacto:** el error que más afecta la calidad del contacto y la consistencia va primero.
-3. **Sé directo y claro.** Habla como un coach real, no como un manual.
-4. **Cada corrección debe ser ACCIONABLE.** No digas "mejora tu rotación" — di exactamente QUÉ hacer y CÓMO SE SIENTE. Dale algo práctico para trabajar HOY.
-5. **Conecta cada error con su CAUSA RAÍZ, no solo el SÍNTOMA.** Si el jugador hace slice, no digas "la cara está abierta" — explica POR QUÉ está abierta (ej: grip débil + falta de rotación de cadera = cara abierta + path out-to-in = slice).
-6. **Recomienda drills específicos** del Training Lab de MyGolfLab.
-7. **Recomienda videos de la Biblioteca** donde Nico Parra explica la corrección con detalle.
-8. **Dale un score del 1-100** basado en los fundamentos (no en estética).
-9. **Determina el nivel** del jugador y adapta tu comunicación.
-10. **Siempre termina con algo práctico para trabajar hoy.** El jugador debe salir del análisis sabiendo exactamente qué hacer.
-
-## DRILLS DISPONIBLES (Training Lab)
-Los IDs siguen este formato:
-- Full Swing: fs-01 Escalera de Hierros, fs-02 9-Shot Grid, fs-03 Zona de Presión 60%, fs-04 Clutch Fairway Challenge, fs-05 Alignment Station, fs-06 Tempo Metrónomo, fs-07 Knockdown Control, fs-08 Lie Simulator, fs-09 Par 3 Pressure Round, fs-10 Cambio de Palo Rápido
-- Chipping: ch-01 Circle Drill, ch-02 Up & Down Challenge, ch-03 Landing Zone Precision, ch-04 Flop Shot Academy, ch-05 Chip con Cada Palo, ch-06 Rough Escape, ch-07 Bump & Run Maestro, ch-08 One-Handed Chip, ch-09 Par Save Simulator, ch-10 Texas Wedge Chip
-- Putting: pu-01 Gate Drill, pu-02 Clock Drill, pu-03 Ladder Distancia, pu-04 One-Ball Speed Control, pu-05 Eyes Closed Putting, pu-06 Make-It Pressure, pu-07 Break Reading School, pu-08 Putting Routine Timer, pu-09 2-Putt Zone, pu-10 Path & Face Control
-- Bunker: bk-01 a bk-10
-- Wedges: wg-01 Wedge Matrix, wg-02 50-Yard Master, wg-03 Scoring Zone Simulator, wg-04 Trajectory Control Wedges, wg-05 Wedge Clock System, wg-06 Wind Wedge Adjustment, wg-07 3/4 Swing Mastery, wg-08 Divot Pattern Check, wg-09 Approach Pressure Points, wg-10 Wedge Consistency Test
-- Pre-Shot Routine: pr-01 Rutina en 4 Pasos, pr-02 Commit or Reset, pr-03 Target Precision Focus, pr-04 Breath Integration, pr-05 Practice Swing con Propósito
-- Visualización: vi-01 Movie Rehearsal, vi-02 Resultado Positivo Forzado, vi-03 Hole Visualization Walk, vi-04 Sensory Swing Recall
-- Mental: mn-01 Emotional Reset Button, mn-02 10-Shot Mindfulness, mn-03 Acceptance Training, mn-04 Pressure Inoculation, mn-05 Self-Talk Audit, mn-06 Bounce-Back Drill
-
-## TONO
-- Directo. No adulador. No empieces con "¡Gran swing!" si tiene problemas claros.
-- Empático pero honesto. "Esto es muy común y se corrige rápido" es mejor que "tu swing está mal."
-- Técnico pero equilibrado con el rendimiento. No solo mecánica — conecta con resultados en la cancha.
-- En español. Natural, como hablaría un coach profesional latinoamericano. Sin chilenismos extremos, pero natural.
-- Si algo está bien, dilo brevemente. El foco es lo que hay que corregir.
-- Siempre termina con algo práctico para trabajar hoy.
-
-## FORMATO DE RESPUESTA
-Responde SIEMPRE en JSON válido con la estructura que se te pida. Sin markdown, sin backticks, sin texto fuera del JSON.`;
-
-    // Chat uses a simpler system prompt (no JSON requirement)
-    const CHAT_SYSTEM_PROMPT = `Eres Coach IA de MyGolfLab, un coach de golf virtual basado en la metodología MyGolfLab.
-
-Tu metodología se basa en encontrar la receta personal de cada jugador — no existe un swing perfecto universal. Los pilares son: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, y un setup sólido.
-
-PROCESO DE DIAGNÓSTICO:
-Antes de dar soluciones, identificas la causa raíz:
-1. Identificar el síntoma (vuelo de pelota, dirección, contacto)
-2. Determinar si es un problema de cara del palo, path, o ambos
-3. Buscar el origen: grip, condición de muñecas, plano de swing, secuencia o pivote
-4. Evaluar si es mecánico o de timing/coordinación
-5. Dar máximo 2-3 correcciones concretas
-
-ADAPTACIÓN POR NIVEL:
-- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple
-- Intermedio (8-17): más técnico, secuencia cinética, condiciones de muñecas
-- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión
-
-ESTILO:
-- Directo y conciso. Respuestas cortas y al grano — esto es un chat, no un ensayo.
-- Técnico pero equilibrado con el rendimiento.
-- Siempre termina con algo práctico para trabajar.
-- Empático pero honesto.
-- En español, natural.
-- Cuando sea relevante, recomienda drills del Training Lab o videos de la Biblioteca de MyGolfLab.
-
-Responde en texto plano (NO uses markdown, NO uses JSON). Sé conversacional y directo.`;
-
-    // ============================================================
-    // CHAT FUNCTIONALITY
-    // ============================================================
     const chatInput = document.getElementById('chatInput');
     const chatSendBtn = document.getElementById('chatSendBtn');
 
-    // Enable/disable send button based on input
-    chatInput.addEventListener('input', () => {
+    chatInput.addEventListener('input', function() {
       chatSendBtn.disabled = !chatInput.value.trim() || chatLoading;
-      // Auto-resize textarea
       chatInput.style.height = 'auto';
       chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
     });
 
-    // Enter to send (shift+enter for newline)
-    chatInput.addEventListener('keydown', (e) => {
+    chatInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         if (chatInput.value.trim() && !chatLoading) sendChatMessage();
@@ -2054,74 +1728,59 @@ Responde en texto plano (NO uses markdown, NO uses JSON). Sé conversacional y d
       chatLoading = true;
       chatSendBtn.disabled = true;
 
-      // Add user message
       const messagesEl = document.getElementById('chatMessages');
       const userBubble = document.createElement('div');
       userBubble.className = 'chat-bubble user-bubble fade-in-up';
-   userBubble.innerHTML = `<div class="chat-bubble-text">${escapeHtml(text)}</div>`;
+      userBubble.innerHTML = '<div class="chat-bubble-text">' + escapeHtml(text) + '</div>';
       messagesEl.appendChild(userBubble);
 
-      // Add to history
       chatHistory.push({ role: 'user', content: text });
 
-      // Clear input
       chatInput.value = '';
       chatInput.style.height = 'auto';
 
-      // Add typing indicator
       const typingEl = document.createElement('div');
       typingEl.className = 'chat-typing';
       typingEl.id = 'chatTyping';
-      typingEl.innerHTML = \`
-        <div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div>
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-        <span class="typing-dot"></span>
-      \`;
+      typingEl.innerHTML = '<div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
       messagesEl.appendChild(typingEl);
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       try {
         const response = await fetch('/api/coach', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
             max_tokens: 1024,
             system: CHAT_SYSTEM_PROMPT,
-            messages: chatHistory.map(m => ({ role: m.role, content: m.content }))
+            messages: chatHistory.map(function(m) { return { role: m.role, content: m.content }; })
           })
         });
 
         const data = await response.json();
-        const reply = data.content?.[0]?.text || 'Error al responder. Intenta de nuevo.';
+        const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Error al responder. Intenta de nuevo.';
 
-        // Remove typing indicator
-        document.getElementById('chatTyping')?.remove();
+        const typingElToRemove = document.getElementById('chatTyping');
+        if (typingElToRemove) typingElToRemove.remove();
 
-        // Add assistant message
         chatHistory.push({ role: 'assistant', content: reply });
         const assistantBubble = document.createElement('div');
         assistantBubble.className = 'chat-bubble assistant-bubble fade-in-up';
-        assistantBubble.innerHTML = \`
-          <div class="chat-bubble-label">Coach IA</div>
-          <div class="chat-bubble-text">\${escapeHtml(reply)}</div>
-        \`;
+        assistantBubble.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text">' + escapeHtml(reply) + '</div>';
         messagesEl.appendChild(assistantBubble);
 
       } catch (err) {
-        document.getElementById('chatTyping')?.remove();
+        const typingElToRemove = document.getElementById('chatTyping');
+        if (typingElToRemove) typingElToRemove.remove();
         const errorBubble = document.createElement('div');
         errorBubble.className = 'chat-bubble assistant-bubble fade-in-up';
-        errorBubble.innerHTML = \`
-          <div class="chat-bubble-label">Coach IA</div>
-          <div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>
-        \`;
+        errorBubble.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>';
         messagesEl.appendChild(errorBubble);
       } finally {
         chatLoading = false;
         chatSendBtn.disabled = !chatInput.value.trim();
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
       }
     }
 
