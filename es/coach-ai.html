@@ -2058,7 +2058,7 @@ Responde en texto plano (NO uses markdown, NO uses JSON). Sé conversacional y d
       const messagesEl = document.getElementById('chatMessages');
       const userBubble = document.createElement('div');
       userBubble.className = 'chat-bubble user-bubble fade-in-up';
-      userBubble.innerHTML = \`<div class="chat-bubble-text">\${escapeHtml(text)}</div>\`;
+   userBubble.innerHTML = `<div class="chat-bubble-text">${escapeHtml(text)}</div>`;
       messagesEl.appendChild(userBubble);
 
       // Add to history
