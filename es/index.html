@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #2dd4bf;
@@ -132,6 +133,18 @@
         .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
         .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
 
+        /* Dashboard menu link — destaca */
+        .menu-link.dashboard-link {
+            color: var(--primary);
+            background: rgba(45,212,191,0.08);
+            border: 1px solid rgba(45,212,191,0.2);
+        }
+        .menu-link.dashboard-link:hover {
+            background: rgba(45,212,191,0.15);
+            border-color: rgba(45,212,191,0.4);
+        }
+        .menu-link.dashboard-link svg { opacity: 1; }
+
         .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
 
         .menu-cta {
@@ -151,6 +164,95 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+
+        /* Login link (estado no autenticado) */
+        .menu-login {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            margin-top: 8px;
+        }
+        .menu-login:hover { border-color: var(--primary); color: var(--primary); background: rgba(45,212,191,0.05); }
+        .menu-login svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+
+        /* User info en el menu (estado autenticado) */
+        .menu-user-info {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+        .menu-user-info.show { display: flex; }
+        .menu-user-avatar {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--bg-dark);
+            flex-shrink: 0;
+        }
+        .menu-user-text { overflow: hidden; }
+        .menu-user-name {
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+        }
+        .menu-user-plan {
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Logout en menu */
+        .menu-logout {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #737373;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .menu-logout.show { display: flex; }
+        .menu-logout:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+        .menu-logout svg { width: 18px; height: 18px; opacity: 0.7; }
 
         /* ==================== HERO ==================== */
         .hero {
@@ -248,10 +350,37 @@
             letter-spacing: 2px;
             border-radius: 14px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            cursor: pointer;
         }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--primary-glow); }
         .btn-primary svg { width: 20px; height: 20px; }
+
+        /* Botón secundario "Ir a mi Dashboard" — solo visible cuando hay sesión */
+        .btn-dashboard {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 14px;
+            border: 1px solid rgba(45,212,191,0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-dashboard:hover { background: rgba(45,212,191,0.08); border-color: var(--primary); transform: translateY(-2px); }
+        .btn-dashboard svg { width: 20px; height: 20px; }
+        .btn-dashboard.show { display: inline-flex; }
+
         .hero-note { font-size: 0.875rem; color: var(--text-muted); }
+        /* Ocultar nota cuando hay sesión */
+        .hero-note.hidden { display: none; }
 
         /* ==================== SECTIONS ==================== */
         .section-label {
@@ -269,15 +398,7 @@
         .section-label::before { content: ''; width: 24px; height: 2px; background: var(--primary); }
 
         .problem-solution { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .problem-solution h2 {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 5vw, 3rem);
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            line-height: 1.1;
-            margin-bottom: 3rem;
-            max-width: 800px;
-        }
+        .problem-solution h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; margin-bottom: 3rem; max-width: 800px; }
         .ps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
         .ps-card { padding: 2rem; border-radius: 20px; border: 1px solid var(--border); }
         .ps-card.problem { background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 50%); }
@@ -347,6 +468,16 @@
 
     <div class="mobile-menu" id="mobileMenu">
         <div class="menu-links">
+
+            <!-- User info — visible solo cuando hay sesión -->
+            <div class="menu-user-info" id="menuUserInfo">
+                <div class="menu-user-avatar" id="menuUserAvatar">—</div>
+                <div class="menu-user-text">
+                    <div class="menu-user-name" id="menuUserName">—</div>
+                    <div class="menu-user-plan" id="menuUserPlan">—</div>
+                </div>
+            </div>
+
             <a href="/es/index.html" class="menu-link active">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Inicio
@@ -372,8 +503,29 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
                 El Coach
             </a>
+
+            <!-- Dashboard link — visible solo con sesión -->
+            <a href="/es/dashboard.html" class="menu-link dashboard-link" id="menuDashboardLink" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Mi Dashboard
+            </a>
+
+            <!-- Login link — visible solo SIN sesión -->
+            <a href="/es/login.html" class="menu-login" id="menuLoginLink" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Iniciar Sesión
+            </a>
+
+            <!-- Logout — visible solo con sesión -->
+            <button class="menu-logout" id="menuLogoutBtn" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cerrar Sesión
+            </button>
         </div>
-        <a href="#waitlist" class="menu-cta">Únete</a>
+
+        <!-- CTA bottom — cambia según estado -->
+        <a href="#waitlist" class="menu-cta" id="menuCtaWaitlist">Únete</a>
+        <a href="/es/dashboard.html" class="menu-cta" id="menuCtaDashboard" style="display:none;">Ir a mi Dashboard</a>
     </div>
 
     <!-- HERO -->
@@ -382,11 +534,17 @@
         <h1>Entrena con Inteligencia.<span>Juega con tu Swing.</span></h1>
         <p class="hero-subtitle">Coaching de golf con IA que analiza tu movimiento único y construye un plan personalizado para tu cuerpo. Sin moldes. Sin copias. Tu receta.</p>
         <div class="hero-cta">
-            <a href="#waitlist" class="btn-primary">
+            <!-- Botón principal — cambia según estado de sesión -->
+            <a href="#waitlist" class="btn-primary" id="heroMainBtn">
                 Únete a la Lista
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
-            <p class="hero-note">Acceso anticipado gratis · Sin tarjeta de crédito</p>
+            <!-- Botón dashboard — solo visible con sesión -->
+            <a href="/es/dashboard.html" class="btn-dashboard" id="heroDashboardBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Ir a mi Dashboard
+            </a>
+            <p class="hero-note" id="heroNote">Acceso anticipado gratis · Sin tarjeta de crédito</p>
         </div>
     </section>
 
@@ -447,33 +605,25 @@
         <p class="features-subtitle">Un ecosistema de entrenamiento completo para golfistas serios.</p>
         <div class="features-grid">
             <a href="/es/coach-ai.html" class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                </div>
+                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
                 <h3>Coach IA</h3>
                 <p>Analiza tu swing con video y recibe un diagnóstico personalizado basado en la metodología MyGolfLab.</p>
                 <span class="feature-link">Saber más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
             <a href="/es/library.html" class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                </div>
+                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
                 <h3>Biblioteca</h3>
                 <p>Video tips y cursos completos sobre cada aspecto del juego — swing, short game, mentalidad y más.</p>
                 <span class="feature-link">Explorar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
             <a href="/es/training.html" class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                </div>
+                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
                 <h3>Training Lab</h3>
                 <p>80+ drills categorizados por nivel y categoría. Sigue tu progreso y compite en el ranking mensual.</p>
                 <span class="feature-link">Ver drills <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
             <a href="/es/pricing.html" class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                </div>
+                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
                 <h3>Planes Flexibles</h3>
                 <p>Desde Starter hasta Elite — elige el nivel que se ajuste a tu compromiso y objetivos.</p>
                 <span class="feature-link">Ver precios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
@@ -499,6 +649,71 @@
     </footer>
 
     <script>
+        // ── SUPABASE ──
+        const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+        const { createClient } = supabase;
+        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function getInitials(name) {
+            return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+        }
+
+        async function initAuth() {
+            const { data: { session } } = await sb.auth.getSession();
+
+            if (session) {
+                const user = session.user;
+                const meta = user.user_metadata || {};
+                const firstName = meta.first_name || meta.given_name || '';
+                const lastName = meta.last_name || meta.family_name || '';
+                const fullName = meta.full_name || `${firstName} ${lastName}`.trim() || user.email.split('@')[0];
+                const plan = meta.plan || 'Starter';
+                const initials = getInitials(fullName);
+
+                // Mostrar user info en el menu
+                document.getElementById('menuUserAvatar').textContent = initials;
+                document.getElementById('menuUserName').textContent = fullName;
+                document.getElementById('menuUserPlan').textContent = `Plan ${plan}`;
+                document.getElementById('menuUserInfo').classList.add('show');
+
+                // Mostrar dashboard link y logout, ocultar login
+                document.getElementById('menuDashboardLink').style.display = 'flex';
+                document.getElementById('menuLogoutBtn').style.display = 'flex';
+                document.getElementById('menuLoginLink').style.display = 'none';
+
+                // Cambiar CTA del menu
+                document.getElementById('menuCtaWaitlist').style.display = 'none';
+                document.getElementById('menuCtaDashboard').style.display = 'block';
+
+                // Cambiar hero: btn principal → dashboard, mostrar btn secundario
+                const heroBtn = document.getElementById('heroMainBtn');
+                heroBtn.href = '/es/dashboard.html';
+                heroBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Ir a mi Dashboard
+                `;
+                document.getElementById('heroDashboardBtn').style.display = 'none';
+                document.getElementById('heroNote').classList.add('hidden');
+
+            } else {
+                // Sin sesión: mostrar login, ocultar dashboard y logout
+                document.getElementById('menuLoginLink').style.display = 'flex';
+                document.getElementById('menuDashboardLink').style.display = 'none';
+                document.getElementById('menuLogoutBtn').style.display = 'none';
+                document.getElementById('menuUserInfo').classList.remove('show');
+                document.getElementById('menuCtaWaitlist').style.display = 'block';
+                document.getElementById('menuCtaDashboard').style.display = 'none';
+            }
+        }
+
+        // Logout
+        document.getElementById('menuLogoutBtn').addEventListener('click', async () => {
+            await sb.auth.signOut();
+            window.location.reload();
+        });
+
+        // ── HAMBURGER ──
         const hamburger = document.getElementById('hamburger');
         const mobileMenu = document.getElementById('mobileMenu');
         const menuOverlay = document.getElementById('menuOverlay');
@@ -518,12 +733,16 @@
             });
         });
 
+        // ── WAITLIST ──
         document.getElementById('waitlistForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = this.querySelector('input').value;
             alert('Gracias! Te contactaremos en ' + email);
             this.reset();
         });
+
+        // ── INIT ──
+        initAuth();
     </script>
 </body>
 </html>
