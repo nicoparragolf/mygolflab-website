@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyGolfLab | Acceder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            --primary-dark: #14b8a6;
+            --primary-glow: rgba(45, 212, 191, 0.3);
+            --primary-subtle: rgba(45, 212, 191, 0.08);
+            --primary-15: rgba(45, 212, 191, 0.15);
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border: #262626;
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-heading: 'Barlow Condensed', sans-serif;
+            --font-body: 'Barlow', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background decoration */
+        .bg-decoration {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-decoration::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(45,212,191,0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .bg-decoration::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(45,212,191,0.04) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Grid pattern */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(45,212,191,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45,212,191,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main container */
+        .auth-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
+            animation: fadeIn 0.6s ease both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo */
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .auth-logo-icon {
+            width: 56px; height: 56px;
+            background: var(--gradient-1);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 40px var(--primary-glow);
+        }
+        .auth-logo-icon svg { width: 28px; height: 28px; fill: var(--bg-dark); }
+        .auth-logo-text {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+        .auth-logo-tagline {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Card */
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--border);
+        }
+        .auth-tab {
+            padding: 1rem;
+            text-align: center;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            position: relative;
+        }
+        .auth-tab.active {
+            color: var(--primary);
+        }
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0; right: 0;
+            height: 2px;
+            background: var(--primary);
+        }
+        .auth-tab:hover:not(.active) { color: var(--text-secondary); }
+
+        /* Form */
+        .auth-form {
+            padding: 2rem;
+            display: none;
+        }
+        .auth-form.active { display: block; }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .form-input::placeholder { color: var(--text-muted); }
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-subtle);
+        }
+        .form-input:focus { background: var(--bg-card); }
+
+        /* Name grid */
+        .name-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        /* HCP field */
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
+        /* Submit btn */
+        .btn-primary {
+            width: 100%;
+            padding: 0.95rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-dark);
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px var(--primary-glow);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: var(--bg-dark);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Error/Success messages */
+        .form-message {
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            display: none;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .form-message.show { display: flex; }
+        .form-message.error {
+            background: var(--red-bg);
+            border: 1px solid rgba(239,68,68,0.25);
+            color: #fca5a5;
+        }
+        .form-message.success {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.25);
+            color: #86efac;
+        }
+        .form-message svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+        /* Divider */
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .form-divider span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Google btn */
+        .btn-google {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        .btn-google:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-google svg { width: 18px; height: 18px; }
+
+        /* Footer */
+        .auth-footer {
+            text-align: center;
+            padding: 1.25rem 2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        /* Password toggle */
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper .form-input {
+            padding-right: 3rem;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0;
+            display: flex;
+        }
+        .toggle-password:hover { color: var(--text-secondary); }
+        .toggle-password svg { width: 18px; height: 18px; }
+
+        /* Confirmation screen */
+        .confirm-screen {
+            padding: 3rem 2rem;
+            text-align: center;
+            display: none;
+        }
+        .confirm-screen.show { display: block; }
+        .confirm-icon {
+            width: 72px; height: 72px;
+            background: rgba(34,197,94,0.1);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .confirm-icon svg { width: 36px; height: 36px; color: #22c55e; }
+        .confirm-title {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        .confirm-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .confirm-text strong { color: var(--text-primary); }
+
+        @media (max-width: 480px) {
+            .auth-wrapper { padding: 1rem; }
+            .auth-form { padding: 1.5rem; }
+            .name-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-grid"></div>
+    <div class="bg-decoration"></div>
+
+    <div class="auth-wrapper">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <div class="auth-logo-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+            </div>
+            <span class="auth-logo-text">MYGOLFLAB</span>
+            <p class="auth-logo-tagline">Entrena con Inteligencia. Juega con tu Swing.</p>
+        </div>
+
+        <!-- Card -->
+        <div class="auth-card">
+
+            <!-- Confirmation screen (hidden by default) -->
+            <div class="confirm-screen" id="confirmScreen">
+                <div class="confirm-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h2 class="confirm-title">¡Revisa tu email!</h2>
+                <p class="confirm-text">
+                    Te enviamos un link de confirmación a <strong id="confirmEmail"></strong>.<br><br>
+                    Haz click en el link para activar tu cuenta y acceder a tu dashboard.
+                </p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="auth-tabs" id="authTabs">
+                <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+                <button class="auth-tab" data-tab="register">Crear Cuenta</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form class="auth-form active" id="loginForm" novalidate>
+                <div class="form-message error" id="loginError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span id="loginErrorText"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="tu@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+                        <button type="button" class="toggle-password" onclick="togglePwd('loginPassword', this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    Entrar a mi Dashboard
+                </button>
+
+                <div class="form-divider"><span>o</span></div>
+
+                <button type="button" class="btn-google" id="googleLoginBtn">
+                    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continuar con Google
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form class="auth-form" id="registerForm" novalidate>
+                <div class="form-message error" id="registerError">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span id="registerErrorText"></span>
+                </div>
+
+                <div class="name-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-input" id="registerFirstName" placeholder="Diego" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Apellido</label>
+                        <input type="text" class="form-input" id="registerLastName" placeholder="Vargas" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="tu@email.com" autocomplete="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Handicap (opcional)</label>
+                    <input type="number" class="form-input" id="registerHcp" placeholder="ej: 4.2" step="0.1" min="-10" max="54">
+                    <p class="form-hint">Puedes actualizarlo después desde tu perfil.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input" id="registerPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required minlength="8">
+                        <button type="button" class="toggle-password" onclick="togglePwd('registerPassword', this)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="registerBtn">
+                    Crear mi Cuenta
+                </button>
+
+                <div class="form-divider"><span>o</span></div>
+
+                <button type="button" class="btn-google" id="googleRegisterBtn">
+                    <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continuar con Google
+                </button>
+            </form>
+
+        </div>
+
+        <div class="auth-footer">
+            ¿Tienes problemas para entrar? <a href="mailto:nico@smoothgolf.co">Contacta soporte</a>
+        </div>
+    </div>
+
+    <script>
+        // ── SUPABASE INIT ──
+        const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+        const { createClient } = supabase;
+        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ── REDIRECT IF ALREADY LOGGED IN ──
+        sb.auth.getSession().then(({ data }) => {
+            if (data.session) {
+                window.location.href = '/es/dashboard.html';
+            }
+        });
+
+        // Handle OAuth redirect
+        sb.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                window.location.href = '/es/dashboard.html';
+            }
+        });
+
+        // ── TABS ──
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(target + 'Form').classList.add('active');
+                clearMessages();
+            });
+        });
+
+        function clearMessages() {
+            document.querySelectorAll('.form-message').forEach(m => m.classList.remove('show'));
+        }
+
+        function showError(formId, msg) {
+            const el = document.getElementById(formId + 'Error');
+            const txt = document.getElementById(formId + 'ErrorText');
+            txt.textContent = msg;
+            el.classList.add('show');
+        }
+
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            if (loading) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="btn-loading"><span class="spinner"></span>Cargando...</span>';
+            } else {
+                btn.disabled = false;
+                btn.textContent = btnId === 'loginBtn' ? 'Entrar a mi Dashboard' : 'Crear mi Cuenta';
+            }
+        }
+
+        // ── LOGIN ──
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showError('login', 'Por favor completa todos los campos.');
+                return;
+            }
+
+            setLoading('loginBtn', true);
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            setLoading('loginBtn', false);
+
+            if (error) {
+                const msg = error.message.includes('Invalid login') || error.message.includes('invalid_credentials')
+                    ? 'Email o contraseña incorrectos.'
+                    : error.message.includes('Email not confirmed')
+                    ? 'Confirma tu email antes de entrar. Revisa tu bandeja.'
+                    : 'Error al iniciar sesión. Inténtalo de nuevo.';
+                showError('login', msg);
+            } else {
+                window.location.href = '/es/dashboard.html';
+            }
+        });
+
+        // ── REGISTER ──
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            const firstName = document.getElementById('registerFirstName').value.trim();
+            const lastName = document.getElementById('registerLastName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const hcp = document.getElementById('registerHcp').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!firstName || !lastName || !email || !password) {
+                showError('register', 'Por favor completa nombre, apellido, email y contraseña.');
+                return;
+            }
+            if (password.length < 8) {
+                showError('register', 'La contraseña debe tener al menos 8 caracteres.');
+                return;
+            }
+
+            setLoading('registerBtn', true);
+            const { data, error } = await sb.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        full_name: `${firstName} ${lastName}`,
+                        handicap: hcp ? parseFloat(hcp) : null,
+                        plan: 'Starter'
+                    },
+                    emailRedirectTo: 'https://mygolflab.golf/es/dashboard.html'
+                }
+            });
+            setLoading('registerBtn', false);
+
+            if (error) {
+                const msg = error.message.includes('already registered') || error.message.includes('User already registered')
+                    ? 'Este email ya está registrado. Inicia sesión.'
+                    : error.message.includes('Password should be at least')
+                    ? 'La contraseña debe tener al menos 8 caracteres.'
+                    : 'Error al crear la cuenta. Inténtalo de nuevo.';
+                showError('register', msg);
+            } else {
+                // Show confirmation screen
+                document.getElementById('authTabs').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('confirmEmail').textContent = email;
+                document.getElementById('confirmScreen').classList.add('show');
+            }
+        });
+
+        // ── GOOGLE OAUTH ──
+        async function googleSignIn() {
+            const { error } = await sb.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'https://mygolflab.golf/es/dashboard.html'
+                }
+            });
+            if (error) alert('Error con Google: ' + error.message);
+        }
+        document.getElementById('googleLoginBtn').addEventListener('click', googleSignIn);
+        document.getElementById('googleRegisterBtn').addEventListener('click', googleSignIn);
+
+        // ── PASSWORD TOGGLE ──
+        function togglePwd(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            btn.innerHTML = isHidden
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        }
+    </script>
+</body>
+</html>
