@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyGolfLab | Tu Mejor Swing, No Una Copia</title>
+    <title>MyGolfLab | Coaching de Golf con IA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,156 +36,123 @@
             overflow-x: hidden;
         }
 
-        /* Navigation */
+        /* ==================== HEADER UNIVERSAL ==================== */
         .nav {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 1rem 2rem;
+            padding: 0 24px;
+            height: 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(10, 10, 10, 0.85);
+            background: rgba(10, 10, 10, 0.92);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .logo-icon {
-            width: 32px; height: 32px;
-            background: var(--gradient-1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
-
-        /* Language Selector */
-        .lang-selector {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--bg-elevated);
-            padding: 0.25rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .lang-btn {
-            padding: 0.35rem 0.6rem;
-            font-family: var(--font-body);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        .lang-btn:hover { color: var(--text-secondary); }
-        .lang-btn.active { background: var(--primary); color: var(--bg-dark); }
 
         .hamburger {
             width: 44px; height: 44px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background: none;
+            border: none;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 5px;
-            transition: all 0.3s ease;
+            padding: 8px;
+            flex-shrink: 0;
         }
-        .hamburger:hover { background: var(--bg-card); border-color: var(--primary); }
         .hamburger span {
-            width: 18px; height: 2px;
+            width: 22px; height: 2px;
             background: var(--text-primary);
             border-radius: 2px;
             transition: all 0.3s ease;
+            display: block;
         }
         .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
         .hamburger.active span:nth-child(2) { opacity: 0; }
         .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-        /* Mobile Menu */
-        .mobile-menu {
-            position: fixed;
-            top: 0; right: -100%;
-            width: 100%; max-width: 400px;
-            height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999;
-            padding: 6rem 2rem 2rem;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid var(--border);
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            text-decoration: none;
         }
-        .mobile-menu.active { right: 0; }
+        .logo span { color: var(--primary); }
+
         .mobile-menu-overlay {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             z-index: 998;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
         }
         .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
-        .menu-links { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0; left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-dark);
+            z-index: 999;
+            padding: 80px 24px 32px;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .mobile-menu.active { left: 0; }
+
+        .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
         .menu-link {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
+            gap: 12px;
+            padding: 14px 16px;
             color: var(--text-secondary);
             text-decoration: none;
             font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 500;
+            font-size: 1.1rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
-            border-radius: 12px;
+            letter-spacing: 1.5px;
+            border-radius: 10px;
             transition: all 0.2s ease;
         }
         .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link svg { width: 22px; height: 22px; opacity: 0.6; }
-        .menu-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+        .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
+        .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+
+        .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
         .menu-cta {
             display: block;
             text-align: center;
-            padding: 1rem 2rem;
+            padding: 14px 20px;
             background: var(--gradient-1);
             color: var(--bg-dark);
             text-decoration: none;
             font-family: var(--font-heading);
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 12px;
-            margin-top: 1rem;
+            letter-spacing: 2px;
+            border-radius: 10px;
+            margin-top: 16px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
 
-        /* Hero */
+        /* ==================== HERO ==================== */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -214,8 +181,11 @@
             background: var(--bg-elevated);
             border: 1px solid var(--border);
             border-radius: 100px;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             color: var(--text-secondary);
             margin-bottom: 2rem;
             animation: fadeInUp 0.6s ease;
@@ -272,10 +242,10 @@
             color: var(--bg-dark);
             text-decoration: none;
             font-family: var(--font-heading);
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1.1rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 2px;
             border-radius: 14px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -283,56 +253,7 @@
         .btn-primary svg { width: 20px; height: 20px; }
         .hero-note { font-size: 0.875rem; color: var(--text-muted); }
 
-        /* App Banner */
-        .app-banner {
-            padding: 3rem 2rem;
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, transparent 50%);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
-        .app-banner-inner {
-            max-width: 900px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        .app-banner-text h3 {
-            font-family: var(--font-heading);
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 0.5rem;
-        }
-        .app-banner-text p { color: var(--text-secondary); }
-        .app-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
-        .app-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1.25rem;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-        }
-        .app-btn:hover { border-color: var(--primary); background: var(--bg-card); }
-        .app-btn svg { width: 24px; height: 24px; }
-        .app-btn-text { display: flex; flex-direction: column; text-align: left; }
-        .app-btn-text small {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .app-btn-text strong { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; }
-
-        /* Sections Common */
+        /* ==================== SECTIONS ==================== */
         .section-label {
             display: inline-flex;
             align-items: center;
@@ -347,12 +268,10 @@
         }
         .section-label::before { content: ''; width: 24px; height: 2px; background: var(--primary); }
 
-        /* Problem/Solution */
         .problem-solution { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
         .problem-solution h2 {
             font-family: var(--font-display);
             font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.02em;
             line-height: 1.1;
@@ -363,353 +282,160 @@
         .ps-card { padding: 2rem; border-radius: 20px; border: 1px solid var(--border); }
         .ps-card.problem { background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 50%); }
         .ps-card.solution { background: linear-gradient(135deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%); border-color: rgba(45, 212, 191, 0.3); }
-        .ps-card-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
+        .ps-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
         .ps-card.problem .ps-card-icon { background: rgba(239, 68, 68, 0.1); }
         .ps-card.problem .ps-card-icon svg { color: #ef4444; }
         .ps-card.solution .ps-card-icon { background: rgba(45, 212, 191, 0.15); }
         .ps-card.solution .ps-card-icon svg { color: var(--primary); }
         .ps-card-icon svg { width: 24px; height: 24px; }
-        .ps-card h3 {
-            font-family: var(--font-heading);
-            font-size: 1.4rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 1rem;
-        }
+        .ps-card h3 { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1rem; }
         .ps-card p { color: var(--text-secondary); font-size: 1rem; }
 
-        /* Methodology */
-        .methodology {
-            padding: 6rem 2rem;
-            background: var(--gradient-subtle);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-        }
+        .methodology { padding: 6rem 2rem; background: var(--gradient-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .methodology-inner { max-width: 900px; margin: 0 auto; text-align: center; }
-        .methodology h2 {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 1.5rem;
-        }
+        .methodology h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1.5rem; }
         .methodology-lead { font-size: 1.2rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 3rem; }
         .methodology-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; text-align: left; }
-        .pillar {
-            padding: 1.75rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: border-color 0.3s ease;
-        }
+        .pillar { padding: 1.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; transition: border-color 0.3s ease; }
         .pillar:hover { border-color: var(--primary); }
-        .pillar-number {
-            width: 36px; height: 36px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 1.25rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        .pillar h4 {
-            font-family: var(--font-heading);
-            font-size: 1.15rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 0.5rem;
-        }
+        .pillar-number { width: 36px; height: 36px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.25rem; color: var(--primary); margin-bottom: 1rem; }
+        .pillar h4 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
         .pillar p { font-size: 0.95rem; color: var(--text-secondary); }
 
-        /* Features */
         .features { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .features h2 {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
+        .features h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; margin-bottom: 1rem; }
         .features-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 3rem; }
         .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-        .feature-card {
-            padding: 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-            display: block;
-        }
-        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
-        .feature-icon {
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(45, 212, 191, 0.05) 100%);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.25rem;
-        }
+        .feature-card { padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; text-decoration: none; color: inherit; transition: all 0.3s ease; display: block; }
+        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(45, 212, 191, 0.05) 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
         .feature-icon svg { width: 28px; height: 28px; color: var(--primary); }
-        .feature-card h3 {
-            font-family: var(--font-heading);
-            font-size: 1.3rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 0.5rem;
-        }
+        .feature-card h3 { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
         .feature-card p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem; }
-        .feature-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--primary);
-        }
+        .feature-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); }
         .feature-link svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
         .feature-card:hover .feature-link svg { transform: translateX(4px); }
 
-        /* Waitlist */
-        .waitlist {
-            padding: 6rem 2rem;
-            text-align: center;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border);
-        }
+        .waitlist { padding: 6rem 2rem; text-align: center; background: var(--bg-card); border-top: 1px solid var(--border); }
         .waitlist-inner { max-width: 600px; margin: 0 auto; }
-        .waitlist h2 {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 1rem;
-        }
+        .waitlist h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1rem; }
         .waitlist p { color: var(--text-secondary); margin-bottom: 2rem; }
         .waitlist-form { display: flex; gap: 0.75rem; max-width: 450px; margin: 0 auto; }
-        .waitlist-form input {
-            flex: 1;
-            padding: 1rem 1.25rem;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            font-family: var(--font-body);
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
+        .waitlist-form input { flex: 1; padding: 1rem 1.25rem; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 1rem; font-family: var(--font-body); outline: none; transition: border-color 0.2s ease; }
         .waitlist-form input:focus { border-color: var(--primary); }
         .waitlist-form input::placeholder { color: var(--text-muted); }
-        .waitlist-form button {
-            padding: 1rem 1.5rem;
-            background: var(--gradient-1);
-            border: none;
-            border-radius: 12px;
-            color: var(--bg-dark);
-            font-family: var(--font-heading);
-            font-size: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            white-space: nowrap;
-        }
+        .waitlist-form button { padding: 1rem 1.5rem; background: var(--gradient-1); border: none; border-radius: 12px; color: var(--bg-dark); font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap; }
         .waitlist-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
         @media (max-width: 500px) { .waitlist-form { flex-direction: column; } }
 
-        /* Footer */
         .footer { padding: 3rem 2rem; border-top: 1px solid var(--border); text-align: center; }
-        .footer-logo {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
+        .footer-logo { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 3px; margin-bottom: 1rem; }
         .footer p { font-size: 0.875rem; color: var(--text-muted); }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav { padding: 1rem; }
-            .nav-left { gap: 1rem; }
-            .lang-selector { display: none; }
-            .menu-lang-selector { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-            .menu-lang-btn {
-                flex: 1;
-                padding: 0.75rem;
-                font-family: var(--font-body);
-                font-size: 0.8rem;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                background: var(--bg-elevated);
-                border: 1px solid var(--border);
-                color: var(--text-muted);
-                cursor: pointer;
-                border-radius: 8px;
-                transition: all 0.2s ease;
-            }
-            .menu-lang-btn.active { background: var(--primary); color: var(--bg-dark); border-color: var(--primary); }
-            .app-banner-inner { flex-direction: column; text-align: center; }
-            .app-buttons { justify-content: center; }
-        }
-        @media (min-width: 769px) { .menu-lang-selector { display: none; } }
     </style>
 </head>
 <body>
+
+    <!-- HEADER UNIVERSAL -->
     <nav class="nav">
-        <div class="nav-left">
-            <a href="index.html" class="logo">
-                <div class="logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>
-                MYGOLFLAB
-            </a>
-            <div class="lang-selector">
-                <button class="lang-btn active" onclick="switchLang('es')">ES</button>
-                <button class="lang-btn" onclick="switchLang('en')">EN</button>
-                <button class="lang-btn" onclick="switchLang('pt')">PT</button>
-            </div>
-        </div>
         <button class="hamburger" id="hamburger" aria-label="Menú">
             <span></span><span></span><span></span>
         </button>
+        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
     </nav>
 
     <div class="mobile-menu-overlay" id="menuOverlay"></div>
 
     <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-lang-selector">
-            <button class="menu-lang-btn active" onclick="switchLang('es')">ES</button>
-            <button class="menu-lang-btn" onclick="switchLang('en')">EN</button>
-            <button class="menu-lang-btn" onclick="switchLang('pt')">PT</button>
-        </div>
         <div class="menu-links">
-            <a href="index.html" class="menu-link">
+            <a href="/es/index.html" class="menu-link active">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Inicio
             </a>
-            <a href="coach-ai.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+            <a href="/es/coach-ai.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 Coach IA
             </a>
-            <a href="library.html" class="menu-link">
+            <a href="/es/library.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 Biblioteca
             </a>
-            <a href="training.html" class="menu-link">
+            <a href="/es/training.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 Training Lab
             </a>
-            <a href="pricing.html" class="menu-link">
+            <a href="/es/pricing.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 Precios
             </a>
             <div class="menu-divider"></div>
-            <a href="about.html" class="menu-link">
+            <a href="/es/about.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
                 El Coach
             </a>
         </div>
-        <a href="#waitlist" class="menu-cta" id="menuCta">Únete</a>
+        <a href="#waitlist" class="menu-cta">Únete</a>
     </div>
 
+    <!-- HERO -->
     <section class="hero">
         <div class="hero-badge"><span class="hero-badge-dot"></span>En desarrollo</div>
-        <h1>Tu Mejor Swing,<span>No Una Copia</span></h1>
-        <p class="hero-subtitle">Coaching de golf con IA que se adapta a tu anatomía y patrones de movimiento únicos. Deja de copiar swings que no fueron hechos para tu cuerpo.</p>
+        <h1>Entrena con Inteligencia.<span>Juega con tu Swing.</span></h1>
+        <p class="hero-subtitle">Coaching de golf con IA que analiza tu movimiento único y construye un plan personalizado para tu cuerpo. Sin moldes. Sin copias. Tu receta.</p>
         <div class="hero-cta">
             <a href="#waitlist" class="btn-primary">
                 Únete a la Lista
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
-            <p class="hero-note">Acceso anticipado gratis • Sin tarjeta de crédito</p>
-        </div>
-    </section>
-
-    <section class="app-banner">
-        <div class="app-banner-inner">
-            <div class="app-banner-text">
-                <h3>Descarga SwingAI</h3>
-                <p>Lleva tu entrenamiento a cualquier parte</p>
-            </div>
-            <div class="app-buttons">
-                <a href="#" class="app-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                    <div class="app-btn-text"><small>Descargar en</small><strong>App Store</strong></div>
-                </a>
-                <a href="#" class="app-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.198l2.807 1.626a1 1 0 0 1 0 1.73l-2.808 1.626L15.206 12l2.492-2.491zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
-                    <div class="app-btn-text"><small>Disponible en</small><strong>Google Play</strong></div>
-                </a>
-            </div>
+            <p class="hero-note">Acceso anticipado gratis · Sin tarjeta de crédito</p>
         </div>
     </section>
 
     <section class="problem-solution">
         <span class="section-label">La Realidad</span>
-        <h2>El coaching tradicional te da el swing de otro. Nosotros te ayudamos a encontrar el tuyo.</h2>
+        <h2>Tu swing tiene una lógica propia. Nosotros la encontramos.</h2>
         <div class="ps-grid">
             <div class="ps-card problem">
                 <div class="ps-card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                 </div>
-                <h3>El Problema del Copiar y Pegar</h3>
-                <p>La mayoría de la instrucción intenta encajarte en una plantilla. "Copia este movimiento del pro." Pero tu cuerpo no es su cuerpo. Tu flexibilidad, fuerza y proporciones son únicas.</p>
+                <h3>El problema del molde único</h3>
+                <p>La mayoría de la instrucción intenta encajarte en una plantilla. "Copia este movimiento del pro." Pero tu cuerpo, tu flexibilidad y tus proporciones son únicos — lo que funciona para otro puede no funcionar para ti.</p>
             </div>
             <div class="ps-card solution">
                 <div class="ps-card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
-                <h3>El Enfoque MyGolfLab</h3>
-                <p>Analizamos cómo se mueve MEJOR tu cuerpo, y construimos un swing alrededor de tus patrones naturales. Como la metodología TPI, creemos que no hay un swing perfecto—solo el swing perfecto para ti.</p>
+                <h3>El enfoque MyGolfLab</h3>
+                <p>Analizamos cómo se mueve mejor tu cuerpo y construimos un swing alrededor de tus patrones naturales. No hay un swing perfecto universal — solo el swing perfecto para ti.</p>
             </div>
         </div>
     </section>
 
     <section class="methodology">
         <div class="methodology-inner">
-            <span class="section-label">Nuestra Filosofía</span>
-            <h2>Diseñado Para Tu Cuerpo</h2>
-            <p class="methodology-lead">Cada golfista tiene diferente movilidad, fuerza y características físicas. Identificamos tus patrones de movimiento óptimos y los entrenamos.</p>
+            <span class="section-label">Metodología MyGolfLab</span>
+            <h2>Los Cuatro Pilares</h2>
+            <p class="methodology-lead">Ground Forces, Kinematic Sequence, Wrist Conditions y Body Tilts. Cuatro pilares que determinan la calidad de cada golpe.</p>
             <div class="methodology-pillars">
                 <div class="pillar">
                     <div class="pillar-number">1</div>
-                    <h4>Evalúa Tus Patrones</h4>
-                    <p>Comprende tu movilidad única, limitaciones y fortalezas a través del análisis de movimiento.</p>
+                    <h4>Ground Forces</h4>
+                    <p>Cómo usas el suelo es cómo generas velocidad. La transferencia de presión desde los pies es la base de un swing eficiente.</p>
                 </div>
                 <div class="pillar">
                     <div class="pillar-number">2</div>
-                    <h4>Define Tu Modelo</h4>
-                    <p>Construye un modelo de swing que trabaje CON tu cuerpo, no en su contra.</p>
+                    <h4>Kinematic Sequence</h4>
+                    <p>Caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia y consistencia.</p>
                 </div>
                 <div class="pillar">
                     <div class="pillar-number">3</div>
-                    <h4>Entrena con Propósito</h4>
-                    <p>Drills y ejercicios específicamente elegidos para tu camino de desarrollo.</p>
+                    <h4>Wrist Conditions</h4>
+                    <p>La posición de tus muñecas controla la cara del palo y la compresión. Es lo que separa un buen contacto de uno mediocre.</p>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-number">4</div>
+                    <h4>Body Tilts</h4>
+                    <p>Las inclinaciones del torso en cada fase del swing afectan el contacto, la trayectoria y tu capacidad de comprimir consistentemente.</p>
                 </div>
             </div>
         </div>
@@ -720,36 +446,36 @@
         <h2>Todo Lo Que Necesitas</h2>
         <p class="features-subtitle">Un ecosistema de entrenamiento completo para golfistas serios.</p>
         <div class="features-grid">
-            <a href="coach-ai.html" class="feature-card">
+            <a href="/es/coach-ai.html" class="feature-card">
                 <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 </div>
                 <h3>Coach IA</h3>
-                <p>Tu coach personal de IA que analiza tu swing y da feedback en tiempo real adaptado a tu cuerpo.</p>
+                <p>Analiza tu swing con video y recibe un diagnóstico personalizado basado en la metodología MyGolfLab.</p>
                 <span class="feature-link">Saber más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
-            <a href="library.html" class="feature-card">
+            <a href="/es/library.html" class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 </div>
-                <h3>Biblioteca de Videos</h3>
-                <p>Swing completo, chipping, putting y cursos completos. Aprende cada aspecto del juego.</p>
+                <h3>Biblioteca</h3>
+                <p>Video tips y cursos completos sobre cada aspecto del juego — swing, short game, mentalidad y más.</p>
                 <span class="feature-link">Explorar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
-            <a href="training.html" class="feature-card">
+            <a href="/es/training.html" class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 </div>
-                <h3>Centro de Rendimiento</h3>
-                <p>500+ drills categorizados por nivel. Sigue tu progreso y compite en el ranking.</p>
+                <h3>Training Lab</h3>
+                <p>80+ drills categorizados por nivel y categoría. Sigue tu progreso y compite en el ranking mensual.</p>
                 <span class="feature-link">Ver drills <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
-            <a href="pricing.html" class="feature-card">
+            <a href="/es/pricing.html" class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
                 <h3>Planes Flexibles</h3>
-                <p>Desde Starter hasta Elite—elige el nivel que se ajuste a tu compromiso.</p>
+                <p>Desde Starter hasta Elite — elige el nivel que se ajuste a tu compromiso y objetivos.</p>
                 <span class="feature-link">Ver precios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
             </a>
         </div>
@@ -769,24 +495,13 @@
 
     <footer class="footer">
         <div class="footer-logo">MYGOLFLAB</div>
-        <p>© 2026 MyGolfLab. Todos los derechos reservados.</p>
+        <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        function switchLang(lang) {
-            const path = window.location.pathname;
-            const match = path.match(/\/(es|en|pt)\//);
-            if (match) {
-                window.location.href = path.replace(`/${match[1]}/`, `/${lang}/`);
-            } else {
-                window.location.href = `/${lang}/index.html`;
-            }
-        }
-
         const hamburger = document.getElementById('hamburger');
         const mobileMenu = document.getElementById('mobileMenu');
         const menuOverlay = document.getElementById('menuOverlay');
-        const menuCta = document.getElementById('menuCta');
 
         function toggleMenu() {
             hamburger.classList.toggle('active');
@@ -797,10 +512,8 @@
 
         hamburger.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', toggleMenu);
-        menuCta.addEventListener('click', toggleMenu);
-
-        document.querySelectorAll('.menu-link').forEach(link => {
-            link.addEventListener('click', () => {
+        document.querySelectorAll('.menu-link, .menu-cta').forEach(function(link) {
+            link.addEventListener('click', function() {
                 if (mobileMenu.classList.contains('active')) toggleMenu();
             });
         });
@@ -808,7 +521,7 @@
         document.getElementById('waitlistForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = this.querySelector('input').value;
-            alert('¡Gracias! Te contactaremos en ' + email);
+            alert('Gracias! Te contactaremos en ' + email);
             this.reset();
         });
     </script>
