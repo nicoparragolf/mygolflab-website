@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyGolfLab | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            --primary-dark: #14b8a6;
+            --primary-glow: rgba(45, 212, 191, 0.3);
+            --primary-subtle: rgba(45, 212, 191, 0.08);
+            --primary-15: rgba(45, 212, 191, 0.15);
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border: #262626;
+            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --yellow: #eab308;
+            --yellow-bg: rgba(234, 179, 8, 0.1);
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59, 130, 246, 0.1);
+            --sidebar-w: 260px;
+            --font-display: 'Bebas Neue', sans-serif;
+            --font-heading: 'Barlow Condensed', sans-serif;
+            --font-body: 'Barlow', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Loading screen */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .loading-screen.hidden { display: none; }
+        .loading-logo {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+        }
+        .loading-spinner {
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .sidebar-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+        .sidebar-logo-icon {
+            width: 32px; height: 32px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
+        .sidebar-logo-text {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            letter-spacing: 0.05em;
+        }
+        .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+        .sidebar-section-label {
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            padding: 0.75rem 0.75rem 0.5rem;
+        }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin-bottom: 2px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .sidebar-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
+        .sidebar-link.active { background: var(--primary-subtle); color: var(--primary); }
+        .sidebar-link svg { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
+        .sidebar-link.active svg { opacity: 1; }
+        .sidebar-link .badge {
+            margin-left: auto;
+            background: var(--red);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 100px;
+        }
+        .sidebar-footer {
+            padding: 1rem 0.75rem;
+            border-top: 1px solid var(--border);
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 0.5rem;
+        }
+        .sidebar-user:hover { background: var(--bg-elevated); }
+        .sidebar-avatar {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--bg-dark);
+            flex-shrink: 0;
+        }
+        .sidebar-user-info { overflow: hidden; flex: 1; }
+        .sidebar-user-name {
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-user-plan {
+            font-size: 0.7rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .sidebar-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+        }
+        .sidebar-logout:hover { color: var(--red); background: var(--red-bg); }
+        .sidebar-logout svg { width: 16px; height: 16px; }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+        /* TOPBAR */
+        .topbar {
+            position: sticky;
+            top: 0; z-index: 50;
+            padding: 1rem 2rem;
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 1rem; }
+        .topbar-hamburger {
+            display: none;
+            width: 40px; height: 40px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .topbar-hamburger span { width: 16px; height: 2px; background: var(--text-primary); border-radius: 2px; }
+        .topbar-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 0.03em;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+        .topbar-btn {
+            width: 40px; height: 40px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            position: relative;
+            transition: all 0.2s;
+        }
+        .topbar-btn:hover { border-color: var(--primary); color: var(--text-primary); }
+        .topbar-btn svg { width: 20px; height: 20px; }
+        .topbar-btn .dot {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 7px; height: 7px;
+            background: var(--red);
+            border-radius: 50%;
+            border: 2px solid var(--bg-dark);
+        }
+
+        /* CONTENT */
+        .content { padding: 1.5rem 2rem 3rem; max-width: 1280px; }
+
+        /* PROFILE BANNER */
+        .profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.75rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-banner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at top left, var(--primary-subtle) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .profile-avatar {
+            width: 72px; height: 72px;
+            border-radius: 16px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: var(--bg-dark);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .profile-info { flex: 1; position: relative; }
+        .profile-name {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+        .profile-meta { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+        .profile-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .profile-tag svg { width: 14px; height: 14px; opacity: 0.6; }
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--primary-15);
+            border: 1px solid rgba(45,212,191,0.25);
+            border-radius: 100px;
+            font-family: var(--font-heading);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--primary);
+        }
+        .profile-actions { position: relative; display: flex; gap: 0.5rem; }
+        .btn-outline {
+            padding: 0.6rem 1.25rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .kpi-card {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: border-color 0.3s;
+        }
+        .kpi-card:hover { border-color: rgba(45,212,191,0.3); }
+        .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+        .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .kpi-icon svg { width: 20px; height: 20px; }
+        .kpi-icon.teal { background: var(--primary-15); color: var(--primary); }
+        .kpi-icon.blue { background: var(--blue-bg); color: var(--blue); }
+        .kpi-icon.yellow { background: var(--yellow-bg); color: var(--yellow); }
+        .kpi-icon.green { background: var(--green-bg); color: var(--green); }
+        .kpi-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 100px;
+        }
+        .kpi-trend.up { background: var(--green-bg); color: var(--green); }
+        .kpi-trend.down { background: var(--red-bg); color: var(--red); }
+        .kpi-trend svg { width: 12px; height: 12px; }
+        .kpi-value { font-family: var(--font-display); font-size: 2.25rem; line-height: 1; letter-spacing: 0.02em; margin-bottom: 0.25rem; }
+        .kpi-label { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+
+        /* GRID LAYOUTS */
+        .grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+
+        /* CARD */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+        .card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.5rem; }
+        .card-title svg { width: 18px; height: 18px; color: var(--primary); }
+        .card-action { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+        .card-action:hover { opacity: 0.7; }
+        .card-body { padding: 1.5rem; }
+
+        /* CHART */
+        .chart-container { width: 100%; height: 240px; position: relative; }
+        .chart-svg { width: 100%; height: 100%; }
+        .chart-grid-line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 4 4; }
+        .chart-line { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .chart-area { fill: url(#chartGradient); }
+        .chart-dot { fill: var(--primary); stroke: var(--bg-card); stroke-width: 3; }
+        .chart-label { font-family: var(--font-body); font-size: 11px; fill: var(--text-muted); }
+        .chart-legend { display: flex; gap: 1.5rem; padding-top: 1rem; }
+        .chart-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-secondary); }
+        .chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* INSIGHTS */
+        .insight-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .insight-item { display: flex; gap: 0.75rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: border-color 0.2s; }
+        .insight-item:hover { border-color: var(--border); }
+        .insight-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .insight-icon svg { width: 18px; height: 18px; }
+        .insight-icon.up { background: var(--green-bg); color: var(--green); }
+        .insight-icon.warn { background: var(--yellow-bg); color: var(--yellow); }
+        .insight-icon.down { background: var(--red-bg); color: var(--red); }
+        .insight-icon.info { background: var(--blue-bg); color: var(--blue); }
+        .insight-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        .insight-text strong { color: var(--text-primary); font-weight: 600; }
+        .insight-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* ANALYSIS */
+        .analysis-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .analysis-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+        .analysis-item:hover { border-color: var(--border); transform: translateX(4px); }
+        .analysis-thumb { width: 56px; height: 56px; border-radius: 10px; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; overflow: hidden; }
+        .analysis-thumb svg { width: 24px; height: 24px; color: var(--text-muted); }
+        .analysis-thumb .play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.2s; }
+        .analysis-item:hover .play-icon { opacity: 1; }
+        .analysis-thumb .play-icon svg { width: 20px; height: 20px; color: #fff; }
+        .analysis-info { flex: 1; overflow: hidden; }
+        .analysis-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .analysis-date { font-size: 0.8rem; color: var(--text-muted); }
+        .analysis-score { font-family: var(--font-display); font-size: 1.5rem; color: var(--primary); flex-shrink: 0; }
+
+        /* DRILLS */
+        .drill-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .drill-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: all 0.2s; }
+        .drill-item:hover { border-color: var(--border); }
+        .drill-status { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .drill-status svg { width: 16px; height: 16px; }
+        .drill-status.done { background: var(--green-bg); color: var(--green); }
+        .drill-status.progress { background: var(--yellow-bg); color: var(--yellow); }
+        .drill-status.pending { background: var(--bg-dark); color: var(--text-muted); border: 1px solid var(--border); }
+        .drill-info { flex: 1; }
+        .drill-name { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.1rem; }
+        .drill-category { font-size: 0.75rem; color: var(--text-muted); }
+        .drill-progress-bar { width: 80px; height: 4px; background: var(--bg-dark); border-radius: 100px; overflow: hidden; flex-shrink: 0; }
+        .drill-progress-fill { height: 100%; border-radius: 100px; background: var(--gradient-1); transition: width 0.4s ease; }
+
+        /* NOTIFICATIONS */
+        .notif-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .notif-item { display: flex; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-elevated); border-radius: 12px; align-items: flex-start; border: 1px solid transparent; transition: border-color 0.2s; }
+        .notif-item:hover { border-color: var(--border); }
+        .notif-item.unread { border-left: 3px solid var(--primary); }
+        .notif-dot { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .notif-dot svg { width: 16px; height: 16px; }
+        .notif-dot.analysis { background: var(--primary-15); color: var(--primary); }
+        .notif-dot.coach { background: var(--blue-bg); color: var(--blue); }
+        .notif-dot.drill { background: var(--yellow-bg); color: var(--yellow); }
+        .notif-dot.achievement { background: var(--green-bg); color: var(--green); }
+        .notif-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
+        .notif-text strong { color: var(--text-primary); }
+        .notif-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        /* COACH FEEDBACK */
+        .coach-feedback-item { display: flex; gap: 1rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: border-color 0.2s; }
+        .coach-feedback-item:hover { border-color: var(--border); }
+        .coach-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--font-display); font-size: 1.1rem; color: #fff; }
+        .coach-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        .coach-text strong { color: var(--text-primary); }
+        .coach-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.5rem; }
+        .coach-meta .voice-badge { display: inline-flex; align-items: center; gap: 0.2rem; color: var(--primary); font-weight: 600; }
+        .coach-meta .voice-badge svg { width: 12px; height: 12px; }
+        .elite-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(139,92,246,0.25); border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #a78bfa; }
+        .elite-badge svg { width: 10px; height: 10px; }
+
+        /* MOBILE */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.5s ease both; }
+        .animate-in:nth-child(2) { animation-delay: 0.05s; }
+        .animate-in:nth-child(3) { animation-delay: 0.1s; }
+        .animate-in:nth-child(4) { animation-delay: 0.15s; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; }
+            .topbar-hamburger { display: flex; }
+            .content { padding: 1rem; }
+            .profile-banner { flex-direction: column; text-align: center; padding: 1.5rem; }
+            .profile-meta { justify-content: center; }
+            .profile-actions { justify-content: center; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+            .kpi-card { padding: 1.15rem; }
+            .kpi-value { font-size: 1.75rem; }
+        }
+        @media (max-width: 480px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">MYGOLFLAB</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>
+            <span class="sidebar-logo-text">MYGOLFLAB</span>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Principal</div>
+            <button class="sidebar-link active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Dashboard
+            </button>
+            <a href="/es/coach-ai.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><circle cx="12" cy="12" r="3"/></svg>
+                Coach IA
+            </a>
+            <a href="/es/training.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Training Lab
+                <span class="badge">3</span>
+            </a>
+            <a href="/es/library.html" class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Biblioteca
+            </a>
+            <div class="sidebar-section-label" style="margin-top:0.5rem">Análisis</div>
+            <button class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                Historial Videos
+            </button>
+            <button class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Estadísticas
+            </button>
+            <div class="sidebar-section-label" style="margin-top:0.5rem">Cuenta</div>
+            <button class="sidebar-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Configuración
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar" id="sidebarAvatar">—</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarName">Cargando...</div>
+                    <div class="sidebar-user-plan" id="sidebarPlan">—</div>
+                </div>
+            </div>
+            <button class="sidebar-logout" id="logoutBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN -->
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-hamburger" id="menuToggle" aria-label="Menú">
+                    <span></span><span></span><span></span>
+                </button>
+                <h1 class="topbar-title">Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-btn" title="Buscar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <button class="topbar-btn" title="Notificaciones">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="dot"></span>
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- PROFILE BANNER -->
+            <div class="profile-banner animate-in">
+                <div class="profile-avatar" id="profileAvatar">—</div>
+                <div class="profile-info">
+                    <h2 class="profile-name" id="profileName">—</h2>
+                    <div class="profile-meta">
+                        <span class="profile-tag" id="profileHcp" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            <span id="profileHcpValue"></span>
+                        </span>
+                        <span class="plan-badge" id="profilePlan">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            Starter
+                        </span>
+                        <span class="profile-tag" style="color:var(--green);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
+                            Activo hoy
+                        </span>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn-outline">Editar Perfil</button>
+                    <a href="/es/coach-ai.html" class="btn-outline" style="text-decoration:none;">Subir Video</a>
+                </div>
+            </div>
+
+            <!-- KPI GRID -->
+            <div class="kpi-grid">
+                <div class="kpi-card animate-in">
+                    <div class="kpi-header">
+                        <div class="kpi-icon teal">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        </div>
+                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+8</span>
+                    </div>
+                    <div class="kpi-value">76</div>
+                    <div class="kpi-label">Score Técnico</div>
+                </div>
+                <div class="kpi-card animate-in">
+                    <div class="kpi-header">
+                        <div class="kpi-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
+                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+12%</span>
+                    </div>
+                    <div class="kpi-value">82%</div>
+                    <div class="kpi-label">Consistencia</div>
+                </div>
+                <div class="kpi-card animate-in">
+                    <div class="kpi-header">
+                        <div class="kpi-icon yellow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <span class="kpi-trend down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-5%</span>
+                    </div>
+                    <div class="kpi-value">68%</div>
+                    <div class="kpi-label">Adherencia al Plan</div>
+                </div>
+                <div class="kpi-card animate-in">
+                    <div class="kpi-header">
+                        <div class="kpi-icon green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+3</span>
+                    </div>
+                    <div class="kpi-value">24</div>
+                    <div class="kpi-label">Drills Completados</div>
+                </div>
+            </div>
+
+            <!-- CHART + INSIGHTS -->
+            <div class="grid-2">
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            Evolución Score Técnico
+                        </span>
+                        <span class="card-action">Últimos 6 meses</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <svg class="chart-svg" viewBox="0 0 600 220" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.25"/>
+                                        <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                <line class="chart-grid-line" x1="60" y1="20" x2="580" y2="20"/>
+                                <line class="chart-grid-line" x1="60" y1="70" x2="580" y2="70"/>
+                                <line class="chart-grid-line" x1="60" y1="120" x2="580" y2="120"/>
+                                <line class="chart-grid-line" x1="60" y1="170" x2="580" y2="170"/>
+                                <text class="chart-label" x="50" y="24" text-anchor="end">100</text>
+                                <text class="chart-label" x="50" y="74" text-anchor="end">80</text>
+                                <text class="chart-label" x="50" y="124" text-anchor="end">60</text>
+                                <text class="chart-label" x="50" y="174" text-anchor="end">40</text>
+                                <text class="chart-label" x="100" y="200" text-anchor="middle">Nov</text>
+                                <text class="chart-label" x="196" y="200" text-anchor="middle">Dic</text>
+                                <text class="chart-label" x="292" y="200" text-anchor="middle">Ene</text>
+                                <text class="chart-label" x="388" y="200" text-anchor="middle">Feb</text>
+                                <text class="chart-label" x="484" y="200" text-anchor="middle">Mar</text>
+                                <text class="chart-label" x="560" y="200" text-anchor="middle">Abr</text>
+                                <path class="chart-area" d="M100,145 L196,130 L292,115 L388,95 L484,78 L560,58 L560,180 L100,180 Z"/>
+                                <polyline class="chart-line" points="100,145 196,130 292,115 388,95 484,78 560,58"/>
+                                <circle class="chart-dot" cx="100" cy="145" r="5"/>
+                                <circle class="chart-dot" cx="196" cy="130" r="5"/>
+                                <circle class="chart-dot" cx="292" cy="115" r="5"/>
+                                <circle class="chart-dot" cx="388" cy="95" r="5"/>
+                                <circle class="chart-dot" cx="484" cy="78" r="5"/>
+                                <circle class="chart-dot" cx="560" cy="58" r="6" stroke-width="4"/>
+                            </svg>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="chart-legend-item">
+                                <div class="chart-legend-dot" style="background:var(--primary)"></div>
+                                Score Técnico
+                            </div>
+                            <div class="chart-legend-item" style="color:var(--text-muted);">
+                                Nov: 52 → Abr: 76 <strong style="color:var(--green);margin-left:0.25rem;">+46%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 12 18.469c-.74 0-1.461.245-2.039.708l-.499-.5z"/></svg>
+                            Progreso Inteligente
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="insight-list">
+                            <div class="insight-item">
+                                <div class="insight-icon up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
+                                <div>
+                                    <div class="insight-text"><strong>Backswing consistency</strong> mejoró un <strong style="color:var(--green)">18%</strong> en las últimas 3 semanas.</div>
+                                    <div class="insight-time">Hace 2 horas</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                                <div>
+                                    <div class="insight-text">Tu <strong>frecuencia de entrenamiento</strong> bajó esta semana. Solo 2 de 5 sesiones planeadas.</div>
+                                    <div class="insight-time">Hace 1 día</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+                                <div>
+                                    <div class="insight-text"><strong>Drill sugerido:</strong> Presión lateral con step drill. Tu transferencia de peso necesita trabajo.</div>
+                                    <div class="insight-time">Recomendación AI</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg></div>
+                                <div>
+                                    <div class="insight-text">Posible <strong>estancamiento</strong> en posiciones de impacto. Revisa tu wrist condition en el último análisis.</div>
+                                    <div class="insight-time">Hace 3 días</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 COLUMNS -->
+            <div class="grid-3">
+                <!-- ANALYSIS HISTORY -->
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            Últimos Análisis
+                        </span>
+                        <span class="card-action">Ver todos →</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="analysis-list">
+                            <div class="analysis-item">
+                                <div class="analysis-thumb">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                                </div>
+                                <div class="analysis-info">
+                                    <div class="analysis-title">Driver – Face On</div>
+                                    <div class="analysis-date">5 Abr 2026</div>
+                                </div>
+                                <div class="analysis-score">81</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-thumb">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                                </div>
+                                <div class="analysis-info">
+                                    <div class="analysis-title">Iron 7 – Down the Line</div>
+                                    <div class="analysis-date">2 Abr 2026</div>
+                                </div>
+                                <div class="analysis-score">74</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-thumb">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                                </div>
+                                <div class="analysis-info">
+                                    <div class="analysis-title">Wedge – Face On</div>
+                                    <div class="analysis-date">28 Mar 2026</div>
+                                </div>
+                                <div class="analysis-score">69</div>
+                            </div>
+                            <div class="analysis-item">
+                                <div class="analysis-thumb">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+                                </div>
+                                <div class="analysis-info">
+                                    <div class="analysis-title">Driver – DTL Slow-Mo</div>
+                                    <div class="analysis-date">21 Mar 2026</div>
+                                </div>
+                                <div class="analysis-score">72</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TRAINING LAB -->
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            Training Lab
+                        </span>
+                        <a href="/es/training.html" class="card-action">Ver plan →</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="drill-list">
+                            <div class="drill-item">
+                                <div class="drill-status done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+                                <div class="drill-info">
+                                    <div class="drill-name">Step Drill – Presión Lateral</div>
+                                    <div class="drill-category">Ground Pressure • Nivel Pro</div>
+                                </div>
+                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:100%"></div></div>
+                            </div>
+                            <div class="drill-item">
+                                <div class="drill-status done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+                                <div class="drill-info">
+                                    <div class="drill-name">Pivot Drill – Anti Reverse</div>
+                                    <div class="drill-category">Backswing • Nivel Pro</div>
+                                </div>
+                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:100%"></div></div>
+                            </div>
+                            <div class="drill-item">
+                                <div class="drill-status progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                                <div class="drill-info">
+                                    <div class="drill-name">Wrist Condition – Impact</div>
+                                    <div class="drill-category">Impacto • Nivel Pro+</div>
+                                </div>
+                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:60%"></div></div>
+                            </div>
+                            <div class="drill-item">
+                                <div class="drill-status pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
+                                <div class="drill-info">
+                                    <div class="drill-name">Tilt & Rotation Balance</div>
+                                    <div class="drill-category">Downswing • Nivel Pro+</div>
+                                </div>
+                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:0%"></div></div>
+                            </div>
+                            <div class="drill-item">
+                                <div class="drill-status pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
+                                <div class="drill-info">
+                                    <div class="drill-name">Tempo Drill – 3:1 Ratio</div>
+                                    <div class="drill-category">Timing • Nivel Starter</div>
+                                </div>
+                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:0%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIVIDAD + COACH FEEDBACK -->
+                <div class="card animate-in">
+                    <div class="card-header">
+                        <span class="card-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            Actividad Reciente
+                        </span>
+                        <span class="elite-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            Elite
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="notif-list" style="margin-bottom:1rem;">
+                            <div class="notif-item unread">
+                                <div class="notif-dot coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                                <div>
+                                    <div class="notif-text"><strong>Coach Nico</strong> dejó un comentario en tu análisis de Driver.</div>
+                                    <div class="notif-time">Hace 30 min</div>
+                                </div>
+                            </div>
+                            <div class="notif-item unread">
+                                <div class="notif-dot analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg></div>
+                                <div>
+                                    <div class="notif-text">Nuevo <strong>análisis AI</strong> disponible: Driver Face On</div>
+                                    <div class="notif-time">Hace 2 horas</div>
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-dot achievement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
+                                <div>
+                                    <div class="notif-text">¡Hito! Completaste <strong>20 drills</strong> este mes.</div>
+                                    <div class="notif-time">Hace 1 día</div>
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-dot drill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                                <div>
+                                    <div class="notif-text"><strong>Coach Nico</strong> asignó 2 drills nuevos a tu plan.</div>
+                                    <div class="notif-time">Hace 2 días</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border-top:1px solid var(--border); padding-top:1rem;">
+                            <div class="coach-feedback-item">
+                                <div class="coach-avatar">NP</div>
+                                <div>
+                                    <div class="coach-text">"<strong>Buen progreso en el pivot</strong>. Ahora enfócate en mantener la flexión de muñeca en el impacto. Revisamos el viernes."</div>
+                                    <div class="coach-meta">
+                                        Coach Nico • 5 Abr
+                                        <span class="voice-badge">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                                            + Audio
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── SUPABASE INIT ──
+        const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+        const { createClient } = supabase;
+        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ── AUTH GUARD ──
+        async function initDashboard() {
+            const { data: { session } } = await sb.auth.getSession();
+
+            if (!session) {
+                window.location.href = '/es/login.html';
+                return;
+            }
+
+            const user = session.user;
+            const meta = user.user_metadata || {};
+
+            // Build display name
+            const firstName = meta.first_name || meta.given_name || '';
+            const lastName = meta.last_name || meta.family_name || '';
+            const fullName = meta.full_name || `${firstName} ${lastName}`.trim() || user.email.split('@')[0];
+            const initials = getInitials(fullName);
+            const plan = meta.plan || 'Starter';
+            const hcp = meta.handicap;
+
+            // Populate sidebar
+            document.getElementById('sidebarAvatar').textContent = initials;
+            document.getElementById('sidebarName').textContent = fullName.toUpperCase();
+            document.getElementById('sidebarPlan').textContent = `Plan ${plan}`;
+
+            // Populate profile banner
+            document.getElementById('profileAvatar').textContent = initials;
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profilePlan').innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                ${plan}
+            `;
+
+            if (hcp !== null && hcp !== undefined) {
+                document.getElementById('profileHcpValue').textContent = `HCP ${hcp}`;
+                document.getElementById('profileHcp').style.display = 'inline-flex';
+            }
+
+            // Hide loading screen
+            document.getElementById('loadingScreen').classList.add('hidden');
+        }
+
+        function getInitials(name) {
+            return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+        }
+
+        // ── LOGOUT ──
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await sb.auth.signOut();
+            window.location.href = '/es/login.html';
+        });
+
+        // ── MOBILE SIDEBAR ──
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!this.href) {
+                    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+                if (sidebar.classList.contains('open')) toggleSidebar();
+            });
+        });
+
+        // ── INIT ──
+        initDashboard();
+    </script>
+</body>
+</html>
