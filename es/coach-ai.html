@@ -39,1235 +39,376 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
+    /* ==================== HEADER UNIVERSAL ==================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10,10,10,0.92); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); padding: 0 24px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-
-    header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 1000;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      color: var(--text-primary);
-      text-decoration: none;
-      letter-spacing: 2px;
-    }
-    .logo span { color: var(--accent); }
-
-    .desktop-nav { display: flex; gap: 28px; align-items: center; }
-    .desktop-nav a {
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      transition: color 0.2s;
-    }
-    .desktop-nav a:hover, .desktop-nav a.active { color: var(--accent); }
-
     .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 8px;
+      width: 44px; height: 44px; background: none; border: none; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 8px; flex-shrink: 0;
     }
-    .hamburger span {
-      width: 24px; height: 2px;
-      background: var(--text-primary);
-      transition: all 0.3s;
-    }
+    .hamburger span { width: 22px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s ease; display: block; }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .nav-logo { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; color: var(--text-primary); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+    .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+    .mobile-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; background: var(--bg-primary); z-index: 999; padding: 80px 24px 32px; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+    .mobile-menu.active { left: 0; }
+    .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .menu-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; color: var(--text-secondary); text-decoration: none; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 10px; transition: all 0.2s ease; }
+    .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
+    .menu-link.active { background: rgba(45,212,191,0.1); color: var(--accent); border-left: 3px solid var(--accent); }
+    .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+    .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .menu-cta { display: block; text-align: center; padding: 14px 20px; background: var(--accent); color: var(--bg-primary); text-decoration: none; font-family: var(--font-heading); font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; border-radius: 10px; margin-top: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
 
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 64px; left: 0; right: 0; bottom: 0;
-      background: rgba(10,10,10,0.98);
-      backdrop-filter: blur(20px);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 32px;
-      z-index: 999;
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      color: var(--text-primary);
-      text-decoration: none;
-      letter-spacing: 3px;
-    }
-    .mobile-menu a:hover { color: var(--accent); }
-
-    @media (max-width: 768px) {
-      .desktop-nav { display: none; }
-      .hamburger { display: flex; }
-    }
-
-    .hero {
-      padding: 120px 24px 60px;
-      text-align: center;
-      position: relative;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 50%;
-      transform: translateX(-50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent-dim);
-      border: 1px solid rgba(45,212,191,0.2);
-      border-radius: 100px;
-      padding: 8px 20px;
-      font-family: var(--font-heading);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 24px;
-    }
-    .hero-badge .pulse {
-      width: 8px; height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
-      50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; }
-    }
-
-    .hero h1 {
-      font-family: var(--font-display);
-      font-size: clamp(2.8rem, 6vw, 4.5rem);
-      letter-spacing: 3px;
-      line-height: 1.05;
-      margin-bottom: 16px;
-    }
+    /* ==================== PAGE STYLES ==================== */
+    .hero { padding: 120px 24px 60px; text-align: center; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.2); border-radius: 100px; padding: 8px 20px; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px; }
+    .hero-badge .pulse { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); } 50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; } }
+    .hero h1 { font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 4.5rem); letter-spacing: 3px; line-height: 1.05; margin-bottom: 16px; }
     .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
 
-    .hero p {
-      font-size: 1.1rem;
-      color: var(--text-secondary);
-      max-width: 600px;
-      margin: 0 auto 40px;
-      line-height: 1.6;
-    }
-
-    .main-container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 24px 80px;
-    }
-
-    .upload-section {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .upload-tabs {
-      display: flex;
-      border-bottom: 1px solid var(--border);
-    }
-    .upload-tab {
-      flex: 1;
-      padding: 16px;
-      text-align: center;
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      transition: all 0.3s;
-      position: relative;
-    }
+    .main-container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    .upload-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .upload-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .upload-tab { flex: 1; padding: 16px; text-align: center; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; background: none; border: none; transition: all 0.3s; position: relative; }
     .upload-tab.active { color: var(--accent); }
-    .upload-tab.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 20%; right: 20%;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 2px;
-    }
+    .upload-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px; background: var(--accent); border-radius: 2px; }
     .upload-tab:hover { color: var(--text-secondary); }
-
-    .upload-tab-icon {
-      display: block;
-      margin: 0 auto 6px;
-      width: 24px; height: 24px;
-    }
-
+    .upload-tab-icon { display: block; margin: 0 auto 6px; width: 24px; height: 24px; }
     .tab-content { display: none; padding: 40px; }
     .tab-content.active { display: block; }
-
-    .drop-zone {
-      border: 2px dashed var(--border-light);
-      border-radius: 12px;
-      padding: 60px 40px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-    }
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .drop-zone-icon {
-      width: 64px; height: 64px;
-      margin: 0 auto 20px;
-      opacity: 0.5;
-    }
-
-    .drop-zone h3 {
-      font-family: var(--font-heading);
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .drop-zone p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
+    .drop-zone { border: 2px dashed var(--border-light); border-radius: 12px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+    .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
+    .drop-zone-icon { width: 64px; height: 64px; margin: 0 auto 20px; opacity: 0.5; }
+    .drop-zone h3 { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+    .drop-zone p { font-size: 0.9rem; color: var(--text-muted); }
     .drop-zone input { display: none; }
-
-    .webcam-container {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-      aspect-ratio: 16/9;
-      margin-bottom: 20px;
-    }
-    .webcam-container video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .webcam-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-muted);
-      gap: 12px;
-    }
-
-    .webcam-controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
-
-    .video-preview {
-      display: none;
-      margin-top: 24px;
-    }
+    .webcam-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 20px; }
+    .webcam-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .webcam-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); gap: 12px; }
+    .webcam-controls { display: flex; gap: 12px; justify-content: center; }
+    .video-preview { display: none; margin-top: 24px; }
     .video-preview.visible { display: block; }
-
-    .video-preview-inner {
-      position: relative;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #000;
-    }
-    .video-preview video {
-      width: 100%;
-      display: block;
-      border-radius: 12px;
-    }
-    .video-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      padding: 12px 16px;
-      background: var(--bg-elevated);
-      border-radius: 8px;
-    }
-    .video-info-name {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 60%;
-    }
-    .video-info-size {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .remove-video {
-      background: none;
-      border: 1px solid var(--border-light);
-      color: var(--red);
-      font-family: var(--font-heading);
-      font-size: 0.85rem;
-      padding: 6px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .remove-video:hover {
-      background: rgba(239,68,68,0.1);
-      border-color: var(--red);
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: var(--accent);
-      color: #0a0a0a;
-      font-family: var(--font-heading);
-      font-size: 1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      padding: 16px 40px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      width: 100%;
-      margin-top: 24px;
-    }
+    .video-preview-inner { position: relative; border-radius: 12px; overflow: hidden; background: #000; }
+    .video-preview video { width: 100%; display: block; border-radius: 12px; }
+    .video-info { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 12px 16px; background: var(--bg-elevated); border-radius: 8px; }
+    .video-info-name { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+    .video-info-size { font-size: 0.85rem; color: var(--text-muted); }
+    .remove-video { background: none; border: 1px solid var(--border-light); color: var(--red); font-family: var(--font-heading); font-size: 0.85rem; padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .remove-video:hover { background: rgba(239,68,68,0.1); border-color: var(--red); }
+    .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: #0a0a0a; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; padding: 16px 40px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 24px; }
     .btn-primary:hover { background: #5eead4; transform: translateY(-1px); }
-    .btn-primary:disabled {
-      opacity: 0.3;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-      font-family: var(--font-heading);
-      font-size: 0.9rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding: 12px 24px;
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .analysis-section {
-      display: none;
-      margin-top: 40px;
-    }
-    .analysis-section.visible { display: block; }
-
-    .analysis-loading {
-      display: none;
-      text-align: center;
-      padding: 60px 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
+    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--bg-elevated); color: var(--text-primary); font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 24px; border: 1px solid var(--border-light); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .analysis-loading { display: none; text-align: center; padding: 60px 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
     .analysis-loading.visible { display: block; }
-
-    .loading-spinner {
-      width: 48px; height: 48px;
-      border: 3px solid var(--border-light);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 24px;
-    }
+    .loading-spinner { width: 48px; height: 48px; border: 3px solid var(--border-light); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-    .loading-step {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      transition: color 0.3s;
-    }
+    .loading-steps { display: flex; flex-direction: column; gap: 12px; max-width: 300px; margin: 0 auto; }
+    .loading-step { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-muted); transition: color 0.3s; }
     .loading-step.active { color: var(--accent); }
     .loading-step.done { color: var(--green); }
-    .loading-step-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--border-light);
-      flex-shrink: 0;
-      transition: background 0.3s;
-    }
+    .loading-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); flex-shrink: 0; transition: background 0.3s; }
     .loading-step.active .loading-step-dot { background: var(--accent); }
     .loading-step.done .loading-step-dot { background: var(--green); }
-
-    .frames-preview {
-      display: none;
-      margin-top: 24px;
-    }
+    .frames-preview { display: none; margin-top: 24px; }
     .frames-preview.visible { display: block; }
-
-    .frames-label {
-      font-family: var(--font-heading);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 12px;
-    }
-
-    .frames-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 8px;
-    }
-    .frames-grid img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-    .frame-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: 4px;
-    }
-
-    .analysis-results {
-      display: none;
-    }
+    .frames-label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .frames-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+    .frames-grid img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+    .frame-label { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 4px; }
+    .analysis-results { display: none; }
     .analysis-results.visible { display: block; }
-
-    .result-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 32px;
-      padding: 24px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-
-    .result-score {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      flex-shrink: 0;
-    }
+    .result-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
+    .result-score { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; flex-shrink: 0; }
     .score-low { background: rgba(239,68,68,0.15); color: var(--red); border: 2px solid var(--red); }
     .score-mid { background: rgba(245,158,11,0.15); color: var(--amber); border: 2px solid var(--amber); }
     .score-high { background: rgba(16,185,129,0.15); color: var(--green); border: 2px solid var(--green); }
-
-    .result-summary h2 {
-      font-family: var(--font-display);
-      font-size: 1.6rem;
-      letter-spacing: 2px;
-      margin-bottom: 4px;
-    }
-    .result-summary p {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-
-    .diagnosis-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-
-    .diagnosis-card-header {
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .diagnosis-number {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--accent-dim);
-      color: var(--accent);
-      font-family: var(--font-display);
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .diagnosis-card-header h3 {
-      font-family: var(--font-heading);
-      font-size: 1.15rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .diagnosis-severity {
-      margin-left: auto;
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 4px 12px;
-      border-radius: 100px;
-    }
+    .result-summary h2 { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; margin-bottom: 4px; }
+    .result-summary p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+    .diagnosis-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
+    .diagnosis-card-header { padding: 20px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
+    .diagnosis-number { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-family: var(--font-display); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .diagnosis-card-header h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .diagnosis-severity { margin-left: auto; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; }
     .severity-high { background: rgba(239,68,68,0.15); color: var(--red); }
     .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
     .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
-
     .diagnosis-card-body { padding: 24px; }
-
     .diagnosis-what, .diagnosis-fix, .diagnosis-drills { margin-bottom: 20px; }
     .diagnosis-what:last-child, .diagnosis-fix:last-child, .diagnosis-drills:last-child { margin-bottom: 0; }
-
-    .diagnosis-label {
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .diagnosis-text {
-      font-size: 0.95rem;
-      color: var(--text-secondary);
-      line-height: 1.7;
-    }
-
-    .drill-referral {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .drill-referral:hover {
-      border-color: var(--accent);
-      background: var(--accent-dim);
-    }
+    .diagnosis-label { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 8px; }
+    .diagnosis-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+    .drill-referral { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+    .drill-referral:hover { border-color: var(--accent); background: var(--accent-dim); }
     .drill-referral:last-child { margin-bottom: 0; }
-
-    .drill-cat-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
+    .drill-cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .drill-referral-info { flex: 1; }
-    .drill-referral-name {
-      font-family: var(--font-heading);
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .drill-referral-desc {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .drill-referral-arrow {
-      color: var(--accent);
-      font-size: 1.2rem;
-    }
-
-    .library-referral {
-      margin-top: 32px;
-      padding: 24px;
-      background: linear-gradient(135deg, var(--accent-dim), var(--gold-dim));
-      border: 1px solid rgba(45,212,191,0.2);
-      border-radius: 16px;
-      text-align: center;
-    }
-    .library-referral h3 {
-      font-family: var(--font-display);
-      font-size: 1.4rem;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-    }
-    .library-referral p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .library-referral a {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: #0a0a0a;
-      font-family: var(--font-heading);
-      font-size: 0.9rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding: 12px 28px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
+    .drill-referral-name { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .drill-referral-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+    .drill-referral-arrow { color: var(--accent); font-size: 1.2rem; }
+    .library-referral { margin-top: 32px; padding: 24px; background: linear-gradient(135deg, var(--accent-dim), var(--gold-dim)); border: 1px solid rgba(45,212,191,0.2); border-radius: 16px; text-align: center; }
+    .library-referral h3 { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 8px; }
+    .library-referral p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.5; }
+    .library-referral a { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: #0a0a0a; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 28px; border-radius: 8px; text-decoration: none; transition: all 0.3s; }
     .library-referral a:hover { background: #5eead4; }
-
-    .new-analysis-btn {
-      margin-top: 24px;
-      width: 100%;
-      padding: 16px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-light);
-      border-radius: 8px;
-      color: var(--text-secondary);
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .new-analysis-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .questionnaire-section {
-      display: none;
-      margin-top: 40px;
-    }
+    .new-analysis-btn { margin-top: 24px; width: 100%; padding: 16px; background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-secondary); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
+    .new-analysis-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .questionnaire-section { display: none; margin-top: 40px; }
     .questionnaire-section.visible { display: block; }
-
-    .questionnaire-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-    }
-
-    .questionnaire-title {
-      font-family: var(--font-display);
-      font-size: 1.5rem;
-      letter-spacing: 2px;
-      margin-bottom: 6px;
-    }
-    .questionnaire-subtitle {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 28px;
-      line-height: 1.5;
-    }
-
+    .questionnaire-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+    .questionnaire-title { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 6px; }
+    .questionnaire-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.5; }
     .q-field { margin-bottom: 24px; }
     .q-field:last-of-type { margin-bottom: 0; }
-
-    .q-label {
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-    .q-hint {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-    .q-input {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      border-radius: 10px;
-      padding: 14px 16px;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--text-primary);
-      transition: border-color 0.2s;
-    }
-    .q-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    .q-label { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .q-hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+    .q-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px 16px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary); transition: border-color 0.2s; }
+    .q-input:focus { outline: none; border-color: var(--accent); }
     .q-input::placeholder { color: var(--text-muted); }
-    .q-textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    .q-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 28px;
-    }
+    .q-textarea { min-height: 80px; resize: vertical; }
+    .q-actions { display: flex; gap: 12px; margin-top: 28px; }
     .q-actions .btn-primary { flex: 1; margin-top: 0; }
-
-    .q-skip {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-family: var(--font-heading);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      padding: 16px 24px;
-      transition: color 0.2s;
-    }
+    .q-skip { background: none; border: none; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; padding: 16px 24px; transition: color 0.2s; }
     .q-skip:hover { color: var(--text-secondary); }
-
-    .frames-mini {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-    .frames-mini img {
-      height: 56px;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      opacity: 0.7;
-    }
-
-    .mode-selector {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .mode-tab {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 16px 20px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text-muted);
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .mode-tab:hover {
-      border-color: var(--border-light);
-      color: var(--text-secondary);
-    }
-    .mode-tab.active {
-      background: var(--accent-dim);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .chat-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      height: 520px;
-      overflow: hidden;
-    }
-
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    .frames-mini { display: flex; gap: 6px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
+    .frames-mini img { height: 56px; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); opacity: 0.7; }
+    .mode-selector { display: flex; gap: 8px; margin-bottom: 24px; }
+    .mode-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s; }
+    .mode-tab:hover { border-color: var(--border-light); color: var(--text-secondary); }
+    .mode-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .chat-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; height: 520px; overflow: hidden; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
     .chat-messages::-webkit-scrollbar { width: 4px; }
     .chat-messages::-webkit-scrollbar-track { background: transparent; }
     .chat-messages::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
-
-    .chat-bubble {
-      max-width: 85%;
-      padding: 14px 18px;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-    .assistant-bubble {
-      align-self: flex-start;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 4px;
-    }
-    .user-bubble {
-      align-self: flex-end;
-      background: var(--accent);
-      color: #0a0a0a;
-      border-bottom-right-radius: 4px;
-    }
-    .chat-bubble-label {
-      font-family: var(--font-heading);
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 6px;
-    }
-    .chat-bubble-text {
-      color: var(--text-secondary);
-      white-space: pre-wrap;
-    }
+    .chat-bubble { max-width: 85%; padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; line-height: 1.6; }
+    .assistant-bubble { align-self: flex-start; background: var(--bg-elevated); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .user-bubble { align-self: flex-end; background: var(--accent); color: #0a0a0a; border-bottom-right-radius: 4px; }
+    .chat-bubble-label { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .chat-bubble-text { color: var(--text-secondary); white-space: pre-wrap; }
     .user-bubble .chat-bubble-text { color: #0a0a0a; }
-
-    .chat-typing {
-      align-self: flex-start;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 14px 18px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      border-bottom-left-radius: 4px;
-    }
-    .typing-dot {
-      width: 6px; height: 6px;
-      background: var(--accent);
-      border-radius: 50%;
-      animation: typingBounce 1.4s infinite;
-    }
+    .chat-typing { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 14px 18px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px; border-bottom-left-radius: 4px; }
+    .typing-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: typingBounce 1.4s infinite; }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typingBounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-6px); opacity: 1; }
-    }
-
-    .chat-input-area {
-      display: flex;
-      gap: 10px;
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-      align-items: flex-end;
-    }
-    .chat-input {
-      flex: 1;
-      background: var(--bg-input);
-      border: 1px solid var(--border-light);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      color: var(--text-primary);
-      resize: none;
-      max-height: 120px;
-      line-height: 1.4;
-    }
-    .chat-input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+    .chat-input-area { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--border); align-items: flex-end; }
+    .chat-input { flex: 1; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px 16px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary); resize: none; max-height: 120px; line-height: 1.4; }
+    .chat-input:focus { outline: none; border-color: var(--accent); }
     .chat-input::placeholder { color: var(--text-muted); }
-
-    .chat-send-btn {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: none;
-      color: #0a0a0a;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
+    .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); border: none; color: #0a0a0a; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
     .chat-send-btn:hover { background: #5eead4; transform: scale(1.05); }
     .chat-send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-
-    .methodology-section {
-      margin-top: 60px;
-      padding: 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-    }
-
-    .methodology-section h2 {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .methodology-section > p {
-      text-align: center;
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      margin-bottom: 32px;
-    }
-
-    .method-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .method-item {
-      padding: 20px;
-      background: var(--bg-elevated);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-    .method-item h4 {
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-    .method-item p {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-
-    footer {
-      text-align: center;
-      padding: 40px 24px;
-      border-top: 1px solid var(--border);
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    @media (max-width: 640px) {
-      .tab-content { padding: 24px; }
-      .drop-zone { padding: 40px 20px; }
-      .result-header { flex-direction: column; text-align: center; }
-      .diagnosis-card-header { flex-wrap: wrap; }
-      .diagnosis-severity { margin-left: 52px; margin-top: 4px; }
-      .methodology-section { padding: 24px; }
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .methodology-section { margin-top: 60px; padding: 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
+    .methodology-section h2 { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 8px; text-align: center; }
+    .methodology-section > p { text-align: center; color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 32px; }
+    .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .method-item { padding: 20px; background: var(--bg-elevated); border-radius: 10px; border: 1px solid var(--border); }
+    .method-item h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .method-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
+    @media (max-width: 640px) { .tab-content { padding: 24px; } .drop-zone { padding: 40px 20px; } .result-header { flex-direction: column; text-align: center; } .diagnosis-card-header { flex-wrap: wrap; } .diagnosis-severity { margin-left: 52px; margin-top: 4px; } .methodology-section { padding: 24px; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
     .delay-1 { animation-delay: 0.1s; opacity: 0; }
     .delay-2 { animation-delay: 0.2s; opacity: 0; }
     .delay-3 { animation-delay: 0.3s; opacity: 0; }
-
     #extractionCanvas { display: none; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="header-inner">
-      <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-      <nav class="desktop-nav">
-        <a href="/es/index.html">Inicio</a>
-        <a href="/es/coach-ai.html" class="active">Coach IA</a>
-        <a href="/es/library.html">Biblioteca</a>
-        <a href="/es/training.html">Training Lab</a>
-        <a href="/es/pricing.html">Precios</a>
-        <a href="/es/about.html">El Coach</a>
-      </nav>
-      <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
+  <!-- HEADER UNIVERSAL -->
+  <nav>
+    <button class="hamburger" id="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="/es/index.html" class="nav-logo">MY<span>GOLF</span>LAB</a>
+  </nav>
+
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="/es/index.html">Inicio</a>
-    <a href="/es/coach-ai.html">Coach IA</a>
-    <a href="/es/library.html">Biblioteca</a>
-    <a href="/es/training.html">Training Lab</a>
-    <a href="/es/pricing.html">Precios</a>
-    <a href="/es/about.html">El Coach</a>
+    <div class="menu-links">
+      <a href="/es/index.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Inicio
+      </a>
+      <a href="/es/coach-ai.html" class="menu-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Coach IA
+      </a>
+      <a href="/es/library.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Biblioteca
+      </a>
+      <a href="/es/training.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Training Lab
+      </a>
+      <a href="/es/pricing.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Precios
+      </a>
+      <div class="menu-divider"></div>
+      <a href="/es/about.html" class="menu-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+        El Coach
+      </a>
+    </div>
+    <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
   </div>
 
+  <!-- CONTENIDO -->
   <section class="hero">
-    <div class="hero-badge">
-      <span class="pulse"></span>
-      Coach IA Activo
-    </div>
+    <div class="hero-badge"><span class="pulse"></span>Coach IA Activo</div>
     <h1>TU <span>COACH</span> DE GOLF CON IA</h1>
     <p>Analiza tu swing con video o chatea directamente con Coach IA. Diagnóstico personalizado basado en la metodología MyGolfLab — sin moldes, adaptado a tu juego.</p>
   </section>
 
   <div class="main-container">
-
     <div class="mode-selector" id="modeSelector">
       <button class="mode-tab active" id="modeSwing" onclick="switchMode('swing')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-        </svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
         Analizar Swing
       </button>
       <button class="mode-tab" id="modeChat" onclick="switchMode('chat')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Chat con Coach IA
       </button>
     </div>
 
     <div id="swingMode">
-
-    <div class="upload-section" id="uploadSection">
-      <div class="upload-tabs">
-        <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload">
-          <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-          </svg>
-          Subir Video
-        </button>
-        <button class="upload-tab" onclick="switchTab('webcam')" id="tabWebcam">
-          <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
-          </svg>
-          Grabar
-        </button>
-      </div>
-
-      <div class="tab-content active" id="contentUpload">
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('videoInput').click()">
-          <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 16V3m0 0l4 4m-4-4L8 7"/>
-            <path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/>
-          </svg>
-          <h3>Arrastra tu video aquí</h3>
-          <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB)</p>
-          <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
-        </div>
-
-        <div class="video-preview" id="videoPreview">
-          <div class="video-preview-inner">
-            <video id="previewPlayer" controls></video>
-          </div>
-          <div class="video-info">
-            <span class="video-info-name" id="videoName"></span>
-            <span class="video-info-size" id="videoSize"></span>
-            <button class="remove-video" onclick="removeVideo()">Eliminar</button>
-          </div>
-        </div>
-
-        <div class="frames-preview" id="framesPreview">
-          <div class="frames-label">Frames extraídos para análisis</div>
-          <div class="frames-grid" id="framesGrid"></div>
-        </div>
-
-        <button class="btn-primary" id="analyzeBtn" disabled onclick="showQuestionnaire()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-          CONTINUAR
-        </button>
-      </div>
-
-      <div class="tab-content" id="contentWebcam">
-        <div class="webcam-container" id="webcamContainer">
-          <div class="webcam-placeholder" id="webcamPlaceholder">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
-            </svg>
-            <p>Presiona "Iniciar Cámara" para comenzar</p>
-          </div>
-          <video id="webcamVideo" autoplay muted playsinline style="display:none;"></video>
-        </div>
-
-        <div class="webcam-controls">
-          <button class="btn-secondary" id="webcamStartBtn" onclick="startWebcam()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/>
-            </svg>
-            Iniciar Cámara
+      <div class="upload-section" id="uploadSection">
+        <div class="upload-tabs">
+          <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload">
+            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            Subir Video
           </button>
-          <button class="btn-secondary" id="webcamRecordBtn" onclick="toggleRecording()" style="display:none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/>
-            </svg>
+          <button class="upload-tab" onclick="switchTab('webcam')" id="tabWebcam">
+            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
             Grabar
           </button>
-          <button class="btn-secondary" id="webcamStopBtn" onclick="stopRecording()" style="display:none;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
-            </svg>
-            Detener
+        </div>
+        <div class="tab-content active" id="contentUpload">
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('videoInput').click()">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+            <h3>Arrastra tu video aquí</h3>
+            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB)</p>
+            <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
+          </div>
+          <div class="video-preview" id="videoPreview">
+            <div class="video-preview-inner"><video id="previewPlayer" controls></video></div>
+            <div class="video-info">
+              <span class="video-info-name" id="videoName"></span>
+              <span class="video-info-size" id="videoSize"></span>
+              <button class="remove-video" onclick="removeVideo()">Eliminar</button>
+            </div>
+          </div>
+          <div class="frames-preview" id="framesPreview">
+            <div class="frames-label">Frames extraídos para análisis</div>
+            <div class="frames-grid" id="framesGrid"></div>
+          </div>
+          <button class="btn-primary" id="analyzeBtn" disabled onclick="showQuestionnaire()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            CONTINUAR
           </button>
         </div>
+        <div class="tab-content" id="contentWebcam">
+          <div class="webcam-container" id="webcamContainer">
+            <div class="webcam-placeholder" id="webcamPlaceholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+              <p>Presiona "Iniciar Cámara" para comenzar</p>
+            </div>
+            <video id="webcamVideo" autoplay muted playsinline style="display:none;"></video>
+          </div>
+          <div class="webcam-controls">
+            <button class="btn-secondary" id="webcamStartBtn" onclick="startWebcam()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+              Iniciar Cámara
+            </button>
+            <button class="btn-secondary" id="webcamRecordBtn" onclick="toggleRecording()" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+              Grabar
+            </button>
+            <button class="btn-secondary" id="webcamStopBtn" onclick="stopRecording()" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" fill="currentColor"/></svg>
+              Detener
+            </button>
+          </div>
+          <div class="video-preview" id="webcamPreview">
+            <div class="video-preview-inner"><video id="webcamRecordedPlayer" controls></video></div>
+          </div>
+          <div class="frames-preview" id="webcamFramesPreview">
+            <div class="frames-label">Frames extraídos para análisis</div>
+            <div class="frames-grid" id="webcamFramesGrid"></div>
+          </div>
+          <button class="btn-primary" id="webcamAnalyzeBtn" disabled onclick="showQuestionnaire()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            CONTINUAR
+          </button>
+        </div>
+      </div>
 
-        <div class="video-preview" id="webcamPreview">
-          <div class="video-preview-inner">
-            <video id="webcamRecordedPlayer" controls></video>
+      <div class="questionnaire-section" id="questionnaireSection">
+        <div class="questionnaire-card fade-in-up">
+          <div class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</div>
+          <div class="questionnaire-subtitle">Esto me ayuda a personalizar el análisis a tu nivel y a lo que realmente necesitas mejorar. Si prefieres, puedes saltar las preguntas.</div>
+          <div class="frames-mini" id="framesMini"></div>
+          <div class="q-field">
+            <div class="q-label">¿Cuál es tu hándicap o nivel?</div>
+            <div class="q-hint">Un número, o describe tu nivel (principiante, intermedio, etc.)</div>
+            <input type="text" class="q-input" id="qHandicap" placeholder="Ej: 18, scratch, principiante, llevo 6 meses jugando...">
+          </div>
+          <div class="q-field">
+            <div class="q-label">¿Cuál es tu problema principal?</div>
+            <div class="q-hint">Lo que más te cuesta o frustra en el campo</div>
+            <textarea class="q-input q-textarea" id="qProblema" placeholder="Ej: pierdo mucha distancia, no tengo consistencia, hago slice con el driver..."></textarea>
+          </div>
+          <div class="q-field">
+            <div class="q-label">¿Qué te gustaría mejorar?</div>
+            <div class="q-hint">Tu objetivo con este análisis</div>
+            <input type="text" class="q-input" id="qObjetivo" placeholder="Ej: quiero más distancia, mejorar el contacto, eliminar el hook...">
+          </div>
+          <div class="q-actions">
+            <button class="q-skip" onclick="analyzeSwing()">Saltar →</button>
+            <button class="btn-primary" onclick="analyzeSwing()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              ANALIZAR MI SWING
+            </button>
           </div>
         </div>
-
-        <div class="frames-preview" id="webcamFramesPreview">
-          <div class="frames-label">Frames extraídos para análisis</div>
-          <div class="frames-grid" id="webcamFramesGrid"></div>
-        </div>
-
-        <button class="btn-primary" id="webcamAnalyzeBtn" disabled onclick="showQuestionnaire()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-          CONTINUAR
-        </button>
       </div>
-    </div>
 
-    <div class="questionnaire-section" id="questionnaireSection">
-      <div class="questionnaire-card fade-in-up">
-        <div class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</div>
-        <div class="questionnaire-subtitle">Esto me ayuda a personalizar el análisis a tu nivel y a lo que realmente necesitas mejorar. Si prefieres, puedes saltar las preguntas.</div>
-
-        <div class="frames-mini" id="framesMini"></div>
-
-        <div class="q-field">
-          <div class="q-label">¿Cuál es tu hándicap o nivel?</div>
-          <div class="q-hint">Un número, o describe tu nivel (principiante, intermedio, etc.)</div>
-          <input type="text" class="q-input" id="qHandicap" placeholder="Ej: 18, scratch, principiante, llevo 6 meses jugando...">
-        </div>
-
-        <div class="q-field">
-          <div class="q-label">¿Cuál es tu problema principal?</div>
-          <div class="q-hint">Lo que más te cuesta o frustra en el campo</div>
-          <textarea class="q-input q-textarea" id="qProblema" placeholder="Ej: pierdo mucha distancia, no tengo consistencia, hago slice con el driver, mal contacto con los hierros..."></textarea>
-        </div>
-
-        <div class="q-field">
-          <div class="q-label">¿Qué te gustaría mejorar?</div>
-          <div class="q-hint">Tu objetivo con este análisis</div>
-          <input type="text" class="q-input" id="qObjetivo" placeholder="Ej: quiero más distancia, mejorar el contacto, eliminar el hook...">
-        </div>
-
-        <div class="q-actions">
-          <button class="q-skip" onclick="analyzeSwing()">Saltar →</button>
-          <button class="btn-primary" onclick="analyzeSwing()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-            ANALIZAR MI SWING
-          </button>
+      <div class="analysis-loading" id="analysisLoading">
+        <div class="loading-spinner"></div>
+        <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
+        <div class="loading-steps">
+          <div class="loading-step active" id="step1"><span class="loading-step-dot"></span>Extrayendo frames clave del video</div>
+          <div class="loading-step" id="step2"><span class="loading-step-dot"></span>Analizando postura y alineación</div>
+          <div class="loading-step" id="step3"><span class="loading-step-dot"></span>Evaluando mecánica del swing</div>
+          <div class="loading-step" id="step4"><span class="loading-step-dot"></span>Generando diagnóstico y correcciones</div>
         </div>
       </div>
-    </div>
 
-    <div class="analysis-loading" id="analysisLoading">
-      <div class="loading-spinner"></div>
-      <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
-      <div class="loading-steps">
-        <div class="loading-step active" id="step1">
-          <span class="loading-step-dot"></span>
-          Extrayendo frames clave del video
-        </div>
-        <div class="loading-step" id="step2">
-          <span class="loading-step-dot"></span>
-          Analizando postura y alineación
-        </div>
-        <div class="loading-step" id="step3">
-          <span class="loading-step-dot"></span>
-          Evaluando mecánica del swing
-        </div>
-        <div class="loading-step" id="step4">
-          <span class="loading-step-dot"></span>
-          Generando diagnóstico y correcciones
-        </div>
-      </div>
-    </div>
-
-    <div class="analysis-results" id="analysisResults"></div>
-
+      <div class="analysis-results" id="analysisResults"></div>
     </div>
 
     <div id="chatMode" style="display:none;">
@@ -1281,9 +422,7 @@
         <div class="chat-input-area">
           <textarea class="chat-input" id="chatInput" placeholder="Pregunta algo sobre tu juego..." rows="1" maxlength="1000"></textarea>
           <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" disabled>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
           </button>
         </div>
       </div>
@@ -1293,112 +432,71 @@
       <h2>METODOLOGÍA MYGOLFLAB</h2>
       <p>No existe un swing perfecto universal. Nuestro enfoque se basa en encontrar la receta personal de cada jugador — sin moldes, adaptado a tu cuerpo, tu nivel y tus objetivos.</p>
       <div class="method-grid">
-        <div class="method-item">
-          <h4>Ground Forces</h4>
-          <p>Cómo usas el suelo es cómo generas velocidad. La transferencia de fuerzas desde los pies hacia el palo es la base de un swing eficiente y repetible.</p>
-        </div>
-        <div class="method-item">
-          <h4>Kinematic Sequence</h4>
-          <p>La secuencia correcta caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia, consistencia y salud articular.</p>
-        </div>
-        <div class="method-item">
-          <h4>Wrist Conditions</h4>
-          <p>La posición de tus muñecas controla la cara del palo, el ángulo de ataque y la compresión. Es lo que separa un buen contacto de uno mediocre.</p>
-        </div>
-        <div class="method-item">
-          <h4>Body Tilts</h4>
-          <p>Las inclinaciones del torso en cada fase del swing afectan la calidad del contacto, la trayectoria y tu capacidad de comprimir la bola consistentemente.</p>
-        </div>
+        <div class="method-item"><h4>Ground Forces</h4><p>Cómo usas el suelo es cómo generas velocidad. La transferencia de fuerzas desde los pies hacia el palo es la base de un swing eficiente y repetible.</p></div>
+        <div class="method-item"><h4>Kinematic Sequence</h4><p>La secuencia correcta caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia, consistencia y salud articular.</p></div>
+        <div class="method-item"><h4>Wrist Conditions</h4><p>La posición de tus muñecas controla la cara del palo, el ángulo de ataque y la compresión. Es lo que separa un buen contacto de uno mediocre.</p></div>
+        <div class="method-item"><h4>Body Tilts</h4><p>Las inclinaciones del torso en cada fase del swing afectan la calidad del contacto, la trayectoria y tu capacidad de comprimir la bola consistentemente.</p></div>
       </div>
     </section>
   </div>
 
-  <footer>
-    <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
-  </footer>
-
+  <footer><p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p></footer>
   <canvas id="extractionCanvas"></canvas>
 
   <script>
-    let currentVideoFile = null;
-    let extractedFrames = [];
-    let webcamStream = null;
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let isRecording = false;
-    let chatHistory = [];
-    let chatLoading = false;
+    let currentVideoFile = null, extractedFrames = [], webcamStream = null, mediaRecorder = null, recordedChunks = [], isRecording = false, chatHistory = [], chatLoading = false;
+
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
 
     function toggleMenu() {
-      document.getElementById('mobileMenu').classList.toggle('open');
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
     }
+    hamburger.addEventListener('click', toggleMenu);
+    menuOverlay.addEventListener('click', toggleMenu);
+    document.querySelectorAll('.menu-link, .menu-cta').forEach(function(l) { l.addEventListener('click', function() { if (mobileMenu.classList.contains('active')) toggleMenu(); }); });
 
     function switchMode(mode) {
       document.getElementById('modeSwing').classList.toggle('active', mode === 'swing');
       document.getElementById('modeChat').classList.toggle('active', mode === 'chat');
       document.getElementById('swingMode').style.display = mode === 'swing' ? '' : 'none';
       document.getElementById('chatMode').style.display = mode === 'chat' ? '' : 'none';
-      if (mode === 'chat') {
-        const messagesEl = document.getElementById('chatMessages');
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-        document.getElementById('chatInput').focus();
-      }
+      if (mode === 'chat') { const m = document.getElementById('chatMessages'); m.scrollTop = m.scrollHeight; document.getElementById('chatInput').focus(); }
     }
 
     function switchTab(tab) {
-      document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      if (tab === 'upload') {
-        document.getElementById('tabUpload').classList.add('active');
-        document.getElementById('contentUpload').classList.add('active');
-      } else {
-        document.getElementById('tabWebcam').classList.add('active');
-        document.getElementById('contentWebcam').classList.add('active');
-      }
+      document.querySelectorAll('.upload-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+      document.getElementById(tab === 'upload' ? 'tabUpload' : 'tabWebcam').classList.add('active');
+      document.getElementById(tab === 'upload' ? 'contentUpload' : 'contentWebcam').classList.add('active');
     }
 
     const dropZone = document.getElementById('dropZone');
     const videoInput = document.getElementById('videoInput');
-
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('video/')) handleVideoFile(file);
-    });
-
-    videoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) handleVideoFile(file);
-    });
+    dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', function(e) { e.preventDefault(); dropZone.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('video/')) handleVideoFile(f); });
+    videoInput.addEventListener('change', function(e) { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
 
     function handleVideoFile(file) {
-      if (file.size > 50 * 1024 * 1024) {
-        alert('El video no puede superar 50MB');
-        return;
-      }
+      if (file.size > 50 * 1024 * 1024) { alert('El video no puede superar 50MB'); return; }
       currentVideoFile = file;
-      const url = URL.createObjectURL(file);
-      const player = document.getElementById('previewPlayer');
+      const url = URL.createObjectURL(file), player = document.getElementById('previewPlayer');
       player.src = url;
       document.getElementById('videoName').textContent = file.name;
       document.getElementById('videoSize').textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
       document.getElementById('videoPreview').classList.add('visible');
       document.getElementById('dropZone').style.display = 'none';
       document.getElementById('analyzeBtn').disabled = false;
-      player.onloadeddata = () => extractFrames(player, 'framesGrid', 'framesPreview');
+      player.onloadeddata = function() { extractFrames(player, 'framesGrid', 'framesPreview'); };
     }
 
     function removeVideo() {
-      currentVideoFile = null;
-      extractedFrames = [];
+      currentVideoFile = null; extractedFrames = [];
       document.getElementById('previewPlayer').src = '';
       document.getElementById('videoPreview').classList.remove('visible');
       document.getElementById('framesPreview').classList.remove('visible');
@@ -1410,96 +508,52 @@
 
     async function extractFrames(videoEl, gridId, previewId) {
       extractedFrames = [];
-      const canvas = document.getElementById('extractionCanvas');
-      const ctx = canvas.getContext('2d');
-      const grid = document.getElementById(gridId);
+      const canvas = document.getElementById('extractionCanvas'), ctx = canvas.getContext('2d'), grid = document.getElementById(gridId);
       grid.innerHTML = '';
-
-      const duration = videoEl.duration;
-      if (!duration || duration < 0.5) return;
-
-      const numFrames = 6;
+      const dur = videoEl.duration;
+      if (!dur || dur < 0.5) return;
       const labels = ['Setup', 'Takeaway', 'Top', 'Transición', 'Impacto', 'Follow-Through'];
-      const times = [];
-      for (let i = 0; i < numFrames; i++) {
-        times.push((duration / (numFrames + 1)) * (i + 1));
-      }
-
-      canvas.width = 640;
-      canvas.height = 360;
-
-      for (let i = 0; i < times.length; i++) {
-        const frame = await captureFrame(videoEl, times[i], canvas, ctx);
+      canvas.width = 640; canvas.height = 360;
+      for (let i = 0; i < 6; i++) {
+        const frame = await captureFrame(videoEl, (dur / 7) * (i + 1), canvas, ctx);
         extractedFrames.push(frame);
-
-        const wrapper = document.createElement('div');
-        const img = document.createElement('img');
-        img.src = frame;
-        const label = document.createElement('div');
-        label.className = 'frame-label';
-        label.textContent = labels[i] || 'Frame ' + (i+1);
-        wrapper.appendChild(img);
-        wrapper.appendChild(label);
-        grid.appendChild(wrapper);
+        const w = document.createElement('div'), img = document.createElement('img'), lbl = document.createElement('div');
+        img.src = frame; lbl.className = 'frame-label'; lbl.textContent = labels[i];
+        w.appendChild(img); w.appendChild(lbl); grid.appendChild(w);
       }
-
       document.getElementById(previewId).classList.add('visible');
     }
 
     function captureFrame(video, time, canvas, ctx) {
-      return new Promise((resolve) => {
-        video.currentTime = time;
-        video.onseeked = () => {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.85));
-        };
-      });
+      return new Promise(function(resolve) { video.currentTime = time; video.onseeked = function() { ctx.drawImage(video, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', 0.85)); }; });
     }
 
     async function startWebcam() {
       try {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false
-        });
+        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
         const vid = document.getElementById('webcamVideo');
-        vid.srcObject = webcamStream;
-        vid.style.display = 'block';
+        vid.srcObject = webcamStream; vid.style.display = 'block';
         document.getElementById('webcamPlaceholder').style.display = 'none';
         document.getElementById('webcamStartBtn').style.display = 'none';
         document.getElementById('webcamRecordBtn').style.display = '';
-      } catch (err) {
-        alert('No se pudo acceder a la cámara. Asegúrate de dar permiso.');
-      }
+      } catch (err) { alert('No se pudo acceder a la cámara.'); }
     }
 
     function toggleRecording() {
       if (isRecording) return;
       recordedChunks = [];
-      const options = { mimeType: 'video/webm;codecs=vp9' };
-      try {
-        mediaRecorder = new MediaRecorder(webcamStream, options);
-      } catch (e) {
-        mediaRecorder = new MediaRecorder(webcamStream);
-      }
-      
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) recordedChunks.push(e.data);
-      };
-      
-      mediaRecorder.onstop = () => {
+      try { mediaRecorder = new MediaRecorder(webcamStream, { mimeType: 'video/webm;codecs=vp9' }); } catch (e) { mediaRecorder = new MediaRecorder(webcamStream); }
+      mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = function() {
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
         currentVideoFile = new File([blob], 'swing-recording.webm', { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        const player = document.getElementById('webcamRecordedPlayer');
+        const url = URL.createObjectURL(blob), player = document.getElementById('webcamRecordedPlayer');
         player.src = url;
         document.getElementById('webcamPreview').classList.add('visible');
         document.getElementById('webcamAnalyzeBtn').disabled = false;
-        player.onloadeddata = () => extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview');
+        player.onloadeddata = function() { extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview'); };
       };
-      
-      mediaRecorder.start();
-      isRecording = true;
+      mediaRecorder.start(); isRecording = true;
       document.getElementById('webcamRecordBtn').style.display = 'none';
       document.getElementById('webcamStopBtn').style.display = '';
       document.getElementById('webcamContainer').style.border = '2px solid var(--red)';
@@ -1507,8 +561,7 @@
 
     function stopRecording() {
       if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
+        mediaRecorder.stop(); isRecording = false;
         document.getElementById('webcamStopBtn').style.display = 'none';
         document.getElementById('webcamRecordBtn').style.display = '';
         document.getElementById('webcamContainer').style.border = 'none';
@@ -1516,95 +569,46 @@
     }
 
     function showQuestionnaire() {
-      if (extractedFrames.length === 0) {
-        alert('Esperando extracción de frames...');
-        return;
-      }
+      if (extractedFrames.length === 0) { alert('Esperando extracción de frames...'); return; }
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('questionnaireSection').classList.add('visible');
-
-      const mini = document.getElementById('framesMini');
-      mini.innerHTML = '';
-      extractedFrames.forEach(function(f) {
-        const img = document.createElement('img');
-        img.src = f;
-        mini.appendChild(img);
-      });
-
+      const mini = document.getElementById('framesMini'); mini.innerHTML = '';
+      extractedFrames.forEach(function(f) { const img = document.createElement('img'); img.src = f; mini.appendChild(img); });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function analyzeSwing() {
-      if (extractedFrames.length === 0) {
-        alert('Esperando extracción de frames...');
-        return;
-      }
-
+      if (extractedFrames.length === 0) { alert('Esperando extracción de frames...'); return; }
       const handicap = document.getElementById('qHandicap').value.trim();
       const problema = document.getElementById('qProblema').value.trim();
       const objetivo = document.getElementById('qObjetivo').value.trim();
-
       document.getElementById('uploadSection').style.display = 'none';
       document.getElementById('questionnaireSection').classList.remove('visible');
       document.getElementById('analysisLoading').classList.add('visible');
       document.getElementById('analysisResults').classList.remove('visible');
       document.getElementById('analysisResults').innerHTML = '';
-
       animateLoadingSteps();
-
       const imageContent = extractedFrames.map(function(frame, i) {
         const labels = ['Setup/Address', 'Takeaway', 'Top del backswing', 'Transición/Downswing', 'Impacto', 'Follow-through/Finish'];
-        return [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: 'image/jpeg',
-              data: frame.replace('data:image/jpeg;base64,', '')
-            }
-          },
-          {
-            type: 'text',
-            text: 'Frame ' + (i+1) + ': ' + (labels[i] || 'Posición ' + (i+1))
-          }
-        ];
-      }).reduce(function(acc, val) { return acc.concat(val); }, []);
-
-      let playerContext = '';
+        return [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: frame.replace('data:image/jpeg;base64,', '') } }, { type: 'text', text: 'Frame ' + (i+1) + ': ' + (labels[i] || 'Posición ' + (i+1)) }];
+      }).reduce(function(a, v) { return a.concat(v); }, []);
+      let ctx = '';
       if (handicap || problema || objetivo) {
-        playerContext = '\n\nINFORMACIÓN DEL JUGADOR:';
-        if (handicap) playerContext += '\n- Hándicap/Nivel: ' + handicap;
-        if (problema) playerContext += '\n- Problema principal: ' + problema;
-        if (objetivo) playerContext += '\n- Objetivo: ' + objetivo;
-        playerContext += '\n\nUsa esta información para adaptar tu nivel de comunicación y enfocarte en lo que el jugador necesita.';
+        ctx = '\n\nINFORMACIÓN DEL JUGADOR:';
+        if (handicap) ctx += '\n- Hándicap/Nivel: ' + handicap;
+        if (problema) ctx += '\n- Problema principal: ' + problema;
+        if (objetivo) ctx += '\n- Objetivo: ' + objetivo;
+        ctx += '\n\nUsa esta información para adaptar tu comunicación.';
       }
-
-      const promptText = 'Analiza estos 6 frames de mi swing de golf. Son frames secuenciales extraídos del mismo video: setup, takeaway, top del backswing, transición, impacto y follow-through.' + playerContext + '\n\nDame tu diagnóstico completo siguiendo tu metodología. Responde SOLO en formato JSON válido sin backticks ni texto adicional, con esta estructura exacta:\n\n{\n  "score": <número del 1 al 100>,\n  "resumen": "<resumen general en 1-2 oraciones>",\n  "nivel": "<principiante|intermedio|avanzado>",\n  "diagnosticos": [\n    {\n      "titulo": "<nombre corto del error>",\n      "severidad": "<alta|media|baja>",\n      "que_pasa": "<causa raíz y efecto>",\n      "como_corregirlo": "<instrucciones accionables>",\n      "drills_recomendados": [\n        {\n          "id": "<id del drill>",\n          "nombre": "<nombre>",\n          "categoria": "<categoria>",\n          "por_que": "<por qué ayuda>"\n        }\n      ],\n      "video_biblioteca": "<nombre del video o null>"\n    }\n  ]\n}';
-
-      const userMessage = imageContent.concat([{ type: 'text', text: promptText }]);
-
+      const promptText = 'Analiza estos 6 frames de mi swing de golf.' + ctx + '\n\nResponde SOLO en JSON válido sin backticks:\n\n{"score":<1-100>,"resumen":"<1-2 oraciones>","nivel":"<principiante|intermedio|avanzado>","diagnosticos":[{"titulo":"<nombre>","severidad":"<alta|media|baja>","que_pasa":"<causa raíz>","como_corregirlo":"<instrucciones>","drills_recomendados":[{"id":"<id>","nombre":"<nombre>","categoria":"<cat>","por_que":"<razón>"}],"video_biblioteca":"<nombre o null>"}]}';
       try {
-        const response = await fetch('/api/coach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 4000,
-            system: COACH_SYSTEM_PROMPT,
-            messages: [{ role: 'user', content: userMessage }]
-          })
-        });
-
+        const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, system: COACH_SYSTEM_PROMPT, messages: [{ role: 'user', content: imageContent.concat([{ type: 'text', text: promptText }]) }] }) });
         const data = await response.json();
-        const text = data.content.map(function(c) { return c.text || ''; }).join('');
-        const clean = text.replace(/```json|```/g, '').trim();
-        const result = JSON.parse(clean);
-
+        const result = JSON.parse(data.content.map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim());
         document.getElementById('analysisLoading').classList.remove('visible');
         renderResults(result);
-
       } catch (err) {
-        console.error('Analysis error:', err);
+        console.error(err);
         document.getElementById('analysisLoading').classList.remove('visible');
         document.getElementById('questionnaireSection').classList.remove('visible');
         document.getElementById('uploadSection').style.display = '';
@@ -1613,183 +617,97 @@
     }
 
     function animateLoadingSteps() {
-      const steps = ['step1', 'step2', 'step3', 'step4'];
-      let current = 0;
-      const interval = setInterval(function() {
-        if (current > 0) {
-          document.getElementById(steps[current - 1]).classList.remove('active');
-          document.getElementById(steps[current - 1]).classList.add('done');
-        }
-        if (current < steps.length) {
-          document.getElementById(steps[current]).classList.add('active');
-          current++;
-        } else {
-          clearInterval(interval);
-        }
+      const steps = ['step1','step2','step3','step4']; let cur = 0;
+      const iv = setInterval(function() {
+        if (cur > 0) { document.getElementById(steps[cur-1]).classList.remove('active'); document.getElementById(steps[cur-1]).classList.add('done'); }
+        if (cur < steps.length) { document.getElementById(steps[cur]).classList.add('active'); cur++; } else clearInterval(iv);
       }, 2500);
     }
 
     function renderResults(result) {
       const container = document.getElementById('analysisResults');
-      
       const scoreClass = result.score >= 70 ? 'score-high' : result.score >= 40 ? 'score-mid' : 'score-low';
       const nivelText = result.nivel === 'principiante' ? 'Nivel Principiante' : result.nivel === 'intermedio' ? 'Nivel Intermedio' : 'Nivel Avanzado';
-
+      const catColors = { fullswing:'var(--cat-fullswing)', chipping:'var(--cat-chipping)', putting:'var(--cat-putting)', bunker:'var(--cat-bunker)', wedges:'var(--cat-wedges)', preshot:'var(--cat-preshot)', visualization:'var(--cat-visualization)', mental:'var(--cat-mental)' };
       let html = '<div class="result-header fade-in-up"><div class="result-score ' + scoreClass + '">' + result.score + '</div><div class="result-summary"><h2>DIAGNÓSTICO DE TU SWING</h2><p>' + result.resumen + '</p><span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">' + nivelText + '</span></div></div>';
-
-      const catColors = {
-        fullswing: 'var(--cat-fullswing)',
-        chipping: 'var(--cat-chipping)',
-        putting: 'var(--cat-putting)',
-        bunker: 'var(--cat-bunker)',
-        wedges: 'var(--cat-wedges)',
-        preshot: 'var(--cat-preshot)',
-        visualization: 'var(--cat-visualization)',
-        mental: 'var(--cat-mental)'
-      };
-
       result.diagnosticos.forEach(function(diag, i) {
         const sevClass = diag.severidad === 'alta' ? 'severity-high' : diag.severidad === 'media' ? 'severity-medium' : 'severity-low';
         const sevText = diag.severidad === 'alta' ? 'Prioridad Alta' : diag.severidad === 'media' ? 'Prioridad Media' : 'Prioridad Baja';
-
-        let drillsHtml = '';
-        if (diag.drills_recomendados && diag.drills_recomendados.length > 0) {
-          drillsHtml = diag.drills_recomendados.map(function(drill) {
-            return '<a class="drill-referral" href="/es/training.html#' + drill.id + '" title="' + drill.por_que + '"><span class="drill-cat-dot" style="background:' + (catColors[drill.categoria] || 'var(--accent)') + '"></span><div class="drill-referral-info"><div class="drill-referral-name">' + drill.id.toUpperCase() + ' — ' + drill.nombre + '</div><div class="drill-referral-desc">' + drill.por_que + '</div></div><span class="drill-referral-arrow">→</span></a>';
-          }).join('');
-        }
-
-        let videoHtml = '';
-        if (diag.video_biblioteca) {
-          videoHtml = '<a class="drill-referral" href="/es/library.html" style="border-color:var(--gold);background:var(--gold-dim);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;"><polygon points="5 3 19 12 5 21 5 3"/></svg><div class="drill-referral-info"><div class="drill-referral-name" style="color:var(--gold);">📹 ' + diag.video_biblioteca + '</div><div class="drill-referral-desc">Video explicativo en la Biblioteca</div></div><span class="drill-referral-arrow" style="color:var(--gold);">→</span></a>';
-        }
-
-        html += '<div class="diagnosis-card fade-in-up delay-' + (i + 1) + '"><div class="diagnosis-card-header"><div class="diagnosis-number">' + (i + 1) + '</div><h3>' + diag.titulo + '</h3><span class="diagnosis-severity ' + sevClass + '">' + sevText + '</span></div><div class="diagnosis-card-body"><div class="diagnosis-what"><div class="diagnosis-label">🔍 Qué está pasando</div><div class="diagnosis-text">' + diag.que_pasa + '</div></div><div class="diagnosis-fix"><div class="diagnosis-label">🔧 Cómo corregirlo</div><div class="diagnosis-text">' + diag.como_corregirlo + '</div></div>' + ((drillsHtml || videoHtml) ? '<div class="diagnosis-drills"><div class="diagnosis-label">🎯 Drills y recursos recomendados</div>' + drillsHtml + videoHtml + '</div>' : '') + '</div></div>';
+        let drillsHtml = '', videoHtml = '';
+        if (diag.drills_recomendados && diag.drills_recomendados.length > 0) drillsHtml = diag.drills_recomendados.map(function(d) { return '<a class="drill-referral" href="/es/training.html#' + d.id + '"><span class="drill-cat-dot" style="background:' + (catColors[d.categoria] || 'var(--accent)') + '"></span><div class="drill-referral-info"><div class="drill-referral-name">' + d.id.toUpperCase() + ' — ' + d.nombre + '</div><div class="drill-referral-desc">' + d.por_que + '</div></div><span class="drill-referral-arrow">→</span></a>'; }).join('');
+        if (diag.video_biblioteca) videoHtml = '<a class="drill-referral" href="/es/library.html" style="border-color:var(--gold);background:var(--gold-dim);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;"><polygon points="5 3 19 12 5 21 5 3"/></svg><div class="drill-referral-info"><div class="drill-referral-name" style="color:var(--gold);">📹 ' + diag.video_biblioteca + '</div><div class="drill-referral-desc">Video explicativo en la Biblioteca</div></div><span class="drill-referral-arrow" style="color:var(--gold);">→</span></a>';
+        html += '<div class="diagnosis-card fade-in-up delay-' + (i+1) + '"><div class="diagnosis-card-header"><div class="diagnosis-number">' + (i+1) + '</div><h3>' + diag.titulo + '</h3><span class="diagnosis-severity ' + sevClass + '">' + sevText + '</span></div><div class="diagnosis-card-body"><div class="diagnosis-what"><div class="diagnosis-label">🔍 Qué está pasando</div><div class="diagnosis-text">' + diag.que_pasa + '</div></div><div class="diagnosis-fix"><div class="diagnosis-label">🔧 Cómo corregirlo</div><div class="diagnosis-text">' + diag.como_corregirlo + '</div></div>' + ((drillsHtml || videoHtml) ? '<div class="diagnosis-drills"><div class="diagnosis-label">🎯 Drills y recursos recomendados</div>' + drillsHtml + videoHtml + '</div>' : '') + '</div></div>';
       });
-
-      html += '<div class="library-referral fade-in-up delay-3"><h3>PROFUNDIZA EN TU CORRECCIÓN</h3><p>En la Biblioteca encontrarás videos explicativos detallados sobre cada aspecto de tu swing. Y en Training Lab, drills específicos con variantes por nivel.</p><a href="/es/library.html">Ver Biblioteca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div><button class="new-analysis-btn" onclick="resetAnalysis()">↻ ANALIZAR OTRO SWING</button>';
-
-      container.innerHTML = html;
-      container.classList.add('visible');
+      html += '<div class="library-referral fade-in-up delay-3"><h3>PROFUNDIZA EN TU CORRECCIÓN</h3><p>En la Biblioteca encontrarás videos sobre cada aspecto de tu swing. En Training Lab, drills con variantes por nivel.</p><a href="/es/library.html">Ver Biblioteca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div><button class="new-analysis-btn" onclick="resetAnalysis()">↻ ANALIZAR OTRO SWING</button>';
+      container.innerHTML = html; container.classList.add('visible');
     }
 
     function resetAnalysis() {
-      currentVideoFile = null;
-      extractedFrames = [];
-      document.getElementById('analysisResults').classList.remove('visible');
+      currentVideoFile = null; extractedFrames = [];
+      ['analysisResults','questionnaireSection'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
       document.getElementById('analysisResults').innerHTML = '';
-      document.getElementById('questionnaireSection').classList.remove('visible');
       document.getElementById('uploadSection').style.display = '';
-      document.getElementById('qHandicap').value = '';
-      document.getElementById('qProblema').value = '';
-      document.getElementById('qObjetivo').value = '';
+      ['qHandicap','qProblema','qObjetivo'].forEach(function(id) { document.getElementById(id).value = ''; });
       document.getElementById('framesMini').innerHTML = '';
-      document.getElementById('videoPreview').classList.remove('visible');
-      document.getElementById('framesPreview').classList.remove('visible');
+      ['videoPreview','framesPreview'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
       document.getElementById('framesGrid').innerHTML = '';
       document.getElementById('dropZone').style.display = '';
       document.getElementById('analyzeBtn').disabled = true;
       document.getElementById('previewPlayer').src = '';
-      document.getElementById('webcamPreview').classList.remove('visible');
-      document.getElementById('webcamFramesPreview').classList.remove('visible');
+      ['webcamPreview','webcamFramesPreview'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
       document.getElementById('webcamFramesGrid').innerHTML = '';
       document.getElementById('webcamAnalyzeBtn').disabled = true;
-      ['step1','step2','step3','step4'].forEach(function(id) {
-        document.getElementById(id).classList.remove('active','done');
-      });
+      ['step1','step2','step3','step4'].forEach(function(id) { document.getElementById(id).classList.remove('active','done'); });
       document.getElementById('step1').classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    const COACH_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.\n\n## QUIÉN ERES\nAnalizas swings de golf con la metodología MyGolfLab — desarrollada por un coach profesional con experiencia en jugadores del PGA Tour, LIV Golf y juniors competitivos. Tu análisis es directo, técnico pero accesible. No eres un bot genérico de golf: corriges como un coach real que ve el swing de un alumno por primera vez.\n\nLa filosofía central de MyGolfLab: no existe un swing perfecto universal. Tu trabajo es encontrar la receta personal de cada jugador — sin ponerlos a todos en el mismo molde.\n\n## PROCESO DE DIAGNÓSTICO\n1. Identificar el SÍNTOMA\n2. Determinar si es problema de CARA, PATH o AMBOS\n3. Buscar el ORIGEN: grip, muñecas, plano, secuencia o pivote\n4. Evaluar si es MECÁNICO o de TIMING\n5. Dar máximo 2-3 correcciones concretas\n\n## ADAPTACIÓN POR NIVEL\n- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple\n- Intermedio (8-17): más técnico, secuencia cinética, condición de muñecas\n- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión\n\n## METODOLOGÍA (en orden de prioridad)\n\n### 1. GROUND FORCES\n- El swing empieza desde el suelo\n- Backswing: presión al pie trasero (60-70%)\n- Transición: presión al pie delantero ANTES que los brazos bajen\n- Impacto: 80%+ de presión en pie delantero\n- Error común: early extension — casi siempre problema de transferencia de presión\n\n### 2. KINEMATIC SEQUENCE\n- Secuencia correcta: caderas → torso → brazos → palo\n- Downswing se INICIA con rotación de cadera, NUNCA con los brazos\n- Cadera debe rotar abierta (~40°) al impacto\n- Error común: casting o over the top\n\n### 3. WRIST CONDITIONS\n- Shaft lean: shaft inclinado hacia el target en el impacto\n- Lag: mantener ángulo antebrazo-shaft el mayor tiempo posible\n- Flexión de muñeca izquierda = cara cerrada. Extensión = cara abierta\n- Error común: flipping — muñecas se sueltan antes del impacto\n\n### 4. BODY TILTS\n- Al impacto: torso con inclinación lateral hacia el lado trasero\n- Error común: hanging back o reverse spine angle\n\n### 5. SETUP\n- Stance: ancho de hombros para hierros\n- Flexión de rodillas: ligera y atlética\n- Hip hinge: espalda recta\n- Peso: parte media/anterior de los pies\n\n## REGLAS\n1. Solo 2-3 errores fundamentales — nunca abrumar\n2. Prioriza por impacto en consistencia y contacto\n3. Directo y claro — habla como coach real\n4. Cada corrección ACCIONABLE — qué hacer y cómo se siente\n5. Causa raíz, no síntoma\n6. Recomienda drills del Training Lab\n7. Recomienda videos de la Biblioteca\n8. Score del 1-100 basado en fundamentos\n9. Determina nivel y adapta comunicación\n10. Termina con algo práctico para HOY\n\n## DRILLS DISPONIBLES\n- Full Swing: fs-01 Escalera de Hierros, fs-02 9-Shot Grid, fs-03 Zona de Presión 60%, fs-04 Clutch Fairway Challenge, fs-05 Alignment Station, fs-06 Tempo Metrónomo, fs-07 Knockdown Control, fs-08 Lie Simulator, fs-09 Par 3 Pressure Round, fs-10 Cambio de Palo Rápido\n- Chipping: ch-01 Circle Drill, ch-02 Up & Down Challenge, ch-03 Landing Zone Precision, ch-04 Flop Shot Academy, ch-05 Chip con Cada Palo, ch-06 Rough Escape, ch-07 Bump & Run Maestro, ch-08 One-Handed Chip, ch-09 Par Save Simulator, ch-10 Texas Wedge Chip\n- Putting: pu-01 Gate Drill, pu-02 Clock Drill, pu-03 Ladder Distancia, pu-04 One-Ball Speed Control, pu-05 Eyes Closed Putting, pu-06 Make-It Pressure, pu-07 Break Reading School, pu-08 Putting Routine Timer, pu-09 2-Putt Zone, pu-10 Path & Face Control\n- Wedges: wg-01 Wedge Matrix, wg-02 50-Yard Master, wg-03 Scoring Zone Simulator, wg-04 Trajectory Control Wedges, wg-05 Wedge Clock System, wg-06 Wind Wedge Adjustment, wg-07 3/4 Swing Mastery, wg-08 Divot Pattern Check, wg-09 Approach Pressure Points, wg-10 Wedge Consistency Test\n- Pre-Shot: pr-01 Rutina en 4 Pasos, pr-02 Commit or Reset, pr-03 Target Precision Focus, pr-04 Breath Integration, pr-05 Practice Swing con Propósito\n- Visualización: vi-01 Movie Rehearsal, vi-02 Resultado Positivo Forzado, vi-03 Hole Visualization Walk, vi-04 Sensory Swing Recall\n- Mental: mn-01 Emotional Reset Button, mn-02 10-Shot Mindfulness, mn-03 Acceptance Training, mn-04 Pressure Inoculation, mn-05 Self-Talk Audit, mn-06 Bounce-Back Drill\n\n## TONO\n- Directo. No adulador.\n- Empático pero honesto.\n- En español, natural, como coach profesional latinoamericano.\n- Si algo está bien, dilo brevemente.\n- Siempre termina con algo práctico para hoy.\n\n## FORMATO\nResponde SIEMPRE en JSON válido. Sin markdown, sin backticks, sin texto fuera del JSON.';
+    const COACH_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.\n\nAnalizas swings con la metodología MyGolfLab. Filosofía: no existe swing perfecto universal — encontramos la receta personal de cada jugador.\n\nPROCESO: Síntoma → Cara/Path → Origen (grip, muñecas, plano, secuencia) → Mecánico/Timing → 2-3 correcciones máximo.\n\nNIVEL: Alto hándicap = motivador, 1-2 correcciones simples. Intermedio = técnico, secuencia cinética. Avanzado = terminología completa, timing fino.\n\nMETODOLOGÍA:\n1. GROUND FORCES: Presión pie trasero (60-70%) en backswing. Transición al pie delantero ANTES que bajen los brazos. 80%+ pie delantero al impacto.\n2. KINEMATIC SEQUENCE: Caderas → torso → brazos → palo. Cadera inicia downswing, ~40° abierta al impacto.\n3. WRIST CONDITIONS: Shaft lean al impacto. Lag máximo. Flexión muñeca izquierda = cara cerrada.\n4. BODY TILTS: Inclinación lateral al lado trasero al impacto.\n5. SETUP: Stance ancho de hombros, rodillas levemente flexionadas, hip hinge con espalda recta.\n\nREGLAS: Solo 2-3 errores. Causa raíz no síntoma. Accionable — qué hacer y cómo se siente. Score 1-100. Adaptar al nivel. Terminar con algo práctico HOY.\n\nTONO: Directo, empático, honesto. En español natural. Sin adulación.\n\nFORMATO: JSON válido siempre. Sin markdown ni backticks.';
 
-    const CHAT_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, un coach de golf virtual basado en la metodología MyGolfLab.\n\nTu metodología se basa en encontrar la receta personal de cada jugador — no existe un swing perfecto universal. Los pilares son: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, y un setup sólido.\n\nPROCESO DE DIAGNÓSTICO:\n1. Identificar el síntoma\n2. Determinar si es problema de cara, path, o ambos\n3. Buscar el origen: grip, muñecas, plano, secuencia o pivote\n4. Evaluar si es mecánico o de timing\n5. Dar máximo 2-3 correcciones concretas\n\nADAPTACIÓN POR NIVEL:\n- Alto hándicap (18+): motivador, máximo 1-2 correcciones, lenguaje simple\n- Intermedio (8-17): más técnico, secuencia cinética, condiciones de muñecas\n- Avanzado (0-7): terminología completa, timing, rendimiento bajo presión\n\nESTILO:\n- Directo y conciso. Respuestas cortas y al grano.\n- Técnico pero equilibrado con el rendimiento.\n- Siempre termina con algo práctico para trabajar.\n- Empático pero honesto.\n- En español, natural.\n- Recomienda drills del Training Lab o videos de la Biblioteca cuando sea relevante.\n\nResponde en texto plano. No uses markdown ni JSON. Sé conversacional y directo.';
+    const CHAT_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab. Metodología: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, Setup. Filosofía: receta personal, sin moldes.\n\nProceso: síntoma → cara/path → origen → mecánico/timing → máximo 2-3 correcciones.\n\nNivel: alto hándicap (simple), intermedio (técnico), avanzado (terminología completa).\n\nEstilo: directo, conciso, práctico. En español natural. Sin markdown ni JSON. Recomienda Training Lab o Biblioteca cuando sea relevante.';
 
-    const chatInput = document.getElementById('chatInput');
-    const chatSendBtn = document.getElementById('chatSendBtn');
-
-    chatInput.addEventListener('input', function() {
-      chatSendBtn.disabled = !chatInput.value.trim() || chatLoading;
-      chatInput.style.height = 'auto';
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-    });
-
-    chatInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (chatInput.value.trim() && !chatLoading) sendChatMessage();
-      }
-    });
+    const chatInput = document.getElementById('chatInput'), chatSendBtn = document.getElementById('chatSendBtn');
+    chatInput.addEventListener('input', function() { chatSendBtn.disabled = !chatInput.value.trim() || chatLoading; chatInput.style.height = 'auto'; chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'; });
+    chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chatInput.value.trim() && !chatLoading) sendChatMessage(); } });
 
     async function sendChatMessage() {
       const text = chatInput.value.trim();
       if (!text || chatLoading) return;
-
-      chatLoading = true;
-      chatSendBtn.disabled = true;
-
+      chatLoading = true; chatSendBtn.disabled = true;
       const messagesEl = document.getElementById('chatMessages');
       const userBubble = document.createElement('div');
       userBubble.className = 'chat-bubble user-bubble fade-in-up';
       userBubble.innerHTML = '<div class="chat-bubble-text">' + escapeHtml(text) + '</div>';
       messagesEl.appendChild(userBubble);
-
       chatHistory.push({ role: 'user', content: text });
-
-      chatInput.value = '';
-      chatInput.style.height = 'auto';
-
+      chatInput.value = ''; chatInput.style.height = 'auto';
       const typingEl = document.createElement('div');
-      typingEl.className = 'chat-typing';
-      typingEl.id = 'chatTyping';
+      typingEl.className = 'chat-typing'; typingEl.id = 'chatTyping';
       typingEl.innerHTML = '<div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
-      messagesEl.appendChild(typingEl);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
+      messagesEl.appendChild(typingEl); messagesEl.scrollTop = messagesEl.scrollHeight;
       try {
-        const response = await fetch('/api/coach', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1024,
-            system: CHAT_SYSTEM_PROMPT,
-            messages: chatHistory.map(function(m) { return { role: m.role, content: m.content }; })
-          })
-        });
-
+        const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: CHAT_SYSTEM_PROMPT, messages: chatHistory.map(function(m) { return { role: m.role, content: m.content }; }) }) });
         const data = await response.json();
-        const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Error al responder. Intenta de nuevo.';
-
-        const typingElToRemove = document.getElementById('chatTyping');
-        if (typingElToRemove) typingElToRemove.remove();
-
+        const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Error al responder.';
+        const t = document.getElementById('chatTyping'); if (t) t.remove();
         chatHistory.push({ role: 'assistant', content: reply });
-        const assistantBubble = document.createElement('div');
-        assistantBubble.className = 'chat-bubble assistant-bubble fade-in-up';
-        assistantBubble.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text">' + escapeHtml(reply) + '</div>';
-        messagesEl.appendChild(assistantBubble);
-
+        const ab = document.createElement('div');
+        ab.className = 'chat-bubble assistant-bubble fade-in-up';
+        ab.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text">' + escapeHtml(reply) + '</div>';
+        messagesEl.appendChild(ab);
       } catch (err) {
-        const typingElToRemove = document.getElementById('chatTyping');
-        if (typingElToRemove) typingElToRemove.remove();
-        const errorBubble = document.createElement('div');
-        errorBubble.className = 'chat-bubble assistant-bubble fade-in-up';
-        errorBubble.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>';
-        messagesEl.appendChild(errorBubble);
+        const t = document.getElementById('chatTyping'); if (t) t.remove();
+        const eb = document.createElement('div');
+        eb.className = 'chat-bubble assistant-bubble fade-in-up';
+        eb.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>';
+        messagesEl.appendChild(eb);
       } finally {
-        chatLoading = false;
-        chatSendBtn.disabled = !chatInput.value.trim();
+        chatLoading = false; chatSendBtn.disabled = !chatInput.value.trim();
         document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
       }
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
+    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
   </script>
 </body>
 </html>
