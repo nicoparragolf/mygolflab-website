@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca de Videos | MyGolfLab</title>
+    <title>Biblioteca | MyGolfLab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,182 +35,96 @@
             overflow-x: hidden;
         }
 
-        /* Navigation */
+        /* ==================== HEADER UNIVERSAL ==================== */
         .nav {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 1rem 2rem;
+            padding: 0 24px;
+            height: 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(10, 10, 10, 0.85);
+            background: rgba(10, 10, 10, 0.92);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .logo-icon {
-            width: 32px; height: 32px;
-            background: var(--gradient-1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
-
-        /* Language Selector */
-        .lang-selector {
-            display: flex;
-            gap: 0.25rem;
-            background: var(--bg-elevated);
-            padding: 0.25rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .lang-btn {
-            padding: 0.35rem 0.6rem;
-            font-family: var(--font-body);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-        .lang-btn:hover { color: var(--text-secondary); }
-        .lang-btn.active { background: var(--primary); color: var(--bg-dark); }
 
         .hamburger {
             width: 44px; height: 44px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            background: none; border: none;
             cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: all 0.3s ease;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 5px; padding: 8px; flex-shrink: 0;
         }
-        .hamburger:hover { background: var(--bg-card); border-color: var(--primary); }
         .hamburger span {
-            width: 18px; height: 2px;
+            width: 22px; height: 2px;
             background: var(--text-primary);
             border-radius: 2px;
             transition: all 0.3s ease;
+            display: block;
         }
         .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
         .hamburger.active span:nth-child(2) { opacity: 0; }
         .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-        /* Mobile Menu */
-        .mobile-menu {
-            position: fixed;
-            top: 0; right: -100%;
-            width: 100%; max-width: 400px;
-            height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999;
-            padding: 6rem 2rem 2rem;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid var(--border);
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.6rem; letter-spacing: 2px;
+            color: var(--text-primary); text-decoration: none;
         }
-        .mobile-menu.active { right: 0; }
+        .logo span { color: var(--primary); }
+
         .mobile-menu-overlay {
-            position: fixed;
-            top: 0; left: 0;
+            position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 998;
-            opacity: 0;
-            visibility: hidden;
+            background: rgba(0,0,0,0.6);
+            z-index: 998; opacity: 0; visibility: hidden;
             transition: all 0.3s ease;
         }
         .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
-        .menu-links { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .mobile-menu {
+            position: fixed; top: 0; left: -100%;
+            width: 280px; height: 100vh;
+            background: var(--bg-dark);
+            z-index: 999; padding: 80px 24px 32px;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+        }
+        .mobile-menu.active { left: 0; }
+
+        .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
         .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
-            color: var(--text-secondary);
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px; color: var(--text-secondary);
             text-decoration: none;
             font-family: var(--font-heading);
-            font-size: 1.2rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            border-radius: 12px;
-            transition: all 0.2s ease;
+            font-size: 1.1rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            border-radius: 10px; transition: all 0.2s ease;
         }
         .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link.active { background: var(--bg-elevated); color: var(--text-primary); border-left: 3px solid var(--primary); }
-        .menu-link svg { width: 22px; height: 22px; opacity: 0.6; }
-        .menu-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+        .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
+        .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+
+        .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
         .menu-cta {
-            display: block;
-            text-align: center;
-            padding: 1rem 2rem;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-radius: 12px;
-            margin-top: 1rem;
+            display: block; text-align: center;
+            padding: 14px 20px; background: var(--gradient-1);
+            color: var(--bg-dark); text-decoration: none;
+            font-family: var(--font-heading); font-weight: 700;
+            font-size: 1rem; text-transform: uppercase;
+            letter-spacing: 2px; border-radius: 10px; margin-top: 16px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
 
-        .menu-lang-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border);
-        }
-        .menu-lang-btn {
-            flex: 1;
-            padding: 0.75rem;
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        .menu-lang-btn:hover { color: var(--text-secondary); border-color: var(--text-muted); }
-        .menu-lang-btn.active { background: var(--primary); color: var(--bg-dark); border-color: var(--primary); }
-
-        /* Page Header */
+        /* ==================== PAGE CONTENT ==================== */
         .page-header {
             padding: 8rem 2rem 4rem;
             text-align: center;
@@ -219,7 +133,6 @@
         .page-header h1 {
             font-family: var(--font-display);
             font-size: clamp(2.5rem, 8vw, 4rem);
-            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.03em;
             margin-bottom: 1rem;
@@ -232,7 +145,6 @@
             margin: 0 auto;
         }
 
-        /* Content */
         .content {
             max-width: 1200px;
             margin: 0 auto;
@@ -259,7 +171,6 @@
         .category-header h2 {
             font-family: var(--font-display);
             font-size: 2rem;
-            font-weight: 400;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
@@ -292,15 +203,10 @@
             justify-content: center;
             position: relative;
         }
-        .video-thumb svg {
-            width: 48px; height: 48px;
-            color: var(--text-muted);
-            opacity: 0.5;
-        }
+        .video-thumb svg { width: 48px; height: 48px; color: var(--text-muted); opacity: 0.5; }
         .video-duration {
             position: absolute;
-            bottom: 0.75rem;
-            right: 0.75rem;
+            bottom: 0.75rem; right: 0.75rem;
             background: rgba(0, 0, 0, 0.8);
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
@@ -312,15 +218,12 @@
         .video-info h3 {
             font-family: var(--font-heading);
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.02em;
+            letter-spacing: 1px;
             margin-bottom: 0.25rem;
         }
-        .video-info p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
+        .video-info p { font-size: 0.875rem; color: var(--text-muted); }
 
         .video-meta {
             display: flex;
@@ -329,11 +232,7 @@
             font-size: 0.8rem;
             color: var(--text-muted);
         }
-        .video-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
+        .video-meta span { display: flex; align-items: center; gap: 0.35rem; }
         .video-meta svg { width: 14px; height: 14px; }
 
         .coming-soon {
@@ -352,7 +251,6 @@
         }
         .coming-soon p { color: var(--text-muted); }
 
-        /* Footer */
         .footer {
             padding: 3rem 2rem;
             border-top: 1px solid var(--border);
@@ -361,119 +259,62 @@
         .footer-logo {
             font-family: var(--font-display);
             font-size: 1.5rem;
-            letter-spacing: 0.05em;
-            color: var(--text-primary);
+            letter-spacing: 3px;
             margin-bottom: 1rem;
         }
-        .footer p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-        }
+        .footer p { font-size: 0.875rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
+    <!-- HEADER UNIVERSAL -->
     <nav class="nav">
-    <button class="hamburger" id="hamburger" aria-label="Menú">
-        <span></span><span></span><span></span>
-    </button>
-    <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-</nav>
-
-<div class="mobile-menu-overlay" id="menuOverlay"></div>
-
-<div class="mobile-menu" id="mobileMenu">
-    <div class="menu-links">
-        <a href="/es/index.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Inicio
-        </a>
-        <a href="/es/coach-ai.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Coach IA
-        </a>
-        <a href="/es/library.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            Biblioteca
-        </a>
-        <a href="/es/training.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Training Lab
-        </a>
-        <a href="/es/pricing.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-            Precios
-        </a>
-        <div class="menu-divider"></div>
-        <a href="/es/about.html" class="menu-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-            El Coach
-        </a>
-    </div>
-    <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
-</div>
-                MYGOLFLAB
-            </a>
-            <div class="lang-selector">
-                <button class="lang-btn active" onclick="switchLang('es')">ES</button>
-                <button class="lang-btn" onclick="switchLang('en')">EN</button>
-                <button class="lang-btn" onclick="switchLang('pt')">PT</button>
-            </div>
-        </div>
         <button class="hamburger" id="hamburger" aria-label="Menú">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </button>
+        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
     </nav>
 
     <div class="mobile-menu-overlay" id="menuOverlay"></div>
 
     <div class="mobile-menu" id="mobileMenu">
         <div class="menu-links">
-            <a href="index.html" class="menu-link">
+            <a href="/es/index.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Inicio
             </a>
-            <a href="coach-ai.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><circle cx="12" cy="12" r="3"/></svg>
+            <a href="/es/coach-ai.html" class="menu-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                 Coach IA
             </a>
-            <a href="library.html" class="menu-link active">
+            <a href="/es/library.html" class="menu-link active">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                 Biblioteca
             </a>
-            <a href="training.html" class="menu-link">
+            <a href="/es/training.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 Training Lab
             </a>
-            <a href="pricing.html" class="menu-link">
+            <a href="/es/pricing.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 Precios
             </a>
             <div class="menu-divider"></div>
-            <a href="about.html" class="menu-link">
+            <a href="/es/about.html" class="menu-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-                Sobre el Coach
+                El Coach
             </a>
         </div>
-        <a href="index.html#waitlist" class="menu-cta">Únete a la Lista</a>
-        <div class="menu-lang-selector">
-            <button class="menu-lang-btn active" onclick="switchLang('es')">Español</button>
-            <button class="menu-lang-btn" onclick="switchLang('en')">English</button>
-            <button class="menu-lang-btn" onclick="switchLang('pt')">Português</button>
-        </div>
+        <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
     </div>
 
-    <!-- Page Header -->
+    <!-- CONTENIDO -->
     <header class="page-header">
-        <h1>Biblioteca de Videos</h1>
-        <p>Instrucción completa para cada parte de tu juego—desde fundamentos del swing completo hasta tiros de score.</p>
+        <h1>Biblioteca</h1>
+        <p>Instrucción completa para cada parte de tu juego — desde fundamentos del swing hasta el juego mental.</p>
     </header>
 
-    <!-- Content -->
     <main class="content">
-        <!-- Full Swing -->
         <section class="category-section">
             <div class="category-header">
                 <div class="category-icon">
@@ -491,7 +332,7 @@
                         <h3>La Posición de Setup</h3>
                         <p>Construyendo una base para la consistencia</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.4k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>2.4k vistas</span>
                             <span>Principiante</span>
                         </div>
                     </div>
@@ -505,7 +346,7 @@
                         <h3>Transferencia de Peso</h3>
                         <p>Carga y desplaza para más potencia</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.8k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>1.8k vistas</span>
                             <span>Intermedio</span>
                         </div>
                     </div>
@@ -516,10 +357,10 @@
                         <span class="video-duration">15:45</span>
                     </div>
                     <div class="video-info">
-                        <h3>Condiciones de Muñeca en Impacto</h3>
+                        <h3>Wrist Conditions al Impacto</h3>
                         <p>Las posiciones clave para contacto sólido</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 3.1k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>3.1k vistas</span>
                             <span>Intermedio</span>
                         </div>
                     </div>
@@ -527,7 +368,6 @@
             </div>
         </section>
 
-        <!-- Short Game -->
         <section class="category-section">
             <div class="category-header">
                 <div class="category-icon">
@@ -545,7 +385,7 @@
                         <h3>Fundamentos del Chip</h3>
                         <p>Técnica simple para chips consistentes</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.5k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>1.5k vistas</span>
                             <span>Principiante</span>
                         </div>
                     </div>
@@ -559,7 +399,7 @@
                         <h3>Control de Distancia en Pitches</h3>
                         <p>Afina tus tiros de 30-60 metros</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 980 vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>980 vistas</span>
                             <span>Intermedio</span>
                         </div>
                     </div>
@@ -567,7 +407,6 @@
             </div>
         </section>
 
-        <!-- Putting -->
         <section class="category-section">
             <div class="category-header">
                 <div class="category-icon">
@@ -585,7 +424,7 @@
                         <h3>Setup & Alineación del Putt</h3>
                         <p>Inicia la bola en tu línea deseada</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 2.1k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>2.1k vistas</span>
                             <span>Principiante</span>
                         </div>
                     </div>
@@ -599,7 +438,7 @@
                         <h3>Lectura de Greens Avanzada</h3>
                         <p>Ve la caída antes de puttear</p>
                         <div class="video-meta">
-                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 1.7k vistas</span>
+                            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>1.7k vistas</span>
                             <span>Avanzado</span>
                         </div>
                     </div>
@@ -607,7 +446,6 @@
             </div>
         </section>
 
-        <!-- Courses -->
         <section class="category-section">
             <div class="category-header">
                 <div class="category-icon">
@@ -617,15 +455,14 @@
             </div>
             <div class="coming-soon">
                 <h3>Próximamente</h3>
-                <p>Cursos completos de varias semanas sobre transformación del swing, dominio del juego corto y juego mental.</p>
+                <p>Cursos completos sobre transformación del swing, dominio del juego corto y juego mental.</p>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-logo">MYGOLFLAB</div>
-        <p>© 2026 MyGolfLab. Todos los derechos reservados.</p>
+        <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
     </footer>
 
     <script>
@@ -642,17 +479,11 @@
 
         hamburger.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', toggleMenu);
-
-        document.querySelectorAll('.menu-link').forEach(link => {
-            link.addEventListener('click', () => {
+        document.querySelectorAll('.menu-link, .menu-cta').forEach(function(link) {
+            link.addEventListener('click', function() {
                 if (mobileMenu.classList.contains('active')) toggleMenu();
             });
         });
-
-        function switchLang(lang) {
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            window.location.href = '../' + lang + '/' + currentPage;
-        }
     </script>
 </body>
 </html>
