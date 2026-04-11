@@ -1,1189 +1,1609 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca — MyGolfLab</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg: #0a0a0a;
-      --bg-card: #111111;
-      --bg-elevated: #1a1a1a;
-      --bg-hover: #222222;
-      --teal: #2dd4bf;
-      --teal-dim: rgba(45, 212, 191, 0.12);
-      --teal-dim2: rgba(45, 212, 191, 0.06);
-      --gold: #D4C5A9;
-      --text: #f0f0f0;
-      --text-muted: #888;
-      --text-dim: #555;
-      --border: rgba(255,255,255,0.06);
-      --border-mid: rgba(255,255,255,0.1);
-
-      --pilar-gf: #2dd4bf;
-      --pilar-ks: #f59e0b;
-      --pilar-wc: #a78bfa;
-      --pilar-bt: #f87171;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Barlow', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ─── HEADER ─── */
-    header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 1000;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      height: 56px;
-    }
-
-    .hamburger {
-      width: 40px; height: 40px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 5px; cursor: pointer;
-      background: none; border: none;
-    }
-    .hamburger span {
-      display: block; width: 22px; height: 1.5px;
-      background: var(--text); border-radius: 2px;
-      transition: all 0.3s;
-    }
-    .hamburger.active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .hamburger.active span:nth-child(2) { opacity: 0; }
-    .hamburger.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 0.08em;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    /* ─── SIDEBAR ─── */
-    .sidebar-overlay {
-      position: fixed; inset: 0; z-index: 999;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .sidebar-overlay.active { opacity: 1; pointer-events: all; }
-
-    .sidebar {
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      width: 280px; z-index: 1001;
-      background: #0f0f0f;
-      border-right: 1px solid var(--border-mid);
-      transform: translateX(-100%);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex; flex-direction: column;
-      padding: 20px 0;
-    }
-    .sidebar.active { transform: translateX(0); }
-
-    .sidebar-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 24px; letter-spacing: 0.08em;
-      color: var(--teal);
-      padding: 0 24px 24px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sidebar-nav { flex: 1; padding: 20px 0; }
-    .sidebar-nav a {
-      display: flex; align-items: center; gap: 12px;
-      padding: 12px 24px;
-      color: var(--text-muted); font-size: 15px;
-      text-decoration: none; transition: all 0.2s;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 500; letter-spacing: 0.03em;
-    }
-    .sidebar-nav a:hover, .sidebar-nav a.active {
-      color: var(--text); background: var(--bg-hover);
-    }
-    .sidebar-nav a.active { color: var(--teal); border-left: 2px solid var(--teal); }
-    .sidebar-nav a svg { opacity: 0.6; }
-    .sidebar-nav a:hover svg, .sidebar-nav a.active svg { opacity: 1; }
-
-    .sidebar-footer {
-      padding: 20px 24px;
-      border-top: 1px solid var(--border);
-    }
-    .sidebar-footer a {
-      display: block; color: var(--text-muted);
-      font-size: 13px; text-decoration: none;
-      margin-bottom: 8px; transition: color 0.2s;
-    }
-    .sidebar-footer a:hover { color: var(--text); }
-
-    /* ─── MAIN ─── */
-    main { padding-top: 56px; }
-
-    /* ─── HERO ─── */
-    .hero {
-      padding: 60px 24px 48px;
-      max-width: 1200px; margin: 0 auto;
-    }
-
-    .hero-label {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 12px; font-weight: 600;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 12px;
-    }
-
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(48px, 10vw, 80px);
-      line-height: 0.95; letter-spacing: 0.02em;
-      color: var(--text); margin-bottom: 16px;
-    }
-    .hero-title span { color: var(--teal); }
-
-    .hero-desc {
-      font-size: 16px; color: var(--text-muted);
-      max-width: 500px; line-height: 1.6; margin-bottom: 40px;
-    }
-
-    /* ─── SEARCH + FILTERS ─── */
-    .filters-row {
-      display: flex; flex-direction: column; gap: 16px;
-    }
-
-    .search-box {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-radius: 10px; padding: 0 16px;
-      max-width: 460px;
-    }
-    .search-box svg { color: var(--text-dim); flex-shrink: 0; }
-    .search-box input {
-      flex: 1; background: none; border: none; outline: none;
-      color: var(--text); font-size: 15px;
-      font-family: 'Barlow', sans-serif;
-      padding: 14px 0;
-    }
-    .search-box input::placeholder { color: var(--text-dim); }
-
-    .filter-tabs {
-      display: flex; flex-wrap: wrap; gap: 8px;
-    }
-
-    .filter-btn {
-      padding: 8px 16px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 100px; cursor: pointer;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px; font-weight: 500;
-      color: var(--text-muted); transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .filter-btn:hover { border-color: var(--border-mid); color: var(--text); }
-    .filter-btn.active {
-      background: var(--teal-dim);
-      border-color: var(--teal);
-      color: var(--teal);
-    }
-
-    .filter-btn.pilar-gf.active { background: rgba(45,212,191,0.1); border-color: var(--pilar-gf); color: var(--pilar-gf); }
-    .filter-btn.pilar-ks.active { background: rgba(245,158,11,0.1); border-color: var(--pilar-ks); color: var(--pilar-ks); }
-    .filter-btn.pilar-wc.active { background: rgba(167,139,250,0.1); border-color: var(--pilar-wc); color: var(--pilar-wc); }
-    .filter-btn.pilar-bt.active { background: rgba(248,113,113,0.1); border-color: var(--pilar-bt); color: var(--pilar-bt); }
-
-    /* ─── SECTION DIVIDER ─── */
-    .section-wrap {
-      max-width: 1200px; margin: 0 auto;
-      padding: 0 24px 64px;
-    }
-
-    .section-header {
-      display: flex; align-items: baseline; gap: 12px;
-      margin-bottom: 24px;
-    }
-    .section-header h2 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px; font-weight: 700;
-      letter-spacing: 0.04em; color: var(--text);
-    }
-    .section-header .count {
-      font-size: 13px; color: var(--text-dim);
-    }
-
-    /* ─── FIX SERIES CARDS ─── */
-    .series-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 16px;
-    }
-
-    .series-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden;
-      cursor: pointer; transition: all 0.25s;
-      position: relative;
-    }
-    .series-card:hover {
-      border-color: var(--border-mid);
-      transform: translateY(-2px);
-    }
-
-    .series-thumb {
-      position: relative;
-      aspect-ratio: 16/7;
-      background: var(--bg-elevated);
-      overflow: hidden;
-    }
-
-    .series-thumb-bg {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .series-thumb-pattern {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-
-    .series-thumb-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 42px; letter-spacing: 0.05em;
-      opacity: 0.08; position: absolute;
-      white-space: nowrap;
-    }
-
-    .series-play {
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      position: relative; z-index: 1;
-      transition: all 0.2s;
-    }
-    .series-card:hover .series-play {
-      background: var(--teal);
-      border-color: var(--teal);
-    }
-
-    .series-ep-count {
-      position: absolute; top: 12px; right: 12px;
-      background: rgba(0,0,0,0.7);
-      border: 1px solid var(--border-mid);
-      border-radius: 6px; padding: 4px 10px;
-      font-size: 11px; font-weight: 500;
-      color: var(--text-muted);
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.05em;
-    }
-
-    .series-body { padding: 18px; }
-
-    .series-pilar-tags {
-      display: flex; gap: 6px; flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .pilar-tag {
-      font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 4px;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-    .pilar-tag.gf { background: rgba(45,212,191,0.1); color: var(--pilar-gf); }
-    .pilar-tag.ks { background: rgba(245,158,11,0.1); color: var(--pilar-ks); }
-    .pilar-tag.wc { background: rgba(167,139,250,0.1); color: var(--pilar-wc); }
-    .pilar-tag.bt { background: rgba(248,113,113,0.1); color: var(--pilar-bt); }
-
-    .series-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 20px; font-weight: 700;
-      letter-spacing: 0.02em;
-      margin-bottom: 6px; line-height: 1.2;
-    }
-    .series-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
-
-    .series-progress {
-      margin-bottom: 14px;
-    }
-    .series-progress-bar {
-      height: 2px; background: var(--border);
-      border-radius: 2px; margin-bottom: 6px; overflow: hidden;
-    }
-    .series-progress-fill {
-      height: 100%; background: var(--teal);
-      border-radius: 2px; width: 0%;
-      transition: width 0.6s ease;
-    }
-    .series-progress-label {
-      font-size: 11px; color: var(--text-dim);
-    }
-
-    .series-cta {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 13px; font-weight: 600;
-      color: var(--teal);
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.04em; text-transform: uppercase;
-    }
-
-    /* ─── VIDEO GRID ─── */
-    .video-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .video-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px; overflow: hidden;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .video-card:hover {
-      border-color: var(--border-mid);
-      transform: translateY(-2px);
-    }
-    .video-card.hidden { display: none; }
-
-    .video-thumb {
-      position: relative;
-      aspect-ratio: 16/9;
-      background: var(--bg-elevated);
-      overflow: hidden;
-    }
-
-    .video-thumb-inner {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-
-    .video-thumb-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 52px; letter-spacing: 0.05em;
-      opacity: 0.06; position: absolute;
-    }
-
-    .video-thumb-play {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; position: relative; z-index: 1;
-    }
-    .video-card:hover .video-thumb-play {
-      background: var(--teal);
-      border-color: var(--teal);
-    }
-
-    .video-duration {
-      position: absolute; bottom: 8px; right: 8px;
-      background: rgba(0,0,0,0.8);
-      font-size: 11px; color: var(--text-muted);
-      padding: 2px 7px; border-radius: 4px;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .video-body { padding: 14px; }
-
-    .video-pilar-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .video-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px; font-weight: 600;
-      line-height: 1.3; margin-bottom: 6px;
-      color: var(--text);
-    }
-
-    .video-meta-row {
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .video-cat-tag {
-      font-size: 11px; color: var(--text-dim);
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.04em;
-    }
-
-    /* ─── COMING SOON OVERLAY ─── */
-    .coming-soon-overlay {
-      position: absolute; inset: 0;
-      background: rgba(10,10,10,0.75);
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(2px);
-    }
-    .coming-soon-badge {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-radius: 8px; padding: 8px 14px;
-      font-size: 11px; font-weight: 600;
-      color: var(--text-muted); letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center; padding: 60px 24px;
-      display: none;
-    }
-    .empty-state.visible { display: block; }
-    .empty-state p {
-      color: var(--text-muted); font-size: 15px;
-    }
-
-    /* ─── PILARES SECTION ─── */
-    .pilares-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px; margin-bottom: 48px;
-    }
-
-    .pilar-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px;
-      cursor: pointer; transition: all 0.2s;
-      border-top: 3px solid;
-    }
-    .pilar-card:hover { border-color: var(--border-mid); }
-    .pilar-card.gf { border-top-color: var(--pilar-gf); }
-    .pilar-card.ks { border-top-color: var(--pilar-ks); }
-    .pilar-card.wc { border-top-color: var(--pilar-wc); }
-    .pilar-card.bt { border-top-color: var(--pilar-bt); }
-
-    .pilar-card-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 15px; font-weight: 700;
-      letter-spacing: 0.03em; margin-bottom: 4px;
-    }
-    .pilar-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-    .pilar-card-count { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
-
-    /* ─── FOOTER SPACER ─── */
-    .page-end { height: 80px; }
-
-    /* ─── MODAL ─── */
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 2000;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px; opacity: 0; pointer-events: none;
-      transition: opacity 0.25s;
-    }
-    .modal-overlay.active { opacity: 1; pointer-events: all; }
-
-    .modal {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-radius: 16px; overflow: hidden;
-      width: 100%; max-width: 680px;
-      transform: scale(0.96);
-      transition: transform 0.25s;
-    }
-    .modal-overlay.active .modal { transform: scale(1); }
-
-    .modal-video {
-      aspect-ratio: 16/9;
-      background: #000;
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-
-    .modal-placeholder {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
-    }
-    .modal-placeholder-icon {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: var(--teal-dim);
-      border: 1px solid var(--teal);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .modal-placeholder p {
-      font-size: 13px; color: var(--text-dim);
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.05em; text-transform: uppercase;
-    }
-
-    .modal-close {
-      position: absolute; top: 12px; right: 12px;
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(0,0,0,0.6); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: white; transition: background 0.2s;
-    }
-    .modal-close:hover { background: rgba(0,0,0,0.9); }
-
-    .modal-body { padding: 20px 24px 24px; }
-
-    .modal-pilar-tags { display: flex; gap: 6px; margin-bottom: 10px; }
-
-    .modal-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px; font-weight: 700; margin-bottom: 8px;
-    }
-    .modal-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
-
-    .modal-meta {
-      display: flex; gap: 20px; flex-wrap: wrap;
-    }
-    .modal-meta-item {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 13px; color: var(--text-dim);
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 600px) {
-      .series-grid { grid-template-columns: 1fr; }
-      .video-grid { grid-template-columns: 1fr 1fr; }
-      .pilares-strip { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 400px) {
-      .video-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Lab — MyGolfLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --bg-card: #111111;
+  --bg-elevated: #1a1a1a;
+  --bg-modal: #141414;
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.12);
+  --teal-mid: rgba(45,212,191,0.35);
+  --gold: #D4C5A9;
+  --gold-dim: rgba(212,197,169,0.12);
+  --text: #f0f0f0;
+  --text-muted: #888;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.15);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.4;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100; padding: 0 24px; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,10,10,0.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.hamburger {
+  width: 40px; height: 40px;
+  display: flex; flex-direction: column;
+  justify-content: center; gap: 6px;
+  cursor: pointer; background: none; border: none; padding: 0;
+}
+.hamburger span {
+  display: block; height: 1.5px;
+  background: var(--text); border-radius: 2px; transition: all 0.3s;
+}
+.hamburger:hover span { background: var(--teal); }
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 3px;
+  color: var(--text); text-decoration: none;
+}
+.logo span { color: var(--teal); }
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  z-index: 1500; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.sidemenu {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
+  background: var(--bg-card); border-right: 1px solid var(--border);
+  z-index: 2000;
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  padding: 80px 32px 32px;
+  display: flex; flex-direction: column;
+}
+.sidemenu.open { transform: translateX(0); }
+.sidemenu a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 500; letter-spacing: 1px;
+  color: var(--text-muted); text-decoration: none;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  transition: color 0.2s; text-transform: uppercase;
+}
+.sidemenu a:hover, .sidemenu a.active { color: var(--teal); }
+.sidemenu-auth {
+  margin-top: auto; padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.btn-outline {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border: 1px solid var(--border); border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text);
+  text-decoration: none; transition: all 0.2s; cursor: pointer; background: none;
+}
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border: none; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: #0a0a0a;
+  background: var(--teal); text-decoration: none;
+  transition: all 0.2s; cursor: pointer;
+}
+.btn-primary:hover { background: #4eecd9; transform: translateY(-1px); }
+
+/* ─── PAGE LAYOUT ─── */
+.page-wrap {
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+/* ─── PAGE HEADER ─── */
+.page-hero {
+  padding: 60px 24px 40px;
+  max-width: 1200px; margin: 0 auto;
+  border-bottom: 1px solid var(--border);
+}
+.page-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--teal);
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.page-eyebrow::before {
+  content: ''; display: block; width: 24px; height: 1px; background: var(--teal);
+}
+.page-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 0.95; letter-spacing: 1px; margin-bottom: 16px;
+}
+.page-title span { color: var(--teal); }
+.page-sub {
+  font-size: 16px; font-weight: 300; color: var(--text-muted);
+  line-height: 1.7; max-width: 560px;
+}
+
+/* ─── FILTERS ─── */
+.filters-bar {
+  padding: 24px 24px;
+  max-width: 1200px; margin: 0 auto;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.filter-chip {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 18px; border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-muted); background: transparent;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--teal); color: var(--teal); }
+.filter-chip.active {
+  background: var(--teal); color: #0a0a0a;
+  border-color: var(--teal); font-weight: 700;
+}
+.filter-chip.gold-active {
+  background: var(--gold); color: #0a0a0a;
+  border-color: var(--gold); font-weight: 700;
+}
+
+.filters-count {
+  margin-left: auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+/* ─── DRILLS GRID ─── */
+.drills-section {
+  padding: 8px 24px 80px;
+  max-width: 1200px; margin: 0 auto;
+}
+
+.category-block {
+  margin-bottom: 56px;
+}
+.category-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.category-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.drills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+/* ─── DRILL CARD ─── */
+.drill-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+.drill-card:hover {
+  border-color: var(--teal-mid);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(45,212,191,0.07);
+}
+.drill-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.drill-card:hover::before { opacity: 1; }
+.drill-card.gold:hover { border-color: rgba(212,197,169,0.35); box-shadow: 0 12px 32px rgba(212,197,169,0.05); }
+.drill-card.gold::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+/* Illustration area */
+.drill-illus {
+  width: 100%; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.drill-illus svg { width: 100%; height: 100%; }
+
+/* Card content */
+.drill-body {
+  padding: 18px 20px 20px;
+}
+.drill-cat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.drill-cat {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--teal);
+}
+.drill-cat.gold { color: var(--gold); }
+.drill-var-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 2px 8px;
+}
+.drill-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 600; line-height: 1.2;
+  color: var(--text); margin-bottom: 8px;
+}
+.drill-desc {
+  font-size: 13px; font-weight: 300; line-height: 1.6;
+  color: var(--text-muted); margin-bottom: 14px;
+}
+.drill-meta-row {
+  display: flex; gap: 14px; align-items: center;
+  flex-wrap: wrap;
+}
+.drill-meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--text-muted);
+}
+.drill-meta-item svg { opacity: 0.5; }
+
+/* Variant buttons */
+.drill-variants {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.variant-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 14px; border-radius: 6px; border: 1px solid;
+  cursor: pointer; transition: all 0.2s; background: transparent;
+}
+.variant-btn.beginner { color: #4ade80; border-color: rgba(74,222,128,0.25); }
+.variant-btn.beginner:hover { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.5); }
+.variant-btn.intermediate { color: var(--gold); border-color: rgba(212,197,169,0.25); }
+.variant-btn.intermediate:hover { background: rgba(212,197,169,0.1); border-color: rgba(212,197,169,0.5); }
+.variant-btn.advanced { color: #f97316; border-color: rgba(249,115,22,0.25); }
+.variant-btn.advanced:hover { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.5); }
+.variant-btn.pro { color: #e879f9; border-color: rgba(232,121,249,0.25); }
+.variant-btn.pro:hover { background: rgba(232,121,249,0.1); border-color: rgba(232,121,249,0.5); }
+
+/* ════════════════════════════════════
+   DRILL DETAIL MODAL
+════════════════════════════════════ */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 5000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-backdrop.open {
+  opacity: 1; pointer-events: all;
+}
+
+.modal-panel {
+  background: var(--bg-modal);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  width: 100%; max-width: 540px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+}
+.modal-backdrop.open .modal-panel {
+  transform: translateY(0) scale(1);
+}
+
+/* Modal illustration header */
+.modal-illus {
+  width: 100%; height: 220px;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.modal-illus svg { width: 100%; height: 100%; }
+.modal-illus-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, var(--bg-modal) 100%);
+  pointer-events: none;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 16px;
+  transition: all 0.2s; z-index: 10; line-height: 1;
+}
+.modal-close:hover { background: rgba(0,0,0,0.8); color: var(--text); }
+
+/* Variant badge in header */
+.modal-level-badge {
+  position: absolute; top: 14px; left: 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; padding: 5px 12px; border-radius: 6px;
+  z-index: 10;
+}
+.modal-level-badge.beginner { background: rgba(74,222,128,0.2); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+.modal-level-badge.intermediate { background: rgba(212,197,169,0.2); color: var(--gold); border: 1px solid rgba(212,197,169,0.3); }
+.modal-level-badge.advanced { background: rgba(249,115,22,0.2); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+.modal-level-badge.pro { background: rgba(232,121,249,0.2); color: #e879f9; border: 1px solid rgba(232,121,249,0.3); }
+
+/* Modal scrollable body */
+.modal-body {
+  padding: 20px 28px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+.modal-body::-webkit-scrollbar { width: 4px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.modal-cat {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 6px;
+}
+.modal-cat.gold { color: var(--gold); }
+
+.modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px; letter-spacing: 1px; line-height: 1;
+  color: var(--text); margin-bottom: 6px;
+}
+.modal-variant-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 500; letter-spacing: 0.5px;
+  color: var(--text-muted); margin-bottom: 18px;
+}
+
+/* Meta chips */
+.modal-meta {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.modal-meta-chip {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-muted);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+}
+.modal-meta-chip svg { opacity: 0.6; }
+
+/* Section heading */
+.modal-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 10px; margin-top: 22px;
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* Instructions */
+.modal-instructions {
+  font-size: 14px; font-weight: 300; line-height: 1.75;
+  color: #c8c8c8;
+}
+.modal-instructions p { margin-bottom: 10px; }
+.modal-instructions p:last-child { margin-bottom: 0; }
+
+/* Score box */
+.modal-score-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--teal-mid);
+  border-radius: 12px; padding: 16px 18px;
+  margin-top: 20px;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.modal-score-box.gold-border { border-color: rgba(212,197,169,0.35); }
+.score-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--teal-dim); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.score-icon.gold-bg { background: var(--gold-dim); }
+.score-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 4px;
+}
+.score-label.gold { color: var(--gold); }
+.score-text {
+  font-size: 13px; font-weight: 400; line-height: 1.6; color: var(--text-muted);
+}
+.score-text strong { color: var(--text); font-weight: 600; }
+
+/* Equipment tag */
+.modal-equipment {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;
+}
+.equip-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-muted);
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px;
+}
+
+/* Action button */
+.modal-cta {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px;
+  background: var(--teal); color: #0a0a0a;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; transition: all 0.2s;
+  margin-top: 24px;
+}
+.modal-cta:hover { background: #4eecd9; transform: translateY(-1px); }
+.modal-cta.gold-cta { background: var(--gold); }
+.modal-cta.gold-cta:hover { background: #e8d9c0; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+  .drills-grid { grid-template-columns: 1fr; }
+  .modal-panel { max-height: 95vh; border-radius: 16px 16px 0 0; }
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal-illus { height: 180px; }
+}
+</style>
 </head>
 <body>
 
 <!-- HEADER -->
 <header>
-  <button class="hamburger" id="menuToggle" aria-label="Menú">
-    <span></span><span></span><span></span>
-  </button>
-  <a href="/es/index.html" class="logo">MYGOLFLAB</a>
-</header>
-
-<!-- SIDEBAR OVERLAY -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">MYGOLFLAB</div>
-  <nav class="sidebar-nav">
-    <a href="/es/index.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M3 12L12 3l9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/></svg>
-      Inicio
-    </a>
-    <a href="/es/coach-ai.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      Coach IA
-    </a>
-    <a href="/es/library.html" class="active">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      Biblioteca
-    </a>
-    <a href="/es/training.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      Training Lab
-    </a>
-    <a href="/es/pricing.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      Planes
-    </a>
-    <a href="/es/about.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      El Coach
-    </a>
-    <a href="/es/dashboard.html">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Mi Dashboard
-    </a>
-  </nav>
-  <div class="sidebar-footer">
-    <a href="/es/login.html">Iniciar sesión</a>
+  <button class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+  <div id="header-auth" style="display:flex;gap:10px;align-items:center;">
+    <a href="/es/login.html" class="btn-outline" style="font-size:13px;padding:8px 16px;">Iniciar Sesión</a>
+    <a href="/es/login.html" class="btn-primary" style="font-size:13px;padding:8px 16px;">Únete</a>
   </div>
-</aside>
+</header>
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<nav class="sidemenu" id="sidemenu">
+  <a href="/es/index.html">Inicio</a>
+  <a href="/es/coach-ai.html">Coach IA</a>
+  <a href="/es/training.html" class="active">Training Lab</a>
+  <a href="/es/library.html">Biblioteca</a>
+  <a href="/es/pricing.html">Planes</a>
+  <a href="/es/about.html">El Coach</a>
+  <div class="sidemenu-auth" id="sidemenu-auth">
+    <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+    <a href="/es/login.html" class="btn-primary">Crear Cuenta</a>
+  </div>
+</nav>
 
-<!-- MAIN -->
-<main>
+<!-- PAGE -->
+<div class="page-wrap">
+  <div class="page-hero">
+    <div class="page-eyebrow">Training Lab</div>
+    <h1 class="page-title">139 Drills.<br><span>Entrena como un Pro.</span></h1>
+    <p class="page-sub">Cada drill tiene 4 variantes de dificultad, sistema de puntuación propio y feedback de la Metodología MyGolfLab.</p>
+  </div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-label">Metodología MyGolfLab</div>
-    <h1 class="hero-title">BIBLIO<span>TECA</span><br>DE CONTENIDO</h1>
-    <p class="hero-desc">Videos de coaching estructurados por los 4 pilares de la metodología. Tips cortos y cursos completos para corregir problemas específicos.</p>
+  <!-- FILTERS -->
+  <div class="filters-bar">
+    <button class="filter-chip active" onclick="filterDrills('all', this)">Todos</button>
+    <button class="filter-chip" onclick="filterDrills('putting', this)">Putting</button>
+    <button class="filter-chip" onclick="filterDrills('approach', this)">Approach</button>
+    <button class="filter-chip" onclick="filterDrills('chipping', this)">Chipping</button>
+    <button class="filter-chip" onclick="filterDrills('driving', this)">Driving</button>
+    <button class="filter-chip" onclick="filterDrills('mental', this)">Mental Game</button>
+    <span class="filters-count" id="drills-count">139 drills</span>
+  </div>
 
-    <div class="filters-row">
-      <div class="search-box">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" id="searchInput" placeholder="Buscar videos, temas, correcciones..." autocomplete="off">
-      </div>
+  <!-- DRILLS -->
+  <div class="drills-section" id="drills-container">
 
-      <div>
-        <div style="font-size:11px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Pilar</div>
-        <div class="filter-tabs" id="pilarFilters">
-          <button class="filter-btn active" data-pilar="all">Todos</button>
-          <button class="filter-btn pilar-gf" data-pilar="gf">Ground Forces</button>
-          <button class="filter-btn pilar-ks" data-pilar="ks">Kinematic Sequence</button>
-          <button class="filter-btn pilar-wc" data-pilar="wc">Wrist Conditions</button>
-          <button class="filter-btn pilar-bt" data-pilar="bt">Body Tilts</button>
+    <!-- ════ PUTTING ════ -->
+    <div class="category-block" data-category="putting">
+      <div class="category-label">Putting</div>
+      <div class="drills-grid">
+
+        <!-- Gate Drill -->
+        <div class="drill-card gold" onclick="openDrill('gate-1m')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#0a1a0d,#081009);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <rect x="100" y="10" width="120" height="120" rx="4" fill="rgba(25,70,35,0.3)" stroke="rgba(45,130,60,0.12)" stroke-width="0.5"/>
+              <line x1="100" y1="30" x2="220" y2="30" stroke="rgba(45,130,60,0.07)" stroke-width="0.5"/>
+              <line x1="100" y1="50" x2="220" y2="50" stroke="rgba(45,130,60,0.07)" stroke-width="0.5"/>
+              <line x1="100" y1="70" x2="220" y2="70" stroke="rgba(45,130,60,0.07)" stroke-width="0.5"/>
+              <line x1="100" y1="90" x2="220" y2="90" stroke="rgba(45,130,60,0.07)" stroke-width="0.5"/>
+              <line x1="100" y1="110" x2="220" y2="110" stroke="rgba(45,130,60,0.07)" stroke-width="0.5"/>
+              <circle cx="160" cy="24" r="8" fill="#040a06" stroke="#1a3020" stroke-width="1.5"/>
+              <circle cx="160" cy="24" r="5" fill="#020604"/>
+              <line x1="160" y1="24" x2="160" y2="10" stroke="#555" stroke-width="0.8"/>
+              <polygon points="160,10 168,14 160,18" fill="#D4C5A9" opacity="0.8"/>
+              <line x1="160" y1="32" x2="160" y2="118" stroke="#D4C5A9" stroke-width="0.8" stroke-dasharray="4 4" opacity="0.35"/>
+              <rect x="142" y="62" width="3" height="18" rx="1.5" fill="#D4C5A9" opacity="0.9"/>
+              <rect x="175" y="62" width="3" height="18" rx="1.5" fill="#D4C5A9" opacity="0.9"/>
+              <line x1="142" y1="58" x2="178" y2="58" stroke="#D4C5A9" stroke-width="0.5" opacity="0.4"/>
+              <text x="160" y="55" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.6" text-anchor="middle" font-weight="600">GATE</text>
+              <circle cx="160" cy="118" r="5.5" fill="white" opacity="0.9"/>
+              <rect x="140" y="124" width="40" height="7" rx="2" fill="#3a3a3a" stroke="#444" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat gold">Putting</span>
+              <span class="drill-var-count">4 variantes</span>
+            </div>
+            <div class="drill-name">Gate Drill</div>
+            <div class="drill-desc">Tees como puerta para entrenar la línea de salida del putter con precisión milimétrica.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                8–15 min
+              </div>
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="5" r="3" stroke="#888" stroke-width="1"/><path d="M1 11c0-2 2-3 5-3s5 1 5 3" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                5–10 pelotas
+              </div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn beginner" onclick="event.stopPropagation();openDrill('gate-1m')">1.0m</button>
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('gate-1.5m')">1.5m</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('gate-2m')">2.0m</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('gate-2.5m')">2.5m</button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <div style="font-size:11px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Categoría</div>
-        <div class="filter-tabs" id="catFilters">
-          <button class="filter-btn active" data-cat="all">Todas</button>
-          <button class="filter-btn" data-cat="full-swing">Full Swing</button>
-          <button class="filter-btn" data-cat="short-game">Short Game</button>
-          <button class="filter-btn" data-cat="putting">Putting</button>
-          <button class="filter-btn" data-cat="correccion">Corrección</button>
-          <button class="filter-btn" data-cat="drill">Drill</button>
+        <!-- Star Ladder -->
+        <div class="drill-card gold" onclick="openDrill('star-intermediate')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#0a1a0d,#081009);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <rect x="60" y="5" width="200" height="130" rx="4" fill="rgba(25,70,35,0.25)" stroke="rgba(45,130,60,0.1)" stroke-width="0.5"/>
+              <!-- Hole center -->
+              <circle cx="160" cy="72" r="7" fill="#020604" stroke="#1a3020" stroke-width="1.5"/>
+              <circle cx="160" cy="72" r="4" fill="#010302"/>
+              <!-- Tee positions at different distances (star pattern) -->
+              <!-- N 3ft -->
+              <circle cx="160" cy="46" r="4" fill="white" opacity="0.85"/>
+              <text x="172" y="50" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">3FT</text>
+              <!-- E 4ft -->
+              <circle cx="186" cy="72" r="4" fill="white" opacity="0.85"/>
+              <text x="192" y="75" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">4FT</text>
+              <!-- S 7ft -->
+              <circle cx="160" cy="104" r="4" fill="white" opacity="0.85"/>
+              <text x="166" y="107" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">7FT</text>
+              <!-- W 6ft -->
+              <circle cx="130" cy="72" r="4" fill="white" opacity="0.85"/>
+              <text x="100" y="75" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">6FT</text>
+              <!-- NE 8ft -->
+              <circle cx="192" cy="42" r="4" fill="white" opacity="0.85"/>
+              <text x="198" y="45" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">8FT</text>
+              <!-- NW 9ft -->
+              <circle cx="124" cy="40" r="4" fill="white" opacity="0.85"/>
+              <text x="90" y="43" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">9FT</text>
+              <!-- SE 5ft -->
+              <circle cx="194" cy="100" r="4" fill="white" opacity="0.85"/>
+              <text x="200" y="103" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">5FT</text>
+              <!-- SW 10ft -->
+              <circle cx="120" cy="105" r="4" fill="white" opacity="0.85"/>
+              <text x="80" y="108" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="white" opacity="0.6" font-weight="700">10FT</text>
+              <!-- Arrows connecting (simplified order) -->
+              <path d="M160 46 L192 42 L194 100 L160 104 L130 72 L124 40 L160 46" fill="none" stroke="white" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.3"/>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat gold">Putting</span>
+              <span class="drill-var-count">4 variantes</span>
+            </div>
+            <div class="drill-name">Putting Star Ladder</div>
+            <div class="drill-desc">Circuito de putts desde distintas distancias y ángulos alrededor del hoyo. Entrena consistencia total.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                20–35 min
+              </div>
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="5" r="3" stroke="#888" stroke-width="1"/><path d="M1 11c0-2 2-3 5-3s5 1 5 3" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                8 puntos
+              </div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn beginner" onclick="event.stopPropagation();openDrill('star-beginner')">Beginner</button>
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('star-intermediate')">Intermediate</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('star-advanced')">Advanced</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('star-pro')">Pro</button>
+            </div>
+          </div>
         </div>
+
+        <!-- Tour Winner 5-15ft -->
+        <div class="drill-card gold" onclick="openDrill('tour-winner-advanced')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#0a1a0d,#081009);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <rect x="70" y="5" width="180" height="130" rx="4" fill="rgba(25,70,35,0.25)" stroke="rgba(45,130,60,0.1)" stroke-width="0.5"/>
+              <circle cx="160" cy="72" r="7" fill="#020604" stroke="#1a3020" stroke-width="1.5"/>
+              <circle cx="160" cy="72" r="4" fill="#010302"/>
+              <!-- Semi-circle of tees at 5,7,9,11,13,15ft on one side -->
+              <circle cx="123" cy="108" r="4" fill="white" opacity="0.8"/>
+              <text x="105" y="112" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">5FT</text>
+              <circle cx="118" cy="88" r="4" fill="white" opacity="0.8"/>
+              <text x="99" y="91" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">7FT</text>
+              <circle cx="120" cy="66" r="4" fill="white" opacity="0.8"/>
+              <text x="100" y="69" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">9FT</text>
+              <circle cx="128" cy="46" r="4" fill="white" opacity="0.8"/>
+              <text x="108" y="49" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">11FT</text>
+              <circle cx="144" cy="30" r="4" fill="white" opacity="0.8"/>
+              <text x="148" y="27" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">13FT</text>
+              <circle cx="164" cy="22" r="4" fill="white" opacity="0.8"/>
+              <text x="170" y="22" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.9" font-weight="700">15FT</text>
+              <!-- Hole marker teal -->
+              <circle cx="160" cy="72" r="5" fill="rgba(45,212,191,0.4)" stroke="#2dd4bf" stroke-width="1"/>
+              <path d="M 123 108 Q 118 88 120 66 Q 128 46 144 30 Q 158 22 164 22" fill="none" stroke="#2dd4bf" stroke-width="0.8" stroke-dasharray="3 4" opacity="0.3"/>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat gold">Putting</span>
+              <span class="drill-var-count">3 variantes</span>
+            </div>
+            <div class="drill-name">Tour Winner 5–15ft</div>
+            <div class="drill-desc">Basado en datos de PGA Tour. Semicírculo de putts desde 5 hasta 15 pies. Máxima presión competitiva.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                25–40 min
+              </div>
+              <div class="drill-meta-item">Score /18</div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('tour-winner-intermediate')">Intermediate</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('tour-winner-advanced')">Advanced</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('tour-winner-pro')">Pro</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-  </section>
 
-  <!-- FIX SERIES -->
-  <section class="section-wrap" id="seriesSection">
-    <div class="section-header">
-      <h2>Fix Series</h2>
-      <span class="count">2 cursos</span>
+    <!-- ════ APPROACH ════ -->
+    <div class="category-block" data-category="approach">
+      <div class="category-label">Approach</div>
+      <div class="drills-grid">
+
+        <!-- Ladder Distance Control -->
+        <div class="drill-card" onclick="openDrill('ladder-beginner')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#0d1a12,#0a1209);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="220" cy="118" rx="55" ry="7" fill="rgba(45,212,191,0.08)"/>
+              <g transform="translate(220,110)">
+                <circle cx="0" cy="0" r="55" fill="none" stroke="#2dd4bf" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.2"/>
+                <circle cx="0" cy="0" r="40" fill="none" stroke="#2dd4bf" stroke-width="0.6" stroke-dasharray="3 4" opacity="0.3"/>
+                <circle cx="0" cy="0" r="26" fill="none" stroke="#2dd4bf" stroke-width="0.8" opacity="0.45"/>
+                <circle cx="0" cy="0" r="13" fill="none" stroke="#2dd4bf" stroke-width="1" opacity="0.6"/>
+                <circle cx="0" cy="0" r="4" fill="rgba(45,212,191,0.25)" stroke="#2dd4bf" stroke-width="1.2"/>
+                <circle cx="0" cy="0" r="1.5" fill="#2dd4bf"/>
+                <text x="6" y="-9" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.65" font-weight="600">50y</text>
+                <text x="6" y="-22" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.5" font-weight="600">75y</text>
+                <text x="6" y="-36" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.38" font-weight="600">100y</text>
+                <circle cx="0" cy="-13" r="3.5" fill="#2dd4bf" opacity="0.9"/>
+                <circle cx="0" cy="-26" r="3.5" fill="#2dd4bf" opacity="0.7"/>
+                <circle cx="0" cy="-40" r="3.5" fill="#2dd4bf" opacity="0.5"/>
+              </g>
+              <path d="M 55 132 Q 90 55 220 97" fill="none" stroke="#2dd4bf" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.3"/>
+              <path d="M 55 132 Q 95 38 220 84" fill="none" stroke="#2dd4bf" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.22"/>
+              <path d="M 55 132 Q 100 20 220 70" fill="none" stroke="#2dd4bf" stroke-width="0.9" stroke-dasharray="4 4" opacity="0.15"/>
+              <circle cx="55" cy="132" r="5" fill="white" opacity="0.85"/>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat">Approach</span>
+              <span class="drill-var-count">4 variantes</span>
+            </div>
+            <div class="drill-name">Ladder Distance Control</div>
+            <div class="drill-desc">Escalera de distancias al target. Entrena el control de yardaje con distintos palos y trayectorias.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                12–25 min
+              </div>
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="5" r="3" stroke="#888" stroke-width="1"/><path d="M1 11c0-2 2-3 5-3s5 1 5 3" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                15–20 pelotas
+              </div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn beginner" onclick="event.stopPropagation();openDrill('ladder-beginner')">Beginner</button>
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('ladder-intermediate')">Intermediate</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('ladder-advanced')">Advanced</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('ladder-pro')">Pro</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-Ball Window Challenge -->
+        <div class="drill-card" onclick="openDrill('window-beginner')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#0d1a12,#0a1209);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <!-- 3 trajectory lines (low/mid/high) converging to target -->
+              <g transform="translate(240,70)">
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#2dd4bf" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.25"/>
+                <circle cx="0" cy="0" r="16" fill="none" stroke="#2dd4bf" stroke-width="0.8" opacity="0.4"/>
+                <circle cx="0" cy="0" r="6" fill="rgba(45,212,191,0.15)" stroke="#2dd4bf" stroke-width="1.2"/>
+                <circle cx="0" cy="0" r="2" fill="#2dd4bf"/>
+                <text x="8" y="-22" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.6" font-weight="600">TARGET</text>
+                <!-- 3 ball landing dots -->
+                <circle cx="-4" cy="10" r="3" fill="#4ade80" opacity="0.8"/>
+                <circle cx="3" cy="-8" r="3" fill="#4ade80" opacity="0.8"/>
+                <circle cx="8" cy="4" r="3" fill="#4ade80" opacity="0.8"/>
+              </g>
+              <!-- High trajectory -->
+              <path d="M 50 125 Q 80 20 240 62" fill="none" stroke="#f0f0f0" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.25"/>
+              <!-- Mid trajectory -->
+              <path d="M 50 125 Q 90 55 240 70" fill="none" stroke="#f0f0f0" stroke-width="1.5" opacity="0.35"/>
+              <!-- Low trajectory -->
+              <path d="M 50 125 Q 100 90 240 78" fill="none" stroke="#f0f0f0" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.25"/>
+              <!-- Labels -->
+              <text x="120" y="28" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#f0f0f0" opacity="0.4" font-weight="600">ALTA</text>
+              <text x="130" y="60" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#f0f0f0" opacity="0.55" font-weight="600">MEDIA</text>
+              <text x="125" y="100" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#f0f0f0" opacity="0.4" font-weight="600">BAJA</text>
+              <!-- Source ball -->
+              <circle cx="50" cy="125" r="5" fill="white" opacity="0.85"/>
+              <!-- Window box indicator -->
+              <rect x="225" y="42" width="30" height="60" rx="3" fill="none" stroke="rgba(45,212,191,0.4)" stroke-width="1" stroke-dasharray="2 3"/>
+              <text x="240" y="38" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#2dd4bf" opacity="0.6" font-weight="700" text-anchor="middle">WINDOW</text>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat">Approach</span>
+              <span class="drill-var-count">4 variantes</span>
+            </div>
+            <div class="drill-name">3-Ball Window Challenge</div>
+            <div class="drill-desc">3 trayectorias distintas (baja/media/alta) que deben aterrizar en el mismo target. Control de vuelo total.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                25 min
+              </div>
+              <div class="drill-meta-item">18 pelotas · launch monitor</div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn beginner" onclick="event.stopPropagation();openDrill('window-beginner')">Beginner</button>
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('window-intermediate')">Intermediate</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('window-advanced')">Advanced</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('window-pro')">Pro</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <div class="series-grid">
+    <!-- ════ MENTAL GAME ════ -->
+    <div class="category-block" data-category="mental">
+      <div class="category-label">Mental Game</div>
+      <div class="drills-grid">
 
-      <!-- Fix Series 1 -->
-      <div class="series-card" onclick="openModal('slice-intro')">
-        <div class="series-thumb">
-          <div class="series-thumb-pattern" style="background: linear-gradient(135deg, #1a1a2e 0%, #0f1923 100%);">
-            <div class="series-thumb-label" style="color: #a78bfa;">SLICE</div>
-            <div class="series-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg>
+        <!-- Pre-Shot Routine -->
+        <div class="drill-card gold" onclick="openDrill('preshot-beginner')">
+          <div class="drill-illus" style="background:linear-gradient(180deg,#14100a,#0d0a06);">
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="mg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#D4C5A9" stop-opacity="0.1"/>
+                  <stop offset="100%" stop-color="#D4C5A9" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="160" cy="70" r="65" fill="url(#mg)"/>
+              <circle cx="160" cy="70" r="58" fill="none" stroke="#D4C5A9" stroke-width="0.4" stroke-dasharray="2 8" opacity="0.18"/>
+              <circle cx="160" cy="70" r="45" fill="none" stroke="#D4C5A9" stroke-width="0.5" opacity="0.22"/>
+              <circle cx="160" cy="70" r="30" fill="none" stroke="#D4C5A9" stroke-width="0.7" opacity="0.32"/>
+              <circle cx="160" cy="70" r="16" fill="none" stroke="#D4C5A9" stroke-width="1" opacity="0.5"/>
+              <circle cx="160" cy="70" r="5" fill="rgba(212,197,169,0.2)" stroke="#D4C5A9" stroke-width="1.2"/>
+              <circle cx="160" cy="70" r="2" fill="#D4C5A9"/>
+              <!-- 5 step nodes -->
+              <line x1="160" y1="62" x2="160" y2="25" stroke="#D4C5A9" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="160" cy="22" r="5" fill="rgba(212,197,169,0.12)" stroke="#D4C5A9" stroke-width="0.9"/>
+              <text x="160" y="14" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.65" text-anchor="middle" font-weight="600">RESPIRA</text>
+              <line x1="167" y1="65" x2="192" y2="40" stroke="#D4C5A9" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="196" cy="37" r="5" fill="rgba(212,197,169,0.12)" stroke="#D4C5A9" stroke-width="0.9"/>
+              <text x="218" y="38" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.65" font-weight="600">TARGET</text>
+              <line x1="168" y1="76" x2="196" y2="100" stroke="#D4C5A9" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="200" cy="104" r="5" fill="rgba(212,197,169,0.12)" stroke="#D4C5A9" stroke-width="0.9"/>
+              <text x="208" y="108" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.65" font-weight="600">RUTINA</text>
+              <line x1="152" y1="76" x2="124" y2="100" stroke="#D4C5A9" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="120" cy="104" r="5" fill="rgba(212,197,169,0.12)" stroke="#D4C5A9" stroke-width="0.9"/>
+              <text x="72" y="108" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.65" font-weight="600">COMMIT</text>
+              <line x1="153" y1="65" x2="128" y2="40" stroke="#D4C5A9" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="124" cy="37" r="5" fill="rgba(212,197,169,0.12)" stroke="#D4C5A9" stroke-width="0.9"/>
+              <text x="72" y="38" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.65" font-weight="600">SWING</text>
+            </svg>
+          </div>
+          <div class="drill-body">
+            <div class="drill-cat-row">
+              <span class="drill-cat gold">Mental Game</span>
+              <span class="drill-var-count">4 variantes</span>
+            </div>
+            <div class="drill-name">Pre-Shot Routine Bajo Presión</div>
+            <div class="drill-desc">Construye y automatiza tu rutina pre-shot con consecuencias competitivas reales.</div>
+            <div class="drill-meta-row">
+              <div class="drill-meta-item">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
+                15–30 min
+              </div>
+              <div class="drill-meta-item">Visualización</div>
+            </div>
+            <div class="drill-variants">
+              <button class="variant-btn beginner" onclick="event.stopPropagation();openDrill('preshot-beginner')">Beginner</button>
+              <button class="variant-btn intermediate" onclick="event.stopPropagation();openDrill('preshot-intermediate')">Intermediate</button>
+              <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('preshot-advanced')">Advanced</button>
+              <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('preshot-pro')">Pro</button>
             </div>
           </div>
-          <div class="series-ep-count">6 EPISODIOS</div>
         </div>
-        <div class="series-body">
-          <div class="series-pilar-tags">
-            <span class="pilar-tag wc">Wrist Conditions</span>
-            <span class="pilar-tag ks">Kinematic Sequence</span>
-          </div>
-          <div class="series-title">Corrige tu Slice</div>
-          <div class="series-desc">Las 2 causas reales del slice, cómo diagnosticarlo y 3 drills progresivos para eliminarlo definitivamente.</div>
-          <div class="series-progress">
-            <div class="series-progress-bar"><div class="series-progress-fill" style="width:0%"></div></div>
-            <div class="series-progress-label">0 de 6 episodios completados</div>
-          </div>
-          <div class="series-cta">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px"><path d="M8 5v14l11-7z"/></svg>
-            Comenzar curso
-          </div>
-        </div>
+
       </div>
-
-      <!-- Fix Series 2 -->
-      <div class="series-card" onclick="openModal('hierros-intro')">
-        <div class="series-thumb">
-          <div class="series-thumb-pattern" style="background: linear-gradient(135deg, #1a1a0a 0%, #131a10 100%);">
-            <div class="series-thumb-label" style="color: #2dd4bf;">CONTACT</div>
-            <div class="series-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="series-ep-count">6 EPISODIOS</div>
-        </div>
-        <div class="series-body">
-          <div class="series-pilar-tags">
-            <span class="pilar-tag wc">Wrist Conditions</span>
-            <span class="pilar-tag gf">Ground Forces</span>
-          </div>
-          <div class="series-title">Contacto sólido con hierros</div>
-          <div class="series-desc">Elimina tops y cuchilladas. Aprende qué es el shaft lean, el low point y cómo golpear ball-first de forma consistente.</div>
-          <div class="series-progress">
-            <div class="series-progress-bar"><div class="series-progress-fill" style="width:0%"></div></div>
-            <div class="series-progress-label">0 de 6 episodios completados</div>
-          </div>
-          <div class="series-cta">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px"><path d="M8 5v14l11-7z"/></svg>
-            Comenzar curso
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CONCEPT CLIPS -->
-  <section class="section-wrap">
-    <div class="section-header">
-      <h2>Concept Clips</h2>
-      <span class="count" id="clipCount">16 videos</span>
     </div>
 
-    <div class="video-grid" id="videoGrid">
+  </div>
+</div>
 
-      <!-- GROUND FORCES -->
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="qué es el ground forces y por qué cambia tu swing" onclick="openModal('gf-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Qué es el Ground Forces y por qué cambia tu swing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="cómo sentir la presión en el pie trasero al backswing" onclick="openModal('gf-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Cómo sentir la presión en el pie trasero al backswing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="el shift de cadera sin levantar el talón" onclick="openModal('gf-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">El shift de cadera sin levantar el talón</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="drill" data-title="drill toalla bajo el pie delantero" onclick="openModal('gf-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Drill: toalla bajo el pie delantero</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- KINEMATIC SEQUENCE -->
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="la secuencia correcta caderas primero siempre" onclick="openModal('ks-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">La secuencia correcta: caderas primero, siempre</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="el x-factor separación cadera-hombros en el tope" onclick="openModal('ks-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">El X-Factor: separación cadera-hombros en el tope</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="cómo los brazos llegan tarde y por qué es bueno" onclick="openModal('ks-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">Cómo los brazos llegan tarde (y por qué es bueno)</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="drill" data-title="drill palo en caderas rotación sin brazos" onclick="openModal('ks-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">Drill: palo en caderas, rotación sin brazos</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- WRIST CONDITIONS -->
-      <div class="video-card" data-pilar="wc" data-cat="full-swing" data-title="las 3 condiciones de muñeca que debes conocer" onclick="openModal('wc-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Las 3 condiciones de muñeca que debes conocer</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="full-swing" data-title="shaft lean qué es y cómo crearlo en impacto" onclick="openModal('wc-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Shaft lean: qué es y cómo crearlo en impacto</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="short-game" data-title="muñeca en chipping por qué no doblarla" onclick="openModal('wc-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Muñeca en chipping: por qué no doblarla</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Short Game</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="drill" data-title="drill chip con guante bajo la axila" onclick="openModal('wc-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Drill: chip con guante bajo la axila</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- BODY TILTS -->
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="los 4 tilts del torso en el swing completo" onclick="openModal('bt-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Los 4 tilts del torso en el swing completo</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="side tilt en el tope el secreto del lag" onclick="openModal('bt-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Side tilt en el tope: el secreto del lag</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="forward tilt en address cómo encontrar el ángulo" onclick="openModal('bt-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Forward tilt en address: cómo encontrar el ángulo</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="drill" data-title="drill pelota bajo el brazo derecho en backswing" onclick="openModal('bt-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Drill: pelota bajo el brazo derecho en backswing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
+<!-- ════════════════════════════════════════════
+     DRILL DETAIL MODAL
+════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="drillModal" onclick="handleBackdropClick(event)">
+  <div class="modal-panel" id="modalPanel">
+    <!-- Illustration area -->
+    <div class="modal-illus" id="modalIllus">
+      <div class="modal-illus-overlay"></div>
+      <span class="modal-level-badge" id="modalLevelBadge">Beginner</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
 
-    <div class="empty-state" id="emptyState">
-      <p>No hay videos que coincidan con los filtros seleccionados.</p>
-    </div>
-  </section>
-
-</main>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
-  <div class="modal" id="modal">
-    <div class="modal-video">
-      <div class="modal-placeholder">
-        <div class="modal-placeholder-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.5"><path d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
-        </div>
-        <p>Video próximamente disponible</p>
-      </div>
-      <button class="modal-close" onclick="closeModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
+    <!-- Scrollable body -->
     <div class="modal-body">
-      <div class="modal-pilar-tags" id="modalPilarTags"></div>
-      <div class="modal-title" id="modalTitle">—</div>
-      <div class="modal-desc" id="modalDesc">—</div>
-      <div class="modal-meta">
-        <div class="modal-meta-item">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <span id="modalDuration">—</span>
-        </div>
-        <div class="modal-meta-item">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
-          <span id="modalCat">—</span>
-        </div>
-      </div>
+      <div class="modal-cat" id="modalCat">Putting</div>
+      <div class="modal-title" id="modalTitle">Gate Drill</div>
+      <div class="modal-variant-name" id="modalVariantName">Variante: 1.0m · Beginner</div>
+
+      <div class="modal-meta" id="modalMeta"></div>
+
+      <div class="modal-section-title">Instrucciones</div>
+      <div class="modal-instructions" id="modalInstructions"></div>
+
+      <div id="modalScoreBox"></div>
+      <div id="modalEquipment"></div>
+
+      <button class="modal-cta" id="modalCta" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Empezar Drill
+      </button>
     </div>
   </div>
 </div>
 
-<div class="page-end"></div>
-
 <script>
-  // ─── SIDEBAR ───
-  const menuToggle = document.getElementById('menuToggle');
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
+// ─── MENU ───
+function toggleMenu() {
+  document.getElementById('sidemenu').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
 
-  menuToggle.addEventListener('click', () => {
-    const open = sidebar.classList.toggle('active');
-    overlay.classList.toggle('active', open);
-    menuToggle.classList.toggle('active', open);
-  });
-  overlay.addEventListener('click', () => {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-    menuToggle.classList.remove('active');
-  });
-
-  // ─── VIDEO DATA ───
-  const videoData = {
-    'gf-1': { title: 'Qué es el Ground Forces y por qué cambia tu swing', desc: 'Entendé cómo la presión contra el suelo genera potencia y controla la trayectoria del palo. El pilar fundamental de la Metodología MyGolfLab.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '4 min', cat: 'Full Swing' },
-    'gf-2': { title: 'Cómo sentir la presión en el pie trasero al backswing', desc: 'Ejercicios sensoriales para desarrollar conciencia del suelo y aprender a cargar correctamente el pie trasero durante el backswing.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '5 min', cat: 'Full Swing' },
-    'gf-3': { title: 'El shift de cadera sin levantar el talón', desc: 'La transición es el momento más crítico del swing. Aprendé a iniciar el downswing con el shift de cadera manteniendo el talón en el suelo.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '5 min', cat: 'Full Swing' },
-    'gf-4': { title: 'Drill: toalla bajo el pie delantero', desc: 'Un drill simple y efectivo para aprender a mantener el peso atrás en el backswing y transferirlo explosivamente en el downswing.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '4 min', cat: 'Drill' },
-    'ks-1': { title: 'La secuencia correcta: caderas primero, siempre', desc: 'El error más común en el golf amateur es iniciar el downswing con los brazos o los hombros. Entendé por qué las caderas deben liderar y cómo lograrlo.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '5 min', cat: 'Full Swing' },
-    'ks-2': { title: 'El X-Factor: separación cadera-hombros en el tope', desc: 'La diferencia entre caderas y hombros en el tope del backswing crea tensión muscular que se libera como potencia. Aprendé a maximizarla.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6 min', cat: 'Full Swing' },
-    'ks-3': { title: 'Cómo los brazos llegan tarde (y por qué es bueno)', desc: 'En los mejores jugadores del mundo, los brazos y el palo son los últimos en llegar al impacto. Este concepto contra-intuitivo es clave para generar lag y potencia real.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '5 min', cat: 'Full Swing' },
-    'ks-4': { title: 'Drill: palo en caderas, rotación sin brazos', desc: 'El ejercicio clásico para aprender a sentir la rotación de caderas de forma aislada, sin interferencia de los brazos.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '4 min', cat: 'Drill' },
-    'wc-1': { title: 'Las 3 condiciones de muñeca que debes conocer', desc: 'Flexión, extensión y desviación cúbito-radial. Entendé qué hacen tus muñecas en cada fase del swing y cómo controlarlas para producir el contacto deseado.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '6 min', cat: 'Full Swing' },
-    'wc-2': { title: 'Shaft lean: qué es y cómo crearlo en impacto', desc: 'El shaft lean —palo inclinado hacia el objetivo en impacto— es la firma de un golpe comprimido. Aprendé qué lo causa y cómo desarrollarlo con las muñecas.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '5 min', cat: 'Full Swing' },
-    'wc-3': { title: 'Muñeca en chipping: por qué no doblarla', desc: 'El mayor error en el short game: dejar que la muñeca izquierda se quiebre en impacto. Entendé la mecánica correcta para un contacto limpio y consistente.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '4 min', cat: 'Short Game' },
-    'wc-4': { title: 'Drill: chip con guante bajo la axila', desc: 'El drill del guante es uno de los más efectivos para internalizar la relación correcta entre cuerpo y brazos en el movimiento de chipping.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '4 min', cat: 'Drill' },
-    'bt-1': { title: 'Los 4 tilts del torso en el swing completo', desc: 'Forward tilt, side tilt, thrust y sway. Cada fase del swing tiene inclinaciones específicas del torso. Entendé todas para tener una base sólida.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '6 min', cat: 'Full Swing' },
-    'bt-2': { title: 'Side tilt en el tope: el secreto del lag', desc: 'La inclinación lateral del torso en el tope del backswing determina el plano del downswing y es fundamental para crear lag natural y potente.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '5 min', cat: 'Full Swing' },
-    'bt-3': { title: 'Forward tilt en address: cómo encontrar el ángulo', desc: 'La inclinación inicial del torso desde las caderas define el plano de tu swing. Aprende a encontrar tu ángulo óptimo según tu tipo de cuerpo.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '4 min', cat: 'Full Swing' },
-    'bt-4': { title: 'Drill: pelota bajo el brazo derecho en backswing', desc: 'Un drill sencillo para mantener la conexión del brazo derecho con el torso y asegurar la inclinación correcta del cuerpo durante el backswing.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '4 min', cat: 'Drill' },
-    'slice-intro': { title: 'Fix Series: Corrige tu Slice', desc: '6 episodios para entender las causas reales del slice y eliminarlo con drills progresivos. Cubre los pilares de Wrist Conditions y Kinematic Sequence.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span><span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6 episodios · ~33 min total', cat: 'Fix Series' },
-    'hierros-intro': { title: 'Fix Series: Contacto sólido con hierros', desc: '6 episodios para eliminar tops y cuchilladas. Aprende shaft lean, low point y cómo golpear ball-first de forma consistente.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span><span class="pilar-tag gf">Ground Forces</span>', dur: '6 episodios · ~33 min total', cat: 'Fix Series' },
-  };
-
-  function openModal(id) {
-    const d = videoData[id];
-    if (!d) return;
-    document.getElementById('modalPilarTags').innerHTML = d.pilarTags;
-    document.getElementById('modalTitle').textContent = d.title;
-    document.getElementById('modalDesc').textContent = d.desc;
-    document.getElementById('modalDuration').textContent = d.dur;
-    document.getElementById('modalCat').textContent = d.cat;
-    document.getElementById('modalOverlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  function closeModalOutside(e) {
-    if (e.target === document.getElementById('modalOverlay')) closeModal();
-  }
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  // ─── FILTERS ───
-  let activePilar = 'all';
-  let activeCat = 'all';
-  let searchQuery = '';
-
-  document.querySelectorAll('#pilarFilters .filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#pilarFilters .filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activePilar = btn.dataset.pilar;
-      applyFilters();
-    });
-  });
-
-  document.querySelectorAll('#catFilters .filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#catFilters .filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCat = btn.dataset.cat;
-      applyFilters();
-    });
-  });
-
-  document.getElementById('searchInput').addEventListener('input', e => {
-    searchQuery = e.target.value.toLowerCase().trim();
-    applyFilters();
-  });
-
-  function applyFilters() {
-    const cards = document.querySelectorAll('.video-card');
-    let visible = 0;
-
-    cards.forEach(card => {
-      const pilar = card.dataset.pilar;
-      const cat = card.dataset.cat;
-      const title = card.dataset.title || '';
-
-      const pilarOk = activePilar === 'all' || pilar === activePilar;
-      const catOk = activeCat === 'all' || cat === activeCat;
-      const searchOk = !searchQuery || title.includes(searchQuery);
-
-      const show = pilarOk && catOk && searchOk;
-      card.classList.toggle('hidden', !show);
-      if (show) visible++;
-    });
-
-    document.getElementById('clipCount').textContent = visible + ' video' + (visible !== 1 ? 's' : '');
-    document.getElementById('emptyState').classList.toggle('visible', visible === 0);
-
-    // Mostrar u ocultar sección de series según búsqueda
-    const seriesSection = document.getElementById('seriesSection');
-    if (searchQuery && visible === 0) {
-      seriesSection.style.opacity = '0.4';
+// ─── FILTER ───
+function filterDrills(cat, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.category-block').forEach(block => {
+    if (cat === 'all' || block.dataset.category === cat) {
+      block.style.display = '';
     } else {
-      seriesSection.style.opacity = '1';
+      block.style.display = 'none';
     }
-  }
-</script>
+  });
+}
 
+// ════════════════════════════════
+// DRILL DATA
+// ════════════════════════════════
+const DRILLS = {
+
+  // ── GATE DRILL ──
+  'gate-1m': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Gate Drill',
+    variant: 'Variante: 1.0m · Beginner', level: 'beginner',
+    meta: [
+      { icon: 'clock', text: '8 min' },
+      { icon: 'ball', text: '10 pelotas' },
+      { icon: 'equip', text: 'Putter + 2 tees' }
+    ],
+    instructions: `<p>Coloca dos tees formando una puerta de <strong>5 cm de ancho</strong> a <strong>1 metro del hoyo</strong>. La puerta debe estar centrada en la línea de tu putt.</p><p>Ejecuta 10 putts pasando el putter por dentro de la puerta sin tocar ninguno de los dos tees. Mantén la cara del putter cuadrada al objetivo durante todo el recorrido.</p><p>Enfócate en el ritmo del péndulo y en mantener los hombros estables. No aceleres en el impacto.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Cuenta los putts que pasan por la gate sin tocarla. <strong>Mínimo para completar: 7/10.</strong> Meta Tour Player: 10/10.' },
+    equipment: ['Putter', '2 Tees', '10 Pelotas'],
+    illus: 'gate', accentColor: '#D4C5A9', isGold: true
+  },
+  'gate-1.5m': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Gate Drill',
+    variant: 'Variante: 1.5m · Intermediate', level: 'intermediate',
+    meta: [
+      { icon: 'clock', text: '10 min' },
+      { icon: 'ball', text: '10 pelotas' },
+      { icon: 'equip', text: 'Putter + 2 tees' }
+    ],
+    instructions: `<p>Coloca dos tees formando una puerta de <strong>4.5 cm de ancho</strong> a <strong>1.5 metros del hoyo</strong>. La distancia adicional exige más control del path.</p><p>Ejecuta 10 putts pasando por la gate. En esta variante, también debes intentar <strong>embocar el putt</strong>. Si la bola pasa la gate pero no entra, cuenta como ½ punto.</p><p>Incorpora tu rutina completa antes de cada putt: lee la línea, visualiza el recorrido, waggle y golpea.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Gate limpia + embocado = 1 punto. Gate limpia sin embocar = 0.5 pts. <strong>Mínimo para completar: 6/10.</strong>' },
+    equipment: ['Putter', '2 Tees', '10 Pelotas'],
+    illus: 'gate', accentColor: '#D4C5A9', isGold: true
+  },
+  'gate-2m': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Gate Drill',
+    variant: 'Variante: 2.0m · Advanced', level: 'advanced',
+    meta: [
+      { icon: 'clock', text: '12 min' },
+      { icon: 'ball', text: '10 pelotas' }
+    ],
+    instructions: `<p>Gate de <strong>4 cm de ancho</strong> a <strong>2 metros del hoyo</strong>. Ejecuta los 10 putts con consecuencia: si no pasas la gate, retrocedes 1 putt en tu contador.</p><p>A 2 metros la influencia del path del putter es crítica. Si la bola sale con face abierta o cerrada más de 1°, saldrá de la gate.</p><p>Trabaja en una pre-stroke routine consistente y en no alterar la presión del grip durante el golpe.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Gate + embocado = 1 pt. Gate sin embocar = 0.5. <strong>Mínimo: 5/10. Meta élite: 8/10.</strong>' },
+    equipment: ['Putter', '2 Tees', '10 Pelotas'],
+    illus: 'gate', accentColor: '#f97316', isGold: false
+  },
+  'gate-2.5m': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Gate Drill',
+    variant: 'Variante: 2.5m · Pro', level: 'pro',
+    meta: [
+      { icon: 'clock', text: '15 min' },
+      { icon: 'ball', text: '10 pelotas' }
+    ],
+    instructions: `<p>Gate de <strong>3.5 cm</strong> a <strong>2.5 metros</strong>. Máxima exigencia de precisión. Añade un escenario de presión: imagina que estás en un playoff y cada putt vale el torneo.</p><p>Ejecuta tu rutina completa en cada putt sin excepción. Si te apresuras o saltas algún paso, el putt no cuenta aunque entre.</p><p>Esta variante mide si tu proceso es robusto bajo presión, no solo tus habilidades mecánicas.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Solo cuenta gate limpia + embocado con rutina completa. <strong>Mínimo: 4/10. Meta Pro: 7/10.</strong>' },
+    equipment: ['Putter', '2 Tees', '10 Pelotas'],
+    illus: 'gate', accentColor: '#e879f9', isGold: false
+  },
+
+  // ── STAR LADDER ──
+  'star-beginner': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Putting Star Ladder',
+    variant: 'Beginner · 3–7ft', level: 'beginner',
+    meta: [{ icon: 'clock', text: '20 min' }, { icon: 'ball', text: '8 putts por ronda' }],
+    instructions: `<p>Coloca un tee a cada punto cardinal del hoyo (<strong>N, E, S, W</strong>) a distancias de <strong>3ft, 4ft, 5ft y 6ft</strong> respectivamente.</p><p>Intenta embocar los 4 putts en orden. Si fallas uno, reinicia desde ese punto. Completa 3 rondas.</p><p>Enfócate en leer cada línea individualmente — cada posición tiene un break diferente.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Total putts embocados sobre 12. <strong>Mínimo: 6/12. Meta: 9/12.</strong>' },
+    equipment: ['Putter', '4+ Tees'],
+    illus: 'star', accentColor: '#4ade80', isGold: true
+  },
+  'star-intermediate': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Putting Star Ladder',
+    variant: 'Intermediate · 3–10ft', level: 'intermediate',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '8 posiciones' }],
+    instructions: `<p>Coloca tees en <strong>8 posiciones</strong> alrededor del hoyo: N 9ft, NE 8ft, E 4ft, SE 5ft, S 7ft, SW 10ft, W 6ft, NW 9ft (según el diagrama).</p><p>Putts en el orden del diagrama, siguiendo el circuito. Si embocar, avanzas. Si fallas, puedes continuar pero sin punto.</p><p>Cada posición presenta un ángulo y break diferentes. Es el drill que más se parece a condiciones reales de green.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Score mínimo 8 sobre 40. Score máximo 40. <strong>Meta Intermediate: 20+/40.</strong>' },
+    equipment: ['Putter', '8 Tees'],
+    illus: 'star', accentColor: '#D4C5A9', isGold: true
+  },
+  'star-advanced': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Putting Star Ladder',
+    variant: 'Advanced · Circuito extendido', level: 'advanced',
+    meta: [{ icon: 'clock', text: '30 min' }, { icon: 'ball', text: '3 hoyos distintos' }],
+    instructions: `<p>Completa el circuito de 8 posiciones en <strong>3 hoyos distintos</strong> del putting green, cada uno con diferente break y pendiente.</p><p>Esto elimina la posibilidad de memorizar las líneas. Debes leer y adaptarte en cada hoyo.</p><p>Mantén tu rutina completa en cada putt. Anota el score de cada hoyo por separado.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Suma de 3 circuitos (máx 120). <strong>Meta Advanced: 70+/120.</strong>' },
+    equipment: ['Putter', '8 Tees'],
+    illus: 'star', accentColor: '#f97316', isGold: true
+  },
+  'star-pro': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Putting Star Ladder',
+    variant: 'Pro · Sin segunda chance', level: 'pro',
+    meta: [{ icon: 'clock', text: '35 min' }, { icon: 'ball', text: '3 hoyos · 1 pelota' }],
+    instructions: `<p>3 hoyos, circuito de 8 posiciones, <strong>solo 1 pelota por putt</strong>. No hay segunda chance. Si fallas, anotás 0 y sigues.</p><p>El drill simula condiciones de torneo: cada putt importa, cada lectura es definitiva.</p><p>Registra no solo el score sino el <strong>proceso</strong>: ¿tu rutina se mantuvo igual bajo presión?</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Total embocados / 24 posiciones. <strong>Meta Pro: 16+/24 (Tour average: 18/24).</strong>' },
+    equipment: ['Putter', '8 Tees', '1 Pelota'],
+    illus: 'star', accentColor: '#e879f9', isGold: true
+  },
+
+  // ── TOUR WINNER ──
+  'tour-winner-intermediate': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Tour Winner 5–15ft',
+    variant: 'Intermediate · 2 hoyos', level: 'intermediate',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'equip', text: '5 tees por hoyo' }],
+    instructions: `<p>Elige <strong>2 hoyos</strong> distintos del green. En cada hoyo, coloca tees en semicírculo a <strong>5, 7, 9, 11 y 13 pies</strong> en la misma dirección.</p><p>Putea desde 5ft hacia arriba, en orden. Usa tu rutina completa en cada putt. Registra cuántos emboques por hoyo.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Total emboques sobre 10 (2 hoyos × 5 putts). <strong>Mínimo: 5/10. Meta Intermediate: 7/10.</strong>' },
+    equipment: ['Putter', '5 Tees por hoyo'],
+    illus: 'tourwinner', accentColor: '#D4C5A9', isGold: true
+  },
+  'tour-winner-advanced': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Tour Winner 5–15ft',
+    variant: 'Advanced · 3 hoyos · PGA Data', level: 'advanced',
+    meta: [{ icon: 'clock', text: '35 min' }, { icon: 'equip', text: '5 tees · 3 hoyos' }],
+    instructions: `<p>Basado en datos de <strong>PGA Tour Winners</strong>. Busca 3 hoyos con diferente break (izquierda, derecha, recto).</p><p>En cada hoyo, coloca tees a <strong>5, 7, 9, 11 y 13 pies</strong> en dirección norte. Ejecuta 1 putt desde cada distancia con rutina completa.</p><p>Repite en 3 hoyos con diferentes pendientes. Anota el total de putts embocados. El objetivo es replicar el porcentaje de conversión de los ganadores de tour desde estas distancias.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Total emboques / 15. PGA Tour Winners promedian: 5ft: 90%, 7ft: 75%, 9ft: 60%, 11ft: 48%, 13ft: 38%. <strong>Meta: superar esos promedios.</strong>' },
+    equipment: ['Putter', '5 Tees', '3 Hoyos distintos'],
+    illus: 'tourwinner', accentColor: '#f97316', isGold: true
+  },
+  'tour-winner-pro': {
+    cat: 'Putting', catClass: 'gold',
+    title: 'Tour Winner 5–15ft',
+    variant: 'Pro · 5–15ft · Score /18', level: 'pro',
+    meta: [{ icon: 'clock', text: '40 min' }, { icon: 'equip', text: '6 tees · 3 hoyos' }],
+    instructions: `<p>La versión completa. En cada uno de 3 hoyos, coloca tees a <strong>5, 7, 9, 11, 13 y 15 pies</strong> (semicírculo completo).</p><p>1 putt por posición, rutina completa obligatoria. Total: 18 putts. Simula la presión de los últimos hoyos de un torneo.</p><p>Si fallas un putt por apresurar la rutina, el putt no cuenta aunque entre.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Score /18. <strong>Mínimo para completar: 9/18. Meta Pro: 13/18 (Tour Winner benchmark).</strong>' },
+    equipment: ['Putter', '6 Tees', '3 Hoyos'],
+    illus: 'tourwinner', accentColor: '#e879f9', isGold: true
+  },
+
+  // ── LADDER DISTANCE CONTROL ──
+  'ladder-beginner': {
+    cat: 'Approach', catClass: '',
+    title: 'Ladder Distance Control',
+    variant: 'Beginner · 50–75–100y', level: 'beginner',
+    meta: [{ icon: 'clock', text: '12 min' }, { icon: 'ball', text: '15 pelotas' }],
+    instructions: `<p>Elige un palo wedge. Coloca un target a <strong>50y, 75y y 100y</strong> (puedes usar banderines o toallas como referencia).</p><p>Golpea 5 pelotas a cada distancia en orden ascendente. El objetivo es aterrizar dentro de <strong>±7 yardas</strong> del target.</p><p>Enfócate en el ritmo del swing — no en la mecánica. Deja que la longitud del backswing controle la distancia.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Cuenta pelotas dentro de la zona de ±7y. <strong>Mínimo para completar: 8/15. Meta: 12/15.</strong>' },
+    equipment: ['Wedge o palo corto', '15 Pelotas'],
+    illus: 'ladder', accentColor: '#4ade80', isGold: false
+  },
+  'ladder-intermediate': {
+    cat: 'Approach', catClass: '',
+    title: 'Ladder Distance Control',
+    variant: 'Intermediate · 75–100–125y', level: 'intermediate',
+    meta: [{ icon: 'clock', text: '15 min' }, { icon: 'ball', text: '18 pelotas' }],
+    instructions: `<p>3 targets a <strong>75y, 100y y 125y</strong>. Usa el mismo palo para las 3 distancias variando solo el ritmo del swing (70%, 85%, 100% de swing).</p><p>6 pelotas por distancia. La zona de éxito se reduce a <strong>±5 yardas</strong>.</p><p>Este drill desarrolla el control de 3 "velocidades" de swing con el mismo palo — una habilidad clave del juego corto de tour.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Pelotas dentro de ±5y. <strong>Mínimo: 9/18. Meta Intermediate: 13/18.</strong>' },
+    equipment: ['1 Wedge', '18 Pelotas'],
+    illus: 'ladder', accentColor: '#D4C5A9', isGold: false
+  },
+  'ladder-advanced': {
+    cat: 'Approach', catClass: '',
+    title: 'Ladder Distance Control',
+    variant: 'Advanced · 4 distancias · ±4y', level: 'advanced',
+    meta: [{ icon: 'clock', text: '20 min' }, { icon: 'ball', text: '20 pelotas' }],
+    instructions: `<p>4 targets a <strong>80y, 100y, 120y y 140y</strong>. Zona de éxito: <strong>±4 yardas</strong>. Puedes cambiar de palo entre distancias.</p><p>5 pelotas por target, en orden aleatorio (el instructor o una app decide el orden). No sabes qué target viene después — simula condiciones de campo.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Pelotas dentro de ±4y / 20. <strong>Mínimo: 10/20. Meta Advanced: 15/20.</strong>' },
+    equipment: ['2–3 Wedges', '20 Pelotas'],
+    illus: 'ladder', accentColor: '#f97316', isGold: false
+  },
+  'ladder-pro': {
+    cat: 'Approach', catClass: '',
+    title: 'Ladder Distance Control',
+    variant: 'Pro · Launch Monitor · ±3y', level: 'pro',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '20 pelotas' }, { icon: 'equip', text: 'launch monitor' }],
+    instructions: `<p>Con launch monitor. 4 distancias entre <strong>80–150y</strong>, zona de éxito de <strong>±3 yardas</strong> en carry (no total). Las distancias se asignan aleatoriamente.</p><p>Usa el dato de <strong>carry real</strong> del monitor, no donde cae la pelota. Esto elimina el error de las condiciones de vuelo y mide tu consistencia pura de contacto.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Carry dentro de ±3y. <strong>Mínimo: 11/20. Meta Pro: 16/20.</strong>' },
+    equipment: ['Wedges', '20 Pelotas', 'Launch Monitor'],
+    illus: 'ladder', accentColor: '#e879f9', isGold: false
+  },
+
+  // ── 3-BALL WINDOW CHALLENGE ──
+  'window-beginner': {
+    cat: 'Approach', catClass: '',
+    title: '3-Ball Window Challenge',
+    variant: 'Beginner · 100–150y', level: 'beginner',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '18 pelotas' }, { icon: 'equip', text: 'launch monitor' }],
+    instructions: `<p>Trabaja en <strong>6 sets de 3 pelotas</strong>. Antes de cada set, elige un target dentro del rango 100–150y. Declara la intención antes de cada pelota del set: <strong>baja, media o alta</strong>.</p><p>El orden de las trayectorias dentro del set es libre, pero debes ejecutar las tres en cada set.</p><p>El set es exitoso si las tres pelotas aterrizan dentro de <strong>±8 yardas</strong> del target.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Cuenta el número de sets exitosos sobre 6. <strong>Mínimo para completar: 3/6.</strong>' },
+    equipment: ['Wedge/Hierro', '18 Pelotas', 'Launch Monitor'],
+    illus: 'window', accentColor: '#4ade80', isGold: false
+  },
+  'window-intermediate': {
+    cat: 'Approach', catClass: '',
+    title: '3-Ball Window Challenge',
+    variant: 'Intermediate · 100–150y · ±6y', level: 'intermediate',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '18 pelotas' }, { icon: 'equip', text: 'launch monitor' }],
+    instructions: `<p>Mismo formato (6 sets × 3 pelotas, 3 trayectorias), pero la zona de éxito se reduce a <strong>±6 yardas</strong>. El instructor asigna el target antes de cada set.</p><p>Registra no solo si el set fue exitoso, sino cuál de las 3 trayectorias fue más difícil. Eso indica dónde está tu deficiencia técnica.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Sets exitosos / 6. <strong>Mínimo: 3/6. Meta Intermediate: 4/6.</strong>' },
+    equipment: ['Wedge/Hierro', '18 Pelotas', 'Launch Monitor'],
+    illus: 'window', accentColor: '#D4C5A9', isGold: false
+  },
+  'window-advanced': {
+    cat: 'Approach', catClass: '',
+    title: '3-Ball Window Challenge',
+    variant: 'Advanced · Targets aleatorios · ±5y', level: 'advanced',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '18 pelotas' }, { icon: 'equip', text: 'launch monitor' }],
+    instructions: `<p>El target se determina <strong>aleatoriamente antes de cada set</strong> (usa una app o dado). Zona de éxito: <strong>±5 yardas</strong>. Puedes cambiar de palo entre sets.</p><p>La toma de decisiones rápida (qué palo, qué swing, qué trayectoria) es parte del drill. Simula el shot-making real en campo.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Sets exitosos / 6. <strong>Mínimo: 3/6. Meta Advanced: 5/6.</strong>' },
+    equipment: ['2–3 Hierros/Wedges', '18 Pelotas', 'Launch Monitor'],
+    illus: 'window', accentColor: '#f97316', isGold: false
+  },
+  'window-pro': {
+    cat: 'Approach', catClass: '',
+    title: '3-Ball Window Challenge',
+    variant: 'Pro · Competitivo · ±4y', level: 'pro',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '18 pelotas' }, { icon: 'equip', text: 'launch monitor' }],
+    instructions: `<p>Variante competitiva. Juga contra un compañero o contra tu propio récord. Zona de éxito: <strong>±4 yardas</strong>. 8 sets × 3 pelotas (24 pelotas total, 2 rondas de 4 sets cada una).</p><p>Añade consecuencia: el ganador elige el siguiente target. El perdedor tiene que hacer push-ups u otra penalidad acordada.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Sets exitosos / 8. <strong>Mínimo: 4/8. Meta Pro: 6/8.</strong>' },
+    equipment: ['Hierros/Wedges', '24 Pelotas', 'Launch Monitor'],
+    illus: 'window', accentColor: '#e879f9', isGold: false
+  },
+
+  // ── PRE-SHOT ROUTINE ──
+  'preshot-beginner': {
+    cat: 'Mental Game', catClass: 'gold',
+    title: 'Pre-Shot Routine Bajo Presión',
+    variant: 'Beginner · Construcción de rutina', level: 'beginner',
+    meta: [{ icon: 'clock', text: '15 min' }, { icon: 'equip', text: 'Visualización' }],
+    instructions: `<p>Define los <strong>5 pasos</strong> de tu rutina pre-shot: (1) Respira, (2) Visualiza el target, (3) Alínea el palo, (4) Alinea el cuerpo, (5) Waggle y dispara.</p><p>Ejecuta 10 shots en rango con la rutina completa cronometrada. Tiempo objetivo por rutina: <strong>15–20 segundos</strong>. Demasiado rápido o demasiado lento son igual de malos.</p><p>Un compañero o video observa si cada paso se ejecutó completo.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Rutinas completas (todos los pasos + tiempo correcto) / 10. <strong>Mínimo: 7/10.</strong>' },
+    equipment: ['Cualquier palo', 'Cronómetro', '10 Pelotas'],
+    illus: 'mental', accentColor: '#4ade80', isGold: true
+  },
+  'preshot-intermediate': {
+    cat: 'Mental Game', catClass: 'gold',
+    title: 'Pre-Shot Routine Bajo Presión',
+    variant: 'Intermediate · Con consecuencia', level: 'intermediate',
+    meta: [{ icon: 'clock', text: '20 min' }, { icon: 'ball', text: '10 shots' }],
+    instructions: `<p>Mismo drill pero con <strong>consecuencia</strong>: si el shot no es satisfactorio (técnicamente), el contador vuelve a 0. Debes hacer 5 shots satisfactorios consecutivos con rutina completa.</p><p>La dificultad está en mantener la rutina cuando el shot anterior salió mal. Ahí está la presión real.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Cuenta cuántos intentos necesitas para conseguir 5 consecutivos. <strong>Mínimo: lograrlo en menos de 15 intentos.</strong>' },
+    equipment: ['Cualquier palo', '15+ Pelotas'],
+    illus: 'mental', accentColor: '#D4C5A9', isGold: true
+  },
+  'preshot-advanced': {
+    cat: 'Mental Game', catClass: 'gold',
+    title: 'Pre-Shot Routine Bajo Presión',
+    variant: 'Advanced · Simulación de hoyo 18', level: 'advanced',
+    meta: [{ icon: 'clock', text: '25 min' }, { icon: 'ball', text: '9 shots' }],
+    instructions: `<p>Simula los <strong>últimos 9 hoyos de un torneo</strong> con 1 shot por hoyo. Antes de cada shot, imagina la situación: fairway, rough, pendiente, viento.</p><p>Ejecuta rutina completa como si fuera un shot real de torneo. El resultado importa. Un mal shot en el hoyo 17 puede cambiar tu enfoque en el 18.</p><p>Registra qué pensamientos te invaden y cómo los manejas. Ese es el dato más valioso.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Shots ejecutados con proceso completo / 9. <strong>Mínimo: 7/9. El resultado del shot es secundario al proceso.</strong>' },
+    equipment: ['Set completo de palos', '9 Pelotas'],
+    illus: 'mental', accentColor: '#f97316', isGold: true
+  },
+  'preshot-pro': {
+    cat: 'Mental Game', catClass: 'gold',
+    title: 'Pre-Shot Routine Bajo Presión',
+    variant: 'Pro · Video + Análisis', level: 'pro',
+    meta: [{ icon: 'clock', text: '30 min' }, { icon: 'equip', text: 'Cámara / teléfono' }],
+    instructions: `<p>Graba en video <strong>10 rutinas completas</strong> con situaciones de alta presión inventadas (shot que vale el torneo, observadores, consecuencia económica simulada).</p><p>Revisa el video y evalúa: ¿tu ritmo cambia bajo presión? ¿Saltas algún paso? ¿Tu lenguaje corporal refleja confianza o tensión? </p><p>Crea un plan de mejora de 1 semana basado en lo que observas. Este drill es el más valioso a largo plazo.</p>`,
+    score: { label: 'Sistema de Puntuación', text: 'Rutinas con proceso idéntico a condiciones normales / 10. <strong>Meta: 8/10 sin diferencia observable bajo presión.</strong>' },
+    equipment: ['Set completo', 'Cámara/Teléfono', '10+ Pelotas'],
+    illus: 'mental', accentColor: '#e879f9', isGold: true
+  }
+};
+
+// ════════════════════════════════
+// ILLUSTRATIONS (SVG functions)
+// ════════════════════════════════
+function getIllustration(type, accentColor, isGold) {
+  const teal = '#2dd4bf';
+  const gold = '#D4C5A9';
+  const accent = accentColor || teal;
+  const bg1 = isGold ? '#0a1a0d' : '#0d1a12';
+  const bg2 = isGold ? '#081009' : '#0a1209';
+
+  if (type === 'gate') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background green -->
+      <rect width="540" height="220" fill="url(#gateModalBg)"/>
+      <defs>
+        <linearGradient id="gateModalBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1a0d"/>
+          <stop offset="100%" stop-color="#060e07"/>
+        </linearGradient>
+      </defs>
+      <!-- Green surface -->
+      <rect x="140" y="15" width="260" height="192" rx="6" fill="rgba(25,75,35,0.3)" stroke="rgba(45,130,60,0.12)" stroke-width="0.5"/>
+      <!-- Grain lines -->
+      <line x1="140" y1="45" x2="400" y2="45" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <line x1="140" y1="75" x2="400" y2="75" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <line x1="140" y1="105" x2="400" y2="105" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <line x1="140" y1="135" x2="400" y2="135" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <line x1="140" y1="165" x2="400" y2="165" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <line x1="140" y1="195" x2="400" y2="195" stroke="rgba(45,130,60,0.05)" stroke-width="0.5"/>
+      <!-- Hole -->
+      <circle cx="270" cy="42" r="14" fill="#030806" stroke="#152012" stroke-width="2"/>
+      <circle cx="270" cy="42" r="9" fill="#010402"/>
+      <!-- Flag -->
+      <line x1="270" y1="42" x2="270" y2="10" stroke="#555" stroke-width="1.2"/>
+      <polygon points="270,10 290,17 270,24" fill="${gold}" opacity="0.9"/>
+      <!-- Distance indicator -->
+      <line x1="50" y1="55" x2="50" y2="195" stroke="${gold}" stroke-width="0.5" stroke-dasharray="3 4" opacity="0.25"/>
+      <line x1="46" y1="55" x2="54" y2="55" stroke="${gold}" stroke-width="0.5" opacity="0.25"/>
+      <line x1="46" y1="195" x2="54" y2="195" stroke="${gold}" stroke-width="0.5" opacity="0.25"/>
+      <text x="30" y="130" font-family="'Barlow Condensed',sans-serif" font-size="11" fill="${gold}" opacity="0.5" font-weight="600" text-anchor="middle" transform="rotate(-90,30,130)">DISTANCIA</text>
+      <!-- Putt path line -->
+      <line x1="270" y1="56" x2="270" y2="188" stroke="${gold}" stroke-width="1.2" stroke-dasharray="6 5" opacity="0.45"/>
+      <!-- GATE tees -->
+      <rect x="242" y="118" width="5" height="28" rx="2.5" fill="${gold}" opacity="0.95"/>
+      <rect x="293" y="118" width="5" height="28" rx="2.5" fill="${gold}" opacity="0.95"/>
+      <!-- Gate top bar label -->
+      <line x1="244" y1="110" x2="296" y2="110" stroke="${gold}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="244" y1="106" x2="244" y2="114" stroke="${gold}" stroke-width="0.8" opacity="0.5"/>
+      <line x1="296" y1="106" x2="296" y2="114" stroke="${gold}" stroke-width="0.8" opacity="0.5"/>
+      <rect x="250" y="95" width="40" height="14" rx="4" fill="rgba(212,197,169,0.12)" stroke="rgba(212,197,169,0.3)" stroke-width="0.5"/>
+      <text x="270" y="105" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${gold}" opacity="0.8" font-weight="700" text-anchor="middle" letter-spacing="1">GATE</text>
+      <!-- Ball -->
+      <circle cx="270" cy="188" r="9" fill="white" opacity="0.9"/>
+      <circle cx="267" cy="185" r="3" fill="white" opacity="0.2"/>
+      <!-- Putter -->
+      <rect x="240" y="197" width="60" height="12" rx="3" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="0.8"/>
+      <line x1="270" y1="197" x2="270" y2="209" stroke="#1a1a1a" stroke-width="1"/>
+      <!-- Right side: small diagram of gate width -->
+      <text x="450" y="120" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="${gold}" opacity="0.5" font-weight="600" text-anchor="middle">GATE WIDTH</text>
+      <rect x="420" y="126" width="4" height="20" rx="2" fill="${gold}" opacity="0.5"/>
+      <rect x="476" y="126" width="4" height="20" rx="2" fill="${gold}" opacity="0.5"/>
+      <line x1="424" y1="136" x2="476" y2="136" stroke="${gold}" stroke-width="0.5" stroke-dasharray="2 3" opacity="0.4"/>
+      <text x="450" y="156" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${gold}" opacity="0.6" font-weight="700" text-anchor="middle">~4.5 cm</text>
+    </svg>`;
+  }
+
+  if (type === 'star') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="starBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1a0d"/>
+          <stop offset="100%" stop-color="#060e07"/>
+        </linearGradient>
+      </defs>
+      <rect width="540" height="220" fill="url(#starBg)"/>
+      <!-- Green -->
+      <ellipse cx="270" cy="110" rx="200" ry="95" fill="rgba(25,75,35,0.25)" stroke="rgba(45,130,60,0.1)" stroke-width="0.5"/>
+      <!-- Hole center -->
+      <circle cx="270" cy="110" r="12" fill="#020604" stroke="#162013" stroke-width="1.5"/>
+      <circle cx="270" cy="110" r="7" fill="#010302"/>
+      <!-- Flag -->
+      <line x1="270" y1="110" x2="270" y2="82" stroke="#555" stroke-width="1"/>
+      <polygon points="270,82 286,88 270,94" fill="${gold}" opacity="0.8"/>
+      <!-- 8 Tee positions -->
+      <!-- N 9ft -->
+      <circle cx="270" cy="42" r="5.5" fill="white" opacity="0.85"/>
+      <text x="284" y="46" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">9FT</text>
+      <!-- NE 8ft -->
+      <circle cx="340" cy="58" r="5.5" fill="white" opacity="0.85"/>
+      <text x="350" y="62" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">8FT</text>
+      <!-- E 4ft -->
+      <circle cx="360" cy="110" r="5.5" fill="white" opacity="0.85"/>
+      <text x="370" y="114" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">4FT</text>
+      <!-- SE 5ft -->
+      <circle cx="338" cy="162" r="5.5" fill="white" opacity="0.85"/>
+      <text x="347" y="166" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">5FT</text>
+      <!-- S 7ft -->
+      <circle cx="270" cy="178" r="5.5" fill="white" opacity="0.85"/>
+      <text x="282" y="182" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">7FT</text>
+      <!-- SW 10ft -->
+      <circle cx="196" cy="168" r="5.5" fill="white" opacity="0.85"/>
+      <text x="158" y="172" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">10FT</text>
+      <!-- W 6ft -->
+      <circle cx="174" cy="110" r="5.5" fill="white" opacity="0.85"/>
+      <text x="132" y="114" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">6FT</text>
+      <!-- NW 9ft -->
+      <circle cx="196" cy="56" r="5.5" fill="white" opacity="0.85"/>
+      <text x="152" y="60" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="white" opacity="0.65" font-weight="700">9FT</text>
+      <!-- Circuit arrows -->
+      <path d="M270 47 L337 63 L356 110 L334 157 L270 172 L200 163 L178 110 L200 61 L270 47" fill="none" stroke="white" stroke-width="0.8" stroke-dasharray="4 4" opacity="0.2"/>
+      <!-- Arrow indicators -->
+      <path d="M270 47 L340 60" stroke="white" stroke-width="1" marker-end="url(#arrow)" opacity="0.3"/>
+    </svg>`;
+  }
+
+  if (type === 'tourwinner') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="twBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1a0d"/>
+          <stop offset="100%" stop-color="#060e07"/>
+        </linearGradient>
+      </defs>
+      <rect width="540" height="220" fill="url(#twBg)"/>
+      <rect x="100" y="10" width="340" height="200" rx="6" fill="rgba(25,75,35,0.25)" stroke="rgba(45,130,60,0.1)" stroke-width="0.5"/>
+      <!-- Hole -->
+      <circle cx="300" cy="110" r="10" fill="#020604" stroke="#162013" stroke-width="1.5"/>
+      <circle cx="300" cy="110" r="6" fill="#010302"/>
+      <circle cx="300" cy="110" r="6" fill="rgba(45,212,191,0.3)" stroke="${teal}" stroke-width="1.2"/>
+      <!-- Flag -->
+      <line x1="300" y1="110" x2="300" y2="78" stroke="#555" stroke-width="1"/>
+      <polygon points="300,78 318,85 300,92" fill="${teal}" opacity="0.9"/>
+      <!-- Semi-circle of 6 tees -->
+      <!-- 5ft -->
+      <circle cx="185" cy="175" r="5.5" fill="white" opacity="0.85"/>
+      <text x="155" y="178" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">5FT</text>
+      <!-- 7ft -->
+      <circle cx="172" cy="148" r="5.5" fill="white" opacity="0.85"/>
+      <text x="142" y="151" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">7FT</text>
+      <!-- 9ft -->
+      <circle cx="170" cy="118" r="5.5" fill="white" opacity="0.85"/>
+      <text x="138" y="121" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">9FT</text>
+      <!-- 11ft -->
+      <circle cx="180" cy="88" r="5.5" fill="white" opacity="0.85"/>
+      <text x="148" y="91" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">11FT</text>
+      <!-- 13ft -->
+      <circle cx="204" cy="62" r="5.5" fill="white" opacity="0.85"/>
+      <text x="172" y="58" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">13FT</text>
+      <!-- 15ft -->
+      <circle cx="240" cy="44" r="5.5" fill="white" opacity="0.85"/>
+      <text x="246" y="40" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.9" font-weight="700">15FT</text>
+      <!-- Curved path -->
+      <path d="M185 170 Q175 148 172 118 Q178 90 204 66 Q220 52 238 48" fill="none" stroke="${teal}" stroke-width="1" stroke-dasharray="4 4" opacity="0.35"/>
+      <!-- Conversion rate legend -->
+      <rect x="370" y="30" width="100" height="160" rx="6" fill="rgba(0,0,0,0.4)" stroke="rgba(45,212,191,0.12)" stroke-width="0.5"/>
+      <text x="420" y="48" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="${teal}" opacity="0.7" font-weight="700" text-anchor="middle" letter-spacing="1">PGA TOUR %</text>
+      <text x="385" y="68" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">5FT</text>
+      <text x="445" y="68" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.9" font-weight="700" text-anchor="end">90%</text>
+      <text x="385" y="88" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">7FT</text>
+      <text x="445" y="88" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.85" font-weight="700" text-anchor="end">75%</text>
+      <text x="385" y="108" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">9FT</text>
+      <text x="445" y="108" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.75" font-weight="700" text-anchor="end">60%</text>
+      <text x="385" y="128" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">11FT</text>
+      <text x="445" y="128" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.65" font-weight="700" text-anchor="end">48%</text>
+      <text x="385" y="148" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">13FT</text>
+      <text x="445" y="148" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.55" font-weight="700" text-anchor="end">38%</text>
+      <text x="385" y="168" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="white" opacity="0.5" font-weight="600">15FT</text>
+      <text x="445" y="168" font-family="'Barlow Condensed',sans-serif" font-size="8.5" fill="${teal}" opacity="0.45" font-weight="700" text-anchor="end">28%</text>
+    </svg>`;
+  }
+
+  if (type === 'ladder') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ladderBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d1a12"/>
+          <stop offset="100%" stop-color="#0a1209"/>
+        </linearGradient>
+        <radialGradient id="ladderGlow" cx="70%" cy="50%" r="40%">
+          <stop offset="0%" stop-color="${teal}" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="${teal}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="540" height="220" fill="url(#ladderBg)"/>
+      <rect width="540" height="220" fill="url(#ladderGlow)"/>
+      <!-- Target circles -->
+      <g transform="translate(390, 110)">
+        <circle cx="0" cy="0" r="90" fill="none" stroke="${teal}" stroke-width="0.5" stroke-dasharray="3 6" opacity="0.18"/>
+        <circle cx="0" cy="0" r="65" fill="none" stroke="${teal}" stroke-width="0.6" stroke-dasharray="3 5" opacity="0.25"/>
+        <circle cx="0" cy="0" r="42" fill="none" stroke="${teal}" stroke-width="0.8" opacity="0.38"/>
+        <circle cx="0" cy="0" r="22" fill="none" stroke="${teal}" stroke-width="1" opacity="0.55"/>
+        <circle cx="0" cy="0" r="8" fill="rgba(45,212,191,0.15)" stroke="${teal}" stroke-width="1.5"/>
+        <circle cx="0" cy="0" r="2.5" fill="${teal}"/>
+        <!-- Yardage labels -->
+        <text x="10" y="-18" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.7" font-weight="600">50y</text>
+        <text x="10" y="-38" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.55" font-weight="600">75y</text>
+        <text x="10" y="-60" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.4" font-weight="600">100y</text>
+        <!-- Ball landing markers -->
+        <circle cx="4" cy="-22" r="5" fill="${teal}" opacity="0.9"/>
+        <circle cx="-3" cy="-42" r="5" fill="${teal}" opacity="0.7"/>
+        <circle cx="5" cy="-65" r="5" fill="${teal}" opacity="0.5"/>
+      </g>
+      <!-- Trajectory arcs from bottom left -->
+      <path d="M 80 200 Q 140 80 348 110" fill="none" stroke="${teal}" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.3"/>
+      <path d="M 80 200 Q 150 50 348 96" fill="none" stroke="${teal}" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.22"/>
+      <path d="M 80 200 Q 160 20 348 82" fill="none" stroke="${teal}" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.15"/>
+      <!-- Swing labels -->
+      <text x="180" y="135" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="white" opacity="0.4" font-weight="600" transform="rotate(-12, 180, 135)">50y</text>
+      <text x="175" y="90" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="white" opacity="0.35" font-weight="600" transform="rotate(-18, 175, 90)">75y</text>
+      <text x="170" y="48" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="white" opacity="0.28" font-weight="600" transform="rotate(-24, 170, 48)">100y</text>
+      <!-- Source ball -->
+      <circle cx="80" cy="200" r="8" fill="white" opacity="0.9"/>
+      <circle cx="77" cy="197" r="2.5" fill="white" opacity="0.25"/>
+      <!-- Golfer hint lines -->
+      <line x1="60" y1="200" x2="80" y2="200" stroke="white" stroke-width="0.5" opacity="0.15"/>
+    </svg>`;
+  }
+
+  if (type === 'window') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="winBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d1a12"/>
+          <stop offset="100%" stop-color="#0a1209"/>
+        </linearGradient>
+      </defs>
+      <rect width="540" height="220" fill="url(#winBg)"/>
+      <!-- Target area -->
+      <g transform="translate(400,110)">
+        <circle cx="0" cy="0" r="40" fill="none" stroke="${teal}" stroke-width="0.5" stroke-dasharray="2 5" opacity="0.2"/>
+        <circle cx="0" cy="0" r="24" fill="none" stroke="${teal}" stroke-width="0.8" opacity="0.35"/>
+        <circle cx="0" cy="0" r="10" fill="rgba(45,212,191,0.12)" stroke="${teal}" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="3" fill="${teal}"/>
+        <text x="8" y="-35" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.65" font-weight="700">TARGET</text>
+        <!-- 3 ball clusters inside target -->
+        <circle cx="-6" cy="14" r="4.5" fill="#4ade80" opacity="0.85"/>
+        <circle cx="5" cy="-10" r="4.5" fill="#4ade80" opacity="0.85"/>
+        <circle cx="10" cy="6" r="4.5" fill="#4ade80" opacity="0.85"/>
+      </g>
+      <!-- 3 Trajectory lines: High, Mid, Low -->
+      <path d="M 70 200 Q 120 28 370 82" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3"/>
+      <text x="200" y="52" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="white" opacity="0.45" font-weight="600" transform="rotate(-14,200,52)">ALTA</text>
+      <path d="M 70 200 Q 140 80 370 110" fill="none" stroke="white" stroke-width="2" opacity="0.45"/>
+      <text x="210" y="110" font-family="'Barlow Condensed',sans-serif" font-size="11" fill="white" opacity="0.6" font-weight="700" transform="rotate(-8,210,110)">MEDIA</text>
+      <path d="M 70 200 Q 150 130 370 138" fill="none" stroke="white" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3"/>
+      <text x="210" y="164" font-family="'Barlow Condensed',sans-serif" font-size="10" fill="white" opacity="0.45" font-weight="600" transform="rotate(-2,210,164)">BAJA</text>
+      <!-- Window box -->
+      <rect x="356" y="72" width="44" height="80" rx="4" fill="none" stroke="rgba(45,212,191,0.5)" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="378" y="66" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="${teal}" opacity="0.7" font-weight="700" text-anchor="middle" letter-spacing="1">WINDOW</text>
+      <!-- Source ball -->
+      <circle cx="70" cy="200" r="8" fill="white" opacity="0.9"/>
+      <!-- Dispersion label -->
+      <rect x="30" y="30" width="100" height="26" rx="5" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.2)" stroke-width="0.5"/>
+      <text x="80" y="47" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="${teal}" opacity="0.7" font-weight="700" text-anchor="middle" letter-spacing="1">DISPERSIÓN</text>
+    </svg>`;
+  }
+
+  if (type === 'mental') {
+    return `
+    <svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="menBg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#14100a"/>
+          <stop offset="100%" stop-color="#0d0a06"/>
+        </linearGradient>
+        <radialGradient id="menGlow2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="${gold}" stop-opacity="0.1"/>
+          <stop offset="100%" stop-color="${gold}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="540" height="220" fill="url(#menBg)"/>
+      <rect width="540" height="220" fill="url(#menGlow2)"/>
+      <!-- Main rings centered -->
+      <circle cx="270" cy="110" r="95" fill="none" stroke="${gold}" stroke-width="0.4" stroke-dasharray="2 8" opacity="0.18"/>
+      <circle cx="270" cy="110" r="72" fill="none" stroke="${gold}" stroke-width="0.5" opacity="0.22"/>
+      <circle cx="270" cy="110" r="50" fill="none" stroke="${gold}" stroke-width="0.8" opacity="0.32"/>
+      <circle cx="270" cy="110" r="30" fill="none" stroke="${gold}" stroke-width="1" opacity="0.48"/>
+      <circle cx="270" cy="110" r="14" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.5" opacity="0.65"/>
+      <circle cx="270" cy="110" r="4" fill="${gold}" opacity="0.9"/>
+      <!-- 5 step spokes -->
+      <!-- 1 RESPIRA top -->
+      <line x1="270" y1="96" x2="270" y2="38" stroke="${gold}" stroke-width="0.7" opacity="0.35"/>
+      <circle cx="270" cy="34" r="8" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.1"/>
+      <text x="270" y="22" font-family="'Barlow Condensed',sans-serif" font-size="9.5" fill="${gold}" opacity="0.72" font-weight="700" text-anchor="middle" letter-spacing="0.5">RESPIRA</text>
+      <!-- 2 TARGET top-right -->
+      <line x1="278" y1="99" x2="318" y2="65" stroke="${gold}" stroke-width="0.7" opacity="0.35"/>
+      <circle cx="324" cy="60" r="8" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.1"/>
+      <text x="354" y="58" font-family="'Barlow Condensed',sans-serif" font-size="9.5" fill="${gold}" opacity="0.72" font-weight="700" letter-spacing="0.5">TARGET</text>
+      <!-- 3 RUTINA bottom-right -->
+      <line x1="281" y1="118" x2="318" y2="156" stroke="${gold}" stroke-width="0.7" opacity="0.35"/>
+      <circle cx="324" cy="162" r="8" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.1"/>
+      <text x="336" y="175" font-family="'Barlow Condensed',sans-serif" font-size="9.5" fill="${gold}" opacity="0.72" font-weight="700" letter-spacing="0.5">RUTINA</text>
+      <!-- 4 COMMIT bottom-left -->
+      <line x1="259" y1="118" x2="222" y2="156" stroke="${gold}" stroke-width="0.7" opacity="0.35"/>
+      <circle cx="216" cy="162" r="8" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.1"/>
+      <text x="130" y="175" font-family="'Barlow Condensed',sans-serif" font-size="9.5" fill="${gold}" opacity="0.72" font-weight="700" letter-spacing="0.5">COMMIT</text>
+      <!-- 5 SWING top-left -->
+      <line x1="262" y1="99" x2="222" y2="65" stroke="${gold}" stroke-width="0.7" opacity="0.35"/>
+      <circle cx="216" cy="60" r="8" fill="rgba(212,197,169,0.12)" stroke="${gold}" stroke-width="1.1"/>
+      <text x="132" y="58" font-family="'Barlow Condensed',sans-serif" font-size="9.5" fill="${gold}" opacity="0.72" font-weight="700" letter-spacing="0.5">SWING</text>
+      <!-- Rotating dashed connector -->
+      <path d="M270 26 A84 84 0 1 1 212 54" fill="none" stroke="${gold}" stroke-width="0.7" stroke-dasharray="4 6" opacity="0.25"/>
+      <!-- Center number -->
+      <text x="270" y="114" font-family="'Bebas Neue',sans-serif" font-size="14" fill="${gold}" opacity="0.35" text-anchor="middle">5</text>
+    </svg>`;
+  }
+
+  return `<svg viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg"><rect width="540" height="220" fill="#111"/></svg>`;
+}
+
+// ════════════════════════════════
+// OPEN MODAL
+// ════════════════════════════════
+function openDrill(drillId) {
+  const d = DRILLS[drillId];
+  if (!d) return;
+
+  // Illustration
+  const illusEl = document.getElementById('modalIllus');
+  illusEl.innerHTML = getIllustration(d.illus, d.accentColor, d.isGold)
+    + `<div class="modal-illus-overlay"></div>
+       <span class="modal-level-badge ${d.level}">${d.level.charAt(0).toUpperCase()+d.level.slice(1)}</span>
+       <button class="modal-close" onclick="closeModal()">✕</button>`;
+
+  // Text content
+  const isGoldCat = d.catClass === 'gold';
+  document.getElementById('modalCat').textContent = d.cat;
+  document.getElementById('modalCat').className = 'modal-cat' + (isGoldCat ? ' gold' : '');
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalVariantName').textContent = d.variant;
+
+  // Meta chips
+  const iconMap = {
+    clock: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#888" stroke-width="1"/><path d="M6.5 3.5v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>`,
+    ball: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#888" stroke-width="1"/><path d="M4 6.5q2.5-1.5 5 0M4 8q2.5 1 5 0" stroke="#888" stroke-width="0.7"/></svg>`,
+    equip: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="4" width="9" height="6" rx="1" stroke="#888" stroke-width="1"/><path d="M4 4V3a2 2 0 0 1 5 0v1" stroke="#888" stroke-width="1"/></svg>`
+  };
+  document.getElementById('modalMeta').innerHTML = d.meta.map(m =>
+    `<div class="modal-meta-chip">${iconMap[m.icon] || ''} ${m.text}</div>`
+  ).join('');
+
+  // Instructions
+  document.getElementById('modalInstructions').innerHTML = d.instructions;
+
+  // Score box
+  const isGoldScore = isGoldCat;
+  document.getElementById('modalScoreBox').innerHTML = d.score ? `
+    <div class="modal-section-title">Sistema de Puntuación</div>
+    <div class="modal-score-box ${isGoldScore ? 'gold-border' : ''}">
+      <div class="score-icon ${isGoldScore ? 'gold-bg' : ''}">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L11 7h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="${isGoldScore ? d.accentColor : '#2dd4bf'}" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div>
+        <div class="score-label ${isGoldScore ? 'gold' : ''}">${d.score.label}</div>
+        <div class="score-text">${d.score.text}</div>
+      </div>
+    </div>` : '';
+
+  // Equipment
+  document.getElementById('modalEquipment').innerHTML = d.equipment && d.equipment.length ? `
+    <div class="modal-section-title">Equipamiento</div>
+    <div class="modal-equipment">${d.equipment.map(e => `<span class="equip-tag">${e}</span>`).join('')}</div>` : '';
+
+  // CTA button
+  const ctaBtn = document.getElementById('modalCta');
+  ctaBtn.className = 'modal-cta' + (isGoldScore ? ' gold-cta' : '');
+
+  // Open
+  document.getElementById('drillModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('drillModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('drillModal')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── MENU ───
+function toggleMenu() {
+  document.getElementById('sidemenu').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+</script>
 </body>
 </html>
