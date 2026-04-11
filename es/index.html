@@ -1,748 +1,1981 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyGolfLab | Coaching de Golf con IA</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
-            --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
-            --font-display: 'Bebas Neue', sans-serif;
-            --font-heading: 'Barlow Condensed', sans-serif;
-            --font-body: 'Barlow', sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyGolfLab — Coaching de Golf con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ==================== HEADER UNIVERSAL ==================== */
-        .nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            padding: 0 24px;
-            height: 64px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 10, 10, 0.92);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-        }
+  :root {
+    --bg: #0a0a0a;
+    --bg-card: #111111;
+    --bg-elevated: #1a1a1a;
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.12);
+    --teal-mid: rgba(45,212,191,0.35);
+    --gold: #D4C5A9;
+    --text: #f0f0f0;
+    --text-muted: #888;
+    --border: rgba(255,255,255,0.07);
+  }
 
-        .hamburger {
-            width: 44px; height: 44px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 8px;
-            flex-shrink: 0;
-        }
-        .hamburger span {
-            width: 22px; height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-            display: block;
-        }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: default;
+  }
 
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.6rem;
-            letter-spacing: 2px;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-        .logo span { color: var(--primary); }
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 998;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+  /* ─── HEADER ─── */
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
 
-        .mobile-menu {
-            position: fixed;
-            top: 0; left: -100%;
-            width: 280px;
-            height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999;
-            padding: 80px 24px 32px;
-            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        .mobile-menu.active { left: 0; }
+  .hamburger {
+    width: 40px; height: 40px;
+    display: flex; flex-direction: column;
+    justify-content: center; gap: 6px;
+    cursor: pointer; background: none; border: none; padding: 0;
+  }
+  .hamburger span {
+    display: block; height: 1.5px;
+    background: var(--text); border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .hamburger:hover span { background: var(--teal); }
 
-        .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo span { color: var(--teal); }
 
-        .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-        }
-        .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
-        .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+  /* ─── SIDE MENU ─── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .overlay.open { opacity: 1; pointer-events: all; }
 
-        /* Dashboard menu link — destaca */
-        .menu-link.dashboard-link {
-            color: var(--primary);
-            background: rgba(45,212,191,0.08);
-            border: 1px solid rgba(45,212,191,0.2);
-        }
-        .menu-link.dashboard-link:hover {
-            background: rgba(45,212,191,0.15);
-            border-color: rgba(45,212,191,0.4);
-        }
-        .menu-link.dashboard-link svg { opacity: 1; }
+  .sidemenu {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 280px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    z-index: 2000;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    padding: 80px 32px 32px;
+    display: flex; flex-direction: column;
+  }
+  .sidemenu.open { transform: translateX(0); }
 
-        .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .sidemenu a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+    text-transform: uppercase;
+  }
+  .sidemenu a:hover { color: var(--teal); }
+  .sidemenu a.active { color: var(--teal); }
 
-        .menu-cta {
-            display: block;
-            text-align: center;
-            padding: 14px 20px;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 10px;
-            margin-top: 16px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+  .sidemenu-auth {
+    margin-top: auto;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-        /* Login link (estado no autenticado) */
-        .menu-login {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            border: 1px solid var(--border);
-            margin-top: 8px;
-        }
-        .menu-login:hover { border-color: var(--primary); color: var(--primary); background: rgba(45,212,191,0.05); }
-        .menu-login svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+  .btn-outline {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer; background: none;
+  }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
 
-        /* User info en el menu (estado autenticado) */
-        .menu-user-info {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            background: var(--bg-elevated);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border: 1px solid var(--border);
-        }
-        .menu-user-info.show { display: flex; }
-        .menu-user-avatar {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            background: var(--gradient-1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 1rem;
-            color: var(--bg-dark);
-            flex-shrink: 0;
-        }
-        .menu-user-text { overflow: hidden; }
-        .menu-user-name {
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--text-primary);
-        }
-        .menu-user-plan {
-            font-size: 0.7rem;
-            color: var(--primary);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #0a0a0a;
+    background: var(--teal);
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: #4eecd9; transform: translateY(-1px); }
 
-        /* Logout en menu */
-        .menu-logout {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: #737373;
-            font-family: var(--font-heading);
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 10px;
-            transition: all 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-        .menu-logout.show { display: flex; }
-        .menu-logout:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
-        .menu-logout svg { width: 18px; height: 18px; opacity: 0.7; }
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 24px 80px;
+  }
 
-        /* ==================== HERO ==================== */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 8rem 2rem 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 50%;
-            transform: translateX(-50%);
-            width: 150%; height: 100%;
-            background: radial-gradient(ellipse at center top, var(--primary-glow) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            animation: fadeInUp 0.6s ease;
-        }
-        .hero-badge-dot {
-            width: 8px; height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .hero h1 {
-            font-family: var(--font-display);
-            font-size: clamp(3.5rem, 12vw, 7rem);
-            font-weight: 400;
-            line-height: 0.95;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            animation: fadeInUp 0.6s ease 0.1s both;
-        }
-        .hero h1 span {
-            display: block;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .hero-subtitle {
-            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-            font-weight: 400;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin-bottom: 2.5rem;
-            animation: fadeInUp 0.6s ease 0.2s both;
-        }
-        .hero-cta {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            animation: fadeInUp 0.6s ease 0.3s both;
-        }
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 14px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--primary-glow); }
-        .btn-primary svg { width: 20px; height: 20px; }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 50%, rgba(45,212,191,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(212,197,169,0.04) 0%, transparent 60%);
+    animation: hbg 8s ease-in-out infinite alternate;
+  }
+  @keyframes hbg {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+  }
 
-        /* Botón secundario "Ir a mi Dashboard" — solo visible cuando hay sesión */
-        .btn-dashboard {
-            display: none;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            background: transparent;
-            color: var(--primary);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 14px;
-            border: 1px solid rgba(45,212,191,0.4);
-            transition: all 0.2s ease;
-        }
-        .btn-dashboard:hover { background: rgba(45,212,191,0.08); border-color: var(--primary); transform: translateY(-2px); }
-        .btn-dashboard svg { width: 20px; height: 20px; }
-        .btn-dashboard.show { display: inline-flex; }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+  }
 
-        .hero-note { font-size: 0.875rem; color: var(--text-muted); }
-        /* Ocultar nota cuando hay sesión */
-        .hero-note.hidden { display: none; }
+  .hero-inner {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    max-width: 1100px;
+    width: 100%;
+  }
 
-        /* ==================== SECTIONS ==================== */
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 1rem;
-        }
-        .section-label::before { content: ''; width: 24px; height: 2px; background: var(--primary); }
+  .hero-text { max-width: 560px; }
 
-        .problem-solution { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .problem-solution h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; margin-bottom: 3rem; max-width: 800px; }
-        .ps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .ps-card { padding: 2rem; border-radius: 20px; border: 1px solid var(--border); }
-        .ps-card.problem { background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 50%); }
-        .ps-card.solution { background: linear-gradient(135deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%); border-color: rgba(45, 212, 191, 0.3); }
-        .ps-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
-        .ps-card.problem .ps-card-icon { background: rgba(239, 68, 68, 0.1); }
-        .ps-card.problem .ps-card-icon svg { color: #ef4444; }
-        .ps-card.solution .ps-card-icon { background: rgba(45, 212, 191, 0.15); }
-        .ps-card.solution .ps-card-icon svg { color: var(--primary); }
-        .ps-card-icon svg { width: 24px; height: 24px; }
-        .ps-card h3 { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1rem; }
-        .ps-card p { color: var(--text-secondary); font-size: 1rem; }
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.7s 0.1s forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--teal);
+  }
 
-        .methodology { padding: 6rem 2rem; background: var(--gradient-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .methodology-inner { max-width: 900px; margin: 0 auto; text-align: center; }
-        .methodology h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1.5rem; }
-        .methodology-lead { font-size: 1.2rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 3rem; }
-        .methodology-pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; text-align: left; }
-        .pillar { padding: 1.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; transition: border-color 0.3s ease; }
-        .pillar:hover { border-color: var(--primary); }
-        .pillar-number { width: 36px; height: 36px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.25rem; color: var(--primary); margin-bottom: 1rem; }
-        .pillar h4 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
-        .pillar p { font-size: 0.95rem; color: var(--text-secondary); }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 7vw, 96px);
+    line-height: 0.92;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s 0.25s forwards;
+  }
+  .hero-title .accent { color: var(--teal); }
+  .hero-title .gold { color: var(--gold); }
 
-        .features { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
-        .features h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; margin-bottom: 1rem; }
-        .features-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 3rem; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-        .feature-card { padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; text-decoration: none; color: inherit; transition: all 0.3s ease; display: block; }
-        .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .feature-icon { width: 56px; height: 56px; background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(45, 212, 191, 0.05) 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
-        .feature-icon svg { width: 28px; height: 28px; color: var(--primary); }
-        .feature-card h3 { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
-        .feature-card p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem; }
-        .feature-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); }
-        .feature-link svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
-        .feature-card:hover .feature-link svg { transform: translateX(4px); }
+  .hero-sub {
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
 
-        .waitlist { padding: 6rem 2rem; text-align: center; background: var(--bg-card); border-top: 1px solid var(--border); }
-        .waitlist-inner { max-width: 600px; margin: 0 auto; }
-        .waitlist h2 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 1rem; }
-        .waitlist p { color: var(--text-secondary); margin-bottom: 2rem; }
-        .waitlist-form { display: flex; gap: 0.75rem; max-width: 450px; margin: 0 auto; }
-        .waitlist-form input { flex: 1; padding: 1rem 1.25rem; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; color: var(--text-primary); font-size: 1rem; font-family: var(--font-body); outline: none; transition: border-color 0.2s ease; }
-        .waitlist-form input:focus { border-color: var(--primary); }
-        .waitlist-form input::placeholder { color: var(--text-muted); }
-        .waitlist-form button { padding: 1rem 1.5rem; background: var(--gradient-1); border: none; border-radius: 12px; color: var(--bg-dark); font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap; }
-        .waitlist-form button:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
-        @media (max-width: 500px) { .waitlist-form { flex-direction: column; } }
+  .hero-ctas {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.8s 0.55s forwards;
+  }
 
-        .footer { padding: 3rem 2rem; border-top: 1px solid var(--border); text-align: center; }
-        .footer-logo { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 3px; margin-bottom: 1rem; }
-        .footer p { font-size: 0.875rem; color: var(--text-muted); }
-    </style>
+  .btn-hero {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 28px;
+    border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.25s;
+  }
+  .btn-hero.teal {
+    background: var(--teal);
+    color: #0a0a0a;
+    border: 1px solid var(--teal);
+  }
+  .btn-hero.teal:hover { background: #4eecd9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(45,212,191,0.25); }
+  .btn-hero.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-hero.ghost:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+
+  /* ─── SWING VISUAL ─── */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeIn 1.2s 0.7s forwards;
+  }
+
+  .swing-container {
+    position: relative;
+    width: 420px;
+    height: 520px;
+  }
+
+  .swing-arc {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Floating data cards on the visual */
+  .data-card {
+    position: absolute;
+    background: rgba(17,17,17,0.92);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    backdrop-filter: blur(10px);
+    animation: float 4s ease-in-out infinite;
+  }
+  .data-card:nth-child(2) { animation-delay: -1.5s; }
+  .data-card:nth-child(3) { animation-delay: -3s; }
+
+  .dc-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .dc-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--teal);
+  }
+  .dc-unit {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .dc-bar {
+    display: flex;
+    gap: 3px;
+    margin-top: 6px;
+  }
+  .dc-bar span {
+    height: 3px;
+    border-radius: 2px;
+    flex: 1;
+    background: var(--border);
+  }
+  .dc-bar span.on { background: var(--teal); }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 1.5s forwards;
+  }
+  .scroll-hint span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .scroll-arrow {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--text-muted), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* ─── SECTION BASE ─── */
+  section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--teal);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 520px;
+    margin-bottom: 60px;
+  }
+
+  /* ─── STATS ─── */
+  .stats-section {
+    padding: 0 24px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .stat-item {
+    background: var(--bg-card);
+    padding: 36px 32px;
+    text-align: center;
+    transition: background 0.3s;
+  }
+  .stat-item:hover { background: var(--bg-elevated); }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 1px;
+    color: var(--teal);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ─── METHODOLOGY / PILARES ─── */
+  .pilares-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .pilar-card {
+    background: var(--bg-card);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .pilar-card:hover { background: var(--bg-elevated); }
+  .pilar-card:hover .pilar-icon-wrap { transform: scale(1.05); }
+
+  .pilar-card::before {
+    content: attr(data-n);
+    position: absolute;
+    top: -10px; right: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    color: rgba(255,255,255,0.02);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .pilar-icon-wrap {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    background: var(--teal-dim);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    transition: transform 0.3s;
+  }
+
+  .pilar-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .pilar-desc {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .pilar-tag {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    border: 1px solid var(--teal-dim);
+    border-radius: 4px;
+    padding: 4px 10px;
+  }
+
+  /* ─── AI SECTION (NO MOCKUP) ─── */
+  .ai-section {
+    padding: 100px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .ai-demo-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  /* Left column: feature list */
+  .ai-feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .ai-feature {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .af-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--teal-dim);
+    border: 1px solid rgba(45,212,191,0.15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .af-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .af-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* Right column: stats/metrics display */
+  .ai-stats-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-metric-row {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: border-color 0.3s;
+  }
+  .ai-metric-row:hover { border-color: rgba(45,212,191,0.2); }
+
+  .ai-metric-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--teal-dim);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ai-metric-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  .ai-metric-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--teal);
+    line-height: 1;
+  }
+
+  .ai-metric-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .ai-metric-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--teal);
+  }
+
+  /* ─── DRILLS PREVIEW ─── */
+  .drills-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .drill-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .drill-card:hover {
+    border-color: var(--teal-mid);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(45,212,191,0.08);
+  }
+  .drill-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .drill-card:hover::after { opacity: 1; }
+
+  /* Illustration area */
+  .drill-illustration {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .drill-illustration svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Card text content */
+  .drill-content {
+    padding: 20px 22px 22px;
+  }
+
+  .drill-cat {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+
+  .drill-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .drill-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .drill-level-dots {
+    display: flex; gap: 4px;
+  }
+  .level-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .level-dot.active { background: var(--teal); }
+
+  /* Gold accent for putting card */
+  .drill-card.gold-accent::after {
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .drill-card.gold-accent:hover { border-color: rgba(212,197,169,0.35); }
+  .drill-card.gold-accent .drill-cat { color: var(--gold); }
+  .drill-card.gold-accent .level-dot.active { background: var(--gold); }
+
+  /* Full gold for mental card */
+  .drill-card.full-gold::after {
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .drill-card.full-gold:hover { border-color: rgba(212,197,169,0.35); box-shadow: 0 12px 32px rgba(212,197,169,0.05); }
+  .drill-card.full-gold .drill-cat { color: var(--gold); }
+  .drill-card.full-gold .level-dot.active { background: var(--gold); }
+
+  /* ─── PRICING ─── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 48px;
+  }
+
+  .pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pricing-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+  .pricing-card.featured {
+    border-color: var(--teal);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(45,212,191,0.05) 100%);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: 0; right: 0;
+    background: var(--teal);
+    color: #0a0a0a;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 0 14px 0 8px;
+  }
+
+  .plan-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .pricing-card.featured .plan-name { color: var(--teal); }
+
+  .plan-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-price sup {
+    font-size: 24px;
+    vertical-align: top;
+    margin-top: 8px;
+    color: var(--text-muted);
+  }
+
+  .plan-period {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .plan-features li {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+  .plan-features li::before {
+    content: '—';
+    color: var(--teal);
+    flex-shrink: 0;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+
+  .btn-plan {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: transparent;
+  }
+  .btn-plan:hover { border-color: var(--teal); color: var(--teal); }
+  .btn-plan.featured-btn {
+    background: var(--teal);
+    color: #0a0a0a;
+    border-color: var(--teal);
+  }
+  .btn-plan.featured-btn:hover { background: #4eecd9; }
+
+  /* ─── CTA FINAL ─── */
+  .cta-section {
+    padding: 120px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .cta-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(45,212,191,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-box .section-title {
+    margin-bottom: 20px;
+  }
+
+  .cta-desc {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--text-muted);
+    max-width: 460px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+  }
+  .footer-logo span { color: var(--teal); }
+
+  .footer-copy {
+    font-size: 13px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  /* ─── DIVIDER ─── */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    .pilares-grid { grid-template-columns: 1fr; }
+    .ai-demo-wrap { grid-template-columns: 1fr; gap: 40px; }
+    .drills-preview { grid-template-columns: repeat(2, 1fr); }
+    .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+    .cta-box { padding: 48px 24px; }
+  }
+
+  @media (max-width: 480px) {
+    .drills-preview { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .stats-strip { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── PILLAR ACCENT LINES ─── */
+  .pilar-card[data-n="01"] .pilar-icon-wrap { background: rgba(45,212,191,0.1); }
+  .pilar-card[data-n="02"] .pilar-icon-wrap { background: rgba(212,197,169,0.1); }
+  .pilar-card[data-n="03"] .pilar-icon-wrap { background: rgba(45,212,191,0.1); }
+  .pilar-card[data-n="04"] .pilar-icon-wrap { background: rgba(212,197,169,0.1); }
+
+  /* ─── 3D GOLFER ANIMATION ─── */
+  @keyframes rotateModel {
+    0%, 100% { transform: rotateY(-5deg); }
+    50% { transform: rotateY(5deg); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+  @keyframes dataStream {
+    0% { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes jointPulse {
+    0%, 100% { r: 4; opacity: 0.8; }
+    50% { r: 6; opacity: 1; }
+  }
+  @keyframes scanLine {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(400%); }
+  }
+</style>
 </head>
 <body>
 
-    <!-- HEADER UNIVERSAL -->
-    <nav class="nav">
-        <button class="hamburger" id="hamburger" aria-label="Menú">
-            <span></span><span></span><span></span>
-        </button>
-        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-    </nav>
+<!-- ─── HEADER ─── -->
+<header>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+  <div id="header-auth" style="display:flex;gap:10px;align-items:center;">
+    <a href="/es/login.html" class="btn-outline" style="font-size:13px;padding:8px 16px;">Iniciar Sesión</a>
+    <a href="/es/login.html" class="btn-primary" style="font-size:13px;padding:8px 16px;">Únete</a>
+  </div>
+</header>
 
-    <div class="mobile-menu-overlay" id="menuOverlay"></div>
+<!-- ─── SIDE MENU ─── -->
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<nav class="sidemenu" id="sidemenu">
+  <a href="/es/index.html" class="active">Inicio</a>
+  <a href="/es/coach-ai.html">Coach IA</a>
+  <a href="/es/training.html">Training Lab</a>
+  <a href="/es/library.html">Biblioteca</a>
+  <a href="/es/pricing.html">Planes</a>
+  <a href="/es/about.html">El Coach</a>
+  <div class="sidemenu-auth" id="sidemenu-auth">
+    <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+    <a href="/es/login.html" class="btn-primary">Crear Cuenta</a>
+  </div>
+</nav>
 
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-links">
+<!-- ─── HERO ─── -->
+<div class="hero" style="padding-top:80px;">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
 
-            <!-- User info — visible solo cuando hay sesión -->
-            <div class="menu-user-info" id="menuUserInfo">
-                <div class="menu-user-avatar" id="menuUserAvatar">—</div>
-                <div class="menu-user-text">
-                    <div class="menu-user-name" id="menuUserName">—</div>
-                    <div class="menu-user-plan" id="menuUserPlan">—</div>
-                </div>
-            </div>
-
-            <a href="/es/index.html" class="menu-link active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Inicio
-            </a>
-            <a href="/es/coach-ai.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                Coach IA
-            </a>
-            <a href="/es/library.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                Biblioteca
-            </a>
-            <a href="/es/training.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                Training Lab
-            </a>
-            <a href="/es/pricing.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Precios
-            </a>
-            <div class="menu-divider"></div>
-            <a href="/es/about.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-                El Coach
-            </a>
-
-            <!-- Dashboard link — visible solo con sesión -->
-            <a href="/es/dashboard.html" class="menu-link dashboard-link" id="menuDashboardLink" style="display:none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                Mi Dashboard
-            </a>
-
-            <!-- Login link — visible solo SIN sesión -->
-            <a href="/es/login.html" class="menu-login" id="menuLoginLink" style="display:none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                Iniciar Sesión
-            </a>
-
-            <!-- Logout — visible solo con sesión -->
-            <button class="menu-logout" id="menuLogoutBtn" style="display:none;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Cerrar Sesión
-            </button>
-        </div>
-
-        <!-- CTA bottom — cambia según estado -->
-        <a href="#waitlist" class="menu-cta" id="menuCtaWaitlist">Únete</a>
-        <a href="/es/dashboard.html" class="menu-cta" id="menuCtaDashboard" style="display:none;">Ir a mi Dashboard</a>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow">Metodología MyGolfLab</div>
+      <h1 class="hero-title">
+        Tu swing.<br>
+        <span class="accent">Analizado</span><br>
+        por <span class="gold">IA.</span>
+      </h1>
+      <p class="hero-sub">
+        Coaching de golf personalizado con inteligencia artificial. Analiza tu swing en video, recibe feedback técnico inmediato y sigue planes de entrenamiento diseñados para tu nivel.
+      </p>
+      <div class="hero-ctas">
+        <a href="/es/coach-ai.html" class="btn-hero teal">
+          Analizar mi Swing
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="/es/training.html" class="btn-hero ghost">Ver Drills</a>
+      </div>
     </div>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-badge"><span class="hero-badge-dot"></span>En desarrollo</div>
-        <h1>Entrena con Inteligencia.<span>Juega con tu Swing.</span></h1>
-        <p class="hero-subtitle">Coaching de golf con IA que analiza tu movimiento único y construye un plan personalizado para tu cuerpo. Sin moldes. Sin copias. Tu receta.</p>
-        <div class="hero-cta">
-            <!-- Botón principal — cambia según estado de sesión -->
-            <a href="#waitlist" class="btn-primary" id="heroMainBtn">
-                Únete a la Lista
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-            <!-- Botón dashboard — solo visible con sesión -->
-            <a href="/es/dashboard.html" class="btn-dashboard" id="heroDashboardBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                Ir a mi Dashboard
-            </a>
-            <p class="hero-note" id="heroNote">Acceso anticipado gratis · Sin tarjeta de crédito</p>
+    <!-- ═══ HERO: 3D GOLFER VISUAL ═══ -->
+    <div class="hero-visual">
+      <div class="swing-container">
+        <svg class="swing-arc" viewBox="0 0 420 520" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#2a2a2a"/>
+              <stop offset="40%" stop-color="#1e1e1e"/>
+              <stop offset="100%" stop-color="#0f0f0f"/>
+            </linearGradient>
+            <linearGradient id="bodyLight" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3a3a3a"/>
+              <stop offset="100%" stop-color="#1a1a1a"/>
+            </linearGradient>
+            <linearGradient id="limbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#333"/>
+              <stop offset="50%" stop-color="#444"/>
+              <stop offset="100%" stop-color="#222"/>
+            </linearGradient>
+            <linearGradient id="limbGradDark" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#252525"/>
+              <stop offset="50%" stop-color="#333"/>
+              <stop offset="100%" stop-color="#1a1a1a"/>
+            </linearGradient>
+            <filter id="tealGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feFlood flood-color="#2dd4bf" flood-opacity="0.6"/>
+              <feComposite in2="blur" operator="in"/>
+              <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feFlood flood-color="#2dd4bf" flood-opacity="0.3"/>
+              <feComposite in2="blur" operator="in"/>
+              <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="goldGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feFlood flood-color="#D4C5A9" flood-opacity="0.5"/>
+              <feComposite in2="blur" operator="in"/>
+              <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="groundShadow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(0,0,0,0.35)"/>
+              <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+            </radialGradient>
+          </defs>
+
+          <g opacity="0.5">
+            <line x1="50" y1="430" x2="210" y2="385" stroke="#2dd4bf" stroke-width="0.4" opacity="0.15"/>
+            <line x1="110" y1="440" x2="210" y2="390" stroke="#2dd4bf" stroke-width="0.4" opacity="0.12"/>
+            <line x1="170" y1="450" x2="210" y2="395" stroke="#2dd4bf" stroke-width="0.4" opacity="0.10"/>
+            <line x1="370" y1="430" x2="210" y2="385" stroke="#2dd4bf" stroke-width="0.4" opacity="0.15"/>
+            <line x1="310" y1="440" x2="210" y2="390" stroke="#2dd4bf" stroke-width="0.4" opacity="0.12"/>
+            <line x1="250" y1="450" x2="210" y2="395" stroke="#2dd4bf" stroke-width="0.4" opacity="0.10"/>
+            <line x1="80" y1="420" x2="340" y2="420" stroke="#2dd4bf" stroke-width="0.3" opacity="0.08"/>
+            <line x1="60" y1="440" x2="360" y2="440" stroke="#2dd4bf" stroke-width="0.3" opacity="0.06"/>
+            <line x1="40" y1="460" x2="380" y2="460" stroke="#2dd4bf" stroke-width="0.3" opacity="0.04"/>
+          </g>
+
+          <ellipse cx="210" cy="410" rx="120" ry="16" fill="url(#groundShadow)"/>
+
+          <path d="M 95 130 Q 50 220 130 350 Q 170 395 210 385" fill="none" stroke="#2dd4bf" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.25">
+            <animate attributeName="stroke-dashoffset" values="28;0" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M 95 130 Q 50 220 130 350 Q 170 395 210 385" fill="none" stroke="#2dd4bf" stroke-width="6" opacity="0.06" filter="url(#softGlow)"/>
+          <path d="M 210 385 Q 280 350 320 270 Q 350 190 300 130" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="3 6" opacity="0.15">
+            <animate attributeName="stroke-dashoffset" values="18;0" dur="4s" repeatCount="indefinite"/>
+          </path>
+
+          <g>
+            <path d="M 242 270 L 250 330 Q 252 345 248 355 L 253 400" fill="none" stroke="url(#limbGradDark)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="256" cy="402" rx="22" ry="8" fill="#1a1a1a" stroke="#2a2a2a" stroke-width="1"/>
+            <path d="M 234 402 Q 256 394 278 402" fill="none" stroke="#333" stroke-width="0.5"/>
+            <path d="M 195 268 L 185 330 Q 182 345 178 355 L 172 400" fill="none" stroke="url(#limbGrad)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+            <ellipse cx="168" cy="402" rx="22" ry="8" fill="#1e1e1e" stroke="#333" stroke-width="1"/>
+            <path d="M 146 402 Q 168 394 190 402" fill="none" stroke="#3a3a3a" stroke-width="0.5"/>
+            <path d="M 196 145 Q 190 165 188 200 L 192 265 Q 210 275 230 268 L 237 200 Q 238 165 235 145 Z" fill="url(#bodyGrad)" stroke="#2a2a2a" stroke-width="1"/>
+            <path d="M 196 148 Q 192 170 190 200 L 193 255" fill="none" stroke="#3d3d3d" stroke-width="0.8" opacity="0.5"/>
+            <path d="M 190 255 Q 212 265 235 258" fill="none" stroke="#444" stroke-width="1.5"/>
+            <path d="M 232 158 L 220 185 L 205 175" fill="none" stroke="url(#limbGradDark)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 200 155 L 165 132 L 148 118" fill="none" stroke="url(#limbGrad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="148" y1="118" x2="88" y2="136" stroke="#D4C5A9" stroke-width="2" stroke-linecap="round"/>
+            <g filter="url(#goldGlow)">
+              <rect x="77" y="130" width="16" height="12" rx="2" fill="#D4C5A9" transform="rotate(-8 85 136)"/>
+              <rect x="79" y="132" width="12" height="8" rx="1" fill="#c4b599" transform="rotate(-8 85 136)"/>
+            </g>
+            <path d="M 210 143 L 212 120" fill="none" stroke="url(#limbGrad)" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="215" cy="105" r="22" fill="url(#bodyGrad)" stroke="#333" stroke-width="1.5"/>
+            <ellipse cx="208" cy="98" rx="8" ry="6" fill="#333" opacity="0.5"/>
+            <path d="M 193 100 Q 215 90 237 100" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+            <path d="M 198 100 Q 210 88 232 100" fill="#1a1a1a" stroke="#2dd4bf" stroke-width="1" opacity="0.6"/>
+          </g>
+
+          <g filter="url(#tealGlow)">
+            <circle cx="200" cy="155" r="4" fill="#2dd4bf" opacity="0.9">
+              <animate attributeName="r" values="4;5.5;4" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="232" cy="158" r="4" fill="#2dd4bf" opacity="0.9">
+              <animate attributeName="r" values="4;5.5;4" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="165" cy="132" r="3.5" fill="#2dd4bf" opacity="0.8">
+              <animate attributeName="r" values="3.5;5;3.5" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="148" cy="118" r="3" fill="#D4C5A9" opacity="0.9">
+              <animate attributeName="r" values="3;4.5;3" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="195" cy="268" r="4" fill="#D4C5A9" opacity="0.8">
+              <animate attributeName="r" values="4;5.5;4" dur="2.2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="235" cy="265" r="4" fill="#D4C5A9" opacity="0.8">
+              <animate attributeName="r" values="4;5.5;4" dur="2.2s" begin="0.4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="183" cy="340" r="3" fill="#2dd4bf" opacity="0.6">
+              <animate attributeName="r" values="3;4;3" dur="2.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="250" cy="338" r="3" fill="#2dd4bf" opacity="0.6">
+              <animate attributeName="r" values="3;4;3" dur="2.8s" begin="0.5s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+
+          <g stroke="#2dd4bf" stroke-width="1" opacity="0.35" stroke-dasharray="4 3">
+            <animate attributeName="stroke-dashoffset" values="14;0" dur="2s" repeatCount="indefinite"/>
+            <line x1="200" y1="155" x2="232" y2="158"/>
+            <line x1="195" y1="268" x2="235" y2="265"/>
+            <line x1="200" y1="155" x2="195" y2="268"/>
+            <line x1="232" y1="158" x2="235" y2="265"/>
+            <line x1="200" y1="155" x2="165" y2="132"/>
+            <line x1="165" y1="132" x2="148" y2="118"/>
+            <line x1="195" y1="268" x2="183" y2="340"/>
+            <line x1="183" y1="340" x2="172" y2="400"/>
+            <line x1="235" y1="265" x2="250" y2="338"/>
+            <line x1="250" y1="338" x2="253" y2="400"/>
+          </g>
+
+          <line x1="215" y1="105" x2="212" y2="408" stroke="rgba(45,212,191,0.12)" stroke-width="1" stroke-dasharray="8 6"/>
+
+          <path d="M 205 155 A 30 30 0 0 1 228 155" fill="none" stroke="#2dd4bf" stroke-width="1.2" opacity="0.6"/>
+          <text x="210" y="148" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#2dd4bf" opacity="0.8" font-weight="600" text-anchor="middle">28°</text>
+
+          <path d="M 200 265 A 25 25 0 0 1 230 262" fill="none" stroke="#D4C5A9" stroke-width="1.2" opacity="0.5"/>
+          <text x="215" y="256" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#D4C5A9" opacity="0.7" font-weight="600" text-anchor="middle">48°</text>
+
+          <g opacity="0.7">
+            <line x1="240" y1="155" x2="285" y2="140" stroke="#2dd4bf" stroke-width="0.5"/>
+            <rect x="287" y="131" width="72" height="18" rx="3" fill="rgba(45,212,191,0.1)" stroke="rgba(45,212,191,0.3)" stroke-width="0.5"/>
+            <text x="323" y="143" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#2dd4bf" font-weight="600" letter-spacing="1" text-anchor="middle">HOMBROS</text>
+          </g>
+          <g opacity="0.7">
+            <line x1="243" y1="268" x2="290" y2="280" stroke="#D4C5A9" stroke-width="0.5"/>
+            <rect x="292" y="271" width="68" height="18" rx="3" fill="rgba(212,197,169,0.08)" stroke="rgba(212,197,169,0.25)" stroke-width="0.5"/>
+            <text x="326" y="283" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#D4C5A9" font-weight="600" letter-spacing="1" text-anchor="middle">CADERAS</text>
+          </g>
+          <g opacity="0.6">
+            <line x1="148" y1="112" x2="120" y2="80" stroke="#D4C5A9" stroke-width="0.5"/>
+            <rect x="75" y="71" width="48" height="18" rx="3" fill="rgba(212,197,169,0.08)" stroke="rgba(212,197,169,0.25)" stroke-width="0.5"/>
+            <text x="99" y="83" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#D4C5A9" font-weight="600" letter-spacing="1" text-anchor="middle">WRIST</text>
+          </g>
+
+          <circle cx="110" cy="170" r="2" fill="#2dd4bf" opacity="0.5">
+            <animate attributeName="opacity" values="0.5;0;0.5" dur="2.5s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="170;165;170" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="90" cy="220" r="1.5" fill="#2dd4bf" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;0;0.3" dur="3.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="130" cy="300" r="2" fill="#2dd4bf" opacity="0.4">
+            <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="310" cy="190" r="1.5" fill="#D4C5A9" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;0;0.3" dur="2.8s" repeatCount="indefinite"/>
+          </circle>
+
+          <circle cx="210" cy="404" r="6" fill="#f5f5f5"/>
+          <circle cx="208" cy="402" r="2" fill="white" opacity="0.6"/>
+        </svg>
+
+        <div class="data-card" style="top:15px;right:-20px;">
+          <div class="dc-label">Club Speed</div>
+          <div class="dc-value">94</div>
+          <div class="dc-unit">mph · +3.2 vs promedio</div>
         </div>
-    </section>
 
-    <section class="problem-solution">
-        <span class="section-label">La Realidad</span>
-        <h2>Tu swing tiene una lógica propia. Nosotros la encontramos.</h2>
-        <div class="ps-grid">
-            <div class="ps-card problem">
-                <div class="ps-card-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                </div>
-                <h3>El problema del molde único</h3>
-                <p>La mayoría de la instrucción intenta encajarte en una plantilla. "Copia este movimiento del pro." Pero tu cuerpo, tu flexibilidad y tus proporciones son únicos — lo que funciona para otro puede no funcionar para ti.</p>
-            </div>
-            <div class="ps-card solution">
-                <div class="ps-card-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </div>
-                <h3>El enfoque MyGolfLab</h3>
-                <p>Analizamos cómo se mueve mejor tu cuerpo y construimos un swing alrededor de tus patrones naturales. No hay un swing perfecto universal — solo el swing perfecto para ti.</p>
-            </div>
+        <div class="data-card" style="bottom:130px;left:-30px;">
+          <div class="dc-label">Kinematic Seq.</div>
+          <div class="dc-value">92<span style="font-size:16px;color:var(--text-muted)">%</span></div>
+          <div class="dc-bar">
+            <span class="on"></span><span class="on"></span><span class="on"></span>
+            <span class="on"></span><span></span>
+          </div>
         </div>
-    </section>
 
-    <section class="methodology">
-        <div class="methodology-inner">
-            <span class="section-label">Metodología MyGolfLab</span>
-            <h2>Los Cuatro Pilares</h2>
-            <p class="methodology-lead">Ground Forces, Kinematic Sequence, Wrist Conditions y Body Tilts. Cuatro pilares que determinan la calidad de cada golpe.</p>
-            <div class="methodology-pillars">
-                <div class="pillar">
-                    <div class="pillar-number">1</div>
-                    <h4>Ground Forces</h4>
-                    <p>Cómo usas el suelo es cómo generas velocidad. La transferencia de presión desde los pies es la base de un swing eficiente.</p>
-                </div>
-                <div class="pillar">
-                    <div class="pillar-number">2</div>
-                    <h4>Kinematic Sequence</h4>
-                    <p>Caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia y consistencia.</p>
-                </div>
-                <div class="pillar">
-                    <div class="pillar-number">3</div>
-                    <h4>Wrist Conditions</h4>
-                    <p>La posición de tus muñecas controla la cara del palo y la compresión. Es lo que separa un buen contacto de uno mediocre.</p>
-                </div>
-                <div class="pillar">
-                    <div class="pillar-number">4</div>
-                    <h4>Body Tilts</h4>
-                    <p>Las inclinaciones del torso en cada fase del swing afectan el contacto, la trayectoria y tu capacidad de comprimir consistentemente.</p>
-                </div>
-            </div>
+        <div class="data-card" style="bottom:240px;right:-25px;">
+          <div class="dc-label">X-Factor</div>
+          <div class="dc-value">48<span style="font-size:16px;color:var(--text-muted)">°</span></div>
+          <div class="dc-unit">Óptimo: 40–55°</div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
 
-    <section class="features">
-        <span class="section-label">La Plataforma</span>
-        <h2>Todo Lo Que Necesitas</h2>
-        <p class="features-subtitle">Un ecosistema de entrenamiento completo para golfistas serios.</p>
-        <div class="features-grid">
-            <a href="/es/coach-ai.html" class="feature-card">
-                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-                <h3>Coach IA</h3>
-                <p>Analiza tu swing con video y recibe un diagnóstico personalizado basado en la metodología MyGolfLab.</p>
-                <span class="feature-link">Saber más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-            </a>
-            <a href="/es/library.html" class="feature-card">
-                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-                <h3>Biblioteca</h3>
-                <p>Video tips y cursos completos sobre cada aspecto del juego — swing, short game, mentalidad y más.</p>
-                <span class="feature-link">Explorar <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-            </a>
-            <a href="/es/training.html" class="feature-card">
-                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-                <h3>Training Lab</h3>
-                <p>80+ drills categorizados por nivel y categoría. Sigue tu progreso y compite en el ranking mensual.</p>
-                <span class="feature-link">Ver drills <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-            </a>
-            <a href="/es/pricing.html" class="feature-card">
-                <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-                <h3>Planes Flexibles</h3>
-                <p>Desde Starter hasta Elite — elige el nivel que se ajuste a tu compromiso y objetivos.</p>
-                <span class="feature-link">Ver precios <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
-            </a>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</div>
+
+<!-- ─── STATS ─── -->
+<div class="stats-section reveal">
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-number" data-target="139">0</div>
+      <div class="stat-label">Drills</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="496">0</div>
+      <div class="stat-label">Variantes</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="4">0</div>
+      <div class="stat-label">Pilares</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">IA</div>
+      <div class="stat-label">Análisis en tiempo real</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── METHODOLOGY ─── -->
+<section>
+  <div class="reveal">
+    <div class="section-eyebrow">Metodología</div>
+    <h2 class="section-title">Los 4 Pilares del<br><span style="color:var(--teal)">Swing Ideal</span></h2>
+    <p class="section-sub">Un framework biomecánico preciso para entender, analizar y mejorar cada aspecto de tu swing de golf.</p>
+  </div>
+
+  <div class="pilares-grid reveal">
+    <div class="pilar-card" data-n="01">
+      <div class="pilar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="4" y="20" width="20" height="3" rx="1.5" fill="#2dd4bf" opacity="0.3"/>
+          <path d="M10 20 L10 10" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M10 10 L7 14 M10 10 L13 14" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M18 20 L18 7" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M18 7 L15 11 M18 7 L21 11" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="10" cy="22" r="1.5" fill="#2dd4bf" opacity="0.5"/>
+          <circle cx="18" cy="22" r="1.5" fill="#2dd4bf" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="pilar-name">Ground Forces</div>
+      <p class="pilar-desc">La transferencia de presión desde el suelo hasta el palo es la base de toda la potencia. Sin ground forces, el resto no tiene sentido.</p>
+      <span class="pilar-tag">Potencia</span>
+    </div>
+
+    <div class="pilar-card" data-n="02">
+      <div class="pilar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="6" cy="22" r="3" fill="#D4C5A9" opacity="0.4"/>
+          <circle cx="11" cy="16" r="2.5" fill="#D4C5A9" opacity="0.55"/>
+          <circle cx="17" cy="11" r="2" fill="#D4C5A9" opacity="0.7"/>
+          <circle cx="23" cy="7" r="1.5" fill="#D4C5A9"/>
+          <path d="M6 22 Q8 18 11 16 Q14 13 17 11 Q20 9 23 7" stroke="#D4C5A9" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+          <path d="M23 7 L25 4" stroke="#D4C5A9" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pilar-name">Kinematic Sequence</div>
+      <p class="pilar-desc">La cadena cinemática correcta — caderas → torso → brazos → palo — genera la velocidad máxima en el momento del impacto.</p>
+      <span class="pilar-tag" style="color:var(--gold);border-color:rgba(212,197,169,0.25);">Secuencia</span>
+    </div>
+
+    <div class="pilar-card" data-n="03">
+      <div class="pilar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect x="10" y="8" width="8" height="12" rx="2" stroke="#2dd4bf" stroke-width="1.5" fill="none"/>
+          <line x1="14" y1="8" x2="14" y2="4" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="14" y1="4" x2="20" y2="2" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14 8 A 6 6 0 0 1 18.5 5" fill="none" stroke="#2dd4bf" stroke-width="1" opacity="0.6"/>
+          <text x="20" y="9" font-size="6" fill="#2dd4bf" font-family="'Barlow Condensed',sans-serif" font-weight="600">15°</text>
+          <line x1="12" y1="20" x2="10" y2="25" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+          <line x1="16" y1="20" x2="18" y2="25" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="pilar-name">Wrist Conditions</div>
+      <p class="pilar-desc">Shaft lean, lag y la posición de la cara del palo al impacto determinan la calidad del contacto y el control de la trayectoria.</p>
+      <span class="pilar-tag">Impacto</span>
+    </div>
+
+    <div class="pilar-card" data-n="04">
+      <div class="pilar-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <line x1="14" y1="4" x2="14" y2="24" stroke="#D4C5A9" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.3"/>
+          <path d="M14 6 L10 14 L14 22 L18 14 Z" stroke="#D4C5A9" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+          <line x1="6" y1="10" x2="22" y2="10" stroke="#D4C5A9" stroke-width="1" opacity="0.4"/>
+          <line x1="8" y1="18" x2="20" y2="18" stroke="#D4C5A9" stroke-width="1" opacity="0.4"/>
+          <circle cx="10" cy="14" r="2" fill="#D4C5A9" opacity="0.5"/>
+          <circle cx="18" cy="14" r="2" fill="#D4C5A9" opacity="0.5"/>
+          <path d="M 11 7 A 6 6 0 0 1 14 6" fill="none" stroke="#D4C5A9" stroke-width="1" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="pilar-name">Body Tilts</div>
+      <p class="pilar-desc">Las inclinaciones del torso en cada fase del swing — address, top, impacto, finish — son la firma biomecánica de un swing eficiente.</p>
+      <span class="pilar-tag" style="color:var(--gold);border-color:rgba(212,197,169,0.25);">Postura</span>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══ COACH IA SECTION — SIN MOCKUP ═══ -->
+<section class="ai-section">
+  <div class="reveal">
+    <div class="section-eyebrow">Coach IA</div>
+    <h2 class="section-title">Análisis de swing<br><span style="color:var(--teal)">en segundos</span></h2>
+  </div>
+
+  <div class="ai-demo-wrap">
+    <!-- Left: feature list -->
+    <ul class="ai-feature-list reveal">
+      <li class="ai-feature">
+        <div class="af-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <rect x="2" y="2" width="18" height="13" rx="2" stroke="#2dd4bf" stroke-width="1.5"/>
+            <path d="M7 15 L7 20 M15 15 L15 20 M4 20 L18 20" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="11" cy="8.5" r="3" stroke="#2dd4bf" stroke-width="1.2"/>
+          </svg>
         </div>
-    </section>
-
-    <section class="waitlist" id="waitlist">
-        <div class="waitlist-inner">
-            <span class="section-label">Acceso Anticipado</span>
-            <h2>Sé el Primero</h2>
-            <p>Únete a la lista de espera para acceso anticipado gratis. Te notificaremos cuando haya lugares.</p>
-            <form class="waitlist-form" id="waitlistForm">
-                <input type="email" placeholder="Tu email" required>
-                <button type="submit">Unirme</button>
-            </form>
+        <div>
+          <div class="af-title">Análisis de video con IA</div>
+          <div class="af-desc">Sube un video de tu swing. Claude extrae 6 frames clave y analiza cada pilar de la Metodología MyGolfLab con feedback técnico detallado.</div>
         </div>
-    </section>
+      </li>
+      <li class="ai-feature">
+        <div class="af-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M3 11 Q3 4 11 4 Q19 4 19 11 Q19 18 11 18 Q8 18 6 16" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M5 17 L3 11 L9 12" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <line x1="8" y1="11" x2="14" y2="11" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="8" y1="14" x2="12" y2="14" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="af-title">Chat conversacional</div>
+          <div class="af-desc">Pregúntale al coach cualquier cosa — técnica, estrategia, mentral game. Respuestas contextualizadas a tu swing específico.</div>
+        </div>
+      </li>
+      <li class="ai-feature">
+        <div class="af-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M11 2 L13.5 8 L20 8.5 L15.5 13 L17 20 L11 16.5 L5 20 L6.5 13 L2 8.5 L8.5 8 Z" stroke="#2dd4bf" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <div>
+          <div class="af-title">Feedback cuantitativo</div>
+          <div class="af-desc">Ángulos reales, rangos óptimos y comparación directa con parámetros biomecánicos de jugadores de tour.</div>
+        </div>
+      </li>
+    </ul>
 
-    <footer class="footer">
-        <div class="footer-logo">MYGOLFLAB</div>
-        <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
-    </footer>
+    <!-- Right: metrics panel -->
+    <div class="ai-stats-col reveal reveal-delay-2">
+      <div class="ai-metric-row">
+        <div class="ai-metric-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2 L10 18 M2 10 L18 10" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="10" cy="10" r="3" stroke="#2dd4bf" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <div class="ai-metric-label">X-Factor</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="ai-metric-value">48°</div>
+            <span style="font-size:12px;color:#4ade80;font-family:'Barlow Condensed',sans-serif;font-weight:600;">✓ Óptimo</span>
+          </div>
+          <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:72%"></div></div>
+        </div>
+      </div>
 
-    <script>
-        // ── SUPABASE ──
-        const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
-        const { createClient } = supabase;
-        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      <div class="ai-metric-row">
+        <div class="ai-metric-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 16 L8 10 L12 13 L16 5" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <div class="ai-metric-label">Kinematic Sequence</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="ai-metric-value">92%</div>
+            <span style="font-size:12px;color:#4ade80;font-family:'Barlow Condensed',sans-serif;font-weight:600;">✓ Excelente</span>
+          </div>
+          <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:92%"></div></div>
+        </div>
+      </div>
 
-        function getInitials(name) {
-            return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-        }
+      <div class="ai-metric-row">
+        <div class="ai-metric-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="7" stroke="#2dd4bf" stroke-width="1.5"/>
+            <path d="M10 6 L10 10 L13 13" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <div class="ai-metric-label">Hip Turn</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="ai-metric-value">48°</div>
+            <span style="font-size:12px;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:600;">⚠ +4° potencial</span>
+          </div>
+          <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:60%;background:var(--gold)"></div></div>
+        </div>
+      </div>
 
-        async function initAuth() {
-            const { data: { session } } = await sb.auth.getSession();
+      <div class="ai-metric-row">
+        <div class="ai-metric-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="7" y="3" width="6" height="10" rx="2" stroke="#2dd4bf" stroke-width="1.5" fill="none"/>
+            <path d="M10 13 L10 17" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="7" y1="17" x2="13" y2="17" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <div class="ai-metric-label">Shaft Lean</div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="ai-metric-value">+4.2°</div>
+            <span style="font-size:12px;color:#4ade80;font-family:'Barlow Condensed',sans-serif;font-weight:600;">✓ Positivo</span>
+          </div>
+          <div class="ai-metric-bar"><div class="ai-metric-bar-fill" style="width:80%"></div></div>
+        </div>
+      </div>
 
-            if (session) {
-                const user = session.user;
-                const meta = user.user_metadata || {};
-                const firstName = meta.first_name || meta.given_name || '';
-                const lastName = meta.last_name || meta.family_name || '';
-                const fullName = meta.full_name || `${firstName} ${lastName}`.trim() || user.email.split('@')[0];
-                const plan = meta.plan || 'Starter';
-                const initials = getInitials(fullName);
+      <a href="/es/coach-ai.html" class="btn-hero teal" style="display:inline-flex;margin-top:8px;">
+        Probar Coach IA
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
 
-                // Mostrar user info en el menu
-                document.getElementById('menuUserAvatar').textContent = initials;
-                document.getElementById('menuUserName').textContent = fullName;
-                document.getElementById('menuUserPlan').textContent = `Plan ${plan}`;
-                document.getElementById('menuUserInfo').classList.add('show');
+<div class="section-divider"></div>
 
-                // Mostrar dashboard link y logout, ocultar login
-                document.getElementById('menuDashboardLink').style.display = 'flex';
-                document.getElementById('menuLogoutBtn').style.display = 'flex';
-                document.getElementById('menuLoginLink').style.display = 'none';
+<!-- ─── TRAINING LAB PREVIEW ─── -->
+<section>
+  <div class="reveal">
+    <div class="section-eyebrow">Training Lab</div>
+    <h2 class="section-title">139 drills.<br><span style="color:var(--teal)">Un plan para ti.</span></h2>
+    <p class="section-sub">Desde putting hasta approach shots bajo presión. Cada drill tiene 4 niveles de dificultad y un sistema de puntuación propio.</p>
+  </div>
 
-                // Cambiar CTA del menu
-                document.getElementById('menuCtaWaitlist').style.display = 'none';
-                document.getElementById('menuCtaDashboard').style.display = 'block';
+  <div class="drills-preview">
 
-                // Cambiar hero: btn principal → dashboard, mostrar btn secundario
-                const heroBtn = document.getElementById('heroMainBtn');
-                heroBtn.href = '/es/dashboard.html';
-                heroBtn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                    Ir a mi Dashboard
-                `;
-                document.getElementById('heroDashboardBtn').style.display = 'none';
-                document.getElementById('heroNote').classList.add('hidden');
+    <!-- ═══ DRILL 1: Ladder Distance Control (Approach) ═══ -->
+    <div class="drill-card reveal">
+      <!-- ILLUSTRATION: Concentric target rings with yardage ladders and ball trajectories -->
+      <div class="drill-illustration" style="background:linear-gradient(180deg, #0d1a12 0%, #0a1209 100%);">
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="targetGlow" cx="50%" cy="75%" r="55%">
+              <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="dotGlow">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
 
-            } else {
-                // Sin sesión: mostrar login, ocultar dashboard y logout
-                document.getElementById('menuLoginLink').style.display = 'flex';
-                document.getElementById('menuDashboardLink').style.display = 'none';
-                document.getElementById('menuLogoutBtn').style.display = 'none';
-                document.getElementById('menuUserInfo').classList.remove('show');
-                document.getElementById('menuCtaWaitlist').style.display = 'block';
-                document.getElementById('menuCtaDashboard').style.display = 'none';
-            }
-        }
+          <!-- Subtle ground plane -->
+          <ellipse cx="200" cy="128" rx="70" ry="8" fill="url(#targetGlow)"/>
 
-        // Logout
-        document.getElementById('menuLogoutBtn').addEventListener('click', async () => {
-            await sb.auth.signOut();
-            window.location.reload();
-        });
+          <!-- Target circles (centered right) -->
+          <g transform="translate(200, 120)">
+            <circle cx="0" cy="0" r="62" fill="none" stroke="#2dd4bf" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.25"/>
+            <circle cx="0" cy="0" r="46" fill="none" stroke="#2dd4bf" stroke-width="0.6" stroke-dasharray="3 4" opacity="0.35"/>
+            <circle cx="0" cy="0" r="30" fill="none" stroke="#2dd4bf" stroke-width="0.8" opacity="0.5"/>
+            <circle cx="0" cy="0" r="16" fill="none" stroke="#2dd4bf" stroke-width="1" opacity="0.65"/>
+            <circle cx="0" cy="0" r="5" fill="rgba(45,212,191,0.3)" stroke="#2dd4bf" stroke-width="1.2"/>
+            <circle cx="0" cy="0" r="1.5" fill="#2dd4bf"/>
 
-        // ── HAMBURGER ──
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
+            <!-- Yardage labels -->
+            <text x="18" y="-26" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#2dd4bf" opacity="0.7" font-weight="600">50y</text>
+            <text x="32" y="-42" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#2dd4bf" opacity="0.55" font-weight="600">75y</text>
+            <text x="46" y="-56" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#2dd4bf" opacity="0.4" font-weight="600">100y</text>
 
-        function toggleMenu() {
-            hamburger.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-        }
+            <!-- Ball landing markers -->
+            <circle cx="0" cy="-16" r="4" fill="#2dd4bf" opacity="0.95" filter="url(#dotGlow)"/>
+            <circle cx="0" cy="-30" r="4" fill="#2dd4bf" opacity="0.75" filter="url(#dotGlow)"/>
+            <circle cx="0" cy="-46" r="4" fill="#2dd4bf" opacity="0.55" filter="url(#dotGlow)"/>
+          </g>
 
-        hamburger.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
-        document.querySelectorAll('.menu-link, .menu-cta').forEach(function(link) {
-            link.addEventListener('click', function() {
-                if (mobileMenu.classList.contains('active')) toggleMenu();
-            });
-        });
+          <!-- Trajectory arcs from left side -->
+          <path d="M 55 145 Q 90 60 200 104" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="4 4" opacity="0.35"/>
+          <path d="M 55 145 Q 95 40 200 90" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="4 4" opacity="0.25"/>
+          <path d="M 55 145 Q 100 20 200 74" fill="none" stroke="#2dd4bf" stroke-width="1" stroke-dasharray="4 4" opacity="0.18"/>
 
-        // ── WAITLIST ──
-        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = this.querySelector('input').value;
-            alert('Gracias! Te contactaremos en ' + email);
-            this.reset();
-        });
+          <!-- Source ball + golfer silhouette hint -->
+          <circle cx="55" cy="145" r="5" fill="white" opacity="0.85"/>
+          <circle cx="53" cy="143" r="1.5" fill="white" opacity="0.3"/>
 
-        // ── INIT ──
-        initAuth();
-    </script>
+          <!-- Ladder step lines (vertical reference) -->
+          <line x1="200" y1="104" x2="200" y2="128" stroke="#2dd4bf" stroke-width="0.5" opacity="0.3"/>
+          <line x1="200" y1="90" x2="200" y2="128" stroke="#2dd4bf" stroke-width="0.3" opacity="0.2" stroke-dasharray="2 3"/>
+          <line x1="200" y1="74" x2="200" y2="128" stroke="#2dd4bf" stroke-width="0.3" opacity="0.15" stroke-dasharray="2 3"/>
+
+          <!-- Label -->
+          <rect x="8" y="8" width="72" height="16" rx="3" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.2)" stroke-width="0.5"/>
+          <text x="44" y="19" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#2dd4bf" opacity="0.8" font-weight="600" text-anchor="middle" letter-spacing="1">APPROACH</text>
+        </svg>
+      </div>
+
+      <div class="drill-content">
+        <div class="drill-cat">Approach</div>
+        <div class="drill-name">Ladder Distance Control</div>
+        <div class="drill-meta">
+          <span>12 min</span>
+          <span>·</span>
+          <span>20 pelotas</span>
+        </div>
+        <div class="drill-level-dots">
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+          <div class="level-dot"></div>
+          <div class="level-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DRILL 2: Gate Drill Putting ═══ -->
+    <div class="drill-card gold-accent reveal reveal-delay-1">
+      <!-- ILLUSTRATION: Top-down putting green with gate tees and straight line to hole -->
+      <div class="drill-illustration" style="background:linear-gradient(180deg, #0a1a0d 0%, #081009 100%);">
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="holeGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#0a1a0d"/>
+              <stop offset="100%" stop-color="#050d07"/>
+            </radialGradient>
+            <filter id="gateGlow">
+              <feGaussianBlur stdDeviation="1.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <!-- Green surface hint -->
+          <rect x="110" y="15" width="80" height="135" rx="4" fill="rgba(30,80,40,0.25)" stroke="rgba(45,130,60,0.15)" stroke-width="0.5"/>
+
+          <!-- Subtle green grain lines -->
+          <line x1="110" y1="35" x2="190" y2="35" stroke="rgba(45,130,60,0.08)" stroke-width="0.5"/>
+          <line x1="110" y1="55" x2="190" y2="55" stroke="rgba(45,130,60,0.08)" stroke-width="0.5"/>
+          <line x1="110" y1="75" x2="190" y2="75" stroke="rgba(45,130,60,0.08)" stroke-width="0.5"/>
+          <line x1="110" y1="95" x2="190" y2="95" stroke="rgba(45,130,60,0.08)" stroke-width="0.5"/>
+          <line x1="110" y1="115" x2="190" y2="115" stroke="rgba(45,130,60,0.08)" stroke-width="0.5"/>
+
+          <!-- Hole at top -->
+          <circle cx="150" cy="32" r="10" fill="url(#holeGrad)" stroke="rgba(50,50,50,0.8)" stroke-width="1.5"/>
+          <circle cx="150" cy="32" r="7" fill="#040a06"/>
+          <!-- Flag -->
+          <line x1="150" y1="32" x2="150" y2="12" stroke="#666" stroke-width="0.8"/>
+          <polygon points="150,12 162,17 150,22" fill="#D4C5A9" opacity="0.8"/>
+
+          <!-- Target line (straight putt path) -->
+          <line x1="150" y1="42" x2="150" y2="138" stroke="#D4C5A9" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+
+          <!-- GATE: two tee markers -->
+          <g filter="url(#gateGlow)">
+            <!-- Left tee -->
+            <rect x="130" y="72" width="4" height="20" rx="2" fill="#D4C5A9" opacity="0.95"/>
+            <!-- Right tee -->
+            <rect x="166" y="72" width="4" height="20" rx="2" fill="#D4C5A9" opacity="0.95"/>
+          </g>
+
+          <!-- Gate width indicator -->
+          <line x1="130" y1="68" x2="170" y2="68" stroke="#D4C5A9" stroke-width="0.6" opacity="0.5"/>
+          <line x1="130" y1="65" x2="130" y2="71" stroke="#D4C5A9" stroke-width="0.6" opacity="0.5"/>
+          <line x1="170" y1="65" x2="170" y2="71" stroke="#D4C5A9" stroke-width="0.6" opacity="0.5"/>
+          <text x="150" y="64" font-family="'Barlow Condensed',sans-serif" font-size="7" fill="#D4C5A9" opacity="0.6" text-anchor="middle" font-weight="600">GATE</text>
+
+          <!-- Distance marker -->
+          <line x1="195" y1="42" x2="195" y2="138" stroke="#D4C5A9" stroke-width="0.4" opacity="0.25" stroke-dasharray="2 3"/>
+          <line x1="192" y1="42" x2="198" y2="42" stroke="#D4C5A9" stroke-width="0.4" opacity="0.25"/>
+          <line x1="192" y1="138" x2="198" y2="138" stroke="#D4C5A9" stroke-width="0.4" opacity="0.25"/>
+          <text x="210" y="95" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#D4C5A9" opacity="0.5" font-weight="600" text-anchor="middle">1.5m</text>
+
+          <!-- Ball -->
+          <circle cx="150" cy="138" r="7" fill="white" opacity="0.9"/>
+          <circle cx="148" cy="136" r="2.5" fill="white" opacity="0.25"/>
+
+          <!-- Putter head -->
+          <rect x="128" y="145" width="44" height="9" rx="2" fill="#444" stroke="#555" stroke-width="0.5"/>
+          <line x1="150" y1="145" x2="150" y2="154" stroke="#333" stroke-width="0.5"/>
+
+          <!-- Label -->
+          <rect x="8" y="8" width="58" height="16" rx="3" fill="rgba(212,197,169,0.08)" stroke="rgba(212,197,169,0.2)" stroke-width="0.5"/>
+          <text x="37" y="19" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#D4C5A9" opacity="0.8" font-weight="600" text-anchor="middle" letter-spacing="1">PUTTING</text>
+        </svg>
+      </div>
+
+      <div class="drill-content">
+        <div class="drill-cat">Putting</div>
+        <div class="drill-name">Gate Drill — 1.5m</div>
+        <div class="drill-meta">
+          <span>8 min</span>
+          <span>·</span>
+          <span>10 pelotas</span>
+        </div>
+        <div class="drill-level-dots">
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+          <div class="level-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DRILL 3: Mental Game / Pre-Shot Routine ═══ -->
+    <div class="drill-card full-gold reveal reveal-delay-2">
+      <!-- ILLUSTRATION: Focus mandala — concentric rings with 5 routine steps -->
+      <div class="drill-illustration" style="background:linear-gradient(180deg, #14100a 0%, #0d0a06 100%);">
+        <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="mentalGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#D4C5A9" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#D4C5A9" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="stepGlow">
+              <feGaussianBlur stdDeviation="2" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <!-- Center glow -->
+          <circle cx="150" cy="82" r="70" fill="url(#mentalGlow)"/>
+
+          <!-- Outer pulse ring (animated) -->
+          <circle cx="150" cy="82" r="68" fill="none" stroke="#D4C5A9" stroke-width="0.4" stroke-dasharray="2 8" opacity="0.2">
+            <animateTransform attributeName="transform" type="rotate" values="0 150 82;360 150 82" dur="20s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- Main rings -->
+          <circle cx="150" cy="82" r="55" fill="none" stroke="#D4C5A9" stroke-width="0.5" opacity="0.25"/>
+          <circle cx="150" cy="82" r="40" fill="none" stroke="#D4C5A9" stroke-width="0.7" opacity="0.35"/>
+          <circle cx="150" cy="82" r="25" fill="none" stroke="#D4C5A9" stroke-width="0.9" opacity="0.5"/>
+          <circle cx="150" cy="82" r="12" fill="rgba(212,197,169,0.1)" stroke="#D4C5A9" stroke-width="1.2" opacity="0.7"/>
+          <!-- Core dot -->
+          <circle cx="150" cy="82" r="3.5" fill="#D4C5A9" opacity="0.9"/>
+
+          <!-- 5 step nodes at r=40 (routine steps) -->
+          <!-- Step 1: TOP — Respira -->
+          <line x1="150" y1="70" x2="150" y2="42" stroke="#D4C5A9" stroke-width="0.6" opacity="0.35"/>
+          <circle cx="150" cy="42" r="6" fill="rgba(212,197,169,0.15)" stroke="#D4C5A9" stroke-width="1" filter="url(#stepGlow)"/>
+          <text x="150" y="32" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#D4C5A9" opacity="0.75" text-anchor="middle" font-weight="600" letter-spacing="0.5">RESPIRA</text>
+
+          <!-- Step 2: TOP-RIGHT — Target -->
+          <line x1="157" y1="73" x2="174" y2="51" stroke="#D4C5A9" stroke-width="0.6" opacity="0.35"/>
+          <circle cx="178" cy="46" r="6" fill="rgba(212,197,169,0.15)" stroke="#D4C5A9" stroke-width="1" filter="url(#stepGlow)"/>
+          <text x="194" y="44" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#D4C5A9" opacity="0.75" font-weight="600" letter-spacing="0.5">TARGET</text>
+
+          <!-- Step 3: BOTTOM-RIGHT — Rutina -->
+          <line x1="160" y1="87" x2="180" y2="108" stroke="#D4C5A9" stroke-width="0.6" opacity="0.35"/>
+          <circle cx="184" cy="113" r="6" fill="rgba(212,197,169,0.15)" stroke="#D4C5A9" stroke-width="1" filter="url(#stepGlow)"/>
+          <text x="200" y="117" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#D4C5A9" opacity="0.75" font-weight="600" letter-spacing="0.5">RUTINA</text>
+
+          <!-- Step 4: BOTTOM-LEFT — Commit -->
+          <line x1="140" y1="87" x2="120" y2="108" stroke="#D4C5A9" stroke-width="0.6" opacity="0.35"/>
+          <circle cx="116" cy="113" r="6" fill="rgba(212,197,169,0.15)" stroke="#D4C5A9" stroke-width="1" filter="url(#stepGlow)"/>
+          <text x="74" y="117" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#D4C5A9" opacity="0.75" font-weight="600" letter-spacing="0.5">COMMIT</text>
+
+          <!-- Step 5: TOP-LEFT — Swing -->
+          <line x1="143" y1="73" x2="126" y2="51" stroke="#D4C5A9" stroke-width="0.6" opacity="0.35"/>
+          <circle cx="122" cy="46" r="6" fill="rgba(212,197,169,0.15)" stroke="#D4C5A9" stroke-width="1" filter="url(#stepGlow)"/>
+          <text x="66" y="44" font-family="'Barlow Condensed',sans-serif" font-size="7.5" fill="#D4C5A9" opacity="0.75" font-weight="600" letter-spacing="0.5">SWING</text>
+
+          <!-- Connector arc between steps (partial circle) -->
+          <path d="M 150 36 A 46 46 0 1 1 114 40" fill="none" stroke="#D4C5A9" stroke-width="0.6" stroke-dasharray="3 5" opacity="0.3">
+            <animateTransform attributeName="transform" type="rotate" values="0 150 82;360 150 82" dur="12s" repeatCount="indefinite"/>
+          </path>
+
+          <!-- Step number indicators on core -->
+          <text x="150" y="86" font-family="'Bebas Neue',sans-serif" font-size="11" fill="#D4C5A9" opacity="0.4" text-anchor="middle">5</text>
+
+          <!-- Label -->
+          <rect x="8" y="8" width="82" height="16" rx="3" fill="rgba(212,197,169,0.08)" stroke="rgba(212,197,169,0.2)" stroke-width="0.5"/>
+          <text x="49" y="19" font-family="'Barlow Condensed',sans-serif" font-size="8" fill="#D4C5A9" opacity="0.8" font-weight="600" text-anchor="middle" letter-spacing="1">MENTAL GAME</text>
+        </svg>
+      </div>
+
+      <div class="drill-content">
+        <div class="drill-cat">Mental Game</div>
+        <div class="drill-name">Pre-Shot Routine Bajo Presión</div>
+        <div class="drill-meta">
+          <span>15 min</span>
+          <span>·</span>
+          <span>Visualización</span>
+        </div>
+        <div class="drill-level-dots">
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+          <div class="level-dot active"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:36px;text-align:center;" class="reveal">
+    <a href="/es/training.html" class="btn-hero ghost">
+      Ver todos los drills
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── PRICING ─── -->
+<section>
+  <div class="reveal">
+    <div class="section-eyebrow">Planes</div>
+    <h2 class="section-title">Elige tu<br><span style="color:var(--teal)">nivel</span></h2>
+    <p class="section-sub">Desde el jugador que da sus primeros pasos hasta el competidor que busca el siguiente nivel.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><sup>$</sup>29</div>
+      <div class="plan-period">/ mes · USD</div>
+      <ul class="plan-features">
+        <li>5 análisis de swing / mes</li>
+        <li>Chat con Coach IA</li>
+        <li>Drills básicos</li>
+        <li>Dashboard personal</li>
+      </ul>
+      <a href="/es/pricing.html" class="btn-plan">Comenzar</a>
+    </div>
+
+    <div class="pricing-card featured reveal reveal-delay-1">
+      <div class="featured-badge">Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><sup>$</sup>59</div>
+      <div class="plan-period">/ mes · USD</div>
+      <ul class="plan-features">
+        <li>20 análisis de swing / mes</li>
+        <li>Plan semanal con IA</li>
+        <li>Todos los drills</li>
+        <li>Biblioteca completa</li>
+      </ul>
+      <a href="/es/pricing.html" class="btn-plan featured-btn">Comenzar</a>
+    </div>
+
+    <div class="pricing-card reveal reveal-delay-2">
+      <div class="plan-name">Pro+</div>
+      <div class="plan-price"><sup>$</sup>99</div>
+      <div class="plan-period">/ mes · USD</div>
+      <ul class="plan-features">
+        <li>Análisis ilimitados</li>
+        <li>Datos Sportsbox AI</li>
+        <li>Seguimiento de handicap</li>
+        <li>Soporte prioritario</li>
+      </ul>
+      <a href="/es/pricing.html" class="btn-plan">Comenzar</a>
+    </div>
+
+    <div class="pricing-card reveal reveal-delay-3">
+      <div class="plan-name">Elite</div>
+      <div class="plan-price"><sup>$</sup>199</div>
+      <div class="plan-period">/ mes · USD</div>
+      <ul class="plan-features">
+        <li>Todo lo de Pro+</li>
+        <li>Sesión mensual con Nico</li>
+        <li>Plan de torneo</li>
+        <li>Acceso early features</li>
+      </ul>
+      <a href="/es/pricing.html" class="btn-plan">Comenzar</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA FINAL ─── -->
+<section class="cta-section">
+  <div class="cta-box reveal">
+    <h2 class="section-title">¿Listo para mejorar<br><span style="color:var(--teal)">tu swing?</span></h2>
+    <p class="cta-desc">Analiza tu primer swing gratis. Sin tarjeta de crédito. Feedback técnico en menos de 30 segundos.</p>
+    <div class="cta-actions">
+      <a href="/es/coach-ai.html" class="btn-hero teal">Analizar mi Swing Gratis</a>
+      <a href="/es/training.html" class="btn-hero ghost">Explorar Training Lab</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="footer-logo">MY<span>GOLF</span>LAB</div>
+  <div class="footer-copy">© 2025 Smooth Golf Co. SPA · Santiago, Chile</div>
+</footer>
+
+<script>
+// ─── MENU ───
+function toggleMenu() {
+  document.getElementById('sidemenu').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+
+// ─── SUPABASE AUTH ───
+const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+
+async function getSession() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${localStorage.getItem('sb-access-token') || ''}` }
+    });
+    if (res.ok) return await res.json();
+  } catch(e) {}
+  return null;
+}
+
+(async () => {
+  const user = await getSession();
+  if (user && user.email) {
+    const name = user.user_metadata?.full_name || user.email.split('@')[0];
+    const plan = user.user_metadata?.plan || 'Starter';
+
+    document.getElementById('header-auth').innerHTML = `
+      <span style="font-size:13px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">${name}</span>
+      <a href="/es/dashboard.html" class="btn-primary" style="font-size:13px;padding:8px 16px;">Mi Dashboard</a>
+    `;
+    document.getElementById('sidemenu-auth').innerHTML = `
+      <div style="font-size:13px;color:var(--text-muted);padding:8px 0;">${name} · ${plan}</div>
+      <a href="/es/dashboard.html" class="btn-primary">Mi Dashboard</a>
+      <button class="btn-outline" onclick="logout()">Cerrar Sesión</button>
+    `;
+
+    const heroCtas = document.querySelector('.hero-ctas');
+    if (heroCtas) {
+      const firstBtn = heroCtas.querySelector('.btn-hero.teal');
+      if (firstBtn) {
+        firstBtn.href = '/es/coach-ai.html';
+        firstBtn.innerHTML = 'Ir a Coach IA <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
+    }
+  }
+})();
+
+async function logout() {
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${localStorage.getItem('sb-access-token') || ''}` }
+  });
+  localStorage.clear();
+  window.location.reload();
+}
+
+// ─── SCROLL REVEAL ───
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => observer.observe(el));
+
+// ─── COUNTER ANIMATION ───
+function animateCounter(el, target, duration = 1500) {
+  const start = performance.now();
+  const update = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const el = e.target.querySelector('[data-target]');
+      if (el && !el.dataset.animated) {
+        el.dataset.animated = true;
+        animateCounter(el, parseInt(el.dataset.target));
+      }
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-item').forEach(el => statObserver.observe(el));
+</script>
 </body>
 </html>
