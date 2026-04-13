@@ -328,15 +328,43 @@
 
     <main class="content">
         <div class="coach-intro">
-            <div class="coach-photo">
-                [Foto placeholder]
+            <div class="coach-photo" style="background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border:1px solid #262626;position:relative;overflow:hidden;">
+              <!-- Avatar SVG placeholder con estética de marca hasta tener foto real -->
+              <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;">
+                <defs>
+                  <radialGradient id="bgGrad" cx="50%" cy="30%" r="60%">
+                    <stop offset="0%" stop-color="rgba(45,212,191,0.08)"/>
+                    <stop offset="100%" stop-color="transparent"/>
+                  </radialGradient>
+                  <linearGradient id="figureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2a2a2a"/>
+                    <stop offset="100%" stop-color="#1a1a1a"/>
+                  </linearGradient>
+                </defs>
+                <rect width="280" height="280" fill="url(#bgGrad)"/>
+                <!-- Silhouette golfer -->
+                <circle cx="140" cy="82" r="28" fill="url(#figureGrad)" stroke="#333" stroke-width="1"/>
+                <path d="M112 140 Q110 170 108 200 L132 200 L140 165 L148 200 L172 200 Q170 170 168 140 Q154 130 140 130 Q126 130 112 140Z" fill="url(#figureGrad)" stroke="#333" stroke-width="1"/>
+                <path d="M168 145 L185 120 L195 122" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="195" y1="122" x2="222" y2="128" stroke="#D4C5A9" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M112 145 L100 155 L95 148" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Teal accent dots - kinematic joints -->
+                <circle cx="168" cy="145" r="4" fill="#2dd4bf" opacity="0.8"/>
+                <circle cx="112" cy="145" r="4" fill="#2dd4bf" opacity="0.8"/>
+                <circle cx="140" cy="110" r="3" fill="#2dd4bf" opacity="0.6"/>
+                <!-- Ground line -->
+                <line x1="60" y1="220" x2="220" y2="220" stroke="#262626" stroke-width="1"/>
+                <!-- Label -->
+                <text x="140" y="248" font-family="'Bebas Neue',sans-serif" font-size="14" fill="#2dd4bf" opacity="0.6" text-anchor="middle" letter-spacing="3">NICO PARRA</text>
+                <text x="140" y="264" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#555" text-anchor="middle" letter-spacing="2">HEAD COACH</text>
+              </svg>
             </div>
             <div class="coach-bio">
                 <h2>Nico Parra</h2>
                 <p class="coach-title">Fundador & Head Coach — MyGolfLab</p>
-                <p>Coach de golf profesional con más de una década de experiencia trabajando con jugadores de todos los niveles — desde principiantes hasta profesionales del PGA Tour y LIV Golf.</p>
-                <p>Ex Director de Andes Golf Academy y actual Head Coach en Smooth Golf Co. SPA, con base en Santiago, Chile. Mi filosofía se centra en entender las características físicas únicas de cada jugador y construir un swing que trabaje con su cuerpo, no en contra de él.</p>
-                <p>No existe un swing perfecto universal — solo el swing perfecto para ti. Este enfoque individualizado es la base de todo lo que hacemos en MyGolfLab.</p>
+                <p>Durante años vi el mismo patrón: golfistas trabajando duro, tomando clases, comprando equipamiento — y sin mejorar. No porque les faltara dedicación, sino porque la enseñanza tradicional los metía en un molde que no era el suyo.</p>
+                <p>Después de más de una década entrenando jugadores de todos los niveles — desde principiantes hasta profesionales de gira internacional — llegué a una conclusión simple: no existe un swing perfecto universal. Solo existe el swing perfecto para tu cuerpo, tu movilidad y tus objetivos.</p>
+                <p>Eso me llevó a desarrollar la Metodología MyGolfLab: cuatro pilares biomecánicos que describen cómo funciona un swing eficiente de verdad, sin importar la altura, la edad ni el nivel del jugador. Y me llevó a construir esta plataforma — para que ese sistema esté disponible para cualquiera que quiera mejorar, con o sin acceso a un coach presencial.</p>
             </div>
         </div>
 
@@ -344,11 +372,11 @@
         <div class="credentials-grid">
             <div class="credential-card">
                 <h4>Andes Golf Academy</h4>
-                <p>Ex Director</p>
+                <p>Ex Director — formación técnica de jugadores y coaches</p>
             </div>
             <div class="credential-card">
                 <h4>Smooth Golf Co SPA</h4>
-                <p>Fundador & Head Coach</p>
+                <p>Fundador & Head Coach · Santiago, Chile</p>
             </div>
             <div class="credential-card">
                 <h4>Club de Polo</h4>
@@ -360,25 +388,62 @@
             </div>
         </div>
 
-        <h3 class="section-title">Jugadores con los que he Trabajado</h3>
+        <h3 class="section-title">Experiencia con Jugadores</h3>
+        <p style="color:var(--text-secondary);font-size:0.95rem;margin-bottom:1.5rem;line-height:1.7;">He trabajado con jugadores de todos los niveles — desde principiantes hasta profesionales de gira internacional — en Chile, Brasil y otros países de Latinoamérica.</p>
         <div class="players-list">
             <div class="player-card">
-                <h4>Joaquín Niemann</h4>
-                <p>PGA Tour / LIV Golf</p>
+                <h4>Gira Internacional</h4>
+                <p>Experiencia trabajando con jugadores de PGA Tour y LIV Golf</p>
             </div>
             <div class="player-card">
                 <h4>Gabriel Morgan</h4>
-                <p>Jugador Profesional</p>
+                <p>Jugador Profesional · Colaborador de contenido MyGolfLab</p>
             </div>
             <div class="player-card">
                 <h4>Diego Vargas</h4>
                 <p>Campeón Pre-Junior Sudamericano</p>
             </div>
+            <div class="player-card">
+                <h4>Juniors Brasil</h4>
+                <p>Clínicas y campamentos — São Paulo, 2025</p>
+            </div>
         </div>
+
+        <!-- Filosofía -->
+        <div style="margin-top:4rem;padding:2.5rem;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:0 16px 16px 0;">
+          <p style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:600;line-height:1.5;color:var(--text-primary);margin-bottom:0.5rem;">"No existe un swing perfecto universal — solo el swing perfecto para ti."</p>
+          <p style="font-size:0.9rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;">Nico Parra · Fundador, MyGolfLab</p>
+        </div>
+
+        <!-- CTA -->
+        <div style="margin-top:3rem;text-align:center;padding:3rem 2rem;background:linear-gradient(135deg,rgba(45,212,191,0.05) 0%,transparent 60%);border:1px solid var(--border);border-radius:20px;">
+          <p style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:1rem;">Conoce la metodología en acción</p>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;margin-bottom:1.5rem;">Analiza tu swing con Coach IA</h3>
+          <a href="/es/coach-ai.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#0a0a0a;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            Probar Gratis
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p style="margin-top:12px;font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">7 días gratis · Sin tarjeta de crédito</p>
+        </div>
+
     </main>
 
     <footer class="footer">
-        <div class="footer-logo">MYGOLFLAB</div>
+        <div style="margin-bottom:24px;">
+          <div class="footer-logo" style="margin-bottom:12px;">MY<span style="color:var(--primary)">GOLF</span>LAB</div>
+          <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
+            <a href="/es/index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Inicio</a>
+            <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
+            <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
+            <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
+            <a href="/es/pricing.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Precios</a>
+          </div>
+          <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+            <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
+            <a href="/es/terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Términos</a>
+            <a href="mailto:hola@mygolflab.golf" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">hola@mygolflab.golf</a>
+          </div>
+        </div>
         <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
     </footer>
 
