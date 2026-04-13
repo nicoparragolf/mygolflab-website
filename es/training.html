@@ -215,30 +215,64 @@ header {
   color: var(--text-muted);
 }
 
-/* ─── DRILLS GRID ─── */
+/* ─── DRILLS SECTION ─── */
 .drills-section {
   padding: 8px 24px 80px;
   max-width: 1200px; margin: 0 auto;
 }
 
 .category-block {
-  margin-bottom: 56px;
+  margin-bottom: 48px;
+}
+
+/* Category header row: label + pagination */
+.category-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
 }
 .category-label {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px; font-weight: 700; letter-spacing: 3px;
   text-transform: uppercase; color: var(--text-muted);
-  margin-bottom: 16px;
-  display: flex; align-items: center; gap: 12px;
+  white-space: nowrap;
 }
-.category-label::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
+.category-line {
+  flex: 1; height: 1px; background: var(--border);
 }
+.category-pagination {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.cat-page-info {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; letter-spacing: 1px;
+  color: var(--text-muted); min-width: 52px; text-align: center;
+}
+.cat-page-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text-muted);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.cat-page-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+.cat-page-btn:disabled { opacity: 0.25; cursor: default; }
 
-.drills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+/* Carousel viewport */
+.drills-carousel {
+  overflow: hidden;
+  position: relative;
+}
+.drills-track {
+  display: flex;
   gap: 12px;
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  will-change: transform;
+  align-items: stretch;
+}
+/* Cards sized by JS, but set a minimum */
+.drills-track .drill-card {
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 /* ─── DRILL CARD ─── */
@@ -322,10 +356,11 @@ header {
 }
 .variant-btn {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 6px 14px; border-radius: 6px; border: 1px solid;
+  padding: 5px 10px; border-radius: 6px; border: 1px solid;
   cursor: pointer; transition: all 0.2s; background: transparent;
+  white-space: nowrap;
 }
 .variant-btn.beginner { color: #4ade80; border-color: rgba(74,222,128,0.25); }
 .variant-btn.beginner:hover { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.5); }
@@ -521,6 +556,86 @@ header {
 .modal-cta.gold-cta { background: var(--gold); }
 .modal-cta.gold-cta:hover { background: #e8d9c0; }
 
+/* ─── PERSONALIZATION SECTION ─── */
+.personalize-section {
+  border-bottom: 1px solid var(--border);
+  padding: 40px 24px;
+  background: linear-gradient(180deg, rgba(45,212,191,0.03) 0%, transparent 100%);
+}
+.personalize-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1.6fr; gap: 48px; align-items: start;
+}
+.section-eyebrow-sm {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-eyebrow-sm::before { content:''; display:block; width:20px; height:1px; background:var(--teal); }
+.personalize-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 4vw, 52px); line-height: 0.95; letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+.personalize-title span { color: var(--teal); }
+.personalize-desc {
+  font-size: 14px; font-weight: 300; line-height: 1.7; color: var(--text-muted);
+  max-width: 340px;
+}
+.personalize-form { display: flex; flex-direction: column; gap: 14px; }
+.pf-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.pf-field { display: flex; flex-direction: column; gap: 6px; }
+.pf-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.pf-select {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; color: var(--text);
+  font-family: 'Barlow', sans-serif; font-size: 13px;
+  outline: none; cursor: pointer; transition: border-color 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 32px;
+}
+.pf-select:focus { border-color: var(--teal); }
+.pf-select option { background: var(--bg-card); }
+.pf-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border: none; border-radius: 8px;
+  background: var(--teal); color: #0a0a0a;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  align-self: flex-start;
+}
+.pf-btn:hover { background: #4eecd9; transform: translateY(-1px); }
+.pf-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+.pf-result {
+  background: var(--bg-elevated); border: 1px solid var(--teal-mid);
+  border-radius: 10px; padding: 18px 20px; margin-top: 4px;
+}
+.pf-result-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+}
+.pf-result-content {
+  font-size: 13px; line-height: 1.7; color: var(--text-muted);
+  white-space: pre-wrap;
+}
+.pf-result-content strong { color: var(--text); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .personalize-inner { grid-template-columns: 1fr; gap: 24px; }
+  .pf-row { grid-template-columns: 1fr; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 600px) {
   .drills-grid { grid-template-columns: 1fr; }
@@ -604,13 +719,81 @@ header {
     <span class="filters-count" id="drills-count">139 drills</span>
   </div>
 
+  <!-- ─── PERSONALIZACIÓN ─── -->
+  <div class="personalize-section">
+    <div class="personalize-inner">
+      <div class="personalize-header">
+        <div class="section-eyebrow-sm">Training con IA</div>
+        <h2 class="personalize-title">Genera tu plan<br><span>personalizado</span></h2>
+        <p class="personalize-desc">Cuéntale al Coach IA tu objetivo de la sesión y genera un plan de drills adaptado a tu nivel y tiempo disponible.</p>
+      </div>
+      <div class="personalize-form">
+        <div class="pf-row">
+          <div class="pf-field">
+            <label class="pf-label">Objetivo de la sesión</label>
+            <select class="pf-select" id="pf-objetivo">
+              <option value="">Elige un foco...</option>
+              <option>Mejorar control de distancia</option>
+              <option>Reducir dispersión lateral</option>
+              <option>Entrenar bajo presión</option>
+              <option>Mejorar el putting</option>
+              <option>Trabajar el approach</option>
+              <option>Desarrollar adaptabilidad</option>
+            </select>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Tiempo disponible</label>
+            <select class="pf-select" id="pf-tiempo">
+              <option value="">Tiempo disponible...</option>
+              <option>30 min</option>
+              <option>45 min</option>
+              <option>60 min</option>
+              <option>90 min</option>
+            </select>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Nivel</label>
+            <select class="pf-select" id="pf-nivel">
+              <option value="">Tu nivel...</option>
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+              <option>Expert</option>
+            </select>
+          </div>
+        </div>
+        <button class="pf-btn" id="pf-generate-btn" onclick="generatePlan()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v6M8 1l-3 3M8 1l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9a6 6 0 1012 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Generar Plan con IA
+        </button>
+      </div>
+      <div class="pf-result" id="pf-result" style="display:none;">
+        <div class="pf-result-label">Plan generado</div>
+        <div class="pf-result-content" id="pf-result-content"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- DRILLS -->
   <div class="drills-section" id="drills-container">
 
     <!-- ════ PUTTING ════ -->
-    <div class="category-block" data-category="putting">
-      <div class="category-label">Putting</div>
-      <div class="drills-grid">
+    <div class="category-block" data-category="putting" id="cat-putting">
+      <div class="category-header">
+        <span class="category-label">Putting</span>
+        <div class="category-line"></div>
+        <div class="category-pagination">
+          <button class="cat-page-btn" id="cat-putting-prev" onclick="carouselPage('cat-putting',-1)" disabled>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="cat-page-info" id="cat-putting-info">1 / 1</span>
+          <button class="cat-page-btn" id="cat-putting-next" onclick="carouselPage('cat-putting',1)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="drills-carousel">
+        <div class="drills-track" id="cat-putting-track">
 
         <!-- Gate Drill -->
         <div class="drill-card gold" onclick="openDrill('gate-1m')">
@@ -771,13 +954,27 @@ header {
           </div>
         </div>
 
+        </div>
       </div>
     </div>
 
     <!-- ════ APPROACH ════ -->
-    <div class="category-block" data-category="approach">
-      <div class="category-label">Approach</div>
-      <div class="drills-grid">
+    <div class="category-block" data-category="approach" id="cat-approach">
+      <div class="category-header">
+        <span class="category-label">Approach</span>
+        <div class="category-line"></div>
+        <div class="category-pagination">
+          <button class="cat-page-btn" id="cat-approach-prev" onclick="carouselPage('cat-approach',-1)" disabled>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="cat-page-info" id="cat-approach-info">1 / 1</span>
+          <button class="cat-page-btn" id="cat-approach-next" onclick="carouselPage('cat-approach',1)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="drills-carousel">
+        <div class="drills-track" id="cat-approach-track">
 
         <!-- Ladder Distance Control -->
         <div class="drill-card" onclick="openDrill('ladder-beginner')">
@@ -810,7 +1007,7 @@ header {
               <span class="drill-var-count">4 variantes</span>
             </div>
             <div class="drill-name">Ladder Distance Control</div>
-            <div class="drill-desc">Escalera de distancias al target. Entrena el control de yardaje con distintos palos y trayectorias.</div>
+            <div class="drill-desc">Escalera de distancias al target. Controla el yardaje variando el ritmo del swing.</div>
             <div class="drill-meta-row">
               <div class="drill-meta-item">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#888" stroke-width="1"/><path d="M6 3v3l2 2" stroke="#888" stroke-width="1" stroke-linecap="round"/></svg>
@@ -883,7 +1080,8 @@ header {
               <button class="variant-btn advanced" onclick="event.stopPropagation();openDrill('window-advanced')">Advanced</button>
               <button class="variant-btn pro" onclick="event.stopPropagation();openDrill('window-pro')">Pro</button>
             </div>
-      
+          </div>
+        </div>
 
         <div class="drill-card" onclick="openDrill('approach-3-ball-window-challenge-100-150-beginner')">
           <div class="drill-illus" style="background:linear-gradient(180deg,#0d1a12,#0a1209);">
@@ -4396,16 +4594,27 @@ header {
           </div>
         </div>
 
-    </div>
         </div>
-
       </div>
     </div>
 
     <!-- ════ MENTAL GAME ════ -->
-    <div class="category-block" data-category="mental">
-      <div class="category-label">Mental Game</div>
-      <div class="drills-grid">
+    <div class="category-block" data-category="mental" id="cat-mental">
+      <div class="category-header">
+        <span class="category-label">Mental Game</span>
+        <div class="category-line"></div>
+        <div class="category-pagination">
+          <button class="cat-page-btn" id="cat-mental-prev" onclick="carouselPage('cat-mental',-1)" disabled>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="cat-page-info" id="cat-mental-info">1 / 1</span>
+          <button class="cat-page-btn" id="cat-mental-next" onclick="carouselPage('cat-mental',1)">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="drills-carousel">
+        <div class="drills-track" id="cat-mental-track">
 
         <!-- Pre-Shot Routine -->
         <div class="drill-card gold" onclick="openDrill('preshot-beginner')">
@@ -4466,6 +4675,7 @@ header {
         </div>
 
       </div>
+      </div>
     </div>
 
   </div>
@@ -4523,7 +4733,86 @@ function filterDrills(cat, btn) {
       block.style.display = 'none';
     }
   });
+  // Re-init after show/hide
+  setTimeout(initCarousels, 10);
 }
+
+// ─── CAROUSEL ───
+const carouselState = {};
+
+function getPerPage() {
+  return window.innerWidth <= 500 ? 1 : window.innerWidth <= 900 ? 2 : 3;
+}
+
+function initCarousels() {
+  document.querySelectorAll('.category-block').forEach(block => {
+    const catId = block.id;
+    if (!catId) return;
+    const track = document.getElementById(catId + '-track');
+    if (!track) return;
+    const cards = Array.from(track.children);
+    const total = cards.length;
+    if (!carouselState[catId]) {
+      carouselState[catId] = { page: 0, total };
+    } else {
+      carouselState[catId].total = total;
+    }
+    renderCarousel(catId);
+  });
+}
+
+function renderCarousel(catId) {
+  const state = carouselState[catId];
+  if (!state) return;
+  const track = document.getElementById(catId + '-track');
+  if (!track) return;
+  const pp = getPerPage();
+  const pages = Math.max(1, Math.ceil(state.total / pp));
+  state.page = Math.min(state.page, pages - 1);
+
+  // Calculate offset based on actual card width
+  const cards = Array.from(track.children);
+  if (!cards.length) return;
+
+  // Get viewport width of carousel container
+  const viewport = track.parentElement.offsetWidth;
+  const gap = 12;
+  const cardW = (viewport - gap * (pp - 1)) / pp;
+
+  // Set card widths explicitly
+  cards.forEach(card => {
+    card.style.flex = `0 0 ${cardW}px`;
+    card.style.maxWidth = `${cardW}px`;
+  });
+
+  const offset = state.page * pp * (cardW + gap);
+  track.style.transform = `translateX(-${offset}px)`;
+
+  // Update controls
+  const prevBtn = document.getElementById(catId + '-prev');
+  const nextBtn = document.getElementById(catId + '-next');
+  const info = document.getElementById(catId + '-info');
+  if (prevBtn) prevBtn.disabled = state.page === 0;
+  if (nextBtn) nextBtn.disabled = state.page >= pages - 1;
+  if (info) info.textContent = `${state.page + 1} / ${pages}`;
+}
+
+function carouselPage(catId, dir) {
+  const state = carouselState[catId];
+  if (!state) return;
+  const pp = getPerPage();
+  const pages = Math.max(1, Math.ceil(state.total / pp));
+  state.page = Math.max(0, Math.min(pages - 1, state.page + dir));
+  renderCarousel(catId);
+}
+
+window.addEventListener('DOMContentLoaded', () => setTimeout(initCarousels, 50));
+window.addEventListener('resize', () => {
+  Object.keys(carouselState).forEach(id => {
+    carouselState[id].page = 0;
+    renderCarousel(id);
+  });
+});
 
 // ════════════════════════════════
 // DRILL DATA
@@ -5560,6 +5849,62 @@ function handleBackdropClick(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ─── PLAN GENERATOR ───
+async function generatePlan() {
+  const objetivo = document.getElementById('pf-objetivo').value;
+  const tiempo = document.getElementById('pf-tiempo').value;
+  const nivel = document.getElementById('pf-nivel').value;
+
+  if (!objetivo || !tiempo || !nivel) {
+    alert('Selecciona objetivo, tiempo y nivel para generar el plan.');
+    return;
+  }
+
+  const btn = document.getElementById('pf-generate-btn');
+  const result = document.getElementById('pf-result');
+  const resultContent = document.getElementById('pf-result-content');
+
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="animation:spin 1s linear infinite"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" stroke="currentColor" stroke-width="1.5" stroke-dasharray="20" stroke-dashoffset="20" stroke-linecap="round"/></svg> Generando...`;
+  result.style.display = 'none';
+
+  const prompt = `Eres el Coach IA de MyGolfLab. Un golfista quiere entrenar hoy con los siguientes parámetros:
+- Objetivo: ${objetivo}
+- Tiempo disponible: ${tiempo}
+- Nivel: ${nivel}
+
+Genera un plan de entrenamiento específico y conciso con 3-4 drills de la Metodología MyGolfLab. Para cada drill indica:
+- Nombre del drill
+- Variante recomendada (Beginner/Intermediate/Advanced/Expert)
+- Duración estimada
+- Por qué es relevante para el objetivo
+
+Sé directo y práctico. Responde en español. Usa emojis mínimos. Máximo 200 palabras.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: 'Eres el Coach IA de MyGolfLab. Responde siempre en español, de forma concisa y práctica. No uses markdown excesivo.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || 'No se pudo generar el plan. Intenta de nuevo.';
+    resultContent.textContent = text;
+    result.style.display = 'block';
+  } catch(e) {
+    resultContent.textContent = 'Error de conexión. Verifica que estás conectado e intenta de nuevo.';
+    result.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v6M8 1l-3 3M8 1l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9a6 6 0 1012 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Generar Plan con IA`;
+}
 
 // ─── SIDEBAR MENU ───
 const menuToggle = document.getElementById('menuToggle');
