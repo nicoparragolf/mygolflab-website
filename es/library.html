@@ -244,7 +244,7 @@
     .series-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden;
+      border-radius: 14px; overflow: visible;
       cursor: pointer; transition: all 0.25s;
       position: relative;
     }
@@ -1158,7 +1158,7 @@
   });
 
   function applyFilters() {
-    const cards = document.querySelectorAll('.video-card');
+    const cards = document.querySelectorAll('.video-card, .series-card');
     let visible = 0;
 
     cards.forEach(card => {
@@ -1222,9 +1222,7 @@
   // Agregar paywall a cada card
   const cards = document.querySelectorAll('.video-card');
   
-  const message = isLoggedIn
-    ? '<span style="font-size:1.1rem">⭐</span> Upgrade a Pro para acceder'
-    : '<span style="font-size:1.1rem">🔒</span> Inicia sesión para acceder';
+  const message = '<span style="font-size:1.1rem">🔒</span> Upgrade a Pro';
 
   const buttonText = isLoggedIn ? 'Ver planes' : 'Iniciar sesión';
   const buttonUrl = isLoggedIn ? '/es/upgrade.html' : '/es/login.html';
