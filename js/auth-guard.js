@@ -4,8 +4,8 @@
 // data-require="pro"   → requiere plan pro (ej: coach-ai, training, biblioteca)
 
 (async () => {
-  const SUPABASE_URL = 'https://TU_PROJECT.supabase.co';
-  const SUPABASE_ANON_KEY = 'TU_ANON_KEY';
+  const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
 
   const { createClient } = supabase; // asume que supabase-js ya está cargado
 
