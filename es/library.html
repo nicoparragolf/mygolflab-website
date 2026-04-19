@@ -1190,54 +1190,41 @@
 </script>
   
 <script>
-document.addEventListener('DOMContentLoaded', async function() {
-  const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+(function waitForSupabase() {
+  if (!window.supabase) { setTimeout(waitForSupabase, 100); return; }
 
-  const { createClient } = window.supabase;
-  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+  var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let isPro = false;
-  let isLoggedIn = false;
+  client.auth.getSession().then(function(res) {
+    var session = res.data.session;
+    if (!session) { applyPaywall(false); return; }
 
-  const { data: { session } } = await client.auth.getSession();
-
-  if (session) {
-    isLoggedIn = true;
-    const { data: profile } = await client
-      .from('profiles')
-      .select('plan, pro_expires_at')
-      .eq('id', session.user.id)
-      .single();
-
-    isPro = profile?.plan === 'pro' && (
-      !profile.pro_expires_at ||
-      new Date(profile.pro_expires_at) > new Date()
-    );
-  }
-
-  if (isPro) return;
-
-  const buttonUrl = isLoggedIn ? '/es/upgrade.html' : '/es/login.html';
-
-  const cards = document.querySelectorAll('.video-card, .series-card');
-
-  cards.forEach(function(card) {
-    card.removeAttribute('onclick');
-    card.style.cursor = 'default';
-    card.style.position = 'relative';
-    card.style.overflow = 'visible';
-
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,10,10,0.85);backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity 0.2s ease;border-radius:12px;z-index:10;text-align:center;padding:16px;';
-    overlay.innerHTML = '<div style="color:#fff;font-family:Barlow Condensed,sans-serif;font-size:1rem;font-weight:700;letter-spacing:0.05em;">🔒 Upgrade a Pro</div><a href="' + buttonUrl + '" style="display:inline-block;background:#2dd4bf;color:#0a0a0a;font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.08em;padding:6px 16px;border-radius:4px;text-decoration:none;text-transform:uppercase;">Ver planes</a>';
-
-    card.appendChild(overlay);
-
-    card.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
-    card.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
+    client.from('profiles').select('plan, pro_expires_at').eq('id', session.user.id).single().then(function(r) {
+      var profile = r.data;
+      var isPro = profile && profile.plan === 'pro' && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date());
+      if (!isPro) applyPaywall(true);
+    });
   });
-});
+
+  function applyPaywall(isLoggedIn) {
+    var buttonUrl = isLoggedIn ? '/es/upgrade.html' : '/es/login.html';
+    var cards = document.querySelectorAll('.video-card, .series-card');
+    cards.forEach(function(card) {
+      card.removeAttribute('onclick');
+      card.style.cursor = 'default';
+      card.style.position = 'relative';
+      card.style.overflow = 'visible';
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,10,10,0.88);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;transition:opacity 0.2s ease;border-radius:12px;z-index:20;text-align:center;padding:16px;pointer-events:none;';
+      overlay.innerHTML = '<div style="color:#fff;font-family:sans-serif;font-size:1rem;font-weight:700;">🔒 Upgrade a Pro</div><a href="' + buttonUrl + '" style="pointer-events:all;display:inline-block;background:#2dd4bf;color:#0a0a0a;font-weight:700;font-size:0.8rem;padding:7px 18px;border-radius:4px;text-decoration:none;text-transform:uppercase;">Ver planes</a>';
+      card.appendChild(overlay);
+      card.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
+      card.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
+    });
+  }
+})();
 </script>
 
 </body>
