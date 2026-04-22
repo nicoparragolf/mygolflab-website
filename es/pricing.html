@@ -84,7 +84,6 @@
         }
         .logo span { color: var(--primary); }
 
-        /* Side panel — desliza desde la izquierda */
         .mobile-menu-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -153,7 +152,7 @@
         }
         .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
 
-        /* ==================== PAGE CONTENT ==================== */
+        /* ==================== PAGE HEADER ==================== */
         .page-header {
             padding: 8rem 2rem 4rem;
             text-align: center;
@@ -175,11 +174,12 @@
         }
 
         .content {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 2rem 2rem 6rem;
         }
 
+        /* ==================== BILLING TOGGLE ==================== */
         .pricing-toggle {
             display: flex;
             justify-content: center;
@@ -194,6 +194,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-secondary);
+            transition: color 0.3s;
         }
         .pricing-toggle span.active { color: var(--text-primary); }
 
@@ -229,11 +230,17 @@
             border-radius: 100px;
         }
 
+        /* ==================== PRICING GRID ==================== */
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
             margin-bottom: 4rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; }
         }
 
         .pricing-card {
@@ -244,40 +251,43 @@
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
+            position: relative;
         }
-        .pricing-card:hover { border-color: rgba(45, 212, 191, 0.3); }
+        .pricing-card:hover { border-color: rgba(45, 212, 191, 0.3); transform: translateY(-4px); }
         .pricing-card.featured {
             border-color: var(--primary);
+            border-width: 2px;
             background: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, var(--bg-card) 30%);
-            position: relative;
         }
 
         .popular-badge {
             position: absolute;
-            top: -12px; left: 50%;
+            top: -13px; left: 50%;
             transform: translateX(-50%);
             background: var(--gradient-1);
             color: var(--bg-dark);
             font-family: var(--font-heading);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0.35rem 1rem;
+            letter-spacing: 1.5px;
+            padding: 0.3rem 1rem;
             border-radius: 100px;
             white-space: nowrap;
         }
 
-        .plan-header { margin-bottom: 1.5rem; }
+        .plan-header { margin-bottom: 1.25rem; }
+
         .plan-name {
             font-family: var(--font-display);
-            font-size: 1.8rem;
+            font-size: 2rem;
             letter-spacing: 2px;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
         }
+
         .plan-tagline {
             font-family: var(--font-heading);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
             color: var(--text-muted);
             text-transform: uppercase;
@@ -285,49 +295,80 @@
         }
 
         .plan-price {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+        }
+        .price-row { display: flex; align-items: baseline; gap: 2px; }
+        .price-currency {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
         .price-amount {
             font-family: var(--font-display);
-            font-size: 3rem;
+            font-size: 3.2rem;
             letter-spacing: 0.02em;
             color: var(--text-primary);
+            line-height: 1;
         }
         .price-period {
             font-family: var(--font-heading);
             font-size: 0.95rem;
             color: var(--text-muted);
+            margin-left: 2px;
         }
 
-        .plan-description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
+        .trial-label {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 1.25rem;
+            min-height: 20px;
         }
 
+        .plan-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin-bottom: 1.25rem;
+        }
+        .featured .plan-divider { border-color: rgba(45, 212, 191, 0.2); }
+
+        /* feature list */
         .plan-features {
             list-style: none;
             margin-bottom: 2rem;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         .plan-features li {
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
-            padding: 0.5rem 0;
+            gap: 0.65rem;
             font-size: 0.9rem;
             color: var(--text-secondary);
+            line-height: 1.45;
         }
         .plan-features li svg {
-            width: 18px; height: 18px;
-            color: var(--primary);
+            width: 17px; height: 17px;
             flex-shrink: 0;
             margin-top: 2px;
         }
+        .feat-check { color: var(--primary); }
+        .feat-x { color: var(--text-muted); opacity: 0.4; }
+        .feat-x + span { color: var(--text-muted); opacity: 0.45; }
 
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
+        /* CTA buttons */
         .plan-cta {
             display: block;
             text-align: center;
@@ -340,13 +381,15 @@
             letter-spacing: 1.5px;
             text-decoration: none;
             transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
         }
         .plan-cta.primary { background: var(--gradient-1); color: var(--bg-dark); }
         .plan-cta.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
         .plan-cta.secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); }
         .plan-cta.secondary:hover { border-color: var(--primary); }
 
-        /* FAQ */
+        /* ==================== FAQ ==================== */
         .faq-section {
             max-width: 800px;
             margin: 0 auto;
@@ -387,14 +430,14 @@
         }
         .faq-item.open .faq-question svg { transform: rotate(180deg); }
         .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-        .faq-item.open .faq-answer { max-height: 200px; }
+        .faq-item.open .faq-answer { max-height: 220px; }
         .faq-answer p {
             padding-bottom: 1.25rem;
             color: var(--text-secondary);
             font-size: 0.95rem;
         }
 
-        /* Footer */
+        /* ==================== FOOTER ==================== */
         .footer {
             padding: 3rem 2rem;
             border-top: 1px solid var(--border);
@@ -411,7 +454,7 @@
 </head>
 <body>
 
-    <!-- HEADER UNIVERSAL -->
+    <!-- HEADER -->
     <nav class="nav">
         <button class="hamburger" id="hamburger" aria-label="Menú">
             <span></span><span></span><span></span>
@@ -452,143 +495,279 @@
         <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
     </div>
 
-    <!-- CONTENIDO -->
+    <!-- PAGE HEADER -->
     <header class="page-header">
-        <h1>Precios Simples y Transparentes</h1>
-        <p>Elige el plan que se ajuste a tu nivel de compromiso. Todos los planes incluyen nuestra tecnología central.</p>
+        <h1>Elige Tu Plan</h1>
+        <p>Acceso completo a la metodología de los 4 Pilares. Sin depender de horarios ni agendas.</p>
         <div style="margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.25);border-radius:100px;padding:8px 20px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2dd4bf" stroke-width="1.2"/><path d="M8 4v4l2.5 2.5" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/></svg>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#2dd4bf;">7 días gratis · Sin tarjeta de crédito</span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2dd4bf" stroke-width="1.2"/><path d="M8 4v4l2.5 2.5" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#2dd4bf;">Plan Básico · 7 días gratis · Sin tarjeta de crédito</span>
         </div>
     </header>
 
     <main class="content">
+
+        <!-- BILLING TOGGLE -->
         <div class="pricing-toggle">
-            <span class="active">Mensual</span>
+            <span class="active" id="label-monthly">Mensual</span>
             <div class="toggle-switch" id="toggleSwitch"></div>
-            <span>Anual</span>
+            <span id="label-yearly">Anual</span>
             <span class="save-badge">Ahorra 20%</span>
         </div>
 
+        <!-- PRICING CARDS -->
         <div class="pricing-grid">
+
+            <!-- BÁSICO -->
             <div class="pricing-card">
                 <div class="plan-header">
-                    <h3 class="plan-name">Starter</h3>
-                    <p class="plan-tagline">Para golfistas casuales</p>
+                    <h3 class="plan-name">Básico</h3>
+                    <p class="plan-tagline">Para empezar con estructura</p>
                 </div>
                 <div class="plan-price">
-                    <span class="price-amount">$29</span>
-                    <span class="price-period">/mes</span>
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="29" data-yearly="23">29</span>
+                        <span class="price-period">/mes</span>
+                    </div>
                 </div>
-                <p class="plan-description">Perfecto para golfistas que quieren entender mejor su swing y acceder a instrucción de calidad en su propio horario.</p>
+                <div class="trial-label">7 días gratis — sin tarjeta</div>
+                <hr class="plan-divider">
                 <ul class="plan-features">
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Acceso completo a la videoteca</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Análisis IA básico (5/mes)</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Drills del Training Lab</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Seguimiento de progreso</li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>5 análisis por mes</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>10 drills por categoría</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Tip semanal anticipado</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Planes de entrenamiento personalizados</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Feedback de Nico y Gabriel</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Informe mensual de progreso</span>
+                    </li>
                 </ul>
-                <a href="/es/login.html" class="plan-cta secondary">Empezar Gratis</a>
+                <a href="/es/login.html" class="plan-cta secondary">Empezar gratis</a>
             </div>
 
+            <!-- PRO -->
+            <div class="pricing-card">
+                <div class="plan-header">
+                    <h3 class="plan-name">Pro</h3>
+                    <p class="plan-tagline">Para mejorar en serio</p>
+                </div>
+                <div class="plan-price">
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="59" data-yearly="47">59</span>
+                        <span class="price-period">/mes</span>
+                    </div>
+                </div>
+                <div class="trial-label" style="opacity:0; pointer-events:none;">—</div>
+                <hr class="plan-divider">
+                <ul class="plan-features">
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>10 análisis por mes</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>drills ilimitados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Tip semanal anticipado (cada lunes)</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Planes de entrenamiento personalizados</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Feedback de Nico y Gabriel</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Informe mensual de progreso</span>
+                    </li>
+                </ul>
+                <a href="/es/login.html" class="plan-cta secondary">Suscribirse a Pro</a>
+            </div>
+
+            <!-- ELITE -->
             <div class="pricing-card featured">
                 <span class="popular-badge">Más Popular</span>
                 <div class="plan-header">
-                    <h3 class="plan-name">Pro</h3>
-                    <p class="plan-tagline">Para mejoradores serios</p>
-                </div>
-                <div class="plan-price">
-                    <span class="price-amount">$59</span>
-                    <span class="price-period">/mes</span>
-                </div>
-                <p class="plan-description">Para golfistas comprometidos con mejorar de verdad. Más análisis IA, planes de práctica personalizados y acceso completo a toda la plataforma.</p>
-                <ul class="plan-features">
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Todo lo de Starter</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Análisis IA <strong>20/mes</strong></li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Planes de práctica personalizados</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Recomendaciones de drills por IA</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Competencia en el Ranking</li>
-                </ul>
-                <a href="/es/login.html" class="plan-cta primary">Empezar Gratis</a>
-            </div>
-
-            <div class="pricing-card">
-                <div class="plan-header">
-                    <h3 class="plan-name">Pro+</h3>
-                    <p class="plan-tagline">Para jugadores competitivos</p>
-                </div>
-                <div class="plan-price">
-                    <span class="price-amount">$99</span>
-                    <span class="price-period">/mes</span>
-                </div>
-                <p class="plan-description">Todo lo de Pro más sesiones de coaching en vivo mensuales con un coach certificado. Feedback humano real combinado con IA.</p>
-                <ul class="plan-features">
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Todo lo de Pro</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><strong>2 sesiones en vivo</strong>/mes</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Análisis de video prioritario (24h)</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Planes de preparación para torneos</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mensajería directa con el coach</li>
-                </ul>
-                <a href="/es/login.html" class="plan-cta secondary">Empezar Gratis</a>
-            </div>
-
-            <div class="pricing-card">
-                <div class="plan-header">
                     <h3 class="plan-name">Elite</h3>
-                    <p class="plan-tagline">Para aspirantes a profesional</p>
+                    <p class="plan-tagline">La experiencia completa</p>
                 </div>
                 <div class="plan-price">
-                    <span class="price-amount">$199</span>
-                    <span class="price-period">/mes</span>
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="69" data-yearly="55">69</span>
+                        <span class="price-period">/mes</span>
+                    </div>
                 </div>
-                <p class="plan-description">La experiencia definitiva. Sesiones semanales en vivo, analíticas completas y un coach dedicado que conoce tu juego a fondo.</p>
+                <div class="trial-label" style="opacity:0; pointer-events:none;">—</div>
+                <hr class="plan-divider">
                 <ul class="plan-features">
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Todo lo de Pro+</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><strong>Coaching semanal</strong> (4/mes)</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Coach personal dedicado</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Analíticas de rendimiento completas</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Planificación de temporada</li>
-                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Coaching de juego mental</li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>ilimitado</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>drills ilimitados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Tip semanal anticipado (cada lunes)</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Planes de entrenamiento personalizados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Feedback de Nico y Gabriel</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Informe mensual de progreso</strong></span>
+                    </li>
                 </ul>
-                <a href="/es/login.html" class="plan-cta secondary">Empezar Gratis</a>
+                <a href="/es/login.html" class="plan-cta primary">Suscribirse a Elite</a>
             </div>
+
         </div>
 
+        <!-- FAQ -->
         <section class="faq-section">
             <h2>Preguntas Frecuentes</h2>
+
             <div class="faq-item">
-                <button class="faq-question">¿Puedo cambiar de plan después?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <button class="faq-question">¿Puedo cambiar de plan después?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
                 <div class="faq-answer"><p>Sí, puedes subir o bajar de plan en cualquier momento. Los cambios se aplican al inicio de tu próximo ciclo de facturación.</p></div>
             </div>
+
             <div class="faq-item">
-                <button class="faq-question">¿Cómo funciona el análisis de swing con IA?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-                <div class="faq-answer"><p>Sube un video de tu swing desde tu celular. Nuestra IA extrae frames clave, analiza postura, secuencia y condición de muñecas, y te entrega un diagnóstico detallado con drills específicos.</p></div>
+                <button class="faq-question">¿Cómo funciona el Coach AI?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Es un asistente entrenado con la metodología de los 4 Pilares de Nico. Le puedes hacer preguntas sobre tu swing, drills específicos, Ground Forces, secuencia cinemática y más. Responde con la misma lógica que Nico aplicaría en una clase.</p></div>
             </div>
+
             <div class="faq-item">
-                <button class="faq-question">¿Qué pasa si pierdo una sesión en vivo?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-                <div class="faq-answer"><p>Las sesiones se pueden reprogramar con 24 horas de anticipación. Somos flexibles y queremos que aproveches al máximo tu tiempo de coaching.</p></div>
+                <button class="faq-question">¿Qué son los planes de entrenamiento personalizados?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Exclusivos del plan Elite. La plataforma construye un plan de práctica basado en tu perfil, handicap y los pilares que necesitas trabajar. No es un plan genérico — está estructurado con los drills del Training Lab según tu nivel actual.</p></div>
             </div>
+
             <div class="faq-item">
-                <button class="faq-question">¿Hay prueba gratuita?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-                <div class="faq-answer"><p>Ofrecemos 7 días de prueba gratis para todos los planes. Sin tarjeta de crédito requerida para empezar.</p></div>
+                <button class="faq-question">¿Cómo funciona el feedback de Nico y Gabriel?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Los miembros Elite pueden publicar en el foro de la plataforma y recibir comentarios personalizados de Nico o Gabriel sobre su progreso o swing. El feedback se entrega en el hilo del foro dentro de 48 horas hábiles.</p></div>
             </div>
+
+            <div class="faq-item">
+                <button class="faq-question">¿Qué incluye el tip semanal?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Cada lunes los planes Pro y Elite reciben un tip exclusivo de Nico o Gabriel — un concepto técnico, drill o corrección de errores comunes. Al final del mes ese contenido pasa a la biblioteca general disponible para todos los planes.</p></div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">¿Hay prueba gratuita?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>El plan Básico incluye 7 días de prueba gratis. Sin tarjeta de crédito requerida para empezar. Es la mejor forma de conocer la plataforma antes de comprometerte.</p></div>
+            </div>
+
         </section>
     </main>
 
     <footer class="footer">
         <div style="margin-bottom:24px;">
-          <div class="footer-logo" style="margin-bottom:12px;">MY<span style="color:var(--primary)">GOLF</span>LAB</div>
-          <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
-            <a href="/es/index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Inicio</a>
-            <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
-            <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
-            <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
-            <a href="/es/about.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">El Coach</a>
-          </div>
-          <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
-            <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
-            <a href="/es/terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Términos</a>
-            <a href="mailto:hola@mygolflab.golf" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">hola@mygolflab.golf</a>
-          </div>
+            <div class="footer-logo" style="margin-bottom:12px;">MY<span style="color:var(--primary)">GOLF</span>LAB</div>
+            <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
+                <a href="/es/index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Inicio</a>
+                <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
+                <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
+                <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
+                <a href="/es/about.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">El Coach</a>
+            </div>
+            <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+                <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
+                <a href="/es/terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Términos</a>
+                <a href="mailto:hola@mygolflab.golf" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">hola@mygolflab.golf</a>
+            </div>
         </div>
         <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
     </footer>
@@ -613,14 +792,26 @@
             });
         });
 
-        document.getElementById('toggleSwitch').addEventListener('click', function() {
-            this.classList.toggle('yearly');
+        var isYearly = false;
+        var toggleSwitch = document.getElementById('toggleSwitch');
+        var labelMonthly = document.getElementById('label-monthly');
+        var labelYearly = document.getElementById('label-yearly');
+
+        toggleSwitch.addEventListener('click', function() {
+            isYearly = !isYearly;
+            toggleSwitch.classList.toggle('yearly', isYearly);
+            labelMonthly.classList.toggle('active', !isYearly);
+            labelYearly.classList.toggle('active', isYearly);
+
+            document.querySelectorAll('.price-amount').forEach(function(el) {
+                el.textContent = isYearly ? el.getAttribute('data-yearly') : el.getAttribute('data-monthly');
+            });
         });
 
         document.querySelectorAll('.faq-question').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                const item = btn.parentElement;
-                const isOpen = item.classList.contains('open');
+                var item = btn.parentElement;
+                var isOpen = item.classList.contains('open');
                 document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
                 if (!isOpen) item.classList.add('open');
             });
