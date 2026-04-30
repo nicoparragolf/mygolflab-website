@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
- 
+
   <style>
     :root {
       --bg: #0a0a0a;
@@ -24,11 +24,27 @@
       --text-dim: #555;
       --border: rgba(255,255,255,0.06);
       --border-mid: rgba(255,255,255,0.1);
-
       --pilar-gf: #2dd4bf;
       --pilar-ks: #f59e0b;
       --pilar-wc: #a78bfa;
       --pilar-bt: #f87171;
+
+      /* Acentos por sección */
+      --sec-s1: #2dd4bf;
+      --sec-s1-dim: rgba(45, 212, 191, 0.12);
+      --sec-s1-border: rgba(45, 212, 191, 0.25);
+      --sec-s2: #2dd4bf;
+      --sec-s2-dim: rgba(45, 212, 191, 0.12);
+      --sec-s2-border: rgba(45, 212, 191, 0.25);
+      --sec-s3: #D4C5A9;
+      --sec-s3-dim: rgba(212, 197, 169, 0.12);
+      --sec-s3-border: rgba(212, 197, 169, 0.3);
+      --sec-s4: #a78bfa;
+      --sec-s4-dim: rgba(167, 139, 250, 0.12);
+      --sec-s4-border: rgba(167, 139, 250, 0.3);
+      --sec-s5: #2dd4bf;
+      --sec-s5-dim: rgba(45, 212, 191, 0.12);
+      --sec-s5-border: rgba(45, 212, 191, 0.25);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -142,43 +158,39 @@
     /* ─── MAIN ─── */
     main { padding-top: 56px; }
 
-    /* ─── HERO ─── */
+    /* ─── HERO COMPACTO ─── */
     .hero {
-      padding: 60px 24px 48px;
-      max-width: 1200px; margin: 0 auto;
+      padding: 36px 24px 24px;
+      max-width: 1280px; margin: 0 auto;
     }
 
     .hero-label {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 12px; font-weight: 600;
       letter-spacing: 0.15em; text-transform: uppercase;
-      color: var(--teal); margin-bottom: 12px;
+      color: var(--teal); margin-bottom: 10px;
     }
 
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(48px, 10vw, 80px);
+      font-size: clamp(38px, 7vw, 56px);
       line-height: 0.95; letter-spacing: 0.02em;
-      color: var(--text); margin-bottom: 16px;
+      color: var(--text); margin-bottom: 12px;
     }
     .hero-title span { color: var(--teal); }
 
     .hero-desc {
-      font-size: 16px; color: var(--text-muted);
-      max-width: 500px; line-height: 1.6; margin-bottom: 40px;
+      font-size: 15px; color: var(--text-muted);
+      max-width: 580px; line-height: 1.5; margin-bottom: 24px;
     }
 
-    /* ─── SEARCH + FILTERS ─── */
-    .filters-row {
-      display: flex; flex-direction: column; gap: 16px;
-    }
-
+    /* ─── SEARCH ─── */
     .search-box {
       display: flex; align-items: center; gap: 10px;
       background: var(--bg-card);
       border: 1px solid var(--border-mid);
       border-radius: 10px; padding: 0 16px;
-      max-width: 460px;
+      max-width: 580px;
     }
     .search-box svg { color: var(--text-dim); flex-shrink: 0; }
     .search-box input {
@@ -189,314 +201,590 @@
     }
     .search-box input::placeholder { color: var(--text-dim); }
 
-    .filter-tabs {
-      display: flex; flex-wrap: wrap; gap: 8px;
+    /* ─── SECTION TABS ─── */
+    .section-tabs-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: sticky;
+      top: 56px;
+      background: var(--bg);
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
     }
 
-    .filter-btn {
-      padding: 8px 16px;
+    .section-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .section-tabs::-webkit-scrollbar { display: none; }
+
+    .section-tab {
+      flex-shrink: 0;
+      padding: 16px 18px 14px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-tab:hover { color: var(--text-muted); }
+    .section-tab.active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+    .section-tab .tab-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      opacity: 0.5;
+    }
+    .section-tab.active .tab-num { opacity: 1; }
+    .section-tab .tab-count {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+      background: var(--bg-elevated);
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    /* ─── SECTION CONTENT ─── */
+    .section-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+      display: none;
+    }
+    .section-content.active { display: block; }
+
+    .section-intro {
+      margin-bottom: 28px;
+    }
+    .section-intro h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .section-intro p {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       FILAS NETFLIX (Opción D)
+       Usado en S1, S2, S3, S4
+       ═══════════════════════════════════════════ */
+    .nflx-row { margin-bottom: 36px; position: relative; }
+
+    .nflx-row-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      position: relative;
+      padding-right: 70px;
+    }
+    .nflx-row-icon {
+      width: 40px; height: 40px;
+      border-radius: 9px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(45,212,191,0.25);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    .nflx-row-info { flex: 1; min-width: 0; }
+    .nflx-row-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      line-height: 1;
+    }
+    .nflx-row-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.03em;
+    }
+    .nflx-row-watermark {
+      position: absolute;
+      top: -10px; right: 0;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      color: rgba(255,255,255,0.04);
+      pointer-events: none;
+    }
+
+    .nflx-scroll {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 280px;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--bg-hover) var(--bg-card);
+    }
+    .nflx-scroll::-webkit-scrollbar { height: 6px; }
+    .nflx-scroll::-webkit-scrollbar-track { background: var(--bg-card); border-radius: 4px; }
+    .nflx-scroll::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 4px; }
+    .nflx-scroll::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    .nflx-tile {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 100px; cursor: pointer;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nflx-tile:hover {
+      border-color: var(--border-mid);
+      transform: translateY(-2px);
+    }
+    .nflx-thumb {
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .nflx-thumb-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      letter-spacing: 0.02em;
+      color: rgba(45,212,191,0.15);
+    }
+    .nflx-coming {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.7);
+      color: var(--text-muted);
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 13px; font-weight: 500;
-      color: var(--text-muted); transition: all 0.2s;
+      border: 1px solid var(--border-mid);
+    }
+    .nflx-tile-body { padding: 12px 14px 14px; }
+    .nflx-tile-title {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 4px;
+      min-height: 36px;
+    }
+    .nflx-tile-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.04em;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .nflx-tile-phase {
+      color: var(--teal);
+      opacity: 0.7;
+    }
+
+    /* ═══════════════════════════════════════════
+       VIDEO BISAGRA / FEATURED (S1)
+       ═══════════════════════════════════════════ */
+    .featured-series {
+      margin-top: 24px;
+      background: linear-gradient(135deg, rgba(45,212,191,0.08) 0%, rgba(45,212,191,0.02) 100%);
+      border: 1px solid var(--teal-dim);
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .featured-series:hover {
+      border-color: var(--teal);
+      transform: translateY(-2px);
+    }
+    .featured-icon {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      background: var(--teal-dim);
+      border: 1px solid var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--teal);
+    }
+    .featured-info { flex: 1; min-width: 0; }
+    .featured-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .featured-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+    .featured-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       VARIANTES DE COLOR POR SECCIÓN
+       Aplica al contenedor section-content data-accent
+       ═══════════════════════════════════════════ */
+    /* Por defecto turquesa (S1, S2) ya está. Solo override para S3 y S4 */
+
+    #section-s3 .nflx-row-icon {
+      background: var(--sec-s3-dim);
+      border-color: var(--sec-s3-border);
+      color: var(--sec-s3);
+    }
+    #section-s3 .nflx-thumb { background: linear-gradient(135deg, #1c1813 0%, #14110c 100%); }
+    #section-s3 .nflx-thumb-num { color: rgba(212, 197, 169, 0.18); }
+    #section-s3 .nflx-tile-phase { color: var(--sec-s3); }
+    #section-s3 .nflx-tile:hover { border-color: var(--sec-s3-border); }
+    #section-s3 .section-intro h2::after {
+      content: '';
+      display: inline-block;
+      width: 28px; height: 3px;
+      background: var(--sec-s3);
+      margin-left: 14px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    #section-s4 .nflx-row-icon {
+      background: var(--sec-s4-dim);
+      border-color: var(--sec-s4-border);
+      color: var(--sec-s4);
+    }
+    #section-s4 .nflx-thumb { background: linear-gradient(135deg, #16121f 0%, #110e1a 100%); }
+    #section-s4 .nflx-thumb-num { color: rgba(167, 139, 250, 0.18); }
+    #section-s4 .nflx-tile-phase { color: var(--sec-s4); }
+    #section-s4 .nflx-tile:hover { border-color: var(--sec-s4-border); }
+    #section-s4 .section-intro h2::after {
+      content: '';
+      display: inline-block;
+      width: 28px; height: 3px;
+      background: var(--sec-s4);
+      margin-left: 14px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    /* S1: cada fila usa el color de su pilar */
+    #section-s1 .nflx-row.gf .nflx-row-icon { background: rgba(45,212,191,0.12); border-color: rgba(45,212,191,0.25); color: var(--pilar-gf); }
+    #section-s1 .nflx-row.ks .nflx-row-icon { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: var(--pilar-ks); }
+    #section-s1 .nflx-row.wc .nflx-row-icon { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3); color: var(--pilar-wc); }
+    #section-s1 .nflx-row.bt .nflx-row-icon { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.3); color: var(--pilar-bt); }
+
+    #section-s1 .nflx-row.gf .nflx-thumb { background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%); }
+    #section-s1 .nflx-row.ks .nflx-thumb { background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%); }
+    #section-s1 .nflx-row.wc .nflx-thumb { background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%); }
+    #section-s1 .nflx-row.bt .nflx-thumb { background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%); }
+
+    #section-s1 .nflx-row.gf .nflx-thumb-num { color: rgba(45,212,191,0.18); }
+    #section-s1 .nflx-row.ks .nflx-thumb-num { color: rgba(245,158,11,0.18); }
+    #section-s1 .nflx-row.wc .nflx-thumb-num { color: rgba(167,139,250,0.18); }
+    #section-s1 .nflx-row.bt .nflx-thumb-num { color: rgba(248,113,113,0.18); }
+
+    #section-s1 .nflx-row.gf .nflx-tile-phase { color: var(--pilar-gf); }
+    #section-s1 .nflx-row.ks .nflx-tile-phase { color: var(--pilar-ks); }
+    #section-s1 .nflx-row.wc .nflx-tile-phase { color: var(--pilar-wc); }
+    #section-s1 .nflx-row.bt .nflx-tile-phase { color: var(--pilar-bt); }
+
+    /* ═══════════════════════════════════════════
+       SUB-TABS PARA SECCIÓN 5 (DRILLS)
+       ═══════════════════════════════════════════ */
+    .drill-subtabs-wrap {
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .drill-subtabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 0;
+    }
+    .drill-subtabs::-webkit-scrollbar { display: none; }
+    .drill-subtab {
+      flex-shrink: 0;
+      padding: 12px 16px 11px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .drill-subtab:hover { color: var(--text-muted); }
+    .drill-subtab.active {
+      color: var(--teal);
+      border-bottom-color: var(--teal);
+    }
+    .drill-subtab svg { opacity: 0.6; }
+    .drill-subtab.active svg { opacity: 1; }
+    .drill-subtab .drill-subtab-count {
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg-elevated);
+      padding: 2px 6px;
+      border-radius: 100px;
+      letter-spacing: 0;
+      font-weight: 500;
+    }
+    .drill-subtab.active .drill-subtab-count {
+      background: var(--teal-dim);
+      color: var(--teal);
+    }
+
+    /* En modo "Todos", no se ocultan componentes; en modo componente específico, ocultar los demás */
+    .drill-component.hidden { display: none !important; }
+
+    /* Cuando se activa un componente individual, su header se simplifica */
+    .drill-mode-single .drill-component-header {
+      display: none;
+    }
+
+    /* ═══════════════════════════════════════════
+       SECCIÓN 5 · GRID FILTRABLE DE DRILLS
+       ═══════════════════════════════════════════ */
+    .drills-filters {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .drills-filter-group {
+      margin-bottom: 14px;
+    }
+    .drills-filter-group:last-child { margin-bottom: 0; }
+    .drills-filter-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .drills-filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .drill-chip {
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
       white-space: nowrap;
     }
-    .filter-btn:hover { border-color: var(--border-mid); color: var(--text); }
-    .filter-btn.active {
+    .drill-chip:hover { color: var(--text); border-color: var(--border-mid); }
+    .drill-chip.active {
       background: var(--teal-dim);
       border-color: var(--teal);
       color: var(--teal);
     }
 
-    .filter-btn.pilar-gf.active { background: rgba(45,212,191,0.1); border-color: var(--pilar-gf); color: var(--pilar-gf); }
-    .filter-btn.pilar-ks.active { background: rgba(245,158,11,0.1); border-color: var(--pilar-ks); color: var(--pilar-ks); }
-    .filter-btn.pilar-wc.active { background: rgba(167,139,250,0.1); border-color: var(--pilar-wc); color: var(--pilar-wc); }
-    .filter-btn.pilar-bt.active { background: rgba(248,113,113,0.1); border-color: var(--pilar-bt); color: var(--pilar-bt); }
-
-    /* ─── SECTION DIVIDER ─── */
-    .section-wrap {
-      max-width: 1200px; margin: 0 auto;
-      padding: 0 24px 64px;
-    }
-
-    .section-header {
-      display: flex; align-items: baseline; gap: 12px;
-      margin-bottom: 24px;
-    }
-    .section-header h2 {
+    .drills-stats {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 22px; font-weight: 700;
-      letter-spacing: 0.04em; color: var(--text);
-    }
-    .section-header .count {
-      font-size: 13px; color: var(--text-dim);
-    }
-
-    /* ─── FIX SERIES CARDS ─── */
-    .series-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 16px;
-    }
-
-    .series-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px; overflow: visible;
-      cursor: pointer; transition: all 0.25s;
-      position: relative;
-    }
-    .series-card:hover {
-      border-color: var(--border-mid);
-      transform: translateY(-2px);
-    }
-
-    .series-thumb {
-  position: relative;
-  aspect-ratio: 16/7;
-  background: var(--bg-elevated);
-  overflow: hidden;
-  border-radius: 14px 14px 0 0;
-}
-
-    .series-thumb-bg {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .series-thumb-pattern {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-    }
-
-    .series-thumb-label {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 42px; letter-spacing: 0.05em;
-      opacity: 0.08; position: absolute;
-      white-space: nowrap;
-    }
-
-    .series-play {
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      position: relative; z-index: 1;
-      transition: all 0.2s;
-    }
-    .series-card:hover .series-play {
-      background: var(--teal);
-      border-color: var(--teal);
-    }
-
-    .series-ep-count {
-      position: absolute; top: 12px; right: 12px;
-      background: rgba(0,0,0,0.7);
-      border: 1px solid var(--border-mid);
-      border-radius: 6px; padding: 4px 10px;
-      font-size: 11px; font-weight: 500;
-      color: var(--text-muted);
-      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      color: var(--text-dim);
       letter-spacing: 0.05em;
     }
-
-    .series-body { padding: 18px; }
-
-    .series-pilar-tags {
-      display: flex; gap: 6px; flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .pilar-tag {
-      font-size: 10px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 4px;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-    .pilar-tag.gf { background: rgba(45,212,191,0.1); color: var(--pilar-gf); }
-    .pilar-tag.ks { background: rgba(245,158,11,0.1); color: var(--pilar-ks); }
-    .pilar-tag.wc { background: rgba(167,139,250,0.1); color: var(--pilar-wc); }
-    .pilar-tag.bt { background: rgba(248,113,113,0.1); color: var(--pilar-bt); }
-
-    .series-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 20px; font-weight: 700;
-      letter-spacing: 0.02em;
-      margin-bottom: 6px; line-height: 1.2;
-    }
-    .series-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
-
-    .series-progress {
-      margin-bottom: 14px;
-    }
-    .series-progress-bar {
-      height: 2px; background: var(--border);
-      border-radius: 2px; margin-bottom: 6px; overflow: hidden;
-    }
-    .series-progress-fill {
-      height: 100%; background: var(--teal);
-      border-radius: 2px; width: 0%;
-      transition: width 0.6s ease;
-    }
-    .series-progress-label {
-      font-size: 11px; color: var(--text-dim);
-    }
-
-    .series-cta {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 13px; font-weight: 600;
+    .drills-stats strong {
       color: var(--teal);
+      font-weight: 600;
+    }
+    .drills-clear {
+      margin-left: auto;
+      background: none;
+      border: 1px solid var(--border-mid);
+      color: var(--text-muted);
+      padding: 4px 12px;
+      border-radius: 100px;
       font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.04em; text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drills-clear:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* Componentes (8 categorías) — fila tipo header */
+    .drill-component {
+      margin-bottom: 28px;
+    }
+    .drill-component-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .drill-component-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(45,212,191,0.25);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+    .drill-component-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.03em;
+      color: var(--text);
+      line-height: 1;
+    }
+    .drill-component-count {
+      margin-left: auto;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    /* ─── VIDEO GRID ─── */
-    .video-grid {
+    .drill-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
+      gap: 10px;
     }
-
-    .video-card {
+    .drill-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 12px; overflow: visible;
-      cursor: pointer; transition: all 0.2s;
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .video-card:hover {
+    .drill-card:hover {
       border-color: var(--border-mid);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
-    .video-card.hidden { display: none; }
-
-    .video-thumb {
-      position: relative;
-      aspect-ratio: 16/9;
-      background: var(--bg-elevated);
-      overflow: hidden;
-      background: var(--bg-elevated);
-      border-radius: 12px 12px 0 0;
-    }
-
-    .video-thumb-inner {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
-    }
-
-    .video-thumb-text {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 52px; letter-spacing: 0.05em;
-      opacity: 0.06; position: absolute;
-    }
-
-    .video-thumb-play {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; position: relative; z-index: 1;
-    }
-    .video-card:hover .video-thumb-play {
-      background: var(--teal);
-      border-color: var(--teal);
-    }
-
-    .video-duration {
-      position: absolute; bottom: 8px; right: 8px;
-      background: rgba(0,0,0,0.8);
-      font-size: 11px; color: var(--text-muted);
-      padding: 2px 7px; border-radius: 4px;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    .video-body { padding: 14px; }
-
-    .video-pilar-row {
-      display: flex; align-items: center; gap: 8px;
+    .drill-card.hidden { display: none; }
+    .drill-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
       margin-bottom: 8px;
     }
-
-    .video-title {
+    .drill-card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .drill-meta-tag {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 16px; font-weight: 600;
-      line-height: 1.3; margin-bottom: 6px;
-      color: var(--text);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
     }
-
-    .video-meta-row {
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    .video-cat-tag {
-      font-size: 11px; color: var(--text-dim);
+    .drill-meta-tag.pilar-gf { background: rgba(45,212,191,0.08); color: var(--pilar-gf); border-color: rgba(45,212,191,0.2); }
+    .drill-meta-tag.pilar-ks { background: rgba(245,158,11,0.08); color: var(--pilar-ks); border-color: rgba(245,158,11,0.2); }
+    .drill-meta-tag.pilar-wc { background: rgba(167,139,250,0.08); color: var(--pilar-wc); border-color: rgba(167,139,250,0.2); }
+    .drill-meta-tag.pilar-bt { background: rgba(248,113,113,0.08); color: var(--pilar-bt); border-color: rgba(248,113,113,0.2); }
+    .drill-card-bottom {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-dim);
       font-family: 'Barlow Condensed', sans-serif;
       letter-spacing: 0.04em;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .drill-card-bottom svg { opacity: 0.5; }
+
+    .drill-empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
     }
 
-    /* ─── COMING SOON OVERLAY ─── */
-    .coming-soon-overlay {
-      position: absolute; inset: 0;
-      background: rgba(10,10,10,0.75);
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(2px);
-    }
-    .coming-soon-badge {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
-      border-radius: 8px; padding: 8px 14px;
-      font-size: 11px; font-weight: 600;
-      color: var(--text-muted); letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-family: 'Barlow Condensed', sans-serif;
-    }
-
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center; padding: 60px 24px;
-      display: none;
-    }
-    .empty-state.visible { display: block; }
-    .empty-state p {
-      color: var(--text-muted); font-size: 15px;
-    }
-
-    /* ─── PILARES SECTION ─── */
-    .pilares-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px; margin-bottom: 48px;
-    }
-
-    .pilar-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px;
-      cursor: pointer; transition: all 0.2s;
-      border-top: 3px solid;
-    }
-    .pilar-card:hover { border-color: var(--border-mid); }
-    .pilar-card.gf { border-top-color: var(--pilar-gf); }
-    .pilar-card.ks { border-top-color: var(--pilar-ks); }
-    .pilar-card.wc { border-top-color: var(--pilar-wc); }
-    .pilar-card.bt { border-top-color: var(--pilar-bt); }
-
-    .pilar-card-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 15px; font-weight: 700;
-      letter-spacing: 0.03em; margin-bottom: 4px;
-    }
-    .pilar-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-    .pilar-card-count { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
-
-    /* ─── FOOTER SPACER ─── */
-    .page-end { height: 80px; }
-
-    /* ─── MODAL ─── */
+    /* ═══════════════════════════════════════════
+       MODAL
+       ═══════════════════════════════════════════ */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 2000;
       background: rgba(0,0,0,0.85);
@@ -512,6 +800,8 @@
       border: 1px solid var(--border-mid);
       border-radius: 16px; overflow: hidden;
       width: 100%; max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
       transform: scale(0.96);
       transition: transform 0.25s;
     }
@@ -550,32 +840,40 @@
     .modal-close:hover { background: rgba(0,0,0,0.9); }
 
     .modal-body { padding: 20px 24px 24px; }
-
-    .modal-pilar-tags { display: flex; gap: 6px; margin-bottom: 10px; }
-
+    .modal-pilar-tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .pilar-tag {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+    }
+    .pilar-tag.gf { background: rgba(45,212,191,0.1); color: var(--pilar-gf); }
+    .pilar-tag.ks { background: rgba(245,158,11,0.1); color: var(--pilar-ks); }
+    .pilar-tag.wc { background: rgba(167,139,250,0.1); color: var(--pilar-wc); }
+    .pilar-tag.bt { background: rgba(248,113,113,0.1); color: var(--pilar-bt); }
     .modal-title {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: 22px; font-weight: 700; margin-bottom: 8px;
+      line-height: 1.2;
     }
     .modal-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
-
-    .modal-meta {
-      display: flex; gap: 20px; flex-wrap: wrap;
-    }
+    .modal-meta { display: flex; gap: 20px; flex-wrap: wrap; }
     .modal-meta-item {
       display: flex; align-items: center; gap: 6px;
       font-size: 13px; color: var(--text-dim);
       font-family: 'Barlow Condensed', sans-serif;
     }
 
+    .page-end { height: 80px; }
+
     /* ─── RESPONSIVE ─── */
-    @media (max-width: 600px) {
-      .series-grid { grid-template-columns: 1fr; }
-      .video-grid { grid-template-columns: 1fr 1fr; }
-      .pilares-strip { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 400px) {
-      .video-grid { grid-template-columns: 1fr; }
+    @media (max-width: 700px) {
+      .nflx-scroll { grid-auto-columns: 240px; }
+      .section-tab { padding: 14px 14px 12px; font-size: 13px; }
+      .hero { padding: 28px 20px 20px; }
+      .featured-series { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .drills-filter-chips { gap: 4px; }
+      .drill-chip { padding: 5px 10px; font-size: 11px; }
     }
   </style>
 </head>
@@ -636,400 +934,968 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-label">Metodología MyGolfLab</div>
-    <h1 class="hero-title">BIBLIO<span>TECA</span><br>DE CONTENIDO</h1>
-    <p class="hero-desc">Videos de coaching estructurados por los 4 pilares de la metodología. Tips cortos y cursos completos para corregir problemas específicos.</p>
+    <h1 class="hero-title">BIBLIO<span>TECA</span></h1>
+    <p class="hero-desc">Más de 200 videos estructurados en 5 secciones: desde entender tu swing hasta pensar como profesional. Cada serie progresiva, cada drill con propósito.</p>
 
-    <div class="filters-row">
-      <div class="search-box">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <input type="text" id="searchInput" placeholder="Buscar videos, temas, correcciones..." autocomplete="off">
+    <div class="search-box">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Buscar videos, series, temas..." autocomplete="off">
+    </div>
+  </section>
+
+  <!-- SECTION TABS -->
+  <div class="section-tabs-wrap">
+    <div class="section-tabs" id="sectionTabs">
+      <button class="section-tab active" data-section="s1">
+        <span class="tab-num">01</span>
+        Entiende tu swing
+        <span class="tab-count">22</span>
+      </button>
+      <button class="section-tab" data-section="s2">
+        <span class="tab-num">02</span>
+        Arregla tu juego
+        <span class="tab-count">57</span>
+      </button>
+      <button class="section-tab" data-section="s3">
+        <span class="tab-num">03</span>
+        Aprende a jugar
+        <span class="tab-count">48</span>
+      </button>
+      <button class="section-tab" data-section="s4">
+        <span class="tab-num">04</span>
+        Piensa como pro
+        <span class="tab-count">13</span>
+      </button>
+      <button class="section-tab" data-section="s5">
+        <span class="tab-num">05</span>
+        Drills
+        <span class="tab-count">84</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SECCIÓN 1 · ENTIENDE TU SWING ═══════════════ -->
+  <section class="section-content active" id="section-s1">
+    <div class="section-intro">
+      <h2>Entiende tu swing</h2>
+      <p>Los 4 pilares de la metodología MyGolfLab. Antes de arreglar nada, entiende cómo funciona tu swing desde la física: motor, transmisión, volante y chasis.</p>
+    </div>
+
+    <!-- PILAR 1: GROUND FORCES -->
+    <div class="nflx-row gf">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 19h14"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Ground Forces</div>
+          <div class="nflx-row-desc">El motor del swing · 5 episodios · ~35 min</div>
+        </div>
+        <div class="nflx-row-watermark">01</div>
       </div>
-
-      <div>
-        <div style="font-size:11px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Pilar</div>
-        <div class="filter-tabs" id="pilarFilters">
-          <button class="filter-btn active" data-pilar="all">Todos</button>
-          <button class="filter-btn pilar-gf" data-pilar="gf">Ground Forces</button>
-          <button class="filter-btn pilar-ks" data-pilar="ks">Kinematic Sequence</button>
-          <button class="filter-btn pilar-wc" data-pilar="wc">Wrist Conditions</button>
-          <button class="filter-btn pilar-bt" data-pilar="bt">Body Tilts</button>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s1-gf-1')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">El motor invisible: por qué tu swing nace en el suelo</div><div class="nflx-tile-meta"><span>5–6 min</span><span>·</span><span class="nflx-tile-phase">Fundamento</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-gf-2')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Anatomía de un swing eficiente: cómo usan el suelo los mejores</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Modelo ideal</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-gf-3')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Los 4 errores que te roban metros</div><div class="nflx-tile-meta"><span>8–9 min</span><span>·</span><span class="nflx-tile-phase">Errores</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-gf-4')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Drills para entrenar la presión correcta: del piso al swing real</div><div class="nflx-tile-meta"><span>10–12 min</span><span>·</span><span class="nflx-tile-phase">Drills</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-gf-5')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Ground forces en el campo: cómo cambia tu juego</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Aplicación</span></div></div>
         </div>
       </div>
+    </div>
 
-      <div>
-        <div style="font-size:11px;color:var(--text-dim);font-family:'Barlow Condensed',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Categoría</div>
-        <div class="filter-tabs" id="catFilters">
-          <button class="filter-btn active" data-cat="all">Todas</button>
-          <button class="filter-btn" data-cat="full-swing">Full Swing</button>
-          <button class="filter-btn" data-cat="short-game">Short Game</button>
-          <button class="filter-btn" data-cat="putting">Putting</button>
-          <button class="filter-btn" data-cat="correccion">Corrección</button>
-          <button class="filter-btn" data-cat="drill">Drill</button>
+    <!-- PILAR 2: KINEMATIC SEQUENCE -->
+    <div class="nflx-row ks">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="5" cy="19" r="1.6" fill="currentColor"/><circle cx="10" cy="14" r="2" fill="currentColor"/><circle cx="15" cy="9" r="2.4" fill="currentColor"/><circle cx="20" cy="4" r="2.8" fill="currentColor"/>
+          </svg>
         </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Kinematic Sequence</div>
+          <div class="nflx-row-desc">La transmisión · 5 episodios · ~35 min</div>
+        </div>
+        <div class="nflx-row-watermark">02</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s1-ks-1')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">El secreto físico del swing: por qué el orden lo es todo</div><div class="nflx-tile-meta"><span>5–6 min</span><span>·</span><span class="nflx-tile-phase">Fundamento</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-ks-2')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">El patrón universal: por qué todos los pros se mueven igual</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Modelo ideal</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-ks-3')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Los rompedores de secuencia: over-the-top, stall, casting y brazos primero</div><div class="nflx-tile-meta"><span>8–9 min</span><span>·</span><span class="nflx-tile-phase">Errores</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-ks-4')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Drills para construir tu secuencia: separación pelvis-torso desde cero</div><div class="nflx-tile-meta"><span>10–12 min</span><span>·</span><span class="nflx-tile-phase">Drills</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-ks-5')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Cómo se siente una buena secuencia bajo presión</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Aplicación</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILAR 3: WRIST CONDITIONS -->
+    <div class="nflx-row wc">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 21V8c0-1.5 1-3 3-3s3 1.5 3 3v6"/><path d="M13 14l5-2"/><circle cx="7" cy="21" r="1.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Wrist Conditions</div>
+          <div class="nflx-row-desc">El volante · 5 episodios · ~35 min</div>
+        </div>
+        <div class="nflx-row-watermark">03</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s1-wc-1')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">El control fino del golf: las muñecas como volante de tu swing</div><div class="nflx-tile-meta"><span>5–6 min</span><span>·</span><span class="nflx-tile-phase">Fundamento</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-wc-2')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Lectura de muñecas en los 5 puntos clave del swing</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Modelo ideal</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-wc-3')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Cómo afectan tu vuelo de bola: cupping, bowing, casting y flip</div><div class="nflx-tile-meta"><span>8–9 min</span><span>·</span><span class="nflx-tile-phase">Errores</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-wc-4')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Drills de muñecas: posiciones primero, swing después</div><div class="nflx-tile-meta"><span>10–12 min</span><span>·</span><span class="nflx-tile-phase">Drills</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-wc-5')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Cara del palo en el campo: cómo trabajar tipos de bola y curvaturas</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Aplicación</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILAR 4: BODY TILTS -->
+    <div class="nflx-row bt">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l8 9-8 9-8-9 8-9z"/><path d="M12 3v18"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Body Tilts</div>
+          <div class="nflx-row-desc">El chasis · 6 episodios · ~42 min</div>
+        </div>
+        <div class="nflx-row-watermark">04</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s1-bt-1')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">La geometría de tu swing: los tres tilts que definen tu plano</div><div class="nflx-tile-meta"><span>5–6 min</span><span>·</span><span class="nflx-tile-phase">Fundamento</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-bt-2')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Tilts dinámicos: cómo cambian del address al impacto</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Modelo ideal</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-bt-3')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Los 4 destructores de postura</div><div class="nflx-tile-meta"><span>8–9 min</span><span>·</span><span class="nflx-tile-phase">Errores</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-bt-4')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Drills para reconstruir tu postura dinámica: movilidad y patrón</div><div class="nflx-tile-meta"><span>10–12 min</span><span>·</span><span class="nflx-tile-phase">Drills</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-bt-5')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Postura en el campo: cómo aguanta tu swing en lies difíciles</div><div class="nflx-tile-meta"><span>6–7 min</span><span>·</span><span class="nflx-tile-phase">Aplicación</span></div></div>
+        </div>
+        <div class="nflx-tile" onclick="openModal('s1-bt-6')">
+          <div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div>
+          <div class="nflx-tile-body"><div class="nflx-tile-title">Los 4 pilares como sistema: el mapa completo de tu swing</div><div class="nflx-tile-meta"><span>7–8 min</span><span>·</span><span class="nflx-tile-phase">Cierre</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO BISAGRA -->
+    <div class="featured-series" onclick="openModal('s1-final')">
+      <div class="featured-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <div class="featured-info">
+        <div class="featured-label">Video bisagra · Recomendado</div>
+        <div class="featured-title">La metodología MyGolfLab: los 4 pilares en un swing real</div>
+        <div class="featured-desc">Cómo se conectan los 4 pilares como sistema, cómo elegir por dónde empezar a trabajar, y cómo se conecta la biblioteca con el Coach IA y el Training Lab.</div>
       </div>
     </div>
   </section>
 
-  <!-- FIX SERIES -->
-  <section class="section-wrap" id="seriesSection">
-    <div class="section-header">
-      <h2>Fix Series</h2>
-      <span class="count">2 cursos</span>
+  <!-- ═══════════════ SECCIÓN 2 · ARREGLA TU JUEGO ═══════════════ -->
+  <section class="section-content" id="section-s2">
+    <div class="section-intro">
+      <h2>Arregla tu juego</h2>
+      <p>11 series con foco en problemas concretos: slice, hook, top, gordos, shanks, falta de potencia y más. Cada serie con diagnóstico, causa y drill específico para corregirlo.</p>
     </div>
 
-    <div class="series-grid">
-
-      <!-- Fix Series 1 -->
-      <div class="series-card" onclick="openModal('slice-intro')">
-        <div class="series-thumb">
-          <div class="series-thumb-pattern" style="background: linear-gradient(135deg, #1a1a2e 0%, #0f1923 100%);">
-            <div class="series-thumb-label" style="color: #a78bfa;">SLICE</div>
-            <div class="series-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="series-ep-count">6 EPISODIOS</div>
+    <!-- SERIE 1: FUNDAMENTOS -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="14" width="18" height="6" rx="1"/><path d="M7 14V9M12 14V6M17 14v-7"/>
+          </svg>
         </div>
-        <div class="series-body">
-          <div class="series-pilar-tags">
-            <span class="pilar-tag wc">Wrist Conditions</span>
-            <span class="pilar-tag ks">Kinematic Sequence</span>
-          </div>
-          <div class="series-title">Corrige tu Slice</div>
-          <div class="series-desc">Las 2 causas reales del slice, cómo diagnosticarlo y 3 drills progresivos para eliminarlo definitivamente.</div>
-          <div class="series-progress">
-            <div class="series-progress-bar"><div class="series-progress-fill" style="width:0%"></div></div>
-            <div class="series-progress-label">0 de 6 episodios completados</div>
-          </div>
-          <div class="series-cta">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px"><path d="M8 5v14l11-7z"/></svg>
-            Comenzar curso
-          </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Fundamentos</div>
+          <div class="nflx-row-desc">Lo básico bien hecho · 6 videos</div>
         </div>
+        <div class="nflx-row-watermark">01</div>
       </div>
-
-      <!-- Fix Series 2 -->
-      <div class="series-card" onclick="openModal('hierros-intro')">
-        <div class="series-thumb">
-          <div class="series-thumb-pattern" style="background: linear-gradient(135deg, #1a1a0a 0%, #131a10 100%);">
-            <div class="series-thumb-label" style="color: #2dd4bf;">CONTACT</div>
-            <div class="series-play">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-left:2px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="series-ep-count">6 EPISODIOS</div>
-        </div>
-        <div class="series-body">
-          <div class="series-pilar-tags">
-            <span class="pilar-tag wc">Wrist Conditions</span>
-            <span class="pilar-tag gf">Ground Forces</span>
-          </div>
-          <div class="series-title">Contacto sólido con hierros</div>
-          <div class="series-desc">Elimina tops y cuchilladas. Aprende qué es el shaft lean, el low point y cómo golpear ball-first de forma consistente.</div>
-          <div class="series-progress">
-            <div class="series-progress-bar"><div class="series-progress-fill" style="width:0%"></div></div>
-            <div class="series-progress-label">0 de 6 episodios completados</div>
-          </div>
-          <div class="series-cta">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:2px"><path d="M8 5v14l11-7z"/></svg>
-            Comenzar curso
-          </div>
-        </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-fund-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">El grip</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-fund-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">El setup</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-fund-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Alineación</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-fund-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Postura dinámica</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-fund-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Ritmo y tempo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-fund-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Pre-shot routine</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Fundamentos</span></div></div></div>
       </div>
-
     </div>
+
+    <!-- SERIE 2: DIAGNÓSTICO -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Diagnóstico</div>
+          <div class="nflx-row-desc">Aprende a leer tu propio swing · 4 videos</div>
+        </div>
+        <div class="nflx-row-watermark">02</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-diag-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Leer la trayectoria de tu bola</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-diag-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Leer tu divot</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-diag-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Leer tu impacto en la cara</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-diag-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Auto-diagnóstico en 3 minutos</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 3: SLICE -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19c5-2 8-7 14-14"/><path d="M14 5h5v5"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Slice</div>
+          <div class="nflx-row-desc">Bola que se va a la derecha · 5 videos</div>
+        </div>
+        <div class="nflx-row-watermark">03</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-slice-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Diagnóstico del slice</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-slice-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Cara abierta vs path cruzado</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-slice-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: cerrar la cara</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-slice-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: corregir el path</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-slice-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Slice bajo presión + rutina</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 4: HOOK -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 19c-5-2-8-7-14-14"/><path d="M10 5H5v5"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Hook</div>
+          <div class="nflx-row-desc">Bola que se va a la izquierda · 5 videos</div>
+        </div>
+        <div class="nflx-row-watermark">04</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-hook-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Diagnóstico de bola a la izquierda</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-hook-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Cara cerrada y manos activas</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-hook-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: silenciar las manos</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-hook-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: rotar el cuerpo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-hook-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Convertir hook en draw</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 5: TOP Y GORDOS -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="9" r="3"/><path d="M3 18h18"/><path d="M9 18l3-6 3 6"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Top y gordos</div>
+          <div class="nflx-row-desc">Contacto inconsistente · 7 videos</div>
+        </div>
+        <div class="nflx-row-watermark">05</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-top-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Top vs gordo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">El low point</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué pegas gordos</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué pegas tops</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: presión y transferencia</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: ángulo de los brazos</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-top-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lies complicados</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 6: SHANK -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19l8-8"/><path d="M13 11l8 2"/><path d="M16 4l5 5"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Shank</div>
+          <div class="nflx-row-desc">El tiro lateral inesperado · 5 videos</div>
+        </div>
+        <div class="nflx-row-watermark">06</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-shank-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Shank vs block</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-shank-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué shank: el hosel</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-shank-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: heel drill</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-shank-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: espacio del cuerpo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-shank-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Shank en short game</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 7: PUSH Y PULL -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12h7"/><path d="M7 8l-4 4 4 4"/><path d="M21 12h-7"/><path d="M17 8l4 4-4 4"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Push y pull</div>
+          <div class="nflx-row-desc">Bola recta pero desviada · 5 videos</div>
+        </div>
+        <div class="nflx-row-watermark">07</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-pp-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Push vs pull</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pp-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué push</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pp-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué pull</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Causa</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pp-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill: alineación cuerpo vs cara</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pp-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Push-block bajo presión</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 8: PÉRDIDA DE POTENCIA -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Pérdida de potencia</div>
+          <div class="nflx-row-desc">Recupera distancia perdida · 6 videos</div>
+        </div>
+        <div class="nflx-row-watermark">08</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-pot-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">¿De dónde sale tu potencia?</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pot-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Las 3 fugas más comunes</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pot-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: usar el suelo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pot-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: secuencia de potencia</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pot-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 3: lag y liberación</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-pot-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Cuándo empujar y cuándo controlar</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 9: CONTROL DE DISTANCIA HIERROS -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18M3 12h18M3 18h18"/><path d="M7 4v4M12 10v4M17 16v4"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Control de distancia con hierros</div>
+          <div class="nflx-row-desc">Yardas precisas · 6 videos</div>
+        </div>
+        <div class="nflx-row-watermark">09</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-cd-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué tus 7-iron varían</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-cd-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Contacto centrado</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-cd-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Smash factor y velocidad</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-cd-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: tres cuartos como base</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-cd-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: matriz de distancias</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-cd-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Elegir palo, no héroe</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 10: SPIN EN WEDGES -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 6a6 6 0 100 12 6 6 0 000-12z"/><path d="M12 10a2 2 0 100 4 2 2 0 000-4z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Spin en wedges</div>
+          <div class="nflx-row-desc">Backspin que para la bola · 5 videos</div>
+        </div>
+        <div class="nflx-row-watermark">10</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-spin-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por qué tu wedge varía</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Diagnóstico</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-spin-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Los tres factores del spin</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-spin-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 1: contacto primero</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-spin-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drill 2: ángulo de ataque</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Drill</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-spin-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Cuándo NO buscar spin</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 11: CÓMO ENTRENAR -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Cómo entrenar</div>
+          <div class="nflx-row-desc">Práctica con propósito · 3 videos</div>
+        </div>
+        <div class="nflx-row-watermark">11</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s2-tr-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Practicar con propósito</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Método</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-tr-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Práctica en casa sin palo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Método</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s2-tr-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Trasladar el drill a la cancha</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Método</span></div></div></div>
+      </div>
+    </div>
+
   </section>
 
-  <!-- CONCEPT CLIPS -->
-  <section class="section-wrap">
-    <div class="section-header">
-      <h2>Concept Clips</h2>
-      <span class="count" id="clipCount">16 videos</span>
+  <!-- ═══════════════ SECCIÓN 3 · APRENDE A JUGAR ═══════════════ -->
+  <section class="section-content" id="section-s3">
+    <div class="section-intro">
+      <h2>Aprende a jugar</h2>
+      <p>5 cursos completos: driving, approach, short game, putting y recovery. La técnica aplicada al juego real, hoyo por hoyo, con estrategia y toma de decisiones.</p>
     </div>
 
-    <div class="video-grid" id="videoGrid">
-
-      <!-- GROUND FORCES -->
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="qué es el ground forces y por qué cambia tu swing" onclick="openModal('gf-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
+    <!-- CURSO 1: DRIVING -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 21l8-8"/><path d="M14 4l6 6-7 1z"/><circle cx="6" cy="20" r="1.5" fill="currentColor"/>
+          </svg>
         </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Qué es el Ground Forces y por qué cambia tu swing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Driving</div>
+          <div class="nflx-row-desc">Tee shots largos y precisos · 8 videos</div>
         </div>
+        <div class="nflx-row-watermark">01</div>
       </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="cómo sentir la presión en el pie trasero al backswing" onclick="openModal('gf-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Cómo sentir la presión en el pie trasero al backswing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s3-dr-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Setup del driver</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Swing del driver: arriba en el ataque</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Tu drive base</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Draw controlado</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Fade controlado</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Stinger</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Drive en viento</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-dr-8')"><div class="nflx-thumb"><div class="nflx-thumb-num">08</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Estrategia de tee</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
       </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="full-swing" data-title="el shift de cadera sin levantar el talón" onclick="openModal('gf-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">El shift de cadera sin levantar el talón</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="gf" data-cat="drill" data-title="drill toalla bajo el pie delantero" onclick="openModal('gf-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #0d1f1e 0%, #0a1a19 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-gf);">GF</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag gf">Ground Forces</span></div>
-          <div class="video-title">Drill: toalla bajo el pie delantero</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- KINEMATIC SEQUENCE -->
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="la secuencia correcta caderas primero siempre" onclick="openModal('ks-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">La secuencia correcta: caderas primero, siempre</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="el x-factor separación cadera-hombros en el tope" onclick="openModal('ks-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">El X-Factor: separación cadera-hombros en el tope</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="full-swing" data-title="cómo los brazos llegan tarde y por qué es bueno" onclick="openModal('ks-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">Cómo los brazos llegan tarde (y por qué es bueno)</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="ks" data-cat="drill" data-title="drill palo en caderas rotación sin brazos" onclick="openModal('ks-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f1a0a 0%, #1a1508 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-ks);">KS</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag ks">Kinematic Sequence</span></div>
-          <div class="video-title">Drill: palo en caderas, rotación sin brazos</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- WRIST CONDITIONS -->
-      <div class="video-card" data-pilar="wc" data-cat="full-swing" data-title="las 3 condiciones de muñeca que debes conocer" onclick="openModal('wc-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Las 3 condiciones de muñeca que debes conocer</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="full-swing" data-title="shaft lean qué es y cómo crearlo en impacto" onclick="openModal('wc-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Shaft lean: qué es y cómo crearlo en impacto</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="short-game" data-title="muñeca en chipping por qué no doblarla" onclick="openModal('wc-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Muñeca en chipping: por qué no doblarla</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Short Game</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="wc" data-cat="drill" data-title="drill chip con guante bajo la axila" onclick="openModal('wc-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #130f1f 0%, #0f0c1a 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-wc);">WC</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag wc">Wrist Conditions</span></div>
-          <div class="video-title">Drill: chip con guante bajo la axila</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
-      <!-- BODY TILTS -->
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="los 4 tilts del torso en el swing completo" onclick="openModal('bt-1')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">6 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Los 4 tilts del torso en el swing completo</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="side tilt en el tope el secreto del lag" onclick="openModal('bt-2')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">5 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Side tilt en el tope: el secreto del lag</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="full-swing" data-title="forward tilt en address cómo encontrar el ángulo" onclick="openModal('bt-3')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Forward tilt en address: cómo encontrar el ángulo</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Full Swing</span></div>
-        </div>
-      </div>
-
-      <div class="video-card" data-pilar="bt" data-cat="drill" data-title="drill pelota bajo el brazo derecho en backswing" onclick="openModal('bt-4')">
-        <div class="video-thumb">
-          <div class="video-thumb-inner" style="background: linear-gradient(135deg, #1f0f0f 0%, #1a0d0d 100%);">
-            <div class="video-thumb-text" style="color: var(--pilar-bt);">BT</div>
-            <div class="video-thumb-play">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="margin-left:1px"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          </div>
-          <div class="video-duration">4 min</div>
-        </div>
-        <div class="video-body">
-          <div class="video-pilar-row"><span class="pilar-tag bt">Body Tilts</span></div>
-          <div class="video-title">Drill: pelota bajo el brazo derecho en backswing</div>
-          <div class="video-meta-row"><span class="video-cat-tag">Drill</span></div>
-        </div>
-      </div>
-
     </div>
 
-    <div class="empty-state" id="emptyState">
-      <p>No hay videos que coincidan con los filtros seleccionados.</p>
+    <!-- CURSO 2: APPROACH -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 21V4"/><path d="M5 4l10 3-10 4z"/><circle cx="5" cy="21" r="1.4" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Approach</div>
+          <div class="nflx-row-desc">Tiros al green con hierros · 11 videos</div>
+        </div>
+        <div class="nflx-row-watermark">02</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s3-ap-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Setup y swing base del hierro</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Trayectoria baja</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Trayectoria alta</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lectura de viento</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Aplicación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Fairway bunker</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lie especial</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lie uphill</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lie especial</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lie downhill</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lie especial</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-8')"><div class="nflx-thumb"><div class="nflx-thumb-num">08</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Sidehill: bola sobre los pies</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lie especial</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-9')"><div class="nflx-thumb"><div class="nflx-thumb-num">09</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Sidehill: bola bajo los pies</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lie especial</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-10')"><div class="nflx-thumb"><div class="nflx-thumb-num">10</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Estrategia de approach</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-ap-11')"><div class="nflx-thumb"><div class="nflx-thumb-num">11</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Scoring desde 100m</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
+      </div>
     </div>
+
+    <!-- CURSO 3: SHORT GAME -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 17c4-2 8-2 12 0"/><path d="M9 17l3-9 3 9"/><circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Short Game</div>
+          <div class="nflx-row-desc">Chip, pitch, bunker · 12 videos</div>
+        </div>
+        <div class="nflx-row-watermark">03</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s3-sg-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Filosofía del juego corto</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Trayectoria, carry, rollout</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Chip básico</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Bump and run</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Chip de aterrizaje</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Pitch con spin</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Flop</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-8')"><div class="nflx-thumb"><div class="nflx-thumb-num">08</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Bunker estándar</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Bunker</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-9')"><div class="nflx-thumb"><div class="nflx-thumb-num">09</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Bunker en arena dura/mojada</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Bunker</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-10')"><div class="nflx-thumb"><div class="nflx-thumb-num">10</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lie enterrado</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Bunker</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-11')"><div class="nflx-thumb"><div class="nflx-thumb-num">11</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Putear desde fuera del green</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Variación</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-sg-12')"><div class="nflx-thumb"><div class="nflx-thumb-num">12</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Estrategia de short game</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- CURSO 4: PUTTING -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="18" rx="6" ry="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/><path d="M18 18l4-12-4 1"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Putting</div>
+          <div class="nflx-row-desc">Lectura, stroke y estrategia · 9 videos</div>
+        </div>
+        <div class="nflx-row-watermark">04</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s3-pt-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Setup y stroke base</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Ritmo y tempo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Técnica</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lectura: pendiente y velocidad</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lectura</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Lectura avanzada: grano, agua, sol</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Lectura</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Putts cortos: anti-yips</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Distancia</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Putts cortos bajo presión</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Distancia</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Putts medios</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Distancia</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-8')"><div class="nflx-thumb"><div class="nflx-thumb-num">08</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Putts largos: regla del 2-putt</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Distancia</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-pt-9')"><div class="nflx-thumb"><div class="nflx-thumb-num">09</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Estrategia de putting</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- CURSO 5: RECOVERY -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22V12"/><path d="M12 12c-4 0-7-3-7-7"/><path d="M12 12c4 0 7-3 7-7"/><path d="M12 12c-3-2-5-5-5-9"/><path d="M12 12c3-2 5-5 5-9"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Recovery</div>
+          <div class="nflx-row-desc">Salir de los problemas · 8 videos</div>
+        </div>
+        <div class="nflx-row-watermark">05</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s3-rc-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Mentalidad de recovery</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Concepto</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Punch shot bajo árboles</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Salida lateral desde árboles</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-4')"><div class="nflx-thumb"><div class="nflx-thumb-num">04</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Rough espeso: hierros cortos</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-5')"><div class="nflx-thumb"><div class="nflx-thumb-num">05</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Rough espeso: wedges</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-6')"><div class="nflx-thumb"><div class="nflx-thumb-num">06</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Bola contra el labio del bunker</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-7')"><div class="nflx-thumb"><div class="nflx-thumb-num">07</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Bola en divot</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Tiro</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s3-rc-8')"><div class="nflx-thumb"><div class="nflx-thumb-num">08</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Árbol de decisión del recovery</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Estrategia</span></div></div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════ SECCIÓN 4 · PIENSA COMO PRO ═══════════════ -->
+  <section class="section-content" id="section-s4">
+    <div class="section-intro">
+      <h2>Piensa como profesional</h2>
+      <p>13 series con la mirada de un jugador de gira: estrategia de cancha, mentalidad competitiva, semana de torneo, manejo del cuerpo, equipamiento y conversaciones con tu coach.</p>
+    </div>
+
+    <!-- SERIE 1: TU DESARROLLO COMO JUGADOR -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21l4-4 4 4 4-8 4 5 4-7"/><path d="M3 21h18"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Tu desarrollo como jugador</div>
+          <div class="nflx-row-desc">Mi camino y aprendizajes · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">01</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-des-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 2: MENTALIDAD COMPETITIVA -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a7 7 0 00-7 7c0 2 1 4 2 5l1 4h8l1-4c1-1 2-3 2-5a7 7 0 00-7-7z"/><path d="M9 22h6"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Mentalidad competitiva</div>
+          <div class="nflx-row-desc">La cabeza del jugador · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">02</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-ment-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 3: ESTRATEGIA DE CANCHA -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5l-6 3v14l6-3 6 3 6-3V5l-6 3z"/><path d="M9 5v14M15 8v14"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Estrategia de cancha</div>
+          <div class="nflx-row-desc">Cómo piensa un profesional el campo · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">03</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-est-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 4: ANÁLISIS DE JUGADAS REALES -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Análisis de jugadas reales</div>
+          <div class="nflx-row-desc">Diseccionando tiros importantes · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">04</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-an-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 5: ERRORES QUE COMETÍ -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 00-4 13l1 2h6l1-2a7 7 0 00-4-13z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Errores que cometí y qué aprendí</div>
+          <div class="nflx-row-desc">Lecciones del camino · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">05</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-err-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 6: SEMANA DE TORNEO -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2l-2 4h16l-2-4z"/><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 12h16"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Semana de torneo</div>
+          <div class="nflx-row-desc">Día por día, tiro por tiro · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">06</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-tor-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 7: LA MENTE DEL ÚLTIMO HOYO (video único) -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">La mente del último hoyo</div>
+          <div class="nflx-row-desc">Video único · Cerrar bajo presión</div>
+        </div>
+        <div class="nflx-row-watermark">07</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-mente-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">La mente del último hoyo</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Video único</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 8: CONVERSACIONES CON TU COACH -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11c0 4-4 7-9 7-1 0-2 0-3-.3L4 19l1-4c-1-1-2-2-2-4 0-4 4-7 9-7s9 3 9 7z"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Conversaciones con tu coach</div>
+          <div class="nflx-row-desc">Charlas profundas · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">08</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-conv-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Serie en producción</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 9: DÍA EN LA VIDA -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Día en la vida — Sunshine Tour</div>
+          <div class="nflx-row-desc">Cómo es realmente · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">09</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-dia-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Por grabar</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 10: MANEJO DEL CUERPO -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="2"/><path d="M12 7v5"/><path d="M8 12h8l-2 5h-4z"/><path d="M9 17l-2 5M15 17l2 5"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Manejo del cuerpo del jugador</div>
+          <div class="nflx-row-desc">Movilidad, fuerza, recuperación · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">10</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-cuerpo-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Por grabar</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 11: EQUIPAMIENTO -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 3l4 12-2 6h10l-2-6 4-12"/><path d="M9 15h6"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Equipamiento desde la mirada del jugador</div>
+          <div class="nflx-row-desc">Palos, bolas, configuración · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">11</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-eq-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Por grabar</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 12: GESTIONAR MALA RACHA -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 7l6 6 4-4 8 8"/><path d="M21 17v-7h-7"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Cómo gestionar una mala racha</div>
+          <div class="nflx-row-desc">Serie corta · 3 videos</div>
+        </div>
+        <div class="nflx-row-watermark">12</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-racha-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por grabar</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Próximamente</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s4-racha-2')"><div class="nflx-thumb"><div class="nflx-thumb-num">02</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por grabar</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Próximamente</span></div></div></div>
+        <div class="nflx-tile" onclick="openModal('s4-racha-3')"><div class="nflx-thumb"><div class="nflx-thumb-num">03</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Por grabar</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Próximamente</span></div></div></div>
+      </div>
+    </div>
+
+    <!-- SERIE 13: PRÁCTICA DEL PROFESIONAL -->
+    <div class="nflx-row">
+      <div class="nflx-row-header">
+        <div class="nflx-row-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-7h6v7"/>
+          </svg>
+        </div>
+        <div class="nflx-row-info">
+          <div class="nflx-row-title">Práctica de un jugador profesional</div>
+          <div class="nflx-row-desc">Cómo se entrena de verdad · Serie</div>
+        </div>
+        <div class="nflx-row-watermark">13</div>
+      </div>
+      <div class="nflx-scroll">
+        <div class="nflx-tile" onclick="openModal('s4-prac-1')"><div class="nflx-thumb"><div class="nflx-thumb-num">01</div><div class="nflx-coming">Próximamente</div></div><div class="nflx-tile-body"><div class="nflx-tile-title">Episodios próximamente</div><div class="nflx-tile-meta"><span class="nflx-tile-phase">Por grabar</span></div></div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ═══════════════ SECCIÓN 5 · CATÁLOGO DE DRILLS ═══════════════ -->
+  <section class="section-content" id="section-s5">
+    <div class="section-intro">
+      <h2>Drills</h2>
+      <p>84 drills filtrables por error técnico, pilar, fase, nivel y equipamiento. Recomendados directamente por el Coach IA según tu diagnóstico.</p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="drills-filters">
+      <div class="drills-filter-group">
+        <div class="drills-filter-label">Error técnico</div>
+        <div class="drills-filter-chips" id="filter-error">
+          <button class="drill-chip active" data-filter="error" data-value="all">Todos</button>
+          <button class="drill-chip" data-filter="error" data-value="slice">Slice</button>
+          <button class="drill-chip" data-filter="error" data-value="hook">Hook</button>
+          <button class="drill-chip" data-filter="error" data-value="top">Top</button>
+          <button class="drill-chip" data-filter="error" data-value="gordo">Gordo</button>
+          <button class="drill-chip" data-filter="error" data-value="shank">Shank</button>
+          <button class="drill-chip" data-filter="error" data-value="push">Push</button>
+          <button class="drill-chip" data-filter="error" data-value="pull">Pull</button>
+          <button class="drill-chip" data-filter="error" data-value="potencia">Pérdida de potencia</button>
+          <button class="drill-chip" data-filter="error" data-value="distancia">Control de distancia</button>
+          <button class="drill-chip" data-filter="error" data-value="spin">Spin en wedges</button>
+        </div>
+      </div>
+      <div class="drills-filter-group">
+        <div class="drills-filter-label">Pilar</div>
+        <div class="drills-filter-chips" id="filter-pilar">
+          <button class="drill-chip active" data-filter="pilar" data-value="all">Todos</button>
+          <button class="drill-chip" data-filter="pilar" data-value="GF">Ground Forces</button>
+          <button class="drill-chip" data-filter="pilar" data-value="KS">Kinematic Sequence</button>
+          <button class="drill-chip" data-filter="pilar" data-value="WC">Wrist Conditions</button>
+          <button class="drill-chip" data-filter="pilar" data-value="BT">Body Tilts</button>
+        </div>
+      </div>
+      <div class="drills-filter-group">
+        <div class="drills-filter-label">Fase</div>
+        <div class="drills-filter-chips" id="filter-fase">
+          <button class="drill-chip active" data-filter="fase" data-value="all">Todas</button>
+          <button class="drill-chip" data-filter="fase" data-value="S">Sensación</button>
+          <button class="drill-chip" data-filter="fase" data-value="P">Patrón</button>
+          <button class="drill-chip" data-filter="fase" data-value="T">Transferencia</button>
+        </div>
+      </div>
+      <div class="drills-filter-group">
+        <div class="drills-filter-label">Nivel</div>
+        <div class="drills-filter-chips" id="filter-nivel">
+          <button class="drill-chip active" data-filter="nivel" data-value="all">Todos</button>
+          <button class="drill-chip" data-filter="nivel" data-value="Pri">Principiante</button>
+          <button class="drill-chip" data-filter="nivel" data-value="Int">Intermedio</button>
+          <button class="drill-chip" data-filter="nivel" data-value="Avz">Avanzado</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="drills-stats">
+      <span><strong id="drillVisibleCount">84</strong> drills visibles</span>
+      <span>·</span>
+      <span>8 componentes del swing</span>
+      <button class="drills-clear" id="drillsClear">Limpiar filtros</button>
+    </div>
+
+    <!-- SUB-TABS POR COMPONENTE -->
+    <div class="drill-subtabs-wrap">
+      <div class="drill-subtabs" id="drillSubtabs">
+        <button class="drill-subtab active" data-component="all">
+          Todos
+          <span class="drill-subtab-count">84</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- COMPONENTES (8) — generados por JS -->
+    <div id="drillsContainer"></div>
+
   </section>
 
 </main>
@@ -1073,7 +1939,6 @@
   const menuToggle = document.getElementById('menuToggle');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
-
   menuToggle.addEventListener('click', () => {
     const open = sidebar.classList.toggle('active');
     overlay.classList.toggle('active', open);
@@ -1085,32 +1950,21 @@
     menuToggle.classList.remove('active');
   });
 
-  // ─── VIDEO DATA ───
-  const videoData = {
-    'gf-1': { title: 'Qué es el Ground Forces y por qué cambia tu swing', desc: 'Entendé cómo la presión contra el suelo genera potencia y controla la trayectoria del palo. El pilar fundamental de la Metodología MyGolfLab.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '4 min', cat: 'Full Swing' },
-    'gf-2': { title: 'Cómo sentir la presión en el pie trasero al backswing', desc: 'Ejercicios sensoriales para desarrollar conciencia del suelo y aprender a cargar correctamente el pie trasero durante el backswing.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '5 min', cat: 'Full Swing' },
-    'gf-3': { title: 'El shift de cadera sin levantar el talón', desc: 'La transición es el momento más crítico del swing. Aprendé a iniciar el downswing con el shift de cadera manteniendo el talón en el suelo.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '5 min', cat: 'Full Swing' },
-    'gf-4': { title: 'Drill: toalla bajo el pie delantero', desc: 'Un drill simple y efectivo para aprender a mantener el peso atrás en el backswing y transferirlo explosivamente en el downswing.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '4 min', cat: 'Drill' },
-    'ks-1': { title: 'La secuencia correcta: caderas primero, siempre', desc: 'El error más común en el golf amateur es iniciar el downswing con los brazos o los hombros. Entendé por qué las caderas deben liderar y cómo lograrlo.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '5 min', cat: 'Full Swing' },
-    'ks-2': { title: 'El X-Factor: separación cadera-hombros en el tope', desc: 'La diferencia entre caderas y hombros en el tope del backswing crea tensión muscular que se libera como potencia. Aprendé a maximizarla.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6 min', cat: 'Full Swing' },
-    'ks-3': { title: 'Cómo los brazos llegan tarde (y por qué es bueno)', desc: 'En los mejores jugadores del mundo, los brazos y el palo son los últimos en llegar al impacto. Este concepto contra-intuitivo es clave para generar lag y potencia real.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '5 min', cat: 'Full Swing' },
-    'ks-4': { title: 'Drill: palo en caderas, rotación sin brazos', desc: 'El ejercicio clásico para aprender a sentir la rotación de caderas de forma aislada, sin interferencia de los brazos.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '4 min', cat: 'Drill' },
-    'wc-1': { title: 'Las 3 condiciones de muñeca que debes conocer', desc: 'Flexión, extensión y desviación cúbito-radial. Entendé qué hacen tus muñecas en cada fase del swing y cómo controlarlas para producir el contacto deseado.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '6 min', cat: 'Full Swing' },
-    'wc-2': { title: 'Shaft lean: qué es y cómo crearlo en impacto', desc: 'El shaft lean —palo inclinado hacia el objetivo en impacto— es la firma de un golpe comprimido. Aprendé qué lo causa y cómo desarrollarlo con las muñecas.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '5 min', cat: 'Full Swing' },
-    'wc-3': { title: 'Muñeca en chipping: por qué no doblarla', desc: 'El mayor error en el short game: dejar que la muñeca izquierda se quiebre en impacto. Entendé la mecánica correcta para un contacto limpio y consistente.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '4 min', cat: 'Short Game' },
-    'wc-4': { title: 'Drill: chip con guante bajo la axila', desc: 'El drill del guante es uno de los más efectivos para internalizar la relación correcta entre cuerpo y brazos en el movimiento de chipping.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '4 min', cat: 'Drill' },
-    'bt-1': { title: 'Los 4 tilts del torso en el swing completo', desc: 'Forward tilt, side tilt, thrust y sway. Cada fase del swing tiene inclinaciones específicas del torso. Entendé todas para tener una base sólida.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '6 min', cat: 'Full Swing' },
-    'bt-2': { title: 'Side tilt en el tope: el secreto del lag', desc: 'La inclinación lateral del torso en el tope del backswing determina el plano del downswing y es fundamental para crear lag natural y potente.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '5 min', cat: 'Full Swing' },
-    'bt-3': { title: 'Forward tilt en address: cómo encontrar el ángulo', desc: 'La inclinación inicial del torso desde las caderas define el plano de tu swing. Aprende a encontrar tu ángulo óptimo según tu tipo de cuerpo.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '4 min', cat: 'Full Swing' },
-    'bt-4': { title: 'Drill: pelota bajo el brazo derecho en backswing', desc: 'Un drill sencillo para mantener la conexión del brazo derecho con el torso y asegurar la inclinación correcta del cuerpo durante el backswing.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '4 min', cat: 'Drill' },
-    'slice-intro': { title: 'Fix Series: Corrige tu Slice', desc: '6 episodios para entender las causas reales del slice y eliminarlo con drills progresivos. Cubre los pilares de Wrist Conditions y Kinematic Sequence.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span><span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6 episodios · ~33 min total', cat: 'Fix Series' },
-    'hierros-intro': { title: 'Fix Series: Contacto sólido con hierros', desc: '6 episodios para eliminar tops y cuchilladas. Aprende shaft lean, low point y cómo golpear ball-first de forma consistente.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span><span class="pilar-tag gf">Ground Forces</span>', dur: '6 episodios · ~33 min total', cat: 'Fix Series' },
-  };
+  // ─── SECTION TABS ───
+  document.querySelectorAll('.section-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('section-' + tab.dataset.section).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
 
+  // ─── MODAL ───
   function openModal(id) {
-    const d = videoData[id];
-    if (!d) return;
-    document.getElementById('modalPilarTags').innerHTML = d.pilarTags;
+    const d = videoData[id] || { title: 'Próximamente', desc: 'Este video todavía no está disponible. Vuelve pronto.', pilarTags: '', dur: '—', cat: '—' };
+    document.getElementById('modalPilarTags').innerHTML = d.pilarTags || '';
     document.getElementById('modalTitle').textContent = d.title;
     document.getElementById('modalDesc').textContent = d.desc;
     document.getElementById('modalDuration').textContent = d.dur;
@@ -1118,77 +1972,348 @@
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
   }
-
   function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
     document.body.style.overflow = '';
   }
-
-  function closeModalOutside(e) {
-    if (e.target === document.getElementById('modalOverlay')) closeModal();
-  }
-
+  function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  // ─── FILTERS ───
-  let activePilar = 'all';
-  let activeCat = 'all';
-  let searchQuery = '';
+  // ─── VIDEO DATA (Sección 1 con descripciones detalladas) ───
+  const videoData = {
+    's1-gf-1': { title: 'El motor invisible: por qué tu swing nace en el suelo', desc: 'Las ground forces son el primer pilar. Tres vectores —vertical, horizontal y rotacional— que determinan la potencia y la dirección de tu swing.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '5–6 min', cat: 'Fundamento conceptual' },
+    's1-gf-2': { title: 'Anatomía de un swing eficiente: cómo usan el suelo los mejores', desc: 'El timing exacto de los tres vectores en un swing de élite, frame por frame.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '6–7 min', cat: 'Modelo ideal' },
+    's1-gf-3': { title: 'Los 4 errores que te roban metros', desc: 'Hanging back, negative footwork, early extension y secuencia invertida.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '8–9 min', cat: 'Errores' },
+    's1-gf-4': { title: 'Drills para entrenar la presión correcta', desc: '5 drills en progresión: 3 sin pelota y 2 con pelota.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '10–12 min', cat: 'Drills' },
+    's1-gf-5': { title: 'Ground forces en el campo', desc: 'Cómo aplicar las ground forces en drives, hierros y golpes bajo presión.', pilarTags: '<span class="pilar-tag gf">Ground Forces</span>', dur: '6–7 min', cat: 'Aplicación' },
+    's1-ks-1': { title: 'El secreto físico del swing: por qué el orden lo es todo', desc: 'El principio de summation of speed. La cadena pelvis-torso-brazos-palo.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '5–6 min', cat: 'Fundamento conceptual' },
+    's1-ks-2': { title: 'El patrón universal', desc: 'Las tres reglas invariables y el X-factor stretch.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6–7 min', cat: 'Modelo ideal' },
+    's1-ks-3': { title: 'Los rompedores de secuencia', desc: 'Over-the-top, stall, casting y brazos primero.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '8–9 min', cat: 'Errores' },
+    's1-ks-4': { title: 'Drills para construir tu secuencia', desc: '5 drills enfocados en el desacople pelvis-torso.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '10–12 min', cat: 'Drills' },
+    's1-ks-5': { title: 'Cómo se siente bajo presión', desc: 'Brazos suaves, pelvis arranca. La idea ancla bajo presión.', pilarTags: '<span class="pilar-tag ks">Kinematic Sequence</span>', dur: '6–7 min', cat: 'Aplicación' },
+    's1-wc-1': { title: 'Las muñecas como volante de tu swing', desc: 'Los tres planos de movimiento: flexión-extensión, radial-cubital y supinación-pronación.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '5–6 min', cat: 'Fundamento conceptual' },
+    's1-wc-2': { title: 'Lectura de muñecas en los 5 puntos clave', desc: 'Address, P2, top, impacto y P7.5. La muñeca delantera como indicador.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '6–7 min', cat: 'Modelo ideal' },
+    's1-wc-3': { title: 'Cupping, bowing, casting y flip', desc: 'Cada error de muñeca produce un tipo específico de vuelo de bola.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '8–9 min', cat: 'Errores' },
+    's1-wc-4': { title: 'Drills de muñecas: posiciones primero', desc: '5 drills con foco en la muñeca delantera plana.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '10–12 min', cat: 'Drills' },
+    's1-wc-5': { title: 'Tipos de bola y curvaturas', desc: 'Fade, draw, bola alta, bola baja con muñecas conscientes.', pilarTags: '<span class="pilar-tag wc">Wrist Conditions</span>', dur: '6–7 min', cat: 'Aplicación' },
+    's1-bt-1': { title: 'La geometría de tu swing', desc: 'Forward bend, side bend y rotación. El swing en un espacio inclinado.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '5–6 min', cat: 'Fundamento conceptual' },
+    's1-bt-2': { title: 'Tilts dinámicos del address al impacto', desc: 'Cómo evolucionan los tres tilts en cinco fases del swing.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '6–7 min', cat: 'Modelo ideal' },
+    's1-bt-3': { title: 'Los 4 destructores de postura', desc: 'Early extension, reverse spine, hanging back y standing up.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '8–9 min', cat: 'Errores' },
+    's1-bt-4': { title: 'Reconstruir tu postura dinámica', desc: '5 drills que combinan trabajo motor con movilidad.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '10–12 min', cat: 'Drills' },
+    's1-bt-5': { title: 'Postura en lies difíciles', desc: 'Cómo adaptar tus tilts a pendientes y lies laterales.', pilarTags: '<span class="pilar-tag bt">Body Tilts</span>', dur: '6–7 min', cat: 'Aplicación' },
+    's1-bt-6': { title: 'Los 4 pilares como sistema', desc: 'Cómo se conectan motor, transmisión, volante y chasis.', pilarTags: '<span class="pilar-tag gf">GF</span><span class="pilar-tag ks">KS</span><span class="pilar-tag wc">WC</span><span class="pilar-tag bt">BT</span>', dur: '7–8 min', cat: 'Cierre integrado' },
+    's1-final': { title: 'La metodología MyGolfLab: los 4 pilares en un swing real', desc: 'Video bisagra entre la biblioteca y el resto del producto. Cómo conectan los 4 pilares y cómo MyGolfLab te acompaña: Biblioteca → Coach IA → Training Lab.', pilarTags: '<span class="pilar-tag gf">GF</span><span class="pilar-tag ks">KS</span><span class="pilar-tag wc">WC</span><span class="pilar-tag bt">BT</span>', dur: '8–10 min', cat: 'Video bisagra' },
+  };
 
-  document.querySelectorAll('#pilarFilters .filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#pilarFilters .filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activePilar = btn.dataset.pilar;
-      applyFilters();
-    });
-  });
-
-  document.querySelectorAll('#catFilters .filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#catFilters .filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCat = btn.dataset.cat;
-      applyFilters();
-    });
-  });
-
+  // ─── BÚSQUEDA ───
   document.getElementById('searchInput').addEventListener('input', e => {
-    searchQuery = e.target.value.toLowerCase().trim();
-    applyFilters();
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.nflx-tile').forEach(tile => {
+      const title = tile.querySelector('.nflx-tile-title').textContent.toLowerCase();
+      tile.style.display = (!q || title.includes(q)) ? '' : 'none';
+    });
+    document.querySelectorAll('.drill-card').forEach(card => {
+      const title = card.dataset.title || '';
+      if (q && !title.includes(q)) card.classList.add('hidden');
+      else card.classList.remove('hidden');
+    });
+    if (q) updateDrillCount();
   });
 
-  function applyFilters() {
-    const cards = document.querySelectorAll('.video-card, .series-card');
-    let visible = 0;
+  // ═══════════════════════════════════════════
+  // SECCIÓN 5 · DATOS Y RENDERIZADO DE DRILLS
+  // ═══════════════════════════════════════════
+  // Cada drill: [titulo, pilares, errores, fase, nivel, espacio, equipamiento, duracion]
+  const drillsData = {
+    'cara': {
+      title: 'Cara del palo',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="14" rx="1"/><path d="M12 17v4"/><path d="M9 21h6"/></svg>',
+      drills: [
+        ['Cierre con la mano de atrás','WC','slice,push','S','Pri','Casa','Palo, espejo','10 min'],
+        ['Sentir el nudillo en el target','WC','slice','S','Pri','Casa','Palo o ninguno','8 min'],
+        ['Logo del guante al cielo','WC','hook,pull','S','Int','Casa o rango','Palo o ninguno','10 min'],
+        ['Swing del reloj con un solo brazo','WC,KS','slice,potencia','S','Int','Rango','Wedge','15 min'],
+        ['Cara cerrada exagerada','WC','slice','P','Avz','Rango','Bolas, palo','20 min'],
+        ['Cara abierta exagerada','WC','hook','P','Avz','Rango','Bolas, palo','20 min'],
+        ['Tee como referencia de cara','WC','slice,hook','P','Int','Rango','Tee, bolas','15 min'],
+        ['Impact bag de cara cuadrada','WC','slice,hook,push,pull','P','Int','Casa o rango','Impact bag, palo','15 min'],
+        ['Banderines de forma de bola','WC','slice,hook','T','Avz','Campo o rango','Bolas, palo','30 min'],
+        ['Curva controlada en campo','WC,KS','slice,hook','T','Avz','Campo','Bolas, palo','45 min']
+      ]
+    },
+    'path': {
+      title: 'Path / Trayectoria',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12C5 6 9 4 12 4s7 2 9 8c-2 6-6 8-9 8s-7-2-9-8z"/><path d="M3 12h18"/></svg>',
+      drills: [
+        ['La pausa al tope','KS','slice,top','S','Pri','Casa o rango','Palo','8 min'],
+        ['Brazo de atrás en sombrilla','KS','slice','S','Int','Casa o rango','Palo','10 min'],
+        ['Codo de atrás pegado al cuerpo','KS,BT','slice,shank','S','Pri','Casa o rango','Toalla, palo','10 min'],
+        ['Salida desde adentro con stick','KS','slice','P','Int','Rango','Alignment stick, bolas','20 min'],
+        ['Stick externo como pared','KS','slice,pull','P','Pri','Rango','Alignment stick, bolas','20 min'],
+        ['Headcover detrás de la bola','KS','slice,top','P','Int','Rango','Headcover, bolas','15 min'],
+        ['Draw obligado con tee bajo','WC,KS','slice,pull','P','Int','Rango','Tee, bolas, palo','20 min'],
+        ['Bolas en línea diagonal','KS','slice,hook,push,pull','P','Avz','Rango','Bolas alineadas, palo','25 min'],
+        ['Path interno exagerado','KS','hook,push','P','Avz','Rango','Bolas, palo','20 min'],
+        ['Forma de bola por target','KS,WC','slice,hook,push,pull','T','Avz','Campo o rango','Bolas, palo','30 min']
+      ]
+    },
+    'lowpoint': {
+      title: 'Low point y contacto',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18"/><path d="M5 18l4-8 3 5 4-9 3 12"/></svg>',
+      drills: [
+        ['Línea de tiza para low point','BT','top,gordo','S','Pri','Casa o rango','Tiza o spray, palo','10 min'],
+        ['Toques al suelo sin bola','BT,GF','top,gordo','S','Pri','Casa o rango','Palo','8 min'],
+        ['Sentir el pecho sobre la bola','BT','top,gordo,shank','S','Int','Casa o rango','Palo','10 min'],
+        ['Pies juntos para encontrar fondo','GF,BT','gordo,potencia','S','Int','Casa o rango','Palo','10 min'],
+        ['Tee blanco en spray','BT','top,gordo','P','Pri','Rango','Spray o talco, bolas','15 min'],
+        ['Dos tees como ventana','BT,KS','top,gordo,shank','P','Int','Rango','2 tees, bolas','20 min'],
+        ['Bola sobre billete','BT','gordo','P','Int','Rango','Billete, bolas','15 min'],
+        ['Stance progresivo','GF,BT','top,gordo,distancia','P','Int','Rango','Bolas, hierros','25 min'],
+        ['Bolas sobre lies variados','BT,GF','gordo,top','P','Avz','Rango o campo','Bolas, palo','30 min'],
+        ['Hoyo simulado con hierros','BT,KS','top,gordo,distancia','T','Int','Campo o rango','Bolas, hierros','30 min'],
+        ['Lies extremos en campo','BT,GF','gordo,top,shank','T','Avz','Campo','Bolas, palo','45 min'],
+        ['Test de divot consistente','BT','top,gordo','T','Avz','Rango o campo','Bolas, hierros','30 min']
+      ]
+    },
+    'secuencia': {
+      title: 'Secuencia y rotación',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 019 9"/><path d="M12 8v4l3 2"/></svg>',
+      drills: [
+        ['Step drill cruzando los pies','KS,GF','potencia,slice','S','Pri','Rango','Palo','10 min'],
+        ['Inicio de caderas con pausa','KS','slice,potencia','S','Int','Casa o rango','Palo','10 min'],
+        ['Brazos pasivos, cuerpo activo','KS','slice,potencia,hook','S','Int','Casa o rango','Palo','10 min'],
+        ['Pump drill','KS','slice,top,potencia','S','Int','Casa o rango','Palo','8 min'],
+        ['Ritmo 3-1 contado en voz alta','KS','potencia,distancia,spin','S','Pri','Casa o rango','Palo','10 min'],
+        ['Step-through finish','KS,GF','slice,potencia','P','Int','Rango','Bolas, palo','20 min'],
+        ['Swing completo a 70%','KS','potencia,distancia,spin','P','Int','Rango','Bolas, palo','20 min'],
+        ['Pelota medicinal lateral','KS,GF','potencia,slice','P','Avz','Casa o rango','Pelota medicinal','15 min'],
+        ['Swings con metrónomo','KS','distancia,spin,potencia','P','Int','Casa o rango','Metrónomo, palo','15 min'],
+        ['Tres tempos progresivos','KS','distancia,spin','P','Avz','Rango','Bolas, palo','25 min'],
+        ['Driver y wedge alternados','KS','potencia,distancia','T','Avz','Rango','Bolas, driver, wedge','30 min'],
+        ['Ronda con tempo único','KS','distancia,spin,potencia','T','Avz','Campo','Bolas, palos','Ronda completa']
+      ]
+    },
+    'postura': {
+      title: 'Postura y ángulos',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M12 6v6"/><path d="M12 12l-3 8M12 12l3 8"/><path d="M9 14h6"/></svg>',
+      drills: [
+        ['Setup frente al espejo','BT','shank,top,gordo','S','Pri','Casa','Espejo, palo','10 min'],
+        ['Inclinación columna desde cadera','BT','shank,top,potencia','S','Pri','Casa','Palo o ninguno','8 min'],
+        ['Stick en el pecho como guía','BT','top,shank,potencia','S','Int','Casa o rango','Alignment stick, palo','10 min'],
+        ['Wall drill anti early-extension','BT,GF','shank,top,potencia','S','Int','Casa o rango','Pared, palo','10 min'],
+        ['Bolas a distancia del cuerpo','BT','shank','P','Int','Rango','Bolas, hierros','20 min'],
+        ['Headcover externo al palo','BT','shank','P','Pri','Rango','Headcover, bolas, hierros','15 min'],
+        ['Trasero contra silla','BT,GF','shank,top','P','Int','Casa o rango','Silla, palo','15 min'],
+        ['Postura mantenida hasta finish','BT','top,potencia,shank','P','Avz','Rango','Bolas, palo','25 min'],
+        ['Tiros incómodos de postura','BT,GF','shank,top,gordo','T','Avz','Campo','Bolas, palo','45 min']
+      ]
+    },
+    'ground': {
+      title: 'Ground forces y presión',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/><path d="M5 19h14"/></svg>',
+      drills: [
+        ['Cambio de presión 50-80-90','GF','potencia,top,gordo','S','Pri','Casa o rango','Palo','10 min'],
+        ['Pies descalzos en superficie blanda','GF','potencia,slice','S','Int','Casa','Ninguno','8 min'],
+        ['Squat-jump del swing','GF','potencia','S','Int','Casa','Ninguno','8 min'],
+        ['Pie de atrás levantado','GF,BT','slice,potencia,gordo','P','Int','Rango','Bolas, palo','20 min'],
+        ['Pie de adelante levantado','GF','hook,push','P','Avz','Rango','Bolas, palo','20 min'],
+        ['Plancha de presión visualizada','GF','potencia','P','Int','Rango','Bolas, palo','15 min'],
+        ['Saltar al impacto','GF','potencia','P','Avz','Rango','Bolas, palo','20 min'],
+        ['Driver a máxima velocidad','GF,KS','potencia','T','Avz','Rango o campo','Driver, bolas','30 min'],
+        ['Hierros en pendiente','GF,BT','potencia,top,gordo','T','Avz','Campo','Bolas, hierros','45 min']
+      ]
+    },
+    'conexion': {
+      title: 'Conexión y ancho de arco',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1118 0"/><circle cx="3" cy="12" r="1.5" fill="currentColor"/><circle cx="21" cy="12" r="1.5" fill="currentColor"/></svg>',
+      drills: [
+        ['Headcover bajo ambas axilas','KS','slice,potencia','S','Pri','Casa o rango','2 headcovers, palo','10 min'],
+        ['Toalla bajo el brazo de adelante','KS','slice,top','S','Pri','Casa o rango','Toalla, palo','8 min'],
+        ['Manos lejos al inicio del backswing','KS','potencia,slice','S','Int','Casa o rango','Palo','10 min'],
+        ['Brazo conectado, brazo libre','KS,WC','slice,potencia','S','Int','Casa o rango','Palo','10 min'],
+        ['Bolas con headcover en axila','KS','slice,potencia,top','P','Int','Rango','Headcover, bolas, palo','20 min'],
+        ['Half-swing conectado a swing completo','KS','slice,potencia','P','Int','Rango','Bolas, palo','25 min'],
+        ['Sensación de ancho con fierro largo','KS,BT','potencia,slice','P','Avz','Rango','Bolas, hierro 4-5','20 min'],
+        ['Driver de ancho máximo','KS,GF','potencia','T','Avz','Rango o campo','Driver, bolas','30 min']
+      ]
+    },
+    'distancia': {
+      title: 'Control de distancia y spin',
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21v-4M3 17h6M9 21v-7M9 14h6M15 21V8M15 8h6M21 21V3"/></svg>',
+      drills: [
+        ['Tres largos de swing - hierros','KS,BT','distancia','S','Pri','Casa o rango','Palo','10 min'],
+        ['Sentir el reloj en wedges','KS,WC','spin,distancia','S','Pri','Casa o rango','Wedge','10 min'],
+        ['Manos suaves en wedge','WC','spin','S','Int','Casa o rango','Wedge, bola','10 min'],
+        ['Ángulo de ataque descendente','BT,WC','spin,gordo','S','Int','Casa o rango','Wedge, palo','10 min'],
+        ['Tres distancias por hierro','KS','distancia','P','Int','Rango','Bolas, hierros, target','30 min'],
+        ['Escalera de wedges','WC,KS','spin,distancia','P','Int','Rango','Bolas, wedges, targets','30 min'],
+        ['Wedge con cara abierta progresiva','WC','spin','P','Avz','Rango o campo','Wedge, bolas','25 min'],
+        ['Contacto cuadrado con divot direccional','BT,WC','spin,gordo','P','Int','Rango','Wedge, bolas','20 min'],
+        ['Distancias específicas a target','KS','distancia','P','Avz','Rango','Bolas, hierros, marcadores','30 min'],
+        ['Wedges desde lies variables','WC,BT','spin','P','Avz','Campo o rango','Wedge, bolas','30 min'],
+        ['Spin alto vs bajo a demanda','WC','spin','P','Avz','Rango o campo','Wedge, bolas','25 min'],
+        ['Control distancia en hoyo par 3','KS,BT','distancia','T','Int','Campo','Bolas, hierros','Hoyo'],
+        ['Aproximaciones desde 100m','KS,WC','distancia,spin','T','Avz','Campo','Bolas, wedges, hierros','45 min'],
+        ['Wedges en green con bandera','WC,BT','spin','T','Avz','Campo','Wedge, bolas','30 min']
+      ]
+    }
+  };
 
-    cards.forEach(card => {
-      const pilar = card.dataset.pilar;
-      const cat = card.dataset.cat;
-      const title = card.dataset.title || '';
-
-      const pilarOk = activePilar === 'all' || pilar === activePilar;
-      const catOk = activeCat === 'all' || cat === activeCat;
-      const searchOk = !searchQuery || title.includes(searchQuery);
-
-      const show = pilarOk && catOk && searchOk;
-      card.classList.toggle('hidden', !show);
-      if (show) visible++;
+  // Renderizar drills + sub-tabs
+  function renderDrills() {
+    const container = document.getElementById('drillsContainer');
+    const subtabsContainer = document.getElementById('drillSubtabs');
+    let html = '';
+    let subtabsHtml = '';
+    let drillIdx = 0;
+    let totalDrills = 0;
+    Object.keys(drillsData).forEach(key => {
+      const comp = drillsData[key];
+      totalDrills += comp.drills.length;
+      // Sub-tab para este componente
+      subtabsHtml += `<button class="drill-subtab" data-component="${key}">
+        ${comp.icon}
+        ${comp.title}
+        <span class="drill-subtab-count">${comp.drills.length}</span>
+      </button>`;
+      html += `<div class="drill-component" data-component="${key}">
+        <div class="drill-component-header">
+          <div class="drill-component-icon">${comp.icon}</div>
+          <div class="drill-component-title">${comp.title}</div>
+          <div class="drill-component-count">${comp.drills.length} drills</div>
+        </div>
+        <div class="drill-grid">`;
+      comp.drills.forEach(d => {
+        const [title, pilares, errores, fase, nivel, espacio, equip, dur] = d;
+        const id = 'drill-' + (drillIdx++);
+        const pilarTags = pilares.split(',').map(p => `<span class="drill-meta-tag pilar-${p.toLowerCase()}">${p}</span>`).join('');
+        const faseLabel = { S: 'Sensación', P: 'Patrón', T: 'Transferencia' }[fase];
+        const nivelLabel = { Pri: 'Principiante', Int: 'Intermedio', Avz: 'Avanzado' }[nivel];
+        html += `<div class="drill-card" data-pilares="${pilares}" data-errores="${errores}" data-fase="${fase}" data-nivel="${nivel}" data-component="${key}" data-title="${title.toLowerCase()}" onclick="openDrillModal('${id}')">
+          <div class="drill-card-title">${title}</div>
+          <div class="drill-card-meta">
+            ${pilarTags}
+            <span class="drill-meta-tag">${faseLabel}</span>
+            <span class="drill-meta-tag">${nivelLabel}</span>
+          </div>
+          <div class="drill-card-bottom">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>${dur}</span>
+            <span style="margin-left:auto;">${espacio}</span>
+          </div>
+        </div>`;
+        videoData[id] = {
+          title: title,
+          desc: `Pilares: ${pilares}. Ataca: ${errores}. Espacio: ${espacio}. Equipamiento: ${equip}.`,
+          pilarTags: pilarTags.replace(/drill-meta-tag pilar-/g, 'pilar-tag '),
+          dur: dur,
+          cat: `${faseLabel} · ${nivelLabel}`
+        };
+      });
+      html += `</div></div>`;
     });
+    // Actualizar contadores con totales reales
+    document.getElementById('drillVisibleCount').textContent = totalDrills;
+    subtabsContainer.querySelector('[data-component="all"] .drill-subtab-count').textContent = totalDrills;
+    subtabsContainer.insertAdjacentHTML('beforeend', subtabsHtml);
+    container.innerHTML = html;
 
-    document.getElementById('clipCount').textContent = visible + ' video' + (visible !== 1 ? 's' : '');
-    document.getElementById('emptyState').classList.toggle('visible', visible === 0);
+    // Listeners de sub-tabs
+    subtabsContainer.querySelectorAll('.drill-subtab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        subtabsContainer.querySelectorAll('.drill-subtab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeFilters.component = tab.dataset.component;
+        applyDrillFilters();
+        // Scroll suave al inicio de la lista
+        document.getElementById('drillsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
 
-    // Mostrar u ocultar sección de series según búsqueda
-    const seriesSection = document.getElementById('seriesSection');
-    if (searchQuery && visible === 0) {
-      seriesSection.style.opacity = '0.4';
+  function openDrillModal(id) { openModal(id); }
+
+  // FILTROS DE DRILLS
+  const activeFilters = { error: 'all', pilar: 'all', fase: 'all', nivel: 'all', component: 'all' };
+
+  document.addEventListener('click', e => {
+    if (!e.target.classList.contains('drill-chip')) return;
+    const filter = e.target.dataset.filter;
+    const value = e.target.dataset.value;
+    const group = document.getElementById('filter-' + filter);
+    group.querySelectorAll('.drill-chip').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    activeFilters[filter] = value;
+    applyDrillFilters();
+  });
+
+  document.getElementById('drillsClear').addEventListener('click', () => {
+    Object.keys(activeFilters).forEach(k => activeFilters[k] = 'all');
+    document.querySelectorAll('.drill-chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.drill-chip[data-value="all"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.drill-subtab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.drill-subtab[data-component="all"]').classList.add('active');
+    document.getElementById('searchInput').value = '';
+    applyDrillFilters();
+  });
+
+  function applyDrillFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const container = document.getElementById('drillsContainer');
+
+    // Mostrar/ocultar componentes según el sub-tab activo
+    if (activeFilters.component === 'all') {
+      container.classList.remove('drill-mode-single');
+      document.querySelectorAll('.drill-component').forEach(c => c.classList.remove('hidden'));
     } else {
-      seriesSection.style.opacity = '1';
+      container.classList.add('drill-mode-single');
+      document.querySelectorAll('.drill-component').forEach(c => {
+        c.classList.toggle('hidden', c.dataset.component !== activeFilters.component);
+      });
+    }
+
+    document.querySelectorAll('.drill-card').forEach(card => {
+      const errores = card.dataset.errores;
+      const pilares = card.dataset.pilares;
+      const fase = card.dataset.fase;
+      const nivel = card.dataset.nivel;
+      const title = card.dataset.title;
+
+      const errorOk = activeFilters.error === 'all' || errores.includes(activeFilters.error);
+      const pilarOk = activeFilters.pilar === 'all' || pilares.includes(activeFilters.pilar);
+      const faseOk = activeFilters.fase === 'all' || fase === activeFilters.fase;
+      const nivelOk = activeFilters.nivel === 'all' || nivel === activeFilters.nivel;
+      const searchOk = !q || title.includes(q);
+
+      const show = errorOk && pilarOk && faseOk && nivelOk && searchOk;
+      card.classList.toggle('hidden', !show);
+    });
+    updateDrillCount();
+  }
+
+  function updateDrillCount() {
+    // Solo contar drills visibles que estén en componentes no-ocultos
+    let visible = 0;
+    document.querySelectorAll('.drill-component:not(.hidden) .drill-card:not(.hidden)').forEach(() => visible++);
+    document.getElementById('drillVisibleCount').textContent = visible;
+    // Dentro de "todos", ocultar componentes con 0 drills visibles para que no quede el header solo
+    if (activeFilters.component === 'all') {
+      document.querySelectorAll('.drill-component').forEach(comp => {
+        const visibleInside = comp.querySelectorAll('.drill-card:not(.hidden)').length;
+        comp.style.display = visibleInside === 0 ? 'none' : '';
+      });
+    } else {
+      document.querySelectorAll('.drill-component').forEach(comp => {
+        comp.style.display = '';
+      });
     }
   }
+
+  // Inicializar drills al cargar
+  renderDrills();
 </script>
-  
+
+<!-- ─── PAYWALL SUPABASE ─── -->
 <script>
 (function waitForSupabase() {
   if (!window.supabase) { setTimeout(waitForSupabase, 100); return; }
@@ -1210,18 +2335,17 @@
 
   function applyPaywall(isLoggedIn) {
     var buttonUrl = isLoggedIn ? '/es/upgrade.html' : '/es/login.html';
-    var cards = document.querySelectorAll('.video-card, .series-card');
-    cards.forEach(function(card) {
-      card.removeAttribute('onclick');
-      card.style.cursor = 'default';
-      card.style.position = 'relative';
-      card.style.overflow = 'visible';
+    var items = document.querySelectorAll('.nflx-tile, .featured-series, .drill-card');
+    items.forEach(function(item) {
+      item.removeAttribute('onclick');
+      item.style.cursor = 'default';
+      item.style.position = 'relative';
       var overlay = document.createElement('div');
-      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,10,10,0.88);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;opacity:0;transition:opacity 0.2s ease;border-radius:12px;z-index:20;text-align:center;padding:16px;pointer-events:none;';
-      overlay.innerHTML = '<div style="color:#fff;font-family:sans-serif;font-size:1rem;font-weight:700;">🔒 Upgrade a Pro</div><a href="' + buttonUrl + '" style="pointer-events:all;display:inline-block;background:#2dd4bf;color:#0a0a0a;font-weight:700;font-size:0.8rem;padding:7px 18px;border-radius:4px;text-decoration:none;text-transform:uppercase;">Ver planes</a>';
-      card.appendChild(overlay);
-      card.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
-      card.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
+      overlay.style.cssText = 'position:absolute;inset:0;background:rgba(10,10,10,0.88);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity 0.2s ease;border-radius:10px;z-index:20;text-align:center;padding:12px;pointer-events:none;';
+      overlay.innerHTML = '<div style="color:#fff;font-family:sans-serif;font-size:0.85rem;font-weight:700;">🔒 Upgrade a Pro</div><a href="' + buttonUrl + '" style="pointer-events:all;display:inline-block;background:#2dd4bf;color:#0a0a0a;font-weight:700;font-size:0.7rem;padding:5px 12px;border-radius:4px;text-decoration:none;text-transform:uppercase;">Ver planes</a>';
+      item.appendChild(overlay);
+      item.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
+      item.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
     });
   }
 })();
