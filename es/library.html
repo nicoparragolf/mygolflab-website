@@ -568,6 +568,13 @@
     }
     .drill-card:hover { border-color: var(--border-mid); transform: translateY(-2px); }
     .drill-card.hidden { display: none; }
+    /* Resaltado al llegar desde un enlace del Coach IA */
+    .drill-card.drill-highlight {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 2px var(--teal), 0 0 22px rgba(45,212,191,0.35);
+      animation: drillPulse 1.4s ease-out 2;
+    }
+    @keyframes drillPulse { 0%,100%{box-shadow:0 0 0 2px var(--teal),0 0 22px rgba(45,212,191,0.35);} 50%{box-shadow:0 0 0 2px var(--teal),0 0 4px rgba(45,212,191,0.15);} }
 
     /* Miniatura del drill (Cambio 5) */
     .drill-thumb {
@@ -1385,11 +1392,11 @@ function renderDrills(){
     html+='<div class="drill-component" data-component="'+key+'"><div class="drill-component-header"><div class="drill-component-icon">'+comp.icon+'</div><div class="drill-component-title">'+comp.title+'</div><div class="drill-component-count">'+comp.drills.length+' drills</div></div><div class="drill-grid">';
     comp.drills.forEach(function(d,i){
       var titulo=d[0]||'',pilares=d[1]||'',errores=d[2]||'',fase=d[3]||'',nivel=d[4]||'',espacio=d[5]||'',equip=d[6]||'',dur=d[7]||'';
-      var id='drill-'+(idx++); var num=('0'+(i+1)).slice(-2);
+      var num=('0'+(i+1)).slice(-2); var id='drill-'+key+'-'+num; idx++;
       var parts=pilares.split(',').filter(Boolean);
       var dtags=parts.map(function(p){return '<span class="drill-meta-tag pilar-'+p.toLowerCase().trim()+'">'+p.trim()+'</span>';}).join('');
       var mtags=parts.map(function(p){return '<span class="pilar-tag '+p.toLowerCase().trim()+'">'+p.trim()+'</span>';}).join('');
-      html+='<div class="drill-card" data-component="'+key+'" data-pilares="'+pilares+'" data-errores="'+errores+'" data-fase="'+fase+'" data-nivel="'+nivel+'" data-title="'+titulo.toLowerCase()+'" onclick="openModal(\''+id+'\')"><div class="drill-thumb"><div class="drill-thumb-num">'+num+'</div><div class="nflx-coming">Próximamente</div></div><div class="drill-card-title">'+titulo+'</div><div class="drill-card-meta">'+dtags+'<span class="drill-meta-tag">'+(FASE[fase]||fase)+'</span><span class="drill-meta-tag">'+(NIVEL[nivel]||nivel)+'</span></div><div class="drill-card-bottom"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>'+dur+'</span><span style="margin-left:auto;">'+espacio+'</span></div></div>';
+      html+='<div class="drill-card" id="'+id+'" data-component="'+key+'" data-pilares="'+pilares+'" data-errores="'+errores+'" data-fase="'+fase+'" data-nivel="'+nivel+'" data-title="'+titulo.toLowerCase()+'" onclick="openModal(\''+id+'\')"><div class="drill-thumb"><div class="drill-thumb-num">'+num+'</div><div class="nflx-coming">Próximamente</div></div><div class="drill-card-title">'+titulo+'</div><div class="drill-card-meta">'+dtags+'<span class="drill-meta-tag">'+(FASE[fase]||fase)+'</span><span class="drill-meta-tag">'+(NIVEL[nivel]||nivel)+'</span></div><div class="drill-card-bottom"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span>'+dur+'</span><span style="margin-left:auto;">'+espacio+'</span></div></div>';
       videoData[id]={title:titulo,desc:'Pilares: '+pilares+'. Ataca: '+errores+'. Espacio: '+espacio+'. Equipamiento: '+equip+'.',cat:(FASE[fase]||'')+' · '+(NIVEL[nivel]||''),dur:dur,pilarTags:mtags};
     });
     html+='</div></div>';
@@ -1514,6 +1521,51 @@ document.getElementById('searchInput').addEventListener('input',function(e){
 
 /* ===== INIT ===== */
 renderDrills(); applyDrillFilters();
+
+/* ===== ENLACES PROFUNDOS (integración Coach IA) =====
+   La Biblioteca entiende estos parámetros en la URL:
+     library.html?drill=cara-01     -> abre ese drill concreto
+     library.html?component=cara    -> filtra por componente
+     library.html?error=slice       -> filtra por error técnico
+     library.html?pilar=WC          -> filtra por pilar
+     library.html?fase=S  / ?nivel=Pri
+   Se pueden combinar: ?component=cara&error=slice
+*/
+function goToSection(sec){
+  document.querySelectorAll('.section-tab').forEach(function(t){t.classList.toggle('active',t.dataset.section===sec);});
+  document.querySelectorAll('.section-content').forEach(function(s){s.classList.toggle('active',s.id==='section-'+sec);});
+}
+function setFilterChip(group,value){
+  var g=document.getElementById('filter-'+group); if(!g) return;
+  var chip=g.querySelector('.drill-chip[data-value="'+value+'"]'); if(!chip) return;
+  g.querySelectorAll('.drill-chip').forEach(function(c){c.classList.remove('active');});
+  chip.classList.add('active'); activeFilters[group]=value;
+}
+function handleDeepLink(){
+  var p=new URLSearchParams(window.location.search);
+  if(![ 'drill','component','error','pilar','fase','nivel'].some(function(k){return p.get(k);})) return;
+  goToSection('s5');
+  ['component','error','pilar','fase','nivel'].forEach(function(k){
+    if(p.get(k)) setFilterChip(k,p.get(k));
+  });
+  var drill=p.get('drill');
+  if(drill){
+    var fullId = drill.indexOf('drill-')===0 ? drill : 'drill-'+drill;
+    var comp=fullId.split('-')[1];
+    if(comp) setFilterChip('component',comp);   // aislar su componente
+    applyDrillFilters();
+    var card=document.getElementById(fullId);
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.classList.add('drill-highlight');
+      setTimeout(function(){ openModal(fullId); }, 600);
+    }
+  } else {
+    applyDrillFilters();
+  }
+}
+handleDeepLink();
+
 </script>
 
 <!-- ─── PAYWALL SUPABASE ─── -->
