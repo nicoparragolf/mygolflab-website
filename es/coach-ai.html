@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coach IA — MyGolfLab</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/js/auth-guard.js" data-require="pro"></script>
+  <script src="/js/auth-guard.js" data-require="pro"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -20,8 +21,8 @@
       --gold: #D4C5A9;
       --gold-dim: rgba(212,197,169,0.15);
       --text-primary: #f5f5f5;
-      --text-secondary: #a3a3a3;
-      --text-muted: #666666;
+      --text-secondary: #b5b5b5;   /* subido para contraste AA */
+      --text-muted: #8a8a8a;        /* subido desde #666 para contraste AA */
       --border: #1e1e1e;
       --border-light: #2a2a2a;
       --red: #ef4444;
@@ -30,72 +31,129 @@
       --font-display: 'Bebas Neue', sans-serif;
       --font-heading: 'Barlow Condensed', sans-serif;
       --font-body: 'Barlow', sans-serif;
-      --cat-fullswing: #2dd4bf;
-      --cat-chipping: #f59e0b;
-      --cat-putting: #8b5cf6;
-      --cat-bunker: #ef4444;
-      --cat-wedges: #3b82f6;
-      --cat-preshot: #ec4899;
-      --cat-visualization: #06b6d4;
-      --cat-mental: #10b981;
+      /* Categorías reales de la Biblioteca (8 componentes) */
+      --cat-cara: #2dd4bf;
+      --cat-path: #3b82f6;
+      --cat-lowpoint: #f59e0b;
+      --cat-secuencia: #ec4899;
+      --cat-postura: #8b5cf6;
+      --cat-ground: #06b6d4;
+      --cat-conexion: #10b981;
+      --cat-distancia: #f87171;
+      /* Variables que usa el header replicado de la Biblioteca */
+      --nav-height: 68px;
+      --border-mid: rgba(255,255,255,0.12);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: var(--font-body); background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-top: var(--nav-height);
+    }
 
-    /* ==================== HEADER UNIVERSAL ==================== */
-    nav {
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    /* ════════════ HEADER (réplica exacta de Biblioteca) ════════════ */
+    header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      background: rgba(10,10,10,0.92); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border); padding: 0 24px; height: 64px;
+      height: var(--nav-height);
       display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      /* overrides locales para que el header herede los tonos de Biblioteca */
+      --text: #f0f0f0; --text-muted: #999; --text-dim: #6e6e6e;
+      --teal: var(--accent); --border: rgba(255,255,255,0.07);
     }
-    .hamburger {
-      width: 44px; height: 44px; background: none; border: none; cursor: pointer;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 5px; padding: 8px; flex-shrink: 0;
-    }
-    .hamburger span { width: 22px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s ease; display: block; }
-    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .logo { font-family: var(--font-display); font-size: 26px; letter-spacing: 0.06em; color: var(--text); text-decoration: none; flex-shrink: 0; }
+    .logo span { color: var(--teal); }
+    .nav-collapse { display: contents; }
+    .nav-links { display: flex; align-items: center; gap: 30px; list-style: none; margin: 0 auto; }
+    .nav-links a { font-family: var(--font-heading); font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); text-decoration: none; transition: color 0.2s; position: relative; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--teal); }
+    .nav-links a.active::after { content: ''; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; background: var(--teal); border-radius: 2px; }
+    .nav-auth { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .btn-outline, .btn-nav-primary { font-family: var(--font-heading); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; padding: 9px 18px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+    .btn-outline { color: var(--text); border: 1px solid var(--border-mid); background: transparent; }
+    .btn-outline:hover { border-color: var(--text-muted); }
+    .btn-nav-primary { color: #0a0a0a; background: var(--teal); border: 1px solid var(--teal); }
+    .btn-nav-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
+    .hamburger { display: none; width: 40px; height: 40px; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; background: none; border: none; flex-shrink: 0; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.3s; }
+    .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .hamburger.active span:nth-child(2) { opacity: 0; }
-    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-    .nav-logo { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; color: var(--text-primary); text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 998; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
-    .mobile-menu { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; background: var(--bg-primary); z-index: 999; padding: 80px 24px 32px; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-    .mobile-menu.active { left: 0; }
-    .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-    .menu-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; color: var(--text-secondary); text-decoration: none; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 10px; transition: all 0.2s ease; }
-    .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-    .menu-link.active { background: rgba(45,212,191,0.1); color: var(--accent); border-left: 3px solid var(--accent); }
-    .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
-    .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
-    .menu-cta { display: block; text-align: center; padding: 14px 20px; background: var(--accent); color: var(--bg-primary); text-decoration: none; font-family: var(--font-heading); font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; border-radius: 10px; margin-top: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    @media (max-width: 880px) {
+      header { padding: 0 20px; }
+      .hamburger { display: flex; }
+      .nav-collapse { display: flex; flex-direction: column; position: fixed; top: var(--nav-height); left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid transparent; padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height 0.32s ease, padding 0.32s ease, border-color 0.32s ease; }
+      header.menu-open .nav-collapse { max-height: 85vh; padding: 8px 24px 20px; border-bottom-color: rgba(255,255,255,0.07); }
+      .nav-links { flex-direction: column; align-items: stretch; gap: 0; margin: 0; }
+      .nav-links a { padding: 14px 2px; }
+      .nav-links a.active::after { display: none; }
+      .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 12px; }
+      .btn-outline, .btn-nav-primary { text-align: center; }
+    }
 
-    /* ==================== PAGE STYLES ==================== */
-    .hero { padding: 120px 24px 60px; text-align: center; position: relative; }
+    /* ════════════ PAGE STYLES ════════════ */
+    .hero { padding: 48px 24px 40px; text-align: center; position: relative; }
     .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%); pointer-events: none; }
     .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.2); border-radius: 100px; padding: 8px 20px; font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px; }
     .hero-badge .pulse { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); } 50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; } }
     .hero h1 { font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 4.5rem); letter-spacing: 3px; line-height: 1.05; margin-bottom: 16px; }
     .hero h1 span { color: var(--accent); }
-    .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px; line-height: 1.6; }
+    .hero p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
     .main-container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+
+    .mode-selector { display: flex; gap: 8px; margin-bottom: 24px; }
+    .mode-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s; }
+    .mode-tab:hover { border-color: var(--border-light); color: var(--text-secondary); }
+    .mode-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+    .mode-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Guía de grabación */
+    .record-guide { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px; overflow: hidden; }
+    .record-guide summary { list-style: none; cursor: pointer; padding: 16px 20px; display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); }
+    .record-guide summary::-webkit-details-marker { display: none; }
+    .record-guide summary .chev { margin-left: auto; transition: transform 0.2s; }
+    .record-guide[open] summary .chev { transform: rotate(180deg); }
+    .record-guide-body { padding: 0 20px 20px; }
+    .record-guide-body ul { list-style: none; display: grid; gap: 10px; }
+    .record-guide-body li { display: flex; gap: 10px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+    .record-guide-body li svg { width: 18px; height: 18px; color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+
+    /* Selector de ángulo de cámara */
+    .angle-selector { margin-bottom: 20px; }
+    .angle-label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px; }
+    .angle-options { display: flex; gap: 10px; }
+    .angle-option { flex: 1; padding: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .angle-option:hover { border-color: var(--border-light); }
+    .angle-option.active { border-color: var(--accent); background: var(--accent-dim); }
+    .angle-option:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .angle-option-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .angle-option-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
     .upload-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
     .upload-tabs { display: flex; border-bottom: 1px solid var(--border); }
     .upload-tab { flex: 1; padding: 16px; text-align: center; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; background: none; border: none; transition: all 0.3s; position: relative; }
     .upload-tab.active { color: var(--accent); }
     .upload-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2px; background: var(--accent); border-radius: 2px; }
     .upload-tab:hover { color: var(--text-secondary); }
+    .upload-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
     .upload-tab-icon { display: block; margin: 0 auto 6px; width: 24px; height: 24px; }
     .tab-content { display: none; padding: 40px; }
     .tab-content.active { display: block; }
-    .drop-zone { border: 2px dashed var(--border-light); border-radius: 12px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+    .drop-zone { border: 2px dashed var(--border-light); border-radius: 12px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.3s; width: 100%; background: none; color: inherit; font-family: inherit; }
     .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
+    .drop-zone:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .drop-zone-icon { width: 64px; height: 64px; margin: 0 auto 20px; opacity: 0.5; }
     .drop-zone h3 { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
     .drop-zone p { font-size: 0.9rem; color: var(--text-muted); }
@@ -103,47 +161,71 @@
     .webcam-container { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 16/9; margin-bottom: 20px; }
     .webcam-container video { width: 100%; height: 100%; object-fit: cover; display: block; }
     .webcam-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); gap: 12px; }
-    .webcam-controls { display: flex; gap: 12px; justify-content: center; }
+    .rec-timer { position: absolute; top: 12px; left: 12px; display: none; align-items: center; gap: 6px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 100px; font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 1px; }
+    .rec-timer.visible { display: flex; }
+    .rec-timer .rec-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); animation: pulse 1.2s infinite; }
+    .webcam-controls { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .video-preview { display: none; margin-top: 24px; }
     .video-preview.visible { display: block; }
     .video-preview-inner { position: relative; border-radius: 12px; overflow: hidden; background: #000; }
     .video-preview video { width: 100%; display: block; border-radius: 12px; }
-    .video-info { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding: 12px 16px; background: var(--bg-elevated); border-radius: 8px; }
-    .video-info-name { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%; }
+    .video-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; background: var(--bg-elevated); border-radius: 8px; flex-wrap: wrap; }
+    .video-info-name { font-size: 0.9rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }
     .video-info-size { font-size: 0.85rem; color: var(--text-muted); }
     .remove-video { background: none; border: 1px solid var(--border-light); color: var(--red); font-family: var(--font-heading); font-size: 0.85rem; padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
     .remove-video:hover { background: rgba(239,68,68,0.1); border-color: var(--red); }
+
     .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: #0a0a0a; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; padding: 16px 40px; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; width: 100%; margin-top: 24px; }
     .btn-primary:hover { background: #5eead4; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .btn-primary:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
     .btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--bg-elevated); color: var(--text-primary); font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 24px; border: 1px solid var(--border-light); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Región de estado / errores accesible */
+    .status-msg { margin-top: 16px; padding: 14px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+    .status-msg.visible { display: block; }
+    .status-msg.error { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+    .status-msg.info { background: var(--accent-dim); border: 1px solid rgba(45,212,191,0.3); color: var(--accent); }
+
+    /* Consentimiento de privacidad */
+    .consent-box { display: flex; gap: 12px; align-items: flex-start; margin-top: 20px; padding: 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; }
+    .consent-box input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .consent-box label { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; cursor: pointer; }
+    .consent-box a { color: var(--accent); }
+
+    .frames-preview { display: none; margin-top: 24px; }
+    .frames-preview.visible { display: block; }
+    .frames-label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .frames-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+    .frames-grid figure { margin: 0; }
+    .frames-grid img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); display: block; }
+    .frame-label { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 4px; }
+
     .analysis-loading { display: none; text-align: center; padding: 60px 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
     .analysis-loading.visible { display: block; }
     .loading-spinner { width: 48px; height: 48px; border: 3px solid var(--border-light); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-steps { display: flex; flex-direction: column; gap: 12px; max-width: 300px; margin: 0 auto; }
+    .loading-steps { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto 24px; text-align: left; }
     .loading-step { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-muted); transition: color 0.3s; }
     .loading-step.active { color: var(--accent); }
     .loading-step.done { color: var(--green); }
     .loading-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); flex-shrink: 0; transition: background 0.3s; }
     .loading-step.active .loading-step-dot { background: var(--accent); }
     .loading-step.done .loading-step-dot { background: var(--green); }
-    .frames-preview { display: none; margin-top: 24px; }
-    .frames-preview.visible { display: block; }
-    .frames-label { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
-    .frames-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
-    .frames-grid img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
-    .frame-label { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 4px; }
+
     .analysis-results { display: none; }
     .analysis-results.visible { display: block; }
-    .result-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
+    .result-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
     .result-score { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 2rem; flex-shrink: 0; }
     .score-low { background: rgba(239,68,68,0.15); color: var(--red); border: 2px solid var(--red); }
     .score-mid { background: rgba(245,158,11,0.15); color: var(--amber); border: 2px solid var(--amber); }
     .score-high { background: rgba(16,185,129,0.15); color: var(--green); border: 2px solid var(--green); }
     .result-summary h2 { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; margin-bottom: 4px; }
     .result-summary p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+    .score-disclaimer { font-size: 0.78rem; color: var(--text-muted); margin: 0 0 24px; line-height: 1.5; text-align: center; }
+
     .diagnosis-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; }
     .diagnosis-card-header { padding: 20px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
     .diagnosis-number { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-family: var(--font-display); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -153,12 +235,21 @@
     .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
     .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
     .diagnosis-card-body { padding: 24px; }
-    .diagnosis-what, .diagnosis-fix, .diagnosis-drills { margin-bottom: 20px; }
-    .diagnosis-what:last-child, .diagnosis-fix:last-child, .diagnosis-drills:last-child { margin-bottom: 0; }
+    .diagnosis-grid { display: grid; grid-template-columns: 140px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 560px) { .diagnosis-grid { grid-template-columns: 1fr; } }
+    .diagnosis-frame { margin: 0; }
+    .diagnosis-frame button { display: block; width: 100%; padding: 0; border: 1px solid var(--border-light); background: none; border-radius: 8px; overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+    .diagnosis-frame button:hover { border-color: var(--accent); }
+    .diagnosis-frame button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .diagnosis-frame img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+    .diagnosis-frame figcaption { font-size: 0.72rem; color: var(--accent); text-align: center; margin-top: 6px; font-family: var(--font-heading); letter-spacing: 1px; text-transform: uppercase; }
+    .diagnosis-block { margin-bottom: 20px; }
+    .diagnosis-block:last-child { margin-bottom: 0; }
     .diagnosis-label { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 8px; }
     .diagnosis-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
-    .drill-referral { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+    .drill-referral { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; text-decoration: none; transition: all 0.2s; }
     .drill-referral:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .drill-referral:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .drill-referral:last-child { margin-bottom: 0; }
     .drill-cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .drill-referral-info { flex: 1; }
@@ -172,33 +263,45 @@
     .library-referral a:hover { background: #5eead4; }
     .new-analysis-btn { margin-top: 24px; width: 100%; padding: 16px; background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-secondary); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
     .new-analysis-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .questionnaire-section { display: none; margin-top: 40px; }
+
+    /* Historial */
+    .history-panel { margin-top: 32px; }
+    .history-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+    .history-clear { margin-left: auto; background: none; border: none; color: var(--text-muted); font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+    .history-list { display: grid; gap: 8px; }
+    .history-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; text-align: left; width: 100%; font-family: inherit; transition: border-color 0.2s; }
+    .history-item:hover { border-color: var(--accent); }
+    .history-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .history-score { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.1rem; flex-shrink: 0; }
+    .history-info { flex: 1; min-width: 0; }
+    .history-date { font-size: 0.78rem; color: var(--text-muted); }
+    .history-resumen { font-size: 0.88rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .questionnaire-section { display: none; margin-top: 0; }
     .questionnaire-section.visible { display: block; }
     .questionnaire-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
     .questionnaire-title { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 6px; }
     .questionnaire-subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.5; }
     .q-field { margin-bottom: 24px; }
     .q-field:last-of-type { margin-bottom: 0; }
-    .q-label { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .q-label { display: block; font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
     .q-hint { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
     .q-input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 10px; padding: 14px 16px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary); transition: border-color 0.2s; }
     .q-input:focus { outline: none; border-color: var(--accent); }
     .q-input::placeholder { color: var(--text-muted); }
     .q-textarea { min-height: 80px; resize: vertical; }
-    .q-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .q-actions { display: flex; gap: 12px; margin-top: 28px; align-items: center; }
     .q-actions .btn-primary { flex: 1; margin-top: 0; }
     .q-skip { background: none; border: none; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; padding: 16px 24px; transition: color 0.2s; }
     .q-skip:hover { color: var(--text-secondary); }
+    .q-back { background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; text-decoration: underline; margin-bottom: 20px; }
     .frames-mini { display: flex; gap: 6px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 4px; }
     .frames-mini img { height: 56px; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); opacity: 0.7; }
-    .mode-selector { display: flex; gap: 8px; margin-bottom: 24px; }
-    .mode-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-muted); font-family: var(--font-heading); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: all 0.3s; }
-    .mode-tab:hover { border-color: var(--border-light); color: var(--text-secondary); }
-    .mode-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+    /* Chat */
     .chat-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; height: 520px; overflow: hidden; }
     .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
     .chat-messages::-webkit-scrollbar { width: 4px; }
-    .chat-messages::-webkit-scrollbar-track { background: transparent; }
     .chat-messages::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
     .chat-bubble { max-width: 85%; padding: 14px 18px; border-radius: 16px; font-size: 0.95rem; line-height: 1.6; }
     .assistant-bubble { align-self: flex-start; background: var(--bg-elevated); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
@@ -214,71 +317,69 @@
     .chat-input-area { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--border); align-items: flex-end; }
     .chat-input { flex: 1; background: var(--bg-input); border: 1px solid var(--border-light); border-radius: 12px; padding: 12px 16px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text-primary); resize: none; max-height: 120px; line-height: 1.4; }
     .chat-input:focus { outline: none; border-color: var(--accent); }
-    .chat-input::placeholder { color: var(--text-muted); }
     .chat-send-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); border: none; color: #0a0a0a; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
     .chat-send-btn:hover { background: #5eead4; transform: scale(1.05); }
     .chat-send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
-    .methodology-section { margin-top: 60px; padding: 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
-    .methodology-section h2 { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 2px; margin-bottom: 8px; text-align: center; }
-    .methodology-section > p { text-align: center; color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 32px; }
-    .method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-    .method-item { padding: 20px; background: var(--bg-elevated); border-radius: 10px; border: 1px solid var(--border); }
-    .method-item h4 { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .method-item p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ══ 4 PILARES (réplica del index) ══ */
+    .pilares-section { margin-top: 60px; }
+    .section-eyebrow { font-family: var(--font-heading); font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .section-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+    .section-title { font-family: var(--font-display); font-size: clamp(40px, 5vw, 64px); line-height: 1; letter-spacing: 1px; margin-bottom: 16px; }
+    .section-title span { color: var(--accent); }
+    .section-sub { font-size: 16px; font-weight: 300; line-height: 1.75; color: var(--text-muted); max-width: 480px; margin-bottom: 56px; }
+    .pilares-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    .pilar-card { background: var(--bg-card); padding: 48px 40px; position: relative; overflow: hidden; transition: background 0.3s; }
+    .pilar-card:hover { background: var(--bg-elevated); }
+    .pilar-card::before { content: attr(data-n); position: absolute; top: -10px; right: 20px; font-family: var(--font-display); font-size: 120px; color: rgba(255,255,255,0.02); line-height: 1; pointer-events: none; }
+    .pilar-icon-wrap { width: 56px; height: 56px; border-radius: 12px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; transition: transform 0.3s; }
+    .pilar-card:hover .pilar-icon-wrap { transform: scale(1.05); }
+    .pilar-name { font-family: var(--font-display); font-size: 28px; letter-spacing: 1px; color: var(--text-primary); margin-bottom: 12px; }
+    .pilar-desc { font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--text-muted); margin-bottom: 20px; }
+    .pilar-tag { display: inline-block; font-family: var(--font-heading); font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-dim); border-radius: 4px; padding: 4px 10px; }
     footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }
-    @media (max-width: 640px) { .tab-content { padding: 24px; } .drop-zone { padding: 40px 20px; } .result-header { flex-direction: column; text-align: center; } .diagnosis-card-header { flex-wrap: wrap; } .diagnosis-severity { margin-left: 52px; margin-top: 4px; } .methodology-section { padding: 24px; } }
+
+    @media (max-width: 640px) { .tab-content { padding: 24px; } .drop-zone { padding: 40px 20px; } .result-header { flex-direction: column; text-align: center; } .diagnosis-card-header { flex-wrap: wrap; } .diagnosis-severity { margin-left: 52px; margin-top: 4px; } .pilares-grid { grid-template-columns: 1fr; } .pilar-card { padding: 36px 28px; } .angle-options { flex-direction: column; } }
+
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
     .delay-1 { animation-delay: 0.1s; opacity: 0; }
     .delay-2 { animation-delay: 0.2s; opacity: 0; }
     .delay-3 { animation-delay: 0.3s; opacity: 0; }
     #extractionCanvas { display: none; }
+
+    /* Respeta usuarios que prefieren menos movimiento */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+      .fade-in-up, .delay-1, .delay-2, .delay-3 { opacity: 1 !important; transform: none !important; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- HEADER UNIVERSAL -->
-  <nav>
-    <button class="hamburger" id="hamburger" aria-label="Menú">
+  <!-- ════════════ HEADER (idéntico a Biblioteca) ════════════ -->
+  <header id="siteHeader">
+    <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+    <div class="nav-collapse">
+      <ul class="nav-links">
+        <li><a href="/es/coach-ai.html" class="active" aria-current="page">Coach IA</a></li>
+        <li><a href="/es/training.html">Training Lab</a></li>
+        <li><a href="/es/library.html">Biblioteca</a></li>
+        <li><a href="/es/pricing.html">Planes</a></li>
+        <li><a href="/es/about.html">El Coach</a></li>
+      </ul>
+      <div class="nav-auth" id="header-auth">
+        <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+        <a href="/es/login.html" class="btn-nav-primary">Únete</a>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-    <a href="/es/index.html" class="nav-logo">MY<span>GOLF</span>LAB</a>
-  </nav>
+  </header>
 
-  <div class="mobile-menu-overlay" id="menuOverlay"></div>
-
-  <div class="mobile-menu" id="mobileMenu">
-    <div class="menu-links">
-      <a href="/es/index.html" class="menu-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Inicio
-      </a>
-      <a href="/es/coach-ai.html" class="menu-link active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        Coach IA
-      </a>
-      <a href="/es/library.html" class="menu-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        Biblioteca
-      </a>
-      <a href="/es/training.html" class="menu-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        Training Lab
-      </a>
-      <a href="/es/pricing.html" class="menu-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Precios
-      </a>
-      <div class="menu-divider"></div>
-      <a href="/es/about.html" class="menu-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-        El Coach
-      </a>
-    </div>
-    <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
-  </div>
-
-  <!-- CONTENIDO -->
+  <!-- ════════════ CONTENIDO ════════════ -->
+  <main>
   <section class="hero">
     <div class="hero-badge"><span class="pulse"></span>Coach IA Activo</div>
     <h1>TU <span>COACH</span> DE GOLF CON IA</h1>
@@ -286,121 +387,172 @@
   </section>
 
   <div class="main-container">
-    <div class="mode-selector" id="modeSelector">
-      <button class="mode-tab active" id="modeSwing" onclick="switchMode('swing')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    <div class="mode-selector" id="modeSelector" role="tablist" aria-label="Modo de Coach IA">
+      <button class="mode-tab active" id="modeSwing" role="tab" aria-selected="true" onclick="switchMode('swing')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
         Analizar Swing
       </button>
-      <button class="mode-tab" id="modeChat" onclick="switchMode('chat')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <button class="mode-tab" id="modeChat" role="tab" aria-selected="false" onclick="switchMode('chat')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         Chat con Coach IA
       </button>
     </div>
 
     <div id="swingMode">
+      <!-- Guía de grabación -->
+      <details class="record-guide" id="recordGuide">
+        <summary>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Cómo grabar tu swing para el mejor análisis
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </summary>
+        <div class="record-guide-body">
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span><strong>Ángulo:</strong> graba de frente (face-on) o desde la línea de tiro (down-the-line, detrás de la bola). Elige el ángulo abajo para que el análisis sea más preciso.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span><strong>Encuadre:</strong> que se vea tu cuerpo completo y el palo durante todo el swing, con algo de espacio arriba y abajo.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span><strong>Cámara fija:</strong> apóyala en algo estable, a la altura aproximada de tus manos. Evita grabar a pulso.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span><strong>Luz y duración:</strong> buena iluminación, fondo despejado y un clip corto (entre 2 y 30 segundos) con un solo swing.</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span><strong>Formato:</strong> MP4 (H.264) es el más compatible. Si grabas con iPhone, exporta como "Más compatible" para evitar problemas de codec.</span></li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- Selector de ángulo -->
+      <div class="angle-selector">
+        <div class="angle-label" id="angleLabel">Ángulo de la cámara</div>
+        <div class="angle-options" role="radiogroup" aria-labelledby="angleLabel">
+          <button class="angle-option active" id="angleFace" role="radio" aria-checked="true" onclick="setAngle('face')">
+            <div class="angle-option-title">De frente</div>
+            <div class="angle-option-desc">Face-on, mirándote de frente</div>
+          </button>
+          <button class="angle-option" id="angleDtl" role="radio" aria-checked="false" onclick="setAngle('dtl')">
+            <div class="angle-option-title">Línea de tiro</div>
+            <div class="angle-option-desc">Down-the-line, desde atrás</div>
+          </button>
+        </div>
+      </div>
+
       <div class="upload-section" id="uploadSection">
-        <div class="upload-tabs">
-          <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload">
-            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        <div class="upload-tabs" role="tablist" aria-label="Origen del video">
+          <button class="upload-tab active" onclick="switchTab('upload')" id="tabUpload" role="tab" aria-selected="true" aria-controls="contentUpload">
+            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
             Subir Video
           </button>
-          <button class="upload-tab" onclick="switchTab('webcam')" id="tabWebcam">
-            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+          <button class="upload-tab" onclick="switchTab('webcam')" id="tabWebcam" role="tab" aria-selected="false" aria-controls="contentWebcam">
+            <svg class="upload-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
             Grabar
           </button>
         </div>
-        <div class="tab-content active" id="contentUpload">
-          <div class="drop-zone" id="dropZone" onclick="document.getElementById('videoInput').click()">
-            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+
+        <!-- TAB: SUBIR -->
+        <div class="tab-content active" id="contentUpload" role="tabpanel" aria-labelledby="tabUpload">
+          <button type="button" class="drop-zone" id="dropZone" aria-label="Subir video: arrastra un archivo o presiona para seleccionar">
+            <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
             <h3>Arrastra tu video aquí</h3>
-            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB)</p>
+            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · 2–30s)</p>
             <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
-          </div>
+          </button>
           <div class="video-preview" id="videoPreview">
-            <div class="video-preview-inner"><video id="previewPlayer" controls></video></div>
+            <div class="video-preview-inner"><video id="previewPlayer" controls playsinline></video></div>
             <div class="video-info">
               <span class="video-info-name" id="videoName"></span>
               <span class="video-info-size" id="videoSize"></span>
-              <button class="remove-video" onclick="removeVideo()">Eliminar</button>
+              <button type="button" class="remove-video" onclick="removeVideo()">Eliminar</button>
             </div>
           </div>
           <div class="frames-preview" id="framesPreview">
             <div class="frames-label">Frames extraídos para análisis</div>
             <div class="frames-grid" id="framesGrid"></div>
           </div>
+          <div class="status-msg" id="uploadStatus" role="alert" aria-live="assertive"></div>
           <button class="btn-primary" id="analyzeBtn" disabled onclick="showQuestionnaire()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             CONTINUAR
           </button>
         </div>
-        <div class="tab-content" id="contentWebcam">
+
+        <!-- TAB: GRABAR -->
+        <div class="tab-content" id="contentWebcam" role="tabpanel" aria-labelledby="tabWebcam">
           <div class="webcam-container" id="webcamContainer">
             <div class="webcam-placeholder" id="webcamPlaceholder">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
               <p>Presiona "Iniciar Cámara" para comenzar</p>
             </div>
             <video id="webcamVideo" autoplay muted playsinline style="display:none;"></video>
+            <div class="rec-timer" id="recTimer"><span class="rec-dot"></span><span id="recTime">0:00</span></div>
           </div>
           <div class="webcam-controls">
             <button class="btn-secondary" id="webcamStartBtn" onclick="startWebcam()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z M16 3H3a2 2 0 00-2 2v14a2 2 0 002 2h13a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
               Iniciar Cámara
             </button>
-            <button class="btn-secondary" id="webcamRecordBtn" onclick="toggleRecording()" style="display:none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
+            <button class="btn-secondary" id="webcamRecordBtn" onclick="startRecording()" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
               Grabar
             </button>
             <button class="btn-secondary" id="webcamStopBtn" onclick="stopRecording()" style="display:none;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" fill="currentColor"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="6" width="12" height="12" fill="currentColor"/></svg>
               Detener
             </button>
           </div>
           <div class="video-preview" id="webcamPreview">
-            <div class="video-preview-inner"><video id="webcamRecordedPlayer" controls></video></div>
+            <div class="video-preview-inner"><video id="webcamRecordedPlayer" controls playsinline></video></div>
           </div>
           <div class="frames-preview" id="webcamFramesPreview">
             <div class="frames-label">Frames extraídos para análisis</div>
             <div class="frames-grid" id="webcamFramesGrid"></div>
           </div>
+          <div class="status-msg" id="webcamStatus" role="alert" aria-live="assertive"></div>
           <button class="btn-primary" id="webcamAnalyzeBtn" disabled onclick="showQuestionnaire()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             CONTINUAR
           </button>
         </div>
       </div>
 
+      <!-- CUESTIONARIO -->
       <div class="questionnaire-section" id="questionnaireSection">
         <div class="questionnaire-card fade-in-up">
-          <div class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</div>
-          <div class="questionnaire-subtitle">Esto me ayuda a personalizar el análisis a tu nivel y a lo que realmente necesitas mejorar. Si prefieres, puedes saltar las preguntas.</div>
+          <button type="button" class="q-back" onclick="backToUpload()">← Volver al video</button>
+          <h2 class="questionnaire-title">CUÉNTAME SOBRE TU JUEGO</h2>
+          <p class="questionnaire-subtitle">Esto me ayuda a personalizar el análisis a tu nivel y a lo que realmente necesitas mejorar. Si prefieres, puedes saltar las preguntas.</p>
           <div class="frames-mini" id="framesMini"></div>
           <div class="q-field">
-            <div class="q-label">¿Cuál es tu hándicap o nivel?</div>
-            <div class="q-hint">Un número, o describe tu nivel (principiante, intermedio, etc.)</div>
-            <input type="text" class="q-input" id="qHandicap" placeholder="Ej: 18, scratch, principiante, llevo 6 meses jugando...">
+            <label class="q-label" for="qHandicap">¿Cuál es tu hándicap o nivel?</label>
+            <div class="q-hint" id="hHandicap">Un número, o describe tu nivel (principiante, intermedio, etc.)</div>
+            <input type="text" class="q-input" id="qHandicap" aria-describedby="hHandicap" placeholder="Ej: 18, scratch, principiante, llevo 6 meses jugando...">
           </div>
           <div class="q-field">
-            <div class="q-label">¿Cuál es tu problema principal?</div>
-            <div class="q-hint">Lo que más te cuesta o frustra en el campo</div>
-            <textarea class="q-input q-textarea" id="qProblema" placeholder="Ej: pierdo mucha distancia, no tengo consistencia, hago slice con el driver..."></textarea>
+            <label class="q-label" for="qProblema">¿Cuál es tu problema principal?</label>
+            <div class="q-hint" id="hProblema">Lo que más te cuesta o frustra en el campo</div>
+            <textarea class="q-input q-textarea" id="qProblema" aria-describedby="hProblema" placeholder="Ej: pierdo mucha distancia, no tengo consistencia, hago slice con el driver..."></textarea>
           </div>
           <div class="q-field">
-            <div class="q-label">¿Qué te gustaría mejorar?</div>
-            <div class="q-hint">Tu objetivo con este análisis</div>
-            <input type="text" class="q-input" id="qObjetivo" placeholder="Ej: quiero más distancia, mejorar el contacto, eliminar el hook...">
+            <label class="q-label" for="qObjetivo">¿Qué te gustaría mejorar?</label>
+            <div class="q-hint" id="hObjetivo">Tu objetivo con este análisis</div>
+            <input type="text" class="q-input" id="qObjetivo" aria-describedby="hObjetivo" placeholder="Ej: quiero más distancia, mejorar el contacto, eliminar el hook...">
           </div>
+
+          <!-- Consentimiento de privacidad -->
+          <div class="consent-box">
+            <input type="checkbox" id="consentCheck" onchange="updateConsent()">
+            <label for="consentCheck">Entiendo que se extraerán imágenes (frames) de mi video y se procesarán con un servicio de inteligencia artificial para generar el análisis. <a href="/es/privacidad.html" target="_blank" rel="noopener">Ver política de privacidad</a>.</label>
+          </div>
+
           <div class="q-actions">
-            <button class="q-skip" onclick="analyzeSwing()">Saltar →</button>
-            <button class="btn-primary" onclick="analyzeSwing()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <button type="button" class="q-skip" onclick="analyzeSwing()" id="qSkipBtn" disabled>Saltar →</button>
+            <button type="button" class="btn-primary" onclick="analyzeSwing()" id="qAnalyzeBtn" disabled>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               ANALIZAR MI SWING
             </button>
           </div>
+          <div class="status-msg" id="consentHint" role="status" aria-live="polite"></div>
         </div>
       </div>
 
-      <div class="analysis-loading" id="analysisLoading">
-        <div class="loading-spinner"></div>
+      <!-- LOADING -->
+      <div class="analysis-loading" id="analysisLoading" role="status" aria-live="polite">
+        <div class="loading-spinner" aria-hidden="true"></div>
         <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
         <div class="loading-steps">
           <div class="loading-step active" id="step1"><span class="loading-step-dot"></span>Extrayendo frames clave del video</div>
@@ -408,308 +560,752 @@
           <div class="loading-step" id="step3"><span class="loading-step-dot"></span>Evaluando mecánica del swing</div>
           <div class="loading-step" id="step4"><span class="loading-step-dot"></span>Generando diagnóstico y correcciones</div>
         </div>
+        <button type="button" class="btn-secondary" id="cancelBtn" onclick="cancelAnalysis()">Cancelar</button>
       </div>
 
-      <div class="analysis-results" id="analysisResults"></div>
+      <!-- RESULTADOS -->
+      <div class="analysis-results" id="analysisResults" tabindex="-1"></div>
+
+      <!-- HISTORIAL -->
+      <div class="history-panel" id="historyPanel" style="display:none;">
+        <div class="history-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+          Tus análisis anteriores
+          <button type="button" class="history-clear" onclick="clearHistory()">Borrar historial</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
     </div>
 
+    <!-- CHAT -->
     <div id="chatMode" style="display:none;">
       <div class="chat-container" id="chatContainer">
-        <div class="chat-messages" id="chatMessages">
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Conversación con Coach IA">
           <div class="chat-bubble assistant-bubble fade-in-up">
             <div class="chat-bubble-label">Coach IA</div>
             <div class="chat-bubble-text">¡Hola! Soy tu Coach IA de MyGolfLab. Pregúntame lo que quieras sobre técnica, estrategia, mentalidad, o cualquier duda sobre tu juego. Estoy acá para ayudarte.</div>
           </div>
         </div>
         <div class="chat-input-area">
+          <label for="chatInput" class="sr-only">Escribe tu pregunta</label>
           <textarea class="chat-input" id="chatInput" placeholder="Pregunta algo sobre tu juego..." rows="1" maxlength="1000"></textarea>
-          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" disabled>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" disabled aria-label="Enviar mensaje">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
           </button>
         </div>
       </div>
     </div>
 
-    <section class="methodology-section">
-      <h2>METODOLOGÍA MYGOLFLAB</h2>
-      <p>No existe un swing perfecto universal. Nuestro enfoque se basa en encontrar la receta personal de cada jugador — sin moldes, adaptado a tu cuerpo, tu nivel y tus objetivos.</p>
-      <div class="method-grid">
-        <div class="method-item"><h4>Ground Forces</h4><p>Cómo usas el suelo es cómo generas velocidad. La transferencia de fuerzas desde los pies hacia el palo es la base de un swing eficiente y repetible.</p></div>
-        <div class="method-item"><h4>Kinematic Sequence</h4><p>La secuencia correcta caderas → torso → brazos → palo. El orden en que tu cuerpo se mueve determina potencia, consistencia y salud articular.</p></div>
-        <div class="method-item"><h4>Wrist Conditions</h4><p>La posición de tus muñecas controla la cara del palo, el ángulo de ataque y la compresión. Es lo que separa un buen contacto de uno mediocre.</p></div>
-        <div class="method-item"><h4>Body Tilts</h4><p>Las inclinaciones del torso en cada fase del swing afectan la calidad del contacto, la trayectoria y tu capacidad de comprimir la bola consistentemente.</p></div>
+    <!-- ══ 4 PILARES (réplica del index) ══ -->
+    <section class="pilares-section">
+      <div class="section-eyebrow">Metodología</div>
+      <h2 class="section-title">Los 4 Pilares del<br><span>Swing Ideal</span></h2>
+      <p class="section-sub">Un framework biomecánico preciso para entender, analizar y mejorar cada aspecto de tu swing de golf.</p>
+
+      <div class="pilares-grid">
+        <div class="pilar-card" data-n="01">
+          <div class="pilar-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="4" y="20" width="20" height="3" rx="1.5" fill="#2dd4bf" opacity="0.3"/>
+              <path d="M10 20 L10 10" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M10 10 L7 14 M10 10 L13 14" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M18 20 L18 7" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M18 7 L15 11 M18 7 L21 11" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="10" cy="22" r="1.5" fill="#2dd4bf" opacity="0.5"/>
+              <circle cx="18" cy="22" r="1.5" fill="#2dd4bf" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pilar-name">Ground Forces</div>
+          <p class="pilar-desc">La transferencia de presión desde el suelo hasta el palo es la base de toda la potencia. Sin ground forces, el resto no tiene sentido.</p>
+          <span class="pilar-tag">Potencia</span>
+        </div>
+
+        <div class="pilar-card" data-n="02">
+          <div class="pilar-icon-wrap" style="background:rgba(212,197,169,0.1);">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <circle cx="6" cy="22" r="3" fill="#D4C5A9" opacity="0.4"/>
+              <circle cx="11" cy="16" r="2.5" fill="#D4C5A9" opacity="0.55"/>
+              <circle cx="17" cy="11" r="2" fill="#D4C5A9" opacity="0.7"/>
+              <circle cx="23" cy="7" r="1.5" fill="#D4C5A9"/>
+              <path d="M6 22 Q8 18 11 16 Q14 13 17 11 Q20 9 23 7" stroke="#D4C5A9" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pilar-name">Kinematic Sequence</div>
+          <p class="pilar-desc">La cadena cinemática correcta — caderas → torso → brazos → palo — genera la velocidad máxima en el momento del impacto.</p>
+          <span class="pilar-tag" style="color:var(--gold);border-color:rgba(212,197,169,0.25);">Secuencia</span>
+        </div>
+
+        <div class="pilar-card" data-n="03">
+          <div class="pilar-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="10" y="8" width="8" height="12" rx="2" stroke="#2dd4bf" stroke-width="1.5" fill="none"/>
+              <line x1="14" y1="8" x2="14" y2="4" stroke="#2dd4bf" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="14" y1="4" x2="20" y2="2" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+              <text x="20" y="9" font-size="6" fill="#2dd4bf" font-family="'Barlow Condensed',sans-serif" font-weight="600">15°</text>
+            </svg>
+          </div>
+          <div class="pilar-name">Wrist Conditions</div>
+          <p class="pilar-desc">Shaft lean, lag y la posición de la cara del palo al impacto determinan la calidad del contacto y el control de la trayectoria.</p>
+          <span class="pilar-tag">Impacto</span>
+        </div>
+
+        <div class="pilar-card" data-n="04">
+          <div class="pilar-icon-wrap" style="background:rgba(212,197,169,0.1);">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <line x1="14" y1="4" x2="14" y2="24" stroke="#D4C5A9" stroke-width="0.8" stroke-dasharray="2 2" opacity="0.3"/>
+              <path d="M14 6 L10 14 L14 22 L18 14 Z" stroke="#D4C5A9" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+              <line x1="6" y1="10" x2="22" y2="10" stroke="#D4C5A9" stroke-width="1" opacity="0.4"/>
+              <line x1="8" y1="18" x2="20" y2="18" stroke="#D4C5A9" stroke-width="1" opacity="0.4"/>
+              <circle cx="10" cy="14" r="2" fill="#D4C5A9" opacity="0.5"/>
+              <circle cx="18" cy="14" r="2" fill="#D4C5A9" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="pilar-name">Body Tilts</div>
+          <p class="pilar-desc">Las inclinaciones del torso en cada fase del swing — address, top, impacto, finish — son la firma biomecánica de un swing eficiente.</p>
+          <span class="pilar-tag" style="color:var(--gold);border-color:rgba(212,197,169,0.25);">Postura</span>
+        </div>
       </div>
     </section>
   </div>
+  </main>
 
   <footer><p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p></footer>
   <canvas id="extractionCanvas"></canvas>
 
   <script>
-    let currentVideoFile = null, extractedFrames = [], webcamStream = null, mediaRecorder = null, recordedChunks = [], isRecording = false, chatHistory = [], chatLoading = false;
+  /* ════════════════════════════════════════════════════════════════
+     ⚠️  NOTA PARA EL BACKEND (/api/coach)
+     ────────────────────────────────────────────────────────────────
+     Por seguridad, este cliente YA NO envía `system`, `model` ni
+     `max_tokens`. Solo manda: { mode: 'swing'|'chat', messages: [...] }.
+     El servidor DEBE:
+       1. Fijar `model` y `max_tokens` (no confiar en el cliente).
+       2. Inyectar el system prompt correcto según `mode`
+          (swing → prompt de análisis; chat → prompt conversacional).
+          Los system prompts viven en el servidor, NUNCA en el cliente.
+       3. Validar sesión/plan (auth-guard ya exige "pro").
+     Así nadie puede reutilizar tu clave de API para fines ajenos.
+     ════════════════════════════════════════════════════════════════ */
 
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const menuOverlay = document.getElementById('menuOverlay');
+  'use strict';
 
-    function toggleMenu() {
-      hamburger.classList.toggle('active');
-      mobileMenu.classList.toggle('active');
-      menuOverlay.classList.toggle('active');
-      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+  var currentVideoFile = null, extractedFrames = [], frameTimes = [], cameraAngle = 'face';
+  var webcamStream = null, mediaRecorder = null, recordedChunks = [], isRecording = false;
+  var recTimerInt = null, recSeconds = 0, MAX_REC_SECONDS = 30;
+  var chatHistory = [], chatLoading = false;
+  var analysisController = null;
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var FRAME_LABELS = ['Setup/Address', 'Takeaway', 'Top del backswing', 'Transición/Downswing', 'Impacto', 'Follow-through'];
+
+  /* ════════════ CATÁLOGO CERRADO DE DRILLS (Biblioteca · 84 drills) ════════════
+     El Coach IA SOLO puede recomendar IDs presentes en este catálogo.
+     Campos: id · t(ítulo) · c(omponente) · cn(ombre componente) · e(rrores) ·
+             p(ilares) · n(ivel) · d(uración) · u(enlace deep-link a la Biblioteca).
+     La Biblioteca ya entiende el parámetro ?drill= y abre/resalta el drill. */
+  var DRILLS_CATALOG = [{"id":"drill-cara-01","t":"Cierre con la mano de atrás","c":"cara","cn":"Cara del palo","e":["slice","push"],"p":["WC"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=cara-01"},{"id":"drill-cara-02","t":"Sentir el nudillo en el target","c":"cara","cn":"Cara del palo","e":["slice"],"p":["WC"],"n":"Principiante","d":"8 min","u":"/es/library.html?drill=cara-02"},{"id":"drill-cara-03","t":"Logo del guante al cielo","c":"cara","cn":"Cara del palo","e":["hook","pull"],"p":["WC"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=cara-03"},{"id":"drill-cara-04","t":"Swing del reloj con un solo brazo","c":"cara","cn":"Cara del palo","e":["slice","potencia"],"p":["WC","KS"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=cara-04"},{"id":"drill-cara-05","t":"Cara cerrada exagerada","c":"cara","cn":"Cara del palo","e":["slice"],"p":["WC"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=cara-05"},{"id":"drill-cara-06","t":"Cara abierta exagerada","c":"cara","cn":"Cara del palo","e":["hook"],"p":["WC"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=cara-06"},{"id":"drill-cara-07","t":"Tee como referencia de cara","c":"cara","cn":"Cara del palo","e":["slice","hook"],"p":["WC"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=cara-07"},{"id":"drill-cara-08","t":"Impact bag de cara cuadrada","c":"cara","cn":"Cara del palo","e":["slice","hook","push","pull"],"p":["WC"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=cara-08"},{"id":"drill-cara-09","t":"Banderines de forma de bola","c":"cara","cn":"Cara del palo","e":["slice","hook"],"p":["WC"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=cara-09"},{"id":"drill-cara-10","t":"Curva controlada en campo","c":"cara","cn":"Cara del palo","e":["slice","hook"],"p":["WC","KS"],"n":"Avanzado","d":"45 min","u":"/es/library.html?drill=cara-10"},{"id":"drill-path-01","t":"La pausa al tope","c":"path","cn":"Path / Trayectoria","e":["slice","top"],"p":["KS"],"n":"Principiante","d":"8 min","u":"/es/library.html?drill=path-01"},{"id":"drill-path-02","t":"Brazo de atrás en sombrilla","c":"path","cn":"Path / Trayectoria","e":["slice"],"p":["KS"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=path-02"},{"id":"drill-path-03","t":"Codo de atrás pegado al cuerpo","c":"path","cn":"Path / Trayectoria","e":["slice","shank"],"p":["KS","BT"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=path-03"},{"id":"drill-path-04","t":"Salida desde adentro con stick","c":"path","cn":"Path / Trayectoria","e":["slice"],"p":["KS"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=path-04"},{"id":"drill-path-05","t":"Stick externo como pared","c":"path","cn":"Path / Trayectoria","e":["slice","pull"],"p":["KS"],"n":"Principiante","d":"20 min","u":"/es/library.html?drill=path-05"},{"id":"drill-path-06","t":"Headcover detrás de la bola","c":"path","cn":"Path / Trayectoria","e":["slice","top"],"p":["KS"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=path-06"},{"id":"drill-path-07","t":"Draw obligado con tee bajo","c":"path","cn":"Path / Trayectoria","e":["slice","pull"],"p":["WC","KS"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=path-07"},{"id":"drill-path-08","t":"Bolas en línea diagonal","c":"path","cn":"Path / Trayectoria","e":["slice","hook","push","pull"],"p":["KS"],"n":"Avanzado","d":"25 min","u":"/es/library.html?drill=path-08"},{"id":"drill-path-09","t":"Path interno exagerado","c":"path","cn":"Path / Trayectoria","e":["hook","push"],"p":["KS"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=path-09"},{"id":"drill-path-10","t":"Forma de bola por target","c":"path","cn":"Path / Trayectoria","e":["slice","hook","push","pull"],"p":["KS","WC"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=path-10"},{"id":"drill-lowpoint-01","t":"Línea de tiza para low point","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo"],"p":["BT"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=lowpoint-01"},{"id":"drill-lowpoint-02","t":"Toques al suelo sin bola","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo"],"p":["BT","GF"],"n":"Principiante","d":"8 min","u":"/es/library.html?drill=lowpoint-02"},{"id":"drill-lowpoint-03","t":"Sentir el pecho sobre la bola","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo","shank"],"p":["BT"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=lowpoint-03"},{"id":"drill-lowpoint-04","t":"Pies juntos para encontrar fondo","c":"lowpoint","cn":"Low point y contacto","e":["gordo","potencia"],"p":["GF","BT"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=lowpoint-04"},{"id":"drill-lowpoint-05","t":"Tee blanco en spray","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo"],"p":["BT"],"n":"Principiante","d":"15 min","u":"/es/library.html?drill=lowpoint-05"},{"id":"drill-lowpoint-06","t":"Dos tees como ventana","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo","shank"],"p":["BT","KS"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=lowpoint-06"},{"id":"drill-lowpoint-07","t":"Bola sobre billete","c":"lowpoint","cn":"Low point y contacto","e":["gordo"],"p":["BT"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=lowpoint-07"},{"id":"drill-lowpoint-08","t":"Stance progresivo","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo","distancia"],"p":["GF","BT"],"n":"Intermedio","d":"25 min","u":"/es/library.html?drill=lowpoint-08"},{"id":"drill-lowpoint-09","t":"Bolas sobre lies variados","c":"lowpoint","cn":"Low point y contacto","e":["gordo","top"],"p":["BT","GF"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=lowpoint-09"},{"id":"drill-lowpoint-10","t":"Hoyo simulado con hierros","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo","distancia"],"p":["BT","KS"],"n":"Intermedio","d":"30 min","u":"/es/library.html?drill=lowpoint-10"},{"id":"drill-lowpoint-11","t":"Lies extremos en campo","c":"lowpoint","cn":"Low point y contacto","e":["gordo","top","shank"],"p":["BT","GF"],"n":"Avanzado","d":"45 min","u":"/es/library.html?drill=lowpoint-11"},{"id":"drill-lowpoint-12","t":"Test de divot consistente","c":"lowpoint","cn":"Low point y contacto","e":["top","gordo"],"p":["BT"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=lowpoint-12"},{"id":"drill-secuencia-01","t":"Step drill cruzando los pies","c":"secuencia","cn":"Secuencia y rotación","e":["potencia","slice"],"p":["KS","GF"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=secuencia-01"},{"id":"drill-secuencia-02","t":"Inicio de caderas con pausa","c":"secuencia","cn":"Secuencia y rotación","e":["slice","potencia"],"p":["KS"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=secuencia-02"},{"id":"drill-secuencia-03","t":"Brazos pasivos, cuerpo activo","c":"secuencia","cn":"Secuencia y rotación","e":["slice","potencia","hook"],"p":["KS"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=secuencia-03"},{"id":"drill-secuencia-04","t":"Pump drill","c":"secuencia","cn":"Secuencia y rotación","e":["slice","top","potencia"],"p":["KS"],"n":"Intermedio","d":"8 min","u":"/es/library.html?drill=secuencia-04"},{"id":"drill-secuencia-05","t":"Ritmo 3-1 contado en voz alta","c":"secuencia","cn":"Secuencia y rotación","e":["potencia","distancia","spin"],"p":["KS"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=secuencia-05"},{"id":"drill-secuencia-06","t":"Step-through finish","c":"secuencia","cn":"Secuencia y rotación","e":["slice","potencia"],"p":["KS","GF"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=secuencia-06"},{"id":"drill-secuencia-07","t":"Swing completo a 70%","c":"secuencia","cn":"Secuencia y rotación","e":["potencia","distancia","spin"],"p":["KS"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=secuencia-07"},{"id":"drill-secuencia-08","t":"Pelota medicinal lateral","c":"secuencia","cn":"Secuencia y rotación","e":["potencia","slice"],"p":["KS","GF"],"n":"Avanzado","d":"15 min","u":"/es/library.html?drill=secuencia-08"},{"id":"drill-secuencia-09","t":"Swings con metrónomo","c":"secuencia","cn":"Secuencia y rotación","e":["distancia","spin","potencia"],"p":["KS"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=secuencia-09"},{"id":"drill-secuencia-10","t":"Tres tempos progresivos","c":"secuencia","cn":"Secuencia y rotación","e":["distancia","spin"],"p":["KS"],"n":"Avanzado","d":"25 min","u":"/es/library.html?drill=secuencia-10"},{"id":"drill-secuencia-11","t":"Driver y wedge alternados","c":"secuencia","cn":"Secuencia y rotación","e":["potencia","distancia"],"p":["KS"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=secuencia-11"},{"id":"drill-secuencia-12","t":"Ronda con tempo único","c":"secuencia","cn":"Secuencia y rotación","e":["distancia","spin","potencia"],"p":["KS"],"n":"Avanzado","d":"Ronda completa","u":"/es/library.html?drill=secuencia-12"},{"id":"drill-postura-01","t":"Setup frente al espejo","c":"postura","cn":"Postura y ángulos","e":["shank","top","gordo"],"p":["BT"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=postura-01"},{"id":"drill-postura-02","t":"Inclinación columna desde cadera","c":"postura","cn":"Postura y ángulos","e":["shank","top","potencia"],"p":["BT"],"n":"Principiante","d":"8 min","u":"/es/library.html?drill=postura-02"},{"id":"drill-postura-03","t":"Stick en el pecho como guía","c":"postura","cn":"Postura y ángulos","e":["top","shank","potencia"],"p":["BT"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=postura-03"},{"id":"drill-postura-04","t":"Wall drill anti early-extension","c":"postura","cn":"Postura y ángulos","e":["shank","top","potencia"],"p":["BT","GF"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=postura-04"},{"id":"drill-postura-05","t":"Bolas a distancia del cuerpo","c":"postura","cn":"Postura y ángulos","e":["shank"],"p":["BT"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=postura-05"},{"id":"drill-postura-06","t":"Headcover externo al palo","c":"postura","cn":"Postura y ángulos","e":["shank"],"p":["BT"],"n":"Principiante","d":"15 min","u":"/es/library.html?drill=postura-06"},{"id":"drill-postura-07","t":"Trasero contra silla","c":"postura","cn":"Postura y ángulos","e":["shank","top"],"p":["BT","GF"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=postura-07"},{"id":"drill-postura-08","t":"Postura mantenida hasta finish","c":"postura","cn":"Postura y ángulos","e":["top","potencia","shank"],"p":["BT"],"n":"Avanzado","d":"25 min","u":"/es/library.html?drill=postura-08"},{"id":"drill-postura-09","t":"Tiros incómodos de postura","c":"postura","cn":"Postura y ángulos","e":["shank","top","gordo"],"p":["BT","GF"],"n":"Avanzado","d":"45 min","u":"/es/library.html?drill=postura-09"},{"id":"drill-ground-01","t":"Cambio de presión 50-80-90","c":"ground","cn":"Ground forces y presión","e":["potencia","top","gordo"],"p":["GF"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=ground-01"},{"id":"drill-ground-02","t":"Pies descalzos en superficie blanda","c":"ground","cn":"Ground forces y presión","e":["potencia","slice"],"p":["GF"],"n":"Intermedio","d":"8 min","u":"/es/library.html?drill=ground-02"},{"id":"drill-ground-03","t":"Squat-jump del swing","c":"ground","cn":"Ground forces y presión","e":["potencia"],"p":["GF"],"n":"Intermedio","d":"8 min","u":"/es/library.html?drill=ground-03"},{"id":"drill-ground-04","t":"Pie de atrás levantado","c":"ground","cn":"Ground forces y presión","e":["slice","potencia","gordo"],"p":["GF","BT"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=ground-04"},{"id":"drill-ground-05","t":"Pie de adelante levantado","c":"ground","cn":"Ground forces y presión","e":["hook","push"],"p":["GF"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=ground-05"},{"id":"drill-ground-06","t":"Plancha de presión visualizada","c":"ground","cn":"Ground forces y presión","e":["potencia"],"p":["GF"],"n":"Intermedio","d":"15 min","u":"/es/library.html?drill=ground-06"},{"id":"drill-ground-07","t":"Saltar al impacto","c":"ground","cn":"Ground forces y presión","e":["potencia"],"p":["GF"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=ground-07"},{"id":"drill-ground-08","t":"Driver a máxima velocidad","c":"ground","cn":"Ground forces y presión","e":["potencia"],"p":["GF","KS"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=ground-08"},{"id":"drill-ground-09","t":"Hierros en pendiente","c":"ground","cn":"Ground forces y presión","e":["potencia","top","gordo"],"p":["GF","BT"],"n":"Avanzado","d":"45 min","u":"/es/library.html?drill=ground-09"},{"id":"drill-conexion-01","t":"Headcover bajo ambas axilas","c":"conexion","cn":"Conexión y ancho de arco","e":["slice","potencia"],"p":["KS"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=conexion-01"},{"id":"drill-conexion-02","t":"Toalla bajo el brazo de adelante","c":"conexion","cn":"Conexión y ancho de arco","e":["slice","top"],"p":["KS"],"n":"Principiante","d":"8 min","u":"/es/library.html?drill=conexion-02"},{"id":"drill-conexion-03","t":"Manos lejos al inicio del backswing","c":"conexion","cn":"Conexión y ancho de arco","e":["potencia","slice"],"p":["KS"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=conexion-03"},{"id":"drill-conexion-04","t":"Brazo conectado, brazo libre","c":"conexion","cn":"Conexión y ancho de arco","e":["slice","potencia"],"p":["KS","WC"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=conexion-04"},{"id":"drill-conexion-05","t":"Bolas con headcover en axila","c":"conexion","cn":"Conexión y ancho de arco","e":["slice","potencia","top"],"p":["KS"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=conexion-05"},{"id":"drill-conexion-06","t":"Half-swing conectado a swing completo","c":"conexion","cn":"Conexión y ancho de arco","e":["slice","potencia"],"p":["KS"],"n":"Intermedio","d":"25 min","u":"/es/library.html?drill=conexion-06"},{"id":"drill-conexion-07","t":"Sensación de ancho con fierro largo","c":"conexion","cn":"Conexión y ancho de arco","e":["potencia","slice"],"p":["KS","BT"],"n":"Avanzado","d":"20 min","u":"/es/library.html?drill=conexion-07"},{"id":"drill-conexion-08","t":"Driver de ancho máximo","c":"conexion","cn":"Conexión y ancho de arco","e":["potencia"],"p":["KS","GF"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=conexion-08"},{"id":"drill-distancia-01","t":"Tres largos de swing - hierros","c":"distancia","cn":"Control de distancia y spin","e":["distancia"],"p":["KS","BT"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=distancia-01"},{"id":"drill-distancia-02","t":"Sentir el reloj en wedges","c":"distancia","cn":"Control de distancia y spin","e":["spin","distancia"],"p":["KS","WC"],"n":"Principiante","d":"10 min","u":"/es/library.html?drill=distancia-02"},{"id":"drill-distancia-03","t":"Manos suaves en wedge","c":"distancia","cn":"Control de distancia y spin","e":["spin"],"p":["WC"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=distancia-03"},{"id":"drill-distancia-04","t":"Ángulo de ataque descendente","c":"distancia","cn":"Control de distancia y spin","e":["spin","gordo"],"p":["BT","WC"],"n":"Intermedio","d":"10 min","u":"/es/library.html?drill=distancia-04"},{"id":"drill-distancia-05","t":"Tres distancias por hierro","c":"distancia","cn":"Control de distancia y spin","e":["distancia"],"p":["KS"],"n":"Intermedio","d":"30 min","u":"/es/library.html?drill=distancia-05"},{"id":"drill-distancia-06","t":"Escalera de wedges","c":"distancia","cn":"Control de distancia y spin","e":["spin","distancia"],"p":["WC","KS"],"n":"Intermedio","d":"30 min","u":"/es/library.html?drill=distancia-06"},{"id":"drill-distancia-07","t":"Wedge con cara abierta progresiva","c":"distancia","cn":"Control de distancia y spin","e":["spin"],"p":["WC"],"n":"Avanzado","d":"25 min","u":"/es/library.html?drill=distancia-07"},{"id":"drill-distancia-08","t":"Contacto cuadrado con divot direccional","c":"distancia","cn":"Control de distancia y spin","e":["spin","gordo"],"p":["BT","WC"],"n":"Intermedio","d":"20 min","u":"/es/library.html?drill=distancia-08"},{"id":"drill-distancia-09","t":"Distancias específicas a target","c":"distancia","cn":"Control de distancia y spin","e":["distancia"],"p":["KS"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=distancia-09"},{"id":"drill-distancia-10","t":"Wedges desde lies variables","c":"distancia","cn":"Control de distancia y spin","e":["spin"],"p":["WC","BT"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=distancia-10"},{"id":"drill-distancia-11","t":"Spin alto vs bajo a demanda","c":"distancia","cn":"Control de distancia y spin","e":["spin"],"p":["WC"],"n":"Avanzado","d":"25 min","u":"/es/library.html?drill=distancia-11"},{"id":"drill-distancia-12","t":"Control distancia en hoyo par 3","c":"distancia","cn":"Control de distancia y spin","e":["distancia"],"p":["KS","BT"],"n":"Intermedio","d":"Hoyo","u":"/es/library.html?drill=distancia-12"},{"id":"drill-distancia-13","t":"Aproximaciones desde 100m","c":"distancia","cn":"Control de distancia y spin","e":["distancia","spin"],"p":["KS","WC"],"n":"Avanzado","d":"45 min","u":"/es/library.html?drill=distancia-13"},{"id":"drill-distancia-14","t":"Wedges en green con bandera","c":"distancia","cn":"Control de distancia y spin","e":["spin"],"p":["WC","BT"],"n":"Avanzado","d":"30 min","u":"/es/library.html?drill=distancia-14"}];
+
+  // Índice por id para validar y resolver rápido lo que devuelve la IA.
+  var DRILLS_BY_ID = {};
+  DRILLS_CATALOG.forEach(function (dr) { DRILLS_BY_ID[dr.id] = dr; });
+
+  // Color por componente (coincide con las variables --cat-*).
+  var COMPONENT_COLOR = {
+    cara: 'var(--cat-cara)', path: 'var(--cat-path)', lowpoint: 'var(--cat-lowpoint)',
+    secuencia: 'var(--cat-secuencia)', postura: 'var(--cat-postura)', ground: 'var(--cat-ground)',
+    conexion: 'var(--cat-conexion)', distancia: 'var(--cat-distancia)'
+  };
+
+  // Normaliza lo que devuelve la IA: acepta "drill-cara-01" o "cara-01".
+  function resolveDrill(raw) {
+    if (!raw) return null;
+    var id = String(raw).trim();
+    if (DRILLS_BY_ID[id]) return DRILLS_BY_ID[id];
+    if (DRILLS_BY_ID['drill-' + id]) return DRILLS_BY_ID['drill-' + id];
+    return null; // ID inválido/alucinado -> se descarta
+  }
+
+  // Resumen compacto del catálogo para inyectar en el prompt (id|errores por línea).
+  function catalogForPrompt() {
+    return DRILLS_CATALOG.map(function (dr) {
+      return dr.id + ' [' + dr.c + '] errores:' + dr.e.join(',') + ' — ' + dr.t;
+    }).join('\n');
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ===== HEADER (idéntico a Biblioteca) ===== */
+  function toggleMenu() {
+    var h = $('siteHeader'), b = $('hamburger');
+    var open = h.classList.toggle('menu-open');
+    b.classList.toggle('active', open);
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  /* ===== Mensajes de estado (reemplazan alert) ===== */
+  function showStatus(elId, msg, type) {
+    var el = $(elId); if (!el) return;
+    el.textContent = msg;
+    el.className = 'status-msg visible ' + (type || 'info');
+  }
+  function clearStatus(elId) {
+    var el = $(elId); if (!el) return;
+    el.textContent = ''; el.className = 'status-msg';
+  }
+
+  /* ===== Modo swing / chat ===== */
+  function switchMode(mode) {
+    var swing = mode === 'swing';
+    $('modeSwing').classList.toggle('active', swing);
+    $('modeChat').classList.toggle('active', !swing);
+    $('modeSwing').setAttribute('aria-selected', swing ? 'true' : 'false');
+    $('modeChat').setAttribute('aria-selected', !swing ? 'true' : 'false');
+    $('swingMode').style.display = swing ? '' : 'none';
+    $('chatMode').style.display = swing ? 'none' : '';
+    if (!swing) {
+      stopWebcamStream(); // libera la cámara al salir de swing
+      var m = $('chatMessages'); m.scrollTop = m.scrollHeight; $('chatInput').focus();
     }
-    hamburger.addEventListener('click', toggleMenu);
-    menuOverlay.addEventListener('click', toggleMenu);
-    document.querySelectorAll('.menu-link, .menu-cta').forEach(function(l) { l.addEventListener('click', function() { if (mobileMenu.classList.contains('active')) toggleMenu(); }); });
+  }
 
-    function switchMode(mode) {
-      document.getElementById('modeSwing').classList.toggle('active', mode === 'swing');
-      document.getElementById('modeChat').classList.toggle('active', mode === 'chat');
-      document.getElementById('swingMode').style.display = mode === 'swing' ? '' : 'none';
-      document.getElementById('chatMode').style.display = mode === 'chat' ? '' : 'none';
-      if (mode === 'chat') { const m = document.getElementById('chatMessages'); m.scrollTop = m.scrollHeight; document.getElementById('chatInput').focus(); }
-    }
+  function switchTab(tab) {
+    var upload = tab === 'upload';
+    $('tabUpload').classList.toggle('active', upload);
+    $('tabWebcam').classList.toggle('active', !upload);
+    $('tabUpload').setAttribute('aria-selected', upload ? 'true' : 'false');
+    $('tabWebcam').setAttribute('aria-selected', !upload ? 'true' : 'false');
+    $('contentUpload').classList.toggle('active', upload);
+    $('contentWebcam').classList.toggle('active', !upload);
+    if (upload) stopWebcamStream(); // apaga la cámara si vuelvo a "Subir"
+  }
 
-    function switchTab(tab) {
-      document.querySelectorAll('.upload-tab').forEach(function(t) { t.classList.remove('active'); });
-      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
-      document.getElementById(tab === 'upload' ? 'tabUpload' : 'tabWebcam').classList.add('active');
-      document.getElementById(tab === 'upload' ? 'contentUpload' : 'contentWebcam').classList.add('active');
-    }
+  function setAngle(a) {
+    cameraAngle = a;
+    var face = a === 'face';
+    $('angleFace').classList.toggle('active', face);
+    $('angleDtl').classList.toggle('active', !face);
+    $('angleFace').setAttribute('aria-checked', face ? 'true' : 'false');
+    $('angleDtl').setAttribute('aria-checked', !face ? 'true' : 'false');
+  }
 
-    const dropZone = document.getElementById('dropZone');
-    const videoInput = document.getElementById('videoInput');
-    dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('dragover'); });
-    dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('dragover'); });
-    dropZone.addEventListener('drop', function(e) { e.preventDefault(); dropZone.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('video/')) handleVideoFile(f); });
-    videoInput.addEventListener('change', function(e) { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
+  /* ===== Drag & drop + selección de archivo ===== */
+  var dropZone = $('dropZone'), videoInput = $('videoInput');
+  var ALLOWED = ['video/mp4', 'video/quicktime', 'video/webm'];
 
-    function handleVideoFile(file) {
-      if (file.size > 50 * 1024 * 1024) { alert('El video no puede superar 50MB'); return; }
-      currentVideoFile = file;
-      const url = URL.createObjectURL(file), player = document.getElementById('previewPlayer');
-      player.src = url;
-      document.getElementById('videoName').textContent = file.name;
-      document.getElementById('videoSize').textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-      document.getElementById('videoPreview').classList.add('visible');
-      document.getElementById('dropZone').style.display = 'none';
-      document.getElementById('analyzeBtn').disabled = false;
-      player.onloadeddata = function() { extractFrames(player, 'framesGrid', 'framesPreview'); };
-    }
+  dropZone.addEventListener('click', function () { videoInput.click(); });
+  dropZone.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); videoInput.click(); }
+  });
+  dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('dragover'); });
+  dropZone.addEventListener('drop', function (e) {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    var f = e.dataTransfer.files[0];
+    if (!f) return;
+    if (ALLOWED.indexOf(f.type) < 0) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
+    handleVideoFile(f);
+  });
+  videoInput.addEventListener('change', function (e) { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
 
-    function removeVideo() {
-      currentVideoFile = null; extractedFrames = [];
-      document.getElementById('previewPlayer').src = '';
-      document.getElementById('videoPreview').classList.remove('visible');
-      document.getElementById('framesPreview').classList.remove('visible');
-      document.getElementById('framesGrid').innerHTML = '';
-      document.getElementById('dropZone').style.display = '';
-      document.getElementById('analyzeBtn').disabled = true;
-      videoInput.value = '';
-    }
+  function handleVideoFile(file) {
+    clearStatus('uploadStatus');
+    if (ALLOWED.indexOf(file.type) < 0) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
+    if (file.size > 50 * 1024 * 1024) { showStatus('uploadStatus', 'El video supera el límite de 50MB. Recórtalo o bájale la calidad.', 'error'); return; }
 
-    async function extractFrames(videoEl, gridId, previewId) {
-      extractedFrames = [];
-      const canvas = document.getElementById('extractionCanvas'), ctx = canvas.getContext('2d'), grid = document.getElementById(gridId);
-      grid.innerHTML = '';
-      const dur = videoEl.duration;
-      if (!dur || dur < 0.5) return;
-      const labels = ['Setup', 'Takeaway', 'Top', 'Transición', 'Impacto', 'Follow-Through'];
-      canvas.width = 640; canvas.height = 360;
-      for (let i = 0; i < 6; i++) {
-        const frame = await captureFrame(videoEl, (dur / 7) * (i + 1), canvas, ctx);
-        extractedFrames.push(frame);
-        const w = document.createElement('div'), img = document.createElement('img'), lbl = document.createElement('div');
-        img.src = frame; lbl.className = 'frame-label'; lbl.textContent = labels[i];
-        w.appendChild(img); w.appendChild(lbl); grid.appendChild(w);
+    currentVideoFile = file;
+    var url = URL.createObjectURL(file), player = $('previewPlayer');
+    player.src = url;
+    $('videoName').textContent = file.name;
+    $('videoSize').textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+    $('videoPreview').classList.add('visible');
+    $('dropZone').style.display = 'none';
+    $('analyzeBtn').disabled = true; // se habilita SOLO al terminar la extracción
+
+    player.onerror = function () {
+      showStatus('uploadStatus', 'No pudimos leer este video. El navegador no soporta su códec (común en .mov/HEVC de iPhone). Exporta como MP4 H.264 e inténtalo de nuevo.', 'error');
+    };
+    player.onloadedmetadata = function () {
+      var dur = player.duration;
+      if (dur && dur !== Infinity && (dur < 2 || dur > 30)) {
+        showStatus('uploadStatus', 'El video dura ' + dur.toFixed(1) + 's. Para un buen análisis usa un clip de 2 a 30 segundos con un solo swing.', 'error');
+        return;
       }
-      document.getElementById(previewId).classList.add('visible');
-    }
+      showStatus('uploadStatus', 'Preparando video y extrayendo frames…', 'info');
+      extractFrames(player, 'framesGrid', 'framesPreview', 'analyzeBtn', 'uploadStatus');
+    };
+  }
 
-    function captureFrame(video, time, canvas, ctx) {
-      return new Promise(function(resolve) { video.currentTime = time; video.onseeked = function() { ctx.drawImage(video, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', 0.85)); }; });
-    }
+  function removeVideo() {
+    currentVideoFile = null; extractedFrames = []; frameTimes = [];
+    var p = $('previewPlayer'); if (p.src) URL.revokeObjectURL(p.src); p.src = '';
+    $('videoPreview').classList.remove('visible');
+    $('framesPreview').classList.remove('visible');
+    $('framesGrid').innerHTML = '';
+    $('dropZone').style.display = '';
+    $('analyzeBtn').disabled = true;
+    videoInput.value = '';
+    clearStatus('uploadStatus');
+  }
 
-    async function startWebcam() {
-      try {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-        const vid = document.getElementById('webcamVideo');
-        vid.srcObject = webcamStream; vid.style.display = 'block';
-        document.getElementById('webcamPlaceholder').style.display = 'none';
-        document.getElementById('webcamStartBtn').style.display = 'none';
-        document.getElementById('webcamRecordBtn').style.display = '';
-      } catch (err) { alert('No se pudo acceder a la cámara.'); }
-    }
-
-    function toggleRecording() {
-      if (isRecording) return;
-      recordedChunks = [];
-      try { mediaRecorder = new MediaRecorder(webcamStream, { mimeType: 'video/webm;codecs=vp9' }); } catch (e) { mediaRecorder = new MediaRecorder(webcamStream); }
-      mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) recordedChunks.push(e.data); };
-      mediaRecorder.onstop = function() {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        currentVideoFile = new File([blob], 'swing-recording.webm', { type: 'video/webm' });
-        const url = URL.createObjectURL(blob), player = document.getElementById('webcamRecordedPlayer');
-        player.src = url;
-        document.getElementById('webcamPreview').classList.add('visible');
-        document.getElementById('webcamAnalyzeBtn').disabled = false;
-        player.onloadeddata = function() { extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview'); };
+  /* ===== Arreglo de duración Infinity en .webm de MediaRecorder ===== */
+  function fixVideoDuration(video) {
+    return new Promise(function (resolve) {
+      if (video.duration !== Infinity && !isNaN(video.duration) && video.duration > 0) return resolve();
+      var done = false;
+      video.currentTime = 1e6;
+      video.onseeked = function () {
+        if (done) return; done = true;
+        video.onseeked = null; video.currentTime = 0; resolve();
       };
-      mediaRecorder.start(); isRecording = true;
-      document.getElementById('webcamRecordBtn').style.display = 'none';
-      document.getElementById('webcamStopBtn').style.display = '';
-      document.getElementById('webcamContainer').style.border = '2px solid var(--red)';
+      setTimeout(function () { if (!done) { done = true; resolve(); } }, 1500);
+    });
+  }
+
+  /* ===== Extracción de frames + detección de frame negro ===== */
+  async function extractFrames(videoEl, gridId, previewId, btnId, statusId) {
+    extractedFrames = []; frameTimes = [];
+    var canvas = $('extractionCanvas'), ctx = canvas.getContext('2d'), grid = $(gridId);
+    grid.innerHTML = '';
+    await fixVideoDuration(videoEl);
+    var dur = videoEl.duration;
+    if (!dur || dur === Infinity || isNaN(dur) || dur < 0.5) {
+      showStatus(statusId, 'No pudimos leer la duración del video. Prueba con otro archivo (MP4 H.264).', 'error');
+      return;
+    }
+    canvas.width = 640; canvas.height = 360;
+    var darkCount = 0;
+    for (var i = 0; i < 6; i++) {
+      var t = (dur / 7) * (i + 1);
+      var res = await captureFrame(videoEl, t, canvas, ctx);
+      if (res.dark) darkCount++;
+      extractedFrames.push(res.data); frameTimes.push(t);
+      var fig = document.createElement('figure');
+      var img = document.createElement('img'); img.src = res.data; img.alt = 'Frame del swing: ' + FRAME_LABELS[i];
+      var cap = document.createElement('figcaption'); cap.className = 'frame-label'; cap.textContent = FRAME_LABELS[i].split('/')[0];
+      fig.appendChild(img); fig.appendChild(cap); grid.appendChild(fig);
+    }
+    if (darkCount >= 5) {
+      extractedFrames = []; frameTimes = []; grid.innerHTML = '';
+      showStatus(statusId, 'El video se ve en negro al procesarlo (problema de códec). Exporta como MP4 H.264 e inténtalo otra vez.', 'error');
+      return;
+    }
+    $(previewId).classList.add('visible');
+    if (btnId) $(btnId).disabled = false;
+    clearStatus(statusId);
+  }
+
+  function captureFrame(video, time, canvas, ctx) {
+    return new Promise(function (resolve) {
+      var settled = false;
+      video.currentTime = time;
+      video.onseeked = function () {
+        if (settled) return; settled = true;
+        try {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          var px = ctx.getImageData(canvas.width / 2 - 20, canvas.height / 2 - 20, 40, 40).data;
+          var sum = 0; for (var k = 0; k < px.length; k += 4) sum += px[k] + px[k + 1] + px[k + 2];
+          var avg = sum / (px.length / 4 * 3);
+          resolve({ data: canvas.toDataURL('image/jpeg', 0.85), dark: avg < 8 });
+        } catch (err) {
+          resolve({ data: canvas.toDataURL('image/jpeg', 0.85), dark: true });
+        }
+      };
+      setTimeout(function () { if (!settled) { settled = true; resolve({ data: '', dark: true }); } }, 3000);
+    });
+  }
+
+  /* ===== Webcam ===== */
+  async function startWebcam() {
+    try {
+      webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      var vid = $('webcamVideo');
+      vid.srcObject = webcamStream; vid.style.display = 'block';
+      $('webcamPlaceholder').style.display = 'none';
+      $('webcamStartBtn').style.display = 'none';
+      $('webcamRecordBtn').style.display = '';
+      clearStatus('webcamStatus');
+    } catch (err) {
+      showStatus('webcamStatus', 'No se pudo acceder a la cámara. Revisa los permisos del navegador e inténtalo de nuevo.', 'error');
+    }
+  }
+
+  function stopWebcamStream() {
+    if (isRecording) { try { mediaRecorder.stop(); } catch (e) {} isRecording = false; }
+    if (recTimerInt) { clearInterval(recTimerInt); recTimerInt = null; }
+    if (webcamStream) { webcamStream.getTracks().forEach(function (t) { t.stop(); }); webcamStream = null; }
+    var vid = $('webcamVideo'); if (vid) { vid.srcObject = null; vid.style.display = 'none'; }
+    $('recTimer').classList.remove('visible');
+    $('webcamContainer').style.border = '';
+    $('webcamPlaceholder').style.display = '';
+    $('webcamStartBtn').style.display = '';
+    $('webcamRecordBtn').style.display = 'none';
+    $('webcamStopBtn').style.display = 'none';
+  }
+
+  function startRecording() {
+    if (isRecording || !webcamStream) return;
+    recordedChunks = [];
+    try { mediaRecorder = new MediaRecorder(webcamStream, { mimeType: 'video/webm;codecs=vp9' }); }
+    catch (e) { try { mediaRecorder = new MediaRecorder(webcamStream); } catch (e2) { showStatus('webcamStatus', 'Tu navegador no soporta grabación de video. Sube un archivo en su lugar.', 'error'); return; } }
+    mediaRecorder.ondataavailable = function (e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = function () {
+      var blob = new Blob(recordedChunks, { type: 'video/webm' });
+      if (blob.size > 50 * 1024 * 1024) { showStatus('webcamStatus', 'La grabación supera 50MB. Graba un clip más corto.', 'error'); return; }
+      currentVideoFile = new File([blob], 'swing-recording.webm', { type: 'video/webm' });
+      var url = URL.createObjectURL(blob), player = $('webcamRecordedPlayer');
+      player.src = url;
+      $('webcamPreview').classList.add('visible');
+      $('webcamAnalyzeBtn').disabled = true;
+      showStatus('webcamStatus', 'Preparando grabación y extrayendo frames…', 'info');
+      player.onloadeddata = function () { extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview', 'webcamAnalyzeBtn', 'webcamStatus'); };
+    };
+    mediaRecorder.start(); isRecording = true; recSeconds = 0;
+    $('recTime').textContent = '0:00';
+    $('recTimer').classList.add('visible');
+    $('webcamRecordBtn').style.display = 'none';
+    $('webcamStopBtn').style.display = '';
+    $('webcamContainer').style.border = '2px solid var(--red)';
+    recTimerInt = setInterval(function () {
+      recSeconds++;
+      var m = Math.floor(recSeconds / 60), s = recSeconds % 60;
+      $('recTime').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (recSeconds >= MAX_REC_SECONDS) { stopRecording(); showStatus('webcamStatus', 'Detuvimos la grabación al llegar a ' + MAX_REC_SECONDS + 's (límite recomendado).', 'info'); }
+    }, 1000);
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && isRecording) {
+      try { mediaRecorder.stop(); } catch (e) {}
+      isRecording = false;
+      if (recTimerInt) { clearInterval(recTimerInt); recTimerInt = null; }
+      $('recTimer').classList.remove('visible');
+      $('webcamStopBtn').style.display = 'none';
+      $('webcamRecordBtn').style.display = '';
+      $('webcamContainer').style.border = '';
+    }
+  }
+
+  /* ===== Cuestionario ===== */
+  function showQuestionnaire() {
+    if (extractedFrames.length === 0) { showStatus($('contentUpload').classList.contains('active') ? 'uploadStatus' : 'webcamStatus', 'Aún estamos preparando los frames del video. Espera un momento.', 'info'); return; }
+    $('uploadSection').style.display = 'none';
+    $('recordGuide').style.display = 'none';
+    document.querySelector('.angle-selector').style.display = 'none';
+    $('questionnaireSection').classList.add('visible');
+    var mini = $('framesMini'); mini.innerHTML = '';
+    extractedFrames.forEach(function (f, i) { var img = document.createElement('img'); img.src = f; img.alt = 'Frame ' + (i + 1); mini.appendChild(img); });
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }
+
+  function backToUpload() {
+    $('questionnaireSection').classList.remove('visible');
+    $('uploadSection').style.display = '';
+    $('recordGuide').style.display = '';
+    document.querySelector('.angle-selector').style.display = '';
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }
+
+  function updateConsent() {
+    var ok = $('consentCheck').checked;
+    $('qAnalyzeBtn').disabled = !ok;
+    $('qSkipBtn').disabled = !ok;
+    if (ok) clearStatus('consentHint');
+  }
+
+  /* ===== Análisis ===== */
+  async function analyzeSwing() {
+    if (extractedFrames.length === 0) { showStatus('consentHint', 'No hay frames para analizar.', 'error'); return; }
+    if (!$('consentCheck').checked) { showStatus('consentHint', 'Marca la casilla de consentimiento para continuar.', 'error'); return; }
+
+    var handicap = $('qHandicap').value.trim();
+    var problema = $('qProblema').value.trim();
+    var objetivo = $('qObjetivo').value.trim();
+
+    $('uploadSection').style.display = 'none';
+    $('questionnaireSection').classList.remove('visible');
+    $('analysisLoading').classList.add('visible');
+    $('analysisResults').classList.remove('visible');
+    $('analysisResults').innerHTML = '';
+    resetLoadingSteps();
+    animateLoadingSteps();
+
+    var imageContent = [];
+    extractedFrames.forEach(function (frame, i) {
+      imageContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: frame.replace('data:image/jpeg;base64,', '') } });
+      imageContent.push({ type: 'text', text: 'Frame ' + (i + 1) + ': ' + (FRAME_LABELS[i] || 'Posición ' + (i + 1)) });
+    });
+
+    var angleText = cameraAngle === 'face' ? 'de frente (face-on)' : 'desde la línea de tiro (down-the-line)';
+    var ctx = '\n\nÁNGULO DE CÁMARA: ' + angleText + ' (toma esto en cuenta para el análisis).';
+    ctx += '\n\nNOTA: los 6 frames están tomados a intervalos aproximadamente iguales; identifica tú mismo la fase real de cada uno.';
+    if (handicap || problema || objetivo) {
+      ctx += '\n\nINFORMACIÓN DEL JUGADOR:';
+      if (handicap) ctx += '\n- Hándicap/Nivel: ' + handicap;
+      if (problema) ctx += '\n- Problema principal: ' + problema;
+      if (objetivo) ctx += '\n- Objetivo: ' + objetivo;
+      ctx += '\n\nUsa esta información para adaptar tu comunicación.';
     }
 
-    function stopRecording() {
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop(); isRecording = false;
-        document.getElementById('webcamStopBtn').style.display = 'none';
-        document.getElementById('webcamRecordBtn').style.display = '';
-        document.getElementById('webcamContainer').style.border = 'none';
-      }
-    }
+    // Esquema: la IA recomienda IDs de drills REALES del catálogo cerrado (no inventa).
+    var promptText = 'Analiza estos 6 frames de mi swing de golf.' + ctx +
+      '\n\nCATÁLOGO DE DRILLS DISPONIBLES (recomienda SOLO ids de esta lista, 1 a 3 por diagnóstico, ' +
+      'eligiendo los que ataquen el error detectado). Formato "id [componente] errores — título":\n' +
+      catalogForPrompt() +
+      '\n\nResponde SOLO en JSON válido, sin backticks ni texto extra:\n' +
+      '{"score":<1-100>,"resumen":"<1-2 oraciones>","nivel":"<principiante|intermedio|avanzado>",' +
+      '"diagnosticos":[{"titulo":"<nombre>","severidad":"<alta|media|baja>",' +
+      '"que_pasa":"<causa raíz>","como_corregirlo":"<instrucciones>",' +
+      '"frame_referencia":<1-6 o null>,"drills_recomendados":["<id exacto del catálogo>"]}]}';
 
-    function showQuestionnaire() {
-      if (extractedFrames.length === 0) { alert('Esperando extracción de frames...'); return; }
-      document.getElementById('uploadSection').style.display = 'none';
-      document.getElementById('questionnaireSection').classList.add('visible');
-      const mini = document.getElementById('framesMini'); mini.innerHTML = '';
-      extractedFrames.forEach(function(f) { const img = document.createElement('img'); img.src = f; mini.appendChild(img); });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    analysisController = new AbortController();
+    var timeout = setTimeout(function () { if (analysisController) analysisController.abort(); }, 90000);
 
-    async function analyzeSwing() {
-      if (extractedFrames.length === 0) { alert('Esperando extracción de frames...'); return; }
-      const handicap = document.getElementById('qHandicap').value.trim();
-      const problema = document.getElementById('qProblema').value.trim();
-      const objetivo = document.getElementById('qObjetivo').value.trim();
-      document.getElementById('uploadSection').style.display = 'none';
-      document.getElementById('questionnaireSection').classList.remove('visible');
-      document.getElementById('analysisLoading').classList.add('visible');
-      document.getElementById('analysisResults').classList.remove('visible');
-      document.getElementById('analysisResults').innerHTML = '';
-      animateLoadingSteps();
-      const imageContent = extractedFrames.map(function(frame, i) {
-        const labels = ['Setup/Address', 'Takeaway', 'Top del backswing', 'Transición/Downswing', 'Impacto', 'Follow-through/Finish'];
-        return [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: frame.replace('data:image/jpeg;base64,', '') } }, { type: 'text', text: 'Frame ' + (i+1) + ': ' + (labels[i] || 'Posición ' + (i+1)) }];
-      }).reduce(function(a, v) { return a.concat(v); }, []);
-      let ctx = '';
-      if (handicap || problema || objetivo) {
-        ctx = '\n\nINFORMACIÓN DEL JUGADOR:';
-        if (handicap) ctx += '\n- Hándicap/Nivel: ' + handicap;
-        if (problema) ctx += '\n- Problema principal: ' + problema;
-        if (objetivo) ctx += '\n- Objetivo: ' + objetivo;
-        ctx += '\n\nUsa esta información para adaptar tu comunicación.';
-      }
-      const promptText = 'Analiza estos 6 frames de mi swing de golf.' + ctx + '\n\nResponde SOLO en JSON válido sin backticks:\n\n{"score":<1-100>,"resumen":"<1-2 oraciones>","nivel":"<principiante|intermedio|avanzado>","diagnosticos":[{"titulo":"<nombre>","severidad":"<alta|media|baja>","que_pasa":"<causa raíz>","como_corregirlo":"<instrucciones>","drills_recomendados":[{"id":"<id>","nombre":"<nombre>","categoria":"<cat>","por_que":"<razón>"}],"video_biblioteca":"<nombre o null>"}]}';
-      try {
-        const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, system: COACH_SYSTEM_PROMPT, messages: [{ role: 'user', content: imageContent.concat([{ type: 'text', text: promptText }]) }] }) });
-        const data = await response.json();
-        const result = JSON.parse(data.content.map(function(c) { return c.text || ''; }).join('').replace(/```json|```/g, '').trim());
-        document.getElementById('analysisLoading').classList.remove('visible');
-        renderResults(result);
-      } catch (err) {
-        console.error(err);
-        document.getElementById('analysisLoading').classList.remove('visible');
-        document.getElementById('questionnaireSection').classList.remove('visible');
-        document.getElementById('uploadSection').style.display = '';
-        alert('Hubo un error al analizar el swing. Intenta de nuevo.');
-      }
-    }
-
-    function animateLoadingSteps() {
-      const steps = ['step1','step2','step3','step4']; let cur = 0;
-      const iv = setInterval(function() {
-        if (cur > 0) { document.getElementById(steps[cur-1]).classList.remove('active'); document.getElementById(steps[cur-1]).classList.add('done'); }
-        if (cur < steps.length) { document.getElementById(steps[cur]).classList.add('active'); cur++; } else clearInterval(iv);
-      }, 2500);
-    }
-
-    function renderResults(result) {
-      const container = document.getElementById('analysisResults');
-      const scoreClass = result.score >= 70 ? 'score-high' : result.score >= 40 ? 'score-mid' : 'score-low';
-      const nivelText = result.nivel === 'principiante' ? 'Nivel Principiante' : result.nivel === 'intermedio' ? 'Nivel Intermedio' : 'Nivel Avanzado';
-      const catColors = { fullswing:'var(--cat-fullswing)', chipping:'var(--cat-chipping)', putting:'var(--cat-putting)', bunker:'var(--cat-bunker)', wedges:'var(--cat-wedges)', preshot:'var(--cat-preshot)', visualization:'var(--cat-visualization)', mental:'var(--cat-mental)' };
-      let html = '<div class="result-header fade-in-up"><div class="result-score ' + scoreClass + '">' + result.score + '</div><div class="result-summary"><h2>DIAGNÓSTICO DE TU SWING</h2><p>' + result.resumen + '</p><span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">' + nivelText + '</span></div></div>';
-      result.diagnosticos.forEach(function(diag, i) {
-        const sevClass = diag.severidad === 'alta' ? 'severity-high' : diag.severidad === 'media' ? 'severity-medium' : 'severity-low';
-        const sevText = diag.severidad === 'alta' ? 'Prioridad Alta' : diag.severidad === 'media' ? 'Prioridad Media' : 'Prioridad Baja';
-        let drillsHtml = '', videoHtml = '';
-        if (diag.drills_recomendados && diag.drills_recomendados.length > 0) drillsHtml = diag.drills_recomendados.map(function(d) { return '<a class="drill-referral" href="/es/training.html#' + d.id + '"><span class="drill-cat-dot" style="background:' + (catColors[d.categoria] || 'var(--accent)') + '"></span><div class="drill-referral-info"><div class="drill-referral-name">' + d.id.toUpperCase() + ' — ' + d.nombre + '</div><div class="drill-referral-desc">' + d.por_que + '</div></div><span class="drill-referral-arrow">→</span></a>'; }).join('');
-        if (diag.video_biblioteca) videoHtml = '<a class="drill-referral" href="/es/library.html" style="border-color:var(--gold);background:var(--gold-dim);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="flex-shrink:0;"><polygon points="5 3 19 12 5 21 5 3"/></svg><div class="drill-referral-info"><div class="drill-referral-name" style="color:var(--gold);">📹 ' + diag.video_biblioteca + '</div><div class="drill-referral-desc">Video explicativo en la Biblioteca</div></div><span class="drill-referral-arrow" style="color:var(--gold);">→</span></a>';
-        html += '<div class="diagnosis-card fade-in-up delay-' + (i+1) + '"><div class="diagnosis-card-header"><div class="diagnosis-number">' + (i+1) + '</div><h3>' + diag.titulo + '</h3><span class="diagnosis-severity ' + sevClass + '">' + sevText + '</span></div><div class="diagnosis-card-body"><div class="diagnosis-what"><div class="diagnosis-label">🔍 Qué está pasando</div><div class="diagnosis-text">' + diag.que_pasa + '</div></div><div class="diagnosis-fix"><div class="diagnosis-label">🔧 Cómo corregirlo</div><div class="diagnosis-text">' + diag.como_corregirlo + '</div></div>' + ((drillsHtml || videoHtml) ? '<div class="diagnosis-drills"><div class="diagnosis-label">🎯 Drills y recursos recomendados</div>' + drillsHtml + videoHtml + '</div>' : '') + '</div></div>';
+    try {
+      var response = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: analysisController.signal,
+        body: JSON.stringify({ mode: 'swing', messages: [{ role: 'user', content: imageContent.concat([{ type: 'text', text: promptText }]) }] })
       });
-      html += '<div class="library-referral fade-in-up delay-3"><h3>PROFUNDIZA EN TU CORRECCIÓN</h3><p>En la Biblioteca encontrarás videos sobre cada aspecto de tu swing. En Training Lab, drills con variantes por nivel.</p><a href="/es/library.html">Ver Biblioteca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div><button class="new-analysis-btn" onclick="resetAnalysis()">↻ ANALIZAR OTRO SWING</button>';
-      container.innerHTML = html; container.classList.add('visible');
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      var data = await response.json();
+      var raw = (data.content || []).map(function (c) { return c.text || ''; }).join('');
+      var result = parseAnalysis(raw);
+      if (!result || !Array.isArray(result.diagnosticos)) throw new Error('Respuesta inesperada');
+      $('analysisLoading').classList.remove('visible');
+      renderResults(result);
+      saveToHistory(result);
+    } catch (err) {
+      clearTimeout(timeout);
+      $('analysisLoading').classList.remove('visible');
+      $('questionnaireSection').classList.add('visible');
+      var msg = (err && err.name === 'AbortError')
+        ? 'El análisis tardó demasiado o fue cancelado. Inténtalo de nuevo.'
+        : 'Hubo un error al analizar el swing. Revisa tu conexión e inténtalo de nuevo.';
+      showStatus('consentHint', msg, 'error');
+    } finally {
+      analysisController = null;
     }
+  }
 
-    function resetAnalysis() {
-      currentVideoFile = null; extractedFrames = [];
-      ['analysisResults','questionnaireSection'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
-      document.getElementById('analysisResults').innerHTML = '';
-      document.getElementById('uploadSection').style.display = '';
-      ['qHandicap','qProblema','qObjetivo'].forEach(function(id) { document.getElementById(id).value = ''; });
-      document.getElementById('framesMini').innerHTML = '';
-      ['videoPreview','framesPreview'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
-      document.getElementById('framesGrid').innerHTML = '';
-      document.getElementById('dropZone').style.display = '';
-      document.getElementById('analyzeBtn').disabled = true;
-      document.getElementById('previewPlayer').src = '';
-      ['webcamPreview','webcamFramesPreview'].forEach(function(id) { document.getElementById(id).classList.remove('visible'); });
-      document.getElementById('webcamFramesGrid').innerHTML = '';
-      document.getElementById('webcamAnalyzeBtn').disabled = true;
-      ['step1','step2','step3','step4'].forEach(function(id) { document.getElementById(id).classList.remove('active','done'); });
-      document.getElementById('step1').classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  function parseAnalysis(raw) {
+    var cleaned = raw.replace(/```json|```/g, '').trim();
+    try { return JSON.parse(cleaned); }
+    catch (e) {
+      var m = cleaned.match(/\{[\s\S]*\}/); // rescate: primer objeto JSON
+      if (m) { try { return JSON.parse(m[0]); } catch (e2) {} }
+      return null;
     }
+  }
 
-    const COACH_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab, el asistente de análisis de swing de la plataforma MyGolfLab.\n\nAnalizas swings con la metodología MyGolfLab. Filosofía: no existe swing perfecto universal — encontramos la receta personal de cada jugador.\n\nPROCESO: Síntoma → Cara/Path → Origen (grip, muñecas, plano, secuencia) → Mecánico/Timing → 2-3 correcciones máximo.\n\nNIVEL: Alto hándicap = motivador, 1-2 correcciones simples. Intermedio = técnico, secuencia cinética. Avanzado = terminología completa, timing fino.\n\nMETODOLOGÍA:\n1. GROUND FORCES: Presión pie trasero (60-70%) en backswing. Transición al pie delantero ANTES que bajen los brazos. 80%+ pie delantero al impacto.\n2. KINEMATIC SEQUENCE: Caderas → torso → brazos → palo. Cadera inicia downswing, ~40° abierta al impacto.\n3. WRIST CONDITIONS: Shaft lean al impacto. Lag máximo. Flexión muñeca izquierda = cara cerrada.\n4. BODY TILTS: Inclinación lateral al lado trasero al impacto.\n5. SETUP: Stance ancho de hombros, rodillas levemente flexionadas, hip hinge con espalda recta.\n\nREGLAS: Solo 2-3 errores. Causa raíz no síntoma. Accionable — qué hacer y cómo se siente. Score 1-100. Adaptar al nivel. Terminar con algo práctico HOY.\n\nTONO: Directo, empático, honesto. En español natural. Sin adulación.\n\nFORMATO: JSON válido siempre. Sin markdown ni backticks.';
+  function cancelAnalysis() { if (analysisController) analysisController.abort(); }
 
-    const CHAT_SYSTEM_PROMPT = 'Eres Coach IA de MyGolfLab. Metodología: Ground Forces, Kinematic Sequence, Wrist Conditions, Body Tilts, Setup. Filosofía: receta personal, sin moldes.\n\nProceso: síntoma → cara/path → origen → mecánico/timing → máximo 2-3 correcciones.\n\nNivel: alto hándicap (simple), intermedio (técnico), avanzado (terminología completa).\n\nEstilo: directo, conciso, práctico. En español natural. Sin markdown ni JSON. Recomienda Training Lab o Biblioteca cuando sea relevante.';
+  function resetLoadingSteps() {
+    ['step1', 'step2', 'step3', 'step4'].forEach(function (id) { $(id).classList.remove('active', 'done'); });
+    $('step1').classList.add('active');
+  }
+  function animateLoadingSteps() {
+    if (prefersReducedMotion) return;
+    var steps = ['step1', 'step2', 'step3', 'step4'], cur = 0;
+    var iv = setInterval(function () {
+      if (!$('analysisLoading').classList.contains('visible')) { clearInterval(iv); return; }
+      if (cur > 0) { $(steps[cur - 1]).classList.remove('active'); $(steps[cur - 1]).classList.add('done'); }
+      if (cur < steps.length) { $(steps[cur]).classList.add('active'); cur++; } else clearInterval(iv);
+    }, 2500);
+  }
 
-    const chatInput = document.getElementById('chatInput'), chatSendBtn = document.getElementById('chatSendBtn');
-    chatInput.addEventListener('input', function() { chatSendBtn.disabled = !chatInput.value.trim() || chatLoading; chatInput.style.height = 'auto'; chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px'; });
-    chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chatInput.value.trim() && !chatLoading) sendChatMessage(); } });
+  /* ===== Render de resultados ===== */
+  function scoreClassFor(s) { return s >= 70 ? 'score-high' : s >= 40 ? 'score-mid' : 'score-low'; }
 
-    async function sendChatMessage() {
-      const text = chatInput.value.trim();
-      if (!text || chatLoading) return;
-      chatLoading = true; chatSendBtn.disabled = true;
-      const messagesEl = document.getElementById('chatMessages');
-      const userBubble = document.createElement('div');
-      userBubble.className = 'chat-bubble user-bubble fade-in-up';
-      userBubble.innerHTML = '<div class="chat-bubble-text">' + escapeHtml(text) + '</div>';
-      messagesEl.appendChild(userBubble);
-      chatHistory.push({ role: 'user', content: text });
-      chatInput.value = ''; chatInput.style.height = 'auto';
-      const typingEl = document.createElement('div');
-      typingEl.className = 'chat-typing'; typingEl.id = 'chatTyping';
-      typingEl.innerHTML = '<div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
-      messagesEl.appendChild(typingEl); messagesEl.scrollTop = messagesEl.scrollHeight;
-      try {
-        const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: CHAT_SYSTEM_PROMPT, messages: chatHistory.map(function(m) { return { role: m.role, content: m.content }; }) }) });
-        const data = await response.json();
-        const reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Error al responder.';
-        const t = document.getElementById('chatTyping'); if (t) t.remove();
-        chatHistory.push({ role: 'assistant', content: reply });
-        const ab = document.createElement('div');
-        ab.className = 'chat-bubble assistant-bubble fade-in-up';
-        ab.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text">' + escapeHtml(reply) + '</div>';
-        messagesEl.appendChild(ab);
-      } catch (err) {
-        const t = document.getElementById('chatTyping'); if (t) t.remove();
-        const eb = document.createElement('div');
-        eb.className = 'chat-bubble assistant-bubble fade-in-up';
-        eb.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>';
-        messagesEl.appendChild(eb);
-      } finally {
-        chatLoading = false; chatSendBtn.disabled = !chatInput.value.trim();
-        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+  function renderResults(result) {
+    var container = $('analysisResults');
+    var nivelText = result.nivel === 'principiante' ? 'Nivel Principiante' : result.nivel === 'avanzado' ? 'Nivel Avanzado' : 'Nivel Intermedio';
+    var html = '<div class="result-header fade-in-up"><div class="result-score ' + scoreClassFor(result.score) + '">' + escapeHtml(String(result.score)) + '</div><div class="result-summary"><h2>DIAGNÓSTICO DE TU SWING</h2><p>' + escapeHtml(result.resumen || '') + '</p><span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;">' + nivelText + '</span></div></div>';
+    html += '<p class="score-disclaimer">El puntaje es una guía orientativa basada en 6 imágenes de una sola cámara, no una medición precisa. Concéntrate en los diagnósticos y sus correcciones.</p>';
+
+    (result.diagnosticos || []).forEach(function (diag, i) {
+      var sevClass = diag.severidad === 'alta' ? 'severity-high' : diag.severidad === 'baja' ? 'severity-low' : 'severity-medium';
+      var sevText = diag.severidad === 'alta' ? 'Prioridad Alta' : diag.severidad === 'baja' ? 'Prioridad Baja' : 'Prioridad Media';
+
+      // Frame de referencia (clic → salta a ese momento del video)
+      var frameHtml = '';
+      var fr = parseInt(diag.frame_referencia, 10);
+      if (fr >= 1 && fr <= 6 && extractedFrames[fr - 1]) {
+        frameHtml = '<figure class="diagnosis-frame"><button type="button" onclick="seekPreview(' + (fr - 1) + ')" aria-label="Ver este momento en el video"><img src="' + extractedFrames[fr - 1] + '" alt="Frame del error: ' + escapeHtml(FRAME_LABELS[fr - 1]) + '"></button><figcaption>▶ ' + escapeHtml(FRAME_LABELS[fr - 1].split('/')[0]) + '</figcaption></figure>';
       }
-    }
 
-    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+      // Drills concretos del catálogo (valida cada id; descarta los inválidos)
+      var drillsHtml = '';
+      var recs = Array.isArray(diag.drills_recomendados) ? diag.drills_recomendados : [];
+      var seen = {};
+      recs.forEach(function (raw) {
+        var dr = resolveDrill(raw);
+        if (!dr || seen[dr.id]) return;        // ignora alucinados o duplicados
+        seen[dr.id] = true;
+        var color = COMPONENT_COLOR[dr.c] || 'var(--accent)';
+        var meta = dr.cn + ' · ' + dr.n + ' · ' + dr.d;
+        drillsHtml += '<a class="drill-referral" href="' + escapeHtml(dr.u) + '" target="_blank" rel="noopener">' +
+          '<span class="drill-cat-dot" style="background:' + color + '"></span>' +
+          '<div class="drill-referral-info"><div class="drill-referral-name">' + escapeHtml(dr.t) + '</div>' +
+          '<div class="drill-referral-desc">' + escapeHtml(meta) + '</div></div>' +
+          '<span class="drill-referral-arrow" aria-hidden="true">→</span></a>';
+      });
+
+      var bodyInner =
+        '<div class="diagnosis-block"><div class="diagnosis-label">Qué está pasando</div><div class="diagnosis-text">' + escapeHtml(diag.que_pasa || '') + '</div></div>' +
+        '<div class="diagnosis-block"><div class="diagnosis-label">Cómo corregirlo</div><div class="diagnosis-text">' + escapeHtml(diag.como_corregirlo || '') + '</div></div>' +
+        (drillsHtml ? '<div class="diagnosis-block"><div class="diagnosis-label">Drills recomendados en la Biblioteca</div>' + drillsHtml + '</div>' : '');
+
+      var body = frameHtml
+        ? '<div class="diagnosis-grid">' + frameHtml + '<div>' + bodyInner + '</div></div>'
+        : bodyInner;
+
+      html += '<div class="diagnosis-card fade-in-up delay-' + Math.min(i + 1, 3) + '"><div class="diagnosis-card-header"><div class="diagnosis-number">' + (i + 1) + '</div><h3>' + escapeHtml(diag.titulo || 'Diagnóstico') + '</h3><span class="diagnosis-severity ' + sevClass + '">' + sevText + '</span></div><div class="diagnosis-card-body">' + body + '</div></div>';
+    });
+
+    html += '<div class="library-referral fade-in-up delay-3"><h3>PROFUNDIZA EN TU CORRECCIÓN</h3><p>En la Biblioteca encontrarás drills enfocados en corregir cada error diagnosticado. En Training Lab, drills de performance con variantes por nivel.</p><a href="/es/library.html" target="_blank" rel="noopener">Ver Biblioteca <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>';
+    html += '<button type="button" class="new-analysis-btn" onclick="resetAnalysis()">↻ ANALIZAR OTRO SWING</button>';
+
+    container.innerHTML = html;
+    container.classList.add('visible');
+    container.focus();
+  }
+
+  function seekPreview(idx) {
+    var t = frameTimes[idx];
+    var player = $('contentUpload').classList.contains('active') ? $('previewPlayer') : $('webcamRecordedPlayer');
+    // El reproductor sigue montado aunque uploadSection esté oculto; lo mostramos para revisar.
+    $('uploadSection').style.display = '';
+    document.querySelector('.angle-selector').style.display = '';
+    if (player && typeof t === 'number') { try { player.currentTime = t; player.play(); player.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'center' }); } catch (e) {} }
+  }
+
+  function resetAnalysis() {
+    currentVideoFile = null; extractedFrames = []; frameTimes = [];
+    $('analysisResults').classList.remove('visible'); $('analysisResults').innerHTML = '';
+    $('questionnaireSection').classList.remove('visible');
+    $('uploadSection').style.display = '';
+    $('recordGuide').style.display = '';
+    document.querySelector('.angle-selector').style.display = '';
+    ['qHandicap', 'qProblema', 'qObjetivo'].forEach(function (id) { $(id).value = ''; });
+    $('consentCheck').checked = false; updateConsent();
+    $('framesMini').innerHTML = '';
+    $('videoPreview').classList.remove('visible'); $('framesPreview').classList.remove('visible');
+    $('framesGrid').innerHTML = '';
+    $('dropZone').style.display = '';
+    $('analyzeBtn').disabled = true;
+    var p = $('previewPlayer'); if (p.src) URL.revokeObjectURL(p.src); p.src = '';
+    $('webcamPreview').classList.remove('visible'); $('webcamFramesPreview').classList.remove('visible');
+    $('webcamFramesGrid').innerHTML = ''; $('webcamAnalyzeBtn').disabled = true;
+    clearStatus('uploadStatus'); clearStatus('webcamStatus'); clearStatus('consentHint');
+    stopWebcamStream();
+    resetLoadingSteps();
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }
+
+  /* ===== Historial (localStorage, con respaldo seguro) =====
+     Guarda solo texto (sin imágenes) para no llenar el almacenamiento. */
+  var HISTORY_KEY = 'mgl_coach_history';
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch (e) { return []; }
+  }
+  function saveToHistory(result) {
+    try {
+      var h = getHistory();
+      h.unshift({ date: Date.now(), score: result.score, resumen: result.resumen, nivel: result.nivel, diagnosticos: result.diagnosticos });
+      h = h.slice(0, 10);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+    } catch (e) { /* almacenamiento no disponible: ignorar */ }
+    renderHistory();
+  }
+  function clearHistory() {
+    try { localStorage.removeItem(HISTORY_KEY); } catch (e) {}
+    renderHistory();
+  }
+  function renderHistory() {
+    var h = getHistory(), panel = $('historyPanel'), list = $('historyList');
+    if (!h.length) { panel.style.display = 'none'; return; }
+    panel.style.display = '';
+    list.innerHTML = h.map(function (item, i) {
+      var d = new Date(item.date);
+      var fecha = d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+      return '<button type="button" class="history-item" onclick="loadHistory(' + i + ')"><span class="history-score ' + scoreClassFor(item.score) + '">' + escapeHtml(String(item.score)) + '</span><span class="history-info"><span class="history-date">' + fecha + '</span><span class="history-resumen">' + escapeHtml(item.resumen || '') + '</span></span></button>';
+    }).join('');
+  }
+  function loadHistory(i) {
+    var h = getHistory(); if (!h[i]) return;
+    // Sin frames guardados: el render omite las miniaturas de referencia.
+    extractedFrames = []; frameTimes = [];
+    $('uploadSection').style.display = 'none';
+    $('recordGuide').style.display = 'none';
+    document.querySelector('.angle-selector').style.display = 'none';
+    $('questionnaireSection').classList.remove('visible');
+    renderResults(h[i]);
+  }
+
+  /* ===== Chat ===== */
+  var chatInput = $('chatInput'), chatSendBtn = $('chatSendBtn');
+  chatInput.addEventListener('input', function () {
+    chatSendBtn.disabled = !chatInput.value.trim() || chatLoading;
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+  });
+  chatInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chatInput.value.trim() && !chatLoading) sendChatMessage(); }
+  });
+
+  async function sendChatMessage() {
+    var text = chatInput.value.trim();
+    if (!text || chatLoading) return;
+    chatLoading = true; chatSendBtn.disabled = true;
+    var messagesEl = $('chatMessages');
+    var userBubble = document.createElement('div');
+    userBubble.className = 'chat-bubble user-bubble fade-in-up';
+    userBubble.innerHTML = '<div class="chat-bubble-text">' + escapeHtml(text) + '</div>';
+    messagesEl.appendChild(userBubble);
+    chatHistory.push({ role: 'user', content: text });
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20); // limita coste de tokens
+    chatInput.value = ''; chatInput.style.height = 'auto';
+
+    var typingEl = document.createElement('div');
+    typingEl.className = 'chat-typing'; typingEl.id = 'chatTyping';
+    typingEl.innerHTML = '<div class="chat-bubble-label" style="margin-bottom:0;">Coach IA</div><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+    messagesEl.appendChild(typingEl); messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    try {
+      var response = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'chat', messages: chatHistory.map(function (m) { return { role: m.role, content: m.content }; }) })
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      var data = await response.json();
+      var reply = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'No pude generar una respuesta. Inténtalo de nuevo.';
+      var t = $('chatTyping'); if (t) t.remove();
+      chatHistory.push({ role: 'assistant', content: reply });
+      var ab = document.createElement('div');
+      ab.className = 'chat-bubble assistant-bubble fade-in-up';
+      ab.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text">' + escapeHtml(reply) + '</div>';
+      messagesEl.appendChild(ab);
+    } catch (err) {
+      var t2 = $('chatTyping'); if (t2) t2.remove();
+      var eb = document.createElement('div');
+      eb.className = 'chat-bubble assistant-bubble fade-in-up';
+      eb.innerHTML = '<div class="chat-bubble-label">Coach IA</div><div class="chat-bubble-text" style="color:var(--red);">Error de conexión. Intenta de nuevo.</div>';
+      messagesEl.appendChild(eb);
+    } finally {
+      chatLoading = false; chatSendBtn.disabled = !chatInput.value.trim();
+      $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+    }
+  }
+
+  function escapeHtml(text) { var d = document.createElement('div'); d.textContent = text == null ? '' : text; return d.innerHTML; }
+
+  /* ===== Limpieza al salir ===== */
+  window.addEventListener('beforeunload', function () { stopWebcamStream(); });
+
+  /* ===== Init ===== */
+  renderHistory();
   </script>
 </body>
 </html>
