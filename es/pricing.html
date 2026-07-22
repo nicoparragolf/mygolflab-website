@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Precios | MyGolfLab</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,6 +20,9 @@
             --text-secondary: #a3a3a3;
             --text-muted: #737373;
             --border: #262626;
+            --border-mid: rgba(255,255,255,0.12);
+            --teal-dim: rgba(45,212,191,0.12);
+            --nav-height: 68px;
             --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
             --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
             --font-display: 'Bebas Neue', sans-serif;
@@ -36,125 +40,170 @@
             overflow-x: hidden;
         }
 
-        /* ==================== HEADER UNIVERSAL ==================== */
-        .nav {
+        /* ==================== HEADER UNIFICADO (Index/Training Lab/Coach IA/Biblioteca) ==================== */
+        header {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 0 24px;
-            height: 64px;
-            display: flex;
-            justify-content: space-between;
+            height: var(--nav-height);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            background: rgba(10, 10, 10, 0.92);
+            column-gap: 24px;
+            padding: 0 32px;
+            background: rgba(10,10,10,0.9);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
-
-        .hamburger {
-            width: 44px; height: 44px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 8px;
-            flex-shrink: 0;
-        }
-        .hamburger span {
-            width: 22px; height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-            display: block;
-        }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
         .logo {
+            grid-column: 1;
+            justify-self: start;
             font-family: var(--font-display);
-            font-size: 1.6rem;
-            letter-spacing: 2px;
+            font-size: 26px;
+            letter-spacing: 0.06em;
             color: var(--text-primary);
             text-decoration: none;
+            flex-shrink: 0;
         }
         .logo span { color: var(--primary); }
 
-        .mobile-menu-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 998;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+        .nav-collapse { display: contents; }
 
-        .mobile-menu {
-            position: fixed;
-            top: 0; left: -100%;
-            width: 280px;
-            height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999;
-            padding: 80px 24px 32px;
-            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid var(--border);
+        .nav-links {
+            grid-column: 2;
+            justify-self: center;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
         }
-        .mobile-menu.active { left: 0; }
+        .nav-links a {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-links a.active { color: var(--primary); }
 
-        .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-
-        .menu-link {
+        .nav-auth {
+            grid-column: 3;
+            justify-self: end;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 16px;
-            color: var(--text-secondary);
-            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .nav-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border-mid);
+            display: flex; align-items: center; justify-content: center;
+            background: var(--teal-dim);
+            transition: border-color 0.2s;
+        }
+        .nav-avatar:hover { border-color: var(--primary); }
+        .nav-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .nav-avatar-initials {
             font-family: var(--font-heading);
-            font-size: 1.1rem;
+            font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+            color: var(--primary);
+        }
+        .btn-outline, .btn-primary {
+            font-family: var(--font-heading);
+            font-size: 14px;
             font-weight: 600;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-        }
-        .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
-        .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
-
-        .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
-
-        .menu-cta {
-            display: block;
-            text-align: center;
-            padding: 14px 20px;
-            background: var(--gradient-1);
-            color: var(--bg-dark);
             text-decoration: none;
-            font-family: var(--font-heading);
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 10px;
-            margin-top: 16px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding: 9px 18px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer;
         }
-        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .btn-outline {
+            color: var(--text-primary);
+            border: 1px solid var(--border-mid);
+            background: transparent;
+        }
+        .btn-outline:hover { border-color: var(--text-secondary); }
+        .btn-primary {
+            color: #0a0a0a;
+            background: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .btn-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
+
+        .hamburger {
+            grid-column: 3;
+            justify-self: end;
+            display: none;
+            width: 40px; height: 40px;
+            flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 5px; cursor: pointer;
+            background: none; border: none;
+            flex-shrink: 0;
+        }
+        .hamburger span {
+            display: block; width: 24px; height: 2px;
+            background: var(--text-primary); border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        @media (max-width: 880px) {
+            header { padding: 0 20px; }
+            .hamburger { display: flex; }
+            .nav-collapse {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: var(--nav-height); left: 0; right: 0;
+                background: rgba(10,10,10,0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid transparent;
+                padding: 0 24px;
+                max-height: 0; overflow: hidden;
+                transition: max-height 0.32s ease, padding 0.32s ease, border-color 0.32s ease;
+            }
+            header.menu-open .nav-collapse {
+                max-height: 85vh;
+                padding: 8px 24px 20px;
+                border-bottom-color: var(--border);
+            }
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                margin: 0;
+            }
+            .nav-links a { padding: 14px 2px; }
+            .nav-auth {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding-top: 12px;
+            }
+            .btn-outline, .btn-primary { text-align: center; }
+        }
 
         /* ==================== PAGE HEADER ==================== */
         .page-header {
-            padding: 8rem 2rem 4rem;
+            padding: calc(var(--nav-height) + 3rem) 2rem 4rem;
             text-align: center;
             background: var(--gradient-subtle);
         }
@@ -454,46 +503,27 @@
 </head>
 <body>
 
-    <!-- HEADER -->
-    <nav class="nav">
-        <button class="hamburger" id="hamburger" aria-label="Menú">
+    <!-- HEADER — unificado con Index/Training Lab/Coach IA/Biblioteca -->
+    <header id="siteHeader">
+        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+        <div class="nav-collapse">
+            <ul class="nav-links">
+                <li><a href="/es/index.html">Inicio</a></li>
+                <li><a href="/es/coach-ai.html">Coach IA</a></li>
+                <li><a href="/es/training.html">Training Lab</a></li>
+                <li><a href="/es/library.html">Biblioteca</a></li>
+                <li><a href="/es/pricing.html" class="active">Planes</a></li>
+                <li><a href="/es/about.html">Quiénes Somos</a></li>
+            </ul>
+            <div class="nav-auth" id="header-auth">
+                <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+                <a href="/es/login.html" class="btn-primary">Únete</a>
+            </div>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
             <span></span><span></span><span></span>
         </button>
-        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-    </nav>
-
-    <div class="mobile-menu-overlay" id="menuOverlay"></div>
-
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-links">
-            <a href="/es/index.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Inicio
-            </a>
-            <a href="/es/coach-ai.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                Coach IA
-            </a>
-            <a href="/es/library.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                Biblioteca
-            </a>
-            <a href="/es/training.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                Training Lab
-            </a>
-            <a href="/es/pricing.html" class="menu-link active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Precios
-            </a>
-            <div class="menu-divider"></div>
-            <a href="/es/about.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-                El Coach
-            </a>
-        </div>
-        <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
-    </div>
+    </header>
 
     <!-- PAGE HEADER -->
     <header class="page-header">
@@ -761,7 +791,7 @@
                 <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
                 <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
                 <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
-                <a href="/es/about.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">El Coach</a>
+                <a href="/es/about.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Quiénes Somos</a>
             </div>
             <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
                 <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
@@ -773,24 +803,48 @@
     </footer>
 
     <script>
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-
+        /* ===== NAV — dropdown mobile (igual que las otras páginas) ===== */
         function toggleMenu() {
-            hamburger.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            var header = document.getElementById('siteHeader');
+            var hamburger = document.getElementById('hamburger');
+            var isOpen = header.classList.toggle('menu-open');
+            hamburger.classList.toggle('active', isOpen);
+            hamburger.setAttribute('aria-expanded', isOpen);
         }
 
-        hamburger.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
-        document.querySelectorAll('.menu-link, .menu-cta').forEach(function(link) {
-            link.addEventListener('click', function() {
-                if (mobileMenu.classList.contains('active')) toggleMenu();
-            });
-        });
+        /* ===== AUTH — swap de botones con el cliente oficial de Supabase ===== */
+        (async function initHeaderAuth() {
+            try {
+                var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+                var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+                var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                var res = await client.auth.getSession();
+                var session = res.data.session;
+                if (!session) return;
+
+                var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email.split('@')[0];
+                var avatarUrl = (session.user.user_metadata && (session.user.user_metadata.avatar_url || session.user.user_metadata.picture)) || '';
+                var initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+                var avatarInner = avatarUrl
+                    ? '<img src="' + avatarUrl + '" alt="' + name + '">'
+                    : '<span class="nav-avatar-initials">' + initials + '</span>';
+
+                document.getElementById('header-auth').innerHTML =
+                    '<a href="/es/dashboard.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
+                    '<a href="/es/dashboard.html" class="btn-outline">Mi Dashboard</a>' +
+                    '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>';
+
+                document.querySelectorAll('[data-logout]').forEach(function (btn) {
+                    btn.addEventListener('click', async function (e) {
+                        e.preventDefault();
+                        await client.auth.signOut();
+                        window.location.href = '/es/index.html';
+                    });
+                });
+            } catch (e) {
+                console.error('Header auth error:', e);
+            }
+        })();
 
         var isYearly = false;
         var toggleSwitch = document.getElementById('toggleSwitch');
