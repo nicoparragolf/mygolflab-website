@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Coach | MyGolfLab</title>
+    <title>Precios | MyGolfLab</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +20,11 @@
             --text-secondary: #a3a3a3;
             --text-muted: #737373;
             --border: #262626;
+            --border-mid: rgba(255,255,255,0.12);
+            --teal-dim: rgba(45,212,191,0.12);
+            --nav-height: 68px;
             --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
             --font-display: 'Bebas Neue', sans-serif;
             --font-heading: 'Barlow Condensed', sans-serif;
             --font-body: 'Barlow', sans-serif;
@@ -35,106 +40,178 @@
             overflow-x: hidden;
         }
 
-        /* ==================== HEADER UNIVERSAL ==================== */
-        .nav {
+        /* ==================== HEADER UNIFICADO (Index/Training Lab/Coach IA/Biblioteca) ==================== */
+        header#siteHeader {
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 0 24px;
-            height: 64px;
-            display: flex;
-            justify-content: space-between;
+            height: var(--nav-height);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            background: rgba(10, 10, 10, 0.92);
+            column-gap: 24px;
+            padding: 0 32px;
+            background: rgba(10,10,10,0.9);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
-
-        .hamburger {
-            width: 44px; height: 44px;
-            background: none; border: none;
-            cursor: pointer;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 5px; padding: 8px; flex-shrink: 0;
-        }
-        .hamburger span {
-            width: 22px; height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transition: all 0.3s ease;
-            display: block;
-        }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
         .logo {
+            grid-column: 1;
+            justify-self: start;
             font-family: var(--font-display);
-            font-size: 1.6rem; letter-spacing: 2px;
-            color: var(--text-primary); text-decoration: none;
+            font-size: 26px;
+            letter-spacing: 0.06em;
+            color: var(--text-primary);
+            text-decoration: none;
+            flex-shrink: 0;
         }
         .logo span { color: var(--primary); }
 
-        .mobile-menu-overlay {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 998; opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
+        .nav-collapse { display: contents; }
+
+        .nav-links {
+            grid-column: 2;
+            justify-self: center;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
         }
-        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
-
-        .mobile-menu {
-            position: fixed; top: 0; left: -100%;
-            width: 280px; height: 100vh;
-            background: var(--bg-dark);
-            z-index: 999; padding: 80px 24px 32px;
-            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column;
-        }
-        .mobile-menu.active { left: 0; }
-
-        .menu-links { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-
-        .menu-link {
-            display: flex; align-items: center; gap: 12px;
-            padding: 14px 16px; color: var(--text-secondary);
-            text-decoration: none;
+        .nav-links a {
             font-family: var(--font-heading);
-            font-size: 1.1rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 1.5px;
-            border-radius: 10px; transition: all 0.2s ease;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            position: relative;
         }
-        .menu-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .menu-link.active { background: rgba(45,212,191,0.1); color: var(--primary); border-left: 3px solid var(--primary); }
-        .menu-link svg { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-links a.active { color: var(--primary); }
 
-        .menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
-
-        .menu-cta {
-            display: block; text-align: center;
-            padding: 14px 20px; background: var(--gradient-1);
-            color: var(--bg-dark); text-decoration: none;
-            font-family: var(--font-heading); font-weight: 700;
-            font-size: 1rem; text-transform: uppercase;
-            letter-spacing: 2px; border-radius: 10px; margin-top: 16px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .nav-auth {
+            grid-column: 3;
+            justify-self: end;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
         }
-        .menu-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .nav-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 1px solid var(--border-mid);
+            display: flex; align-items: center; justify-content: center;
+            background: var(--teal-dim);
+            transition: border-color 0.2s;
+        }
+        .nav-avatar:hover { border-color: var(--primary); }
+        .nav-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .nav-avatar-initials {
+            font-family: var(--font-heading);
+            font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+            color: var(--primary);
+        }
+        .btn-outline, .btn-primary {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+        .btn-outline {
+            color: var(--text-primary);
+            border: 1px solid var(--border-mid);
+            background: transparent;
+        }
+        .btn-outline:hover { border-color: var(--text-secondary); }
+        .btn-primary {
+            color: #0a0a0a;
+            background: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .btn-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
 
-        /* ==================== PAGE CONTENT ==================== */
+        .hamburger {
+            grid-column: 3;
+            justify-self: end;
+            display: none;
+            width: 40px; height: 40px;
+            flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 5px; cursor: pointer;
+            background: none; border: none;
+            flex-shrink: 0;
+        }
+        .hamburger span {
+            display: block; width: 24px; height: 2px;
+            background: var(--text-primary); border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        @media (max-width: 880px) {
+            header { padding: 0 20px; }
+            .hamburger { display: flex; }
+            .nav-collapse {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: var(--nav-height); left: 0; right: 0;
+                background: rgba(10,10,10,0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid transparent;
+                padding: 0 24px;
+                max-height: 0; overflow: hidden;
+                transition: max-height 0.32s ease, padding 0.32s ease, border-color 0.32s ease;
+            }
+            header#siteHeader.menu-open .nav-collapse {
+                max-height: 85vh;
+                padding: 8px 24px 20px;
+                border-bottom-color: var(--border);
+            }
+            .nav-links {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                margin: 0;
+            }
+            .nav-links a { padding: 14px 2px; }
+            .nav-auth {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding-top: 12px;
+            }
+            .btn-outline, .btn-primary { text-align: center; }
+        }
+
+        /* ==================== PAGE HEADER ==================== */
         .page-header {
-            padding: 8rem 2rem 4rem;
+            padding: calc(var(--nav-height) + 3rem) 2rem 4rem;
             text-align: center;
-            background: linear-gradient(180deg, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+            background: var(--gradient-subtle);
         }
         .page-header h1 {
             font-family: var(--font-display);
-            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            letter-spacing: 0.02em;
             text-transform: uppercase;
-            letter-spacing: 0.03em;
             margin-bottom: 1rem;
         }
         .page-header p {
@@ -146,123 +223,270 @@
         }
 
         .content {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 2rem 2rem 6rem;
         }
 
-        .coach-intro {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 3rem;
-            margin-bottom: 4rem;
-        }
-        @media (min-width: 768px) {
-            .coach-intro { grid-template-columns: 280px 1fr; }
-        }
-
-        .coach-photo {
-            width: 100%;
-            max-width: 280px;
-            aspect-ratio: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
+        /* ==================== BILLING TOGGLE ==================== */
+        .pricing-toggle {
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin: 0 auto;
-        }
-
-        .coach-bio h2 {
-            font-family: var(--font-display);
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-bottom: 0.5rem;
-        }
-        .coach-title {
-            font-family: var(--font-heading);
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 1.5rem;
-        }
-        .coach-bio p {
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-        }
-
-        .section-title {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            margin-bottom: 1.5rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .credentials-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            align-items: center;
             gap: 1rem;
             margin-bottom: 3rem;
         }
-
-        .credential-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: border-color 0.2s ease;
-        }
-        .credential-card:hover { border-color: var(--primary); }
-        .credential-card h4 {
+        .pricing-toggle span {
             font-family: var(--font-heading);
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 0.25rem;
+            color: var(--text-secondary);
+            transition: color 0.3s;
         }
-        .credential-card p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
+        .pricing-toggle span.active { color: var(--text-primary); }
+
+        .toggle-switch {
+            width: 56px; height: 30px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 22px; height: 22px;
+            background: var(--primary);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        .toggle-switch.yearly::after { transform: translateX(26px); }
+
+        .save-badge {
+            background: rgba(45, 212, 191, 0.15);
+            color: var(--primary);
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
         }
 
-        .players-list {
+        /* ==================== PRICING GRID ==================== */
+        .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+            align-items: start;
         }
 
-        .player-card {
-            padding: 1.25rem;
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+
+        .pricing-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            text-align: center;
-            transition: border-color 0.2s ease, transform 0.2s ease;
+            border-radius: 24px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .player-card:hover { border-color: var(--primary); transform: translateY(-2px); }
-        .player-card h4 {
-            font-family: var(--font-heading);
-            font-size: 1.1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.25rem;
-        }
-        .player-card p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+        .pricing-card:hover { border-color: rgba(45, 212, 191, 0.3); transform: translateY(-4px); }
+        .pricing-card.featured {
+            border-color: var(--primary);
+            border-width: 2px;
+            background: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, var(--bg-card) 30%);
         }
 
+        .popular-badge {
+            position: absolute;
+            top: -13px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-1);
+            color: var(--bg-dark);
+            font-family: var(--font-heading);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .plan-header { margin-bottom: 1.25rem; }
+
+        .plan-name {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.2rem;
+        }
+
+        .plan-tagline {
+            font-family: var(--font-heading);
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-price {
+            margin-bottom: 0.5rem;
+        }
+        .price-row { display: flex; align-items: baseline; gap: 2px; }
+        .price-currency {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .price-amount {
+            font-family: var(--font-display);
+            font-size: 3.2rem;
+            letter-spacing: 0.02em;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        .price-period {
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-left: 2px;
+        }
+
+        .trial-label {
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 1.25rem;
+            min-height: 20px;
+        }
+
+        .plan-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin-bottom: 1.25rem;
+        }
+        .featured .plan-divider { border-color: rgba(45, 212, 191, 0.2); }
+
+        /* feature list */
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .plan-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .plan-features li svg {
+            width: 17px; height: 17px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .feat-check { color: var(--primary); }
+        .feat-x { color: var(--text-muted); opacity: 0.4; }
+        .feat-x + span { color: var(--text-muted); opacity: 0.45; }
+
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 6px 0;
+        }
+
+        /* CTA buttons */
+        .plan-cta {
+            display: block;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .plan-cta.primary { background: var(--gradient-1); color: var(--bg-dark); }
+        .plan-cta.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--primary-glow); }
+        .plan-cta.secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); }
+        .plan-cta.secondary:hover { border-color: var(--primary); }
+
+        /* ==================== FAQ ==================== */
+        .faq-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+        .faq-section h2 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-question {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .faq-question svg {
+            width: 20px; height: 20px;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .faq-item.open .faq-question svg { transform: rotate(180deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .faq-item.open .faq-answer { max-height: 220px; }
+        .faq-answer p {
+            padding-bottom: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ==================== FOOTER ==================== */
         .footer {
             padding: 3rem 2rem;
             border-top: 1px solid var(--border);
@@ -279,191 +503,371 @@
 </head>
 <body>
 
-    <!-- HEADER UNIVERSAL -->
-    <nav class="nav">
-        <button class="hamburger" id="hamburger" aria-label="Menú">
+    <!-- HEADER — unificado con Index/Training Lab/Coach IA/Biblioteca -->
+    <header id="siteHeader">
+        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+        <div class="nav-collapse">
+            <ul class="nav-links">
+                <li><a href="/es/index.html">Inicio</a></li>
+                <li><a href="/es/coach-ai.html">Coach IA</a></li>
+                <li><a href="/es/training.html">Training Lab</a></li>
+                <li><a href="/es/library.html">Biblioteca</a></li>
+                <li><a href="/es/pricing.html" class="active">Planes</a></li>
+                <li><a href="/es/about.html">Quiénes Somos</a></li>
+            </ul>
+            <div class="nav-auth" id="header-auth">
+                <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+                <a href="/es/login.html" class="btn-primary">Únete</a>
+            </div>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
             <span></span><span></span><span></span>
         </button>
-        <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-    </nav>
+    </header>
 
-    <div class="mobile-menu-overlay" id="menuOverlay"></div>
-
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="menu-links">
-            <a href="/es/index.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Inicio
-            </a>
-            <a href="/es/coach-ai.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                Coach IA
-            </a>
-            <a href="/es/library.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                Biblioteca
-            </a>
-            <a href="/es/training.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                Training Lab
-            </a>
-            <a href="/es/pricing.html" class="menu-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                Precios
-            </a>
-            <div class="menu-divider"></div>
-            <a href="/es/about.html" class="menu-link active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
-                El Coach
-            </a>
-        </div>
-        <a href="/es/index.html#waitlist" class="menu-cta">Únete</a>
-    </div>
-
-    <!-- CONTENIDO -->
+    <!-- PAGE HEADER -->
     <header class="page-header">
-        <h1>El Coach</h1>
-        <p>La metodología y experiencia detrás de MyGolfLab</p>
+        <h1>Elige Tu Plan</h1>
+        <p>Acceso completo a la metodología de los 4 Pilares. Sin depender de horarios ni agendas.</p>
+        <div style="margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.25);border-radius:100px;padding:8px 20px;">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2dd4bf" stroke-width="1.2"/><path d="M8 4v4l2.5 2.5" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#2dd4bf;">Plan Básico · 7 días gratis · Cancela cuando quieras</span>
+        </div>
     </header>
 
     <main class="content">
-        <div class="coach-intro">
-            <div class="coach-photo" style="background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border:1px solid #262626;position:relative;overflow:hidden;">
-              <!-- Avatar SVG placeholder con estética de marca hasta tener foto real -->
-              <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;">
-                <defs>
-                  <radialGradient id="bgGrad" cx="50%" cy="30%" r="60%">
-                    <stop offset="0%" stop-color="rgba(45,212,191,0.08)"/>
-                    <stop offset="100%" stop-color="transparent"/>
-                  </radialGradient>
-                  <linearGradient id="figureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#2a2a2a"/>
-                    <stop offset="100%" stop-color="#1a1a1a"/>
-                  </linearGradient>
-                </defs>
-                <rect width="280" height="280" fill="url(#bgGrad)"/>
-                <!-- Silhouette golfer -->
-                <circle cx="140" cy="82" r="28" fill="url(#figureGrad)" stroke="#333" stroke-width="1"/>
-                <path d="M112 140 Q110 170 108 200 L132 200 L140 165 L148 200 L172 200 Q170 170 168 140 Q154 130 140 130 Q126 130 112 140Z" fill="url(#figureGrad)" stroke="#333" stroke-width="1"/>
-                <path d="M168 145 L185 120 L195 122" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                <line x1="195" y1="122" x2="222" y2="128" stroke="#D4C5A9" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M112 145 L100 155 L95 148" fill="none" stroke="#333" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Teal accent dots - kinematic joints -->
-                <circle cx="168" cy="145" r="4" fill="#2dd4bf" opacity="0.8"/>
-                <circle cx="112" cy="145" r="4" fill="#2dd4bf" opacity="0.8"/>
-                <circle cx="140" cy="110" r="3" fill="#2dd4bf" opacity="0.6"/>
-                <!-- Ground line -->
-                <line x1="60" y1="220" x2="220" y2="220" stroke="#262626" stroke-width="1"/>
-                <!-- Label -->
-                <text x="140" y="248" font-family="'Bebas Neue',sans-serif" font-size="14" fill="#2dd4bf" opacity="0.6" text-anchor="middle" letter-spacing="3">NICO PARRA</text>
-                <text x="140" y="264" font-family="'Barlow Condensed',sans-serif" font-size="9" fill="#555" text-anchor="middle" letter-spacing="2">HEAD COACH</text>
-              </svg>
-            </div>
-            <div class="coach-bio">
-                <h2>Nico Parra</h2>
-                <p class="coach-title">Fundador & Head Coach — MyGolfLab</p>
-                <p>Durante años vi el mismo patrón: golfistas trabajando duro, tomando clases, comprando equipamiento — y sin mejorar. No porque les faltara dedicación, sino porque la enseñanza tradicional los metía en un molde que no era el suyo.</p>
-                <p>Después de más de una década entrenando jugadores de todos los niveles — desde principiantes hasta profesionales de gira internacional — llegué a una conclusión simple: no existe un swing perfecto universal. Solo existe el swing perfecto para tu cuerpo, tu movilidad y tus objetivos.</p>
-                <p>Eso me llevó a desarrollar la Metodología MyGolfLab: cuatro pilares biomecánicos que describen cómo funciona un swing eficiente de verdad, sin importar la altura, la edad ni el nivel del jugador. Y me llevó a construir esta plataforma — para que ese sistema esté disponible para cualquiera que quiera mejorar, con o sin acceso a un coach presencial.</p>
-            </div>
+
+        <!-- BILLING TOGGLE -->
+        <div class="pricing-toggle">
+            <span class="active" id="label-monthly">Mensual</span>
+            <div class="toggle-switch" id="toggleSwitch"></div>
+            <span id="label-yearly">Anual</span>
+            <span class="save-badge">Ahorra 20%</span>
         </div>
 
-        <h3 class="section-title">Trayectoria & Credenciales</h3>
-        <div class="credentials-grid">
-            <div class="credential-card">
-                <h4>Andes Golf Academy</h4>
-                <p>Ex Director — formación técnica de jugadores y coaches</p>
+        <!-- PRICING CARDS -->
+        <div class="pricing-grid">
+
+            <!-- BÁSICO -->
+            <div class="pricing-card">
+                <div class="plan-header">
+                    <h3 class="plan-name">Básico</h3>
+                    <p class="plan-tagline">Para empezar con estructura</p>
+                </div>
+                <div class="plan-price">
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="29" data-yearly="23">29</span>
+                        <span class="price-period">/mes</span>
+                    </div>
+                </div>
+                <div class="trial-label">7 días gratis — cancela cuando quieras</div>
+                <hr class="plan-divider">
+                <ul class="plan-features">
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>5 análisis por mes</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>10 drills por categoría</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Tip semanal anticipado</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Planes de entrenamiento personalizados</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Feedback de Nico y Gabriel</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Informe mensual de progreso</span>
+                    </li>
+                </ul>
+                <a href="/es/login.html" class="plan-cta secondary">Empezar gratis</a>
             </div>
-            <div class="credential-card">
-                <h4>Smooth Golf Co SPA</h4>
-                <p>Fundador & Head Coach · Santiago, Chile</p>
+
+            <!-- PRO -->
+            <div class="pricing-card">
+                <div class="plan-header">
+                    <h3 class="plan-name">Pro</h3>
+                    <p class="plan-tagline">Para mejorar en serio</p>
+                </div>
+                <div class="plan-price">
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="59" data-yearly="47">59</span>
+                        <span class="price-period">/mes</span>
+                    </div>
+                </div>
+                <div class="trial-label" style="opacity:0; pointer-events:none;">—</div>
+                <hr class="plan-divider">
+                <ul class="plan-features">
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>10 análisis por mes</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>drills ilimitados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Tip semanal anticipado (cada lunes)</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Planes de entrenamiento personalizados</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Feedback de Nico y Gabriel</span>
+                    </li>
+                    <li>
+                        <svg class="feat-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <span>Informe mensual de progreso</span>
+                    </li>
+                </ul>
+                <a href="/es/login.html" class="plan-cta secondary">Suscribirse a Pro</a>
             </div>
-            <div class="credential-card">
-                <h4>Club de Polo</h4>
-                <p>Profesional de Enseñanza</p>
+
+            <!-- ELITE -->
+            <div class="pricing-card featured">
+                <span class="popular-badge">Más Popular</span>
+                <div class="plan-header">
+                    <h3 class="plan-name">Elite</h3>
+                    <p class="plan-tagline">La experiencia completa</p>
+                </div>
+                <div class="plan-price">
+                    <div class="price-row">
+                        <span class="price-currency">USD</span>
+                        <span class="price-amount" data-monthly="69" data-yearly="55">69</span>
+                        <span class="price-period">/mes</span>
+                    </div>
+                </div>
+                <div class="trial-label" style="opacity:0; pointer-events:none;">—</div>
+                <hr class="plan-divider">
+                <ul class="plan-features">
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Coach AI — <strong>ilimitado</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Biblioteca completa de videos</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Training Lab — <strong>drills ilimitados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Foro y comunidad</span>
+                    </li>
+                    <li class="section-divider" style="padding:0;"></li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Badges de progreso</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Ranking mensual</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Tip semanal anticipado (cada lunes)</span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Planes de entrenamiento personalizados</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Feedback de Nico y Gabriel</strong></span>
+                    </li>
+                    <li>
+                        <svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Informe mensual de progreso</strong></span>
+                    </li>
+                </ul>
+                <a href="/es/login.html" class="plan-cta primary">Suscribirse a Elite</a>
             </div>
-            <div class="credential-card">
-                <h4>Club de Golf Los Leones</h4>
-                <p>Profesional de Enseñanza</p>
-            </div>
+
         </div>
 
-        <h3 class="section-title">Experiencia con Jugadores</h3>
-        <p style="color:var(--text-secondary);font-size:0.95rem;margin-bottom:1.5rem;line-height:1.7;">He trabajado con jugadores de todos los niveles — desde principiantes hasta profesionales de gira internacional — en Chile, Brasil y otros países de Latinoamérica.</p>
-        <div class="players-list">
-            <div class="player-card">
-                <h4>Gira Internacional</h4>
-                <p>Experiencia trabajando con jugadores de PGA Tour y LIV Golf</p>
-            </div>
-            <div class="player-card">
-                <h4>Gabriel Morgan</h4>
-                <p>Jugador Profesional · Colaborador de contenido MyGolfLab</p>
-            </div>
-            <div class="player-card">
-                <h4>Diego Vargas</h4>
-                <p>Campeón Pre-Junior Sudamericano</p>
-            </div>
-            <div class="player-card">
-                <h4>Juniors Brasil</h4>
-                <p>Clínicas y campamentos — São Paulo, 2025</p>
-            </div>
-        </div>
+        <!-- FAQ -->
+        <section class="faq-section">
+            <h2>Preguntas Frecuentes</h2>
 
-        <!-- Filosofía -->
-        <div style="margin-top:4rem;padding:2.5rem;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:0 16px 16px 0;">
-          <p style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:600;line-height:1.5;color:var(--text-primary);margin-bottom:0.5rem;">"No existe un swing perfecto universal — solo el swing perfecto para ti."</p>
-          <p style="font-size:0.9rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;">Nico Parra · Fundador, MyGolfLab</p>
-        </div>
+            <div class="faq-item">
+                <button class="faq-question">¿Puedo cambiar de plan después?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Sí, puedes subir o bajar de plan en cualquier momento. Los cambios se aplican al inicio de tu próximo ciclo de facturación.</p></div>
+            </div>
 
-        <!-- CTA -->
-        <div style="margin-top:3rem;text-align:center;padding:3rem 2rem;background:linear-gradient(135deg,rgba(45,212,191,0.05) 0%,transparent 60%);border:1px solid var(--border);border-radius:20px;">
-          <p style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:1rem;">Conoce la metodología en acción</p>
-          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;margin-bottom:1.5rem;">Analiza tu swing con Coach IA</h3>
-          <a href="/es/coach-ai.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#0a0a0a;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-            Probar Gratis
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <p style="margin-top:12px;font-size:12px;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">7 días gratis · Sin tarjeta de crédito</p>
-        </div>
+            <div class="faq-item">
+                <button class="faq-question">¿Cómo funciona el Coach AI?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Es un asistente entrenado con la metodología de los 4 Pilares de Nico. Le puedes hacer preguntas sobre tu swing, drills específicos, Ground Forces, secuencia cinemática y más. Responde con la misma lógica que Nico aplicaría en una clase.</p></div>
+            </div>
 
+            <div class="faq-item">
+                <button class="faq-question">¿Qué son los planes de entrenamiento personalizados?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Exclusivos del plan Elite. La plataforma construye un plan de práctica basado en tu perfil, handicap y los pilares que necesitas trabajar. No es un plan genérico — está estructurado con los drills del Training Lab según tu nivel actual.</p></div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">¿Cómo funciona el feedback de Nico y Gabriel?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Los miembros Elite pueden publicar en el foro de la plataforma y recibir comentarios personalizados de Nico o Gabriel sobre su progreso o swing. El feedback se entrega en el hilo del foro dentro de 48 horas hábiles.</p></div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">¿Qué incluye el tip semanal?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>Cada lunes los planes Pro y Elite reciben un tip exclusivo de Nico o Gabriel — un concepto técnico, drill o corrección de errores comunes. Al final del mes ese contenido pasa a la biblioteca general disponible para todos los planes.</p></div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question">¿Hay prueba gratuita?
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="faq-answer"><p>El plan Básico incluye 7 días de prueba gratis. Se requiere tarjeta de crédito para activar el trial — no se hace ningún cobro durante los primeros 7 días. Puedes cancelar cuando quieras antes de que termine el período y no se te cobra nada.</p></div>
+            </div>
+
+        </section>
     </main>
 
     <footer class="footer">
         <div style="margin-bottom:24px;">
-          <div class="footer-logo" style="margin-bottom:12px;">MY<span style="color:var(--primary)">GOLF</span>LAB</div>
-          <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
-            <a href="/es/index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Inicio</a>
-            <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
-            <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
-            <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
-            <a href="/es/pricing.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Precios</a>
-          </div>
-          <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
-            <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
-            <a href="/es/terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Términos</a>
-            <a href="mailto:hola@mygolflab.golf" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">hola@mygolflab.golf</a>
-          </div>
+            <div class="footer-logo" style="margin-bottom:12px;">MY<span style="color:var(--primary)">GOLF</span>LAB</div>
+            <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
+                <a href="/es/index.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Inicio</a>
+                <a href="/es/coach-ai.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Coach IA</a>
+                <a href="/es/training.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Training Lab</a>
+                <a href="/es/library.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Biblioteca</a>
+                <a href="/es/about.html" style="font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;transition:color 0.2s;" onmouseover="this.style.color='#2dd4bf'" onmouseout="this.style.color='var(--text-muted)'">Quiénes Somos</a>
+            </div>
+            <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+                <a href="/es/privacy.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Privacidad</a>
+                <a href="/es/terms.html" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">Términos</a>
+                <a href="mailto:hola@mygolflab.golf" style="font-size:12px;color:var(--text-muted);text-decoration:none;opacity:0.5;">hola@mygolflab.golf</a>
+            </div>
         </div>
         <p>© 2026 MyGolfLab — Smooth Golf Co. SPA. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const menuOverlay = document.getElementById('menuOverlay');
-
+        /* ===== NAV — dropdown mobile (igual que las otras páginas) ===== */
         function toggleMenu() {
-            hamburger.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            var header = document.getElementById('siteHeader');
+            var hamburger = document.getElementById('hamburger');
+            var isOpen = header.classList.toggle('menu-open');
+            hamburger.classList.toggle('active', isOpen);
+            hamburger.setAttribute('aria-expanded', isOpen);
         }
 
-        hamburger.addEventListener('click', toggleMenu);
-        menuOverlay.addEventListener('click', toggleMenu);
-        document.querySelectorAll('.menu-link, .menu-cta').forEach(function(link) {
-            link.addEventListener('click', function() {
-                if (mobileMenu.classList.contains('active')) toggleMenu();
+        /* ===== AUTH — swap de botones con el cliente oficial de Supabase ===== */
+        (async function initHeaderAuth() {
+            try {
+                var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+                var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+                var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                var res = await client.auth.getSession();
+                var session = res.data.session;
+                if (!session) return;
+
+                var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email.split('@')[0];
+                var avatarUrl = (session.user.user_metadata && (session.user.user_metadata.avatar_url || session.user.user_metadata.picture)) || '';
+                var initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+                var avatarInner = avatarUrl
+                    ? '<img src="' + avatarUrl + '" alt="' + name + '">'
+                    : '<span class="nav-avatar-initials">' + initials + '</span>';
+
+                document.getElementById('header-auth').innerHTML =
+                    '<a href="/es/dashboard.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
+                    '<a href="/es/dashboard.html" class="btn-outline">Mi Dashboard</a>' +
+                    '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>';
+
+                document.querySelectorAll('[data-logout]').forEach(function (btn) {
+                    btn.addEventListener('click', async function (e) {
+                        e.preventDefault();
+                        await client.auth.signOut();
+                        window.location.href = '/es/index.html';
+                    });
+                });
+            } catch (e) {
+                console.error('Header auth error:', e);
+            }
+        })();
+
+        var isYearly = false;
+        var toggleSwitch = document.getElementById('toggleSwitch');
+        var labelMonthly = document.getElementById('label-monthly');
+        var labelYearly = document.getElementById('label-yearly');
+
+        toggleSwitch.addEventListener('click', function() {
+            isYearly = !isYearly;
+            toggleSwitch.classList.toggle('yearly', isYearly);
+            labelMonthly.classList.toggle('active', !isYearly);
+            labelYearly.classList.toggle('active', isYearly);
+
+            document.querySelectorAll('.price-amount').forEach(function(el) {
+                el.textContent = isYearly ? el.getAttribute('data-yearly') : el.getAttribute('data-monthly');
+            });
+        });
+
+        document.querySelectorAll('.faq-question').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var item = btn.parentElement;
+                var isOpen = item.classList.contains('open');
+                document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
+                if (!isOpen) item.classList.add('open');
             });
         });
     </script>
