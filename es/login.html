@@ -611,20 +611,13 @@
             setLoading('loginBtn', false);
 
             if (error) {
+                console.error('SUPABASE LOGIN ERROR:', error);
                 const msg = error.message.includes('Invalid login') || error.message.includes('invalid_credentials')
                     ? 'Email o contraseña incorrectos.'
                     : error.message.includes('Email not confirmed')
                     ? 'Confirma tu email antes de entrar. Revisa tu bandeja.'
                     : 'Error al iniciar sesión. Inténtalo de nuevo.';
-                if (error) {
-    console.error('SUPABASE LOGIN ERROR:', error); // <-- agregar esta línea
-    const msg = error.message.includes('Invalid login') || error.message.includes('invalid_credentials')
-        ? 'Email o contraseña incorrectos.'
-        : error.message.includes('Email not confirmed')
-        ? 'Confirma tu email antes de entrar. Revisa tu bandeja.'
-        : 'Error al iniciar sesión. Inténtalo de nuevo.';
-    showError('login', msg);
-
+                showError('login', msg);
             } else {
                 window.location.href = '/es/dashboard.html';
             }
