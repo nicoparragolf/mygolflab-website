@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head>d
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coach IA — MyGolfLab</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/auth-guard.js" data-require="pro"></script>
-  <script src="/js/taxonomy.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -234,10 +233,6 @@
     .diagnosis-number { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-family: var(--font-display); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .diagnosis-card-header h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
     .diagnosis-severity { margin-left: auto; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; }
-    /* Chip de componente del swing (taxonomía) */
-    .diagnosis-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 24px 16px; margin-top: -4px; }
-    .diagnosis-chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 100px; border: 1px solid currentColor; background: rgba(255,255,255,0.03); }
-    .diagnosis-chip.muted { color: var(--text-muted); border-color: var(--border-light); }
     .severity-high { background: rgba(239,68,68,0.15); color: var(--red); }
     .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
     .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
@@ -739,66 +734,6 @@
     }).join('\n');
   }
 
-    /* ═══ Valida y normaliza UN diagnóstico devuelto por la IA ═══ */
-  function normalizeFinding(diag) {
-    if (!diag || typeof diag !== 'object') return null;
-    var T = window.MGL_TAX;
-    if (!T) { console.error('MGL_TAX no está cargada — revisa /js/taxonomy.js'); return null; }
-
-    var out = {
-      titulo:          String(diag.titulo || 'Diagnóstico').slice(0, 120),
-      que_pasa:        String(diag.que_pasa || ''),
-      como_corregirlo: String(diag.como_corregirlo || ''),
-      severidad:       T.esSeveridad(diag.severidad) ? diag.severidad : 'media',
-      frame_ref:       null,
-      componente:      null,
-      pilar:           null,
-      error_tag:       null,
-      drills:          []
-    };
-
-    var fr = parseInt(diag.frame_referencia, 10);
-    if (fr >= 1 && fr <= 6) out.frame_ref = fr;
-
-    var seen = {};
-    var recs = Array.isArray(diag.drills_recomendados) ? diag.drills_recomendados : [];
-    recs.forEach(function (raw) {
-      var dr = resolveDrill(raw);
-      if (dr && !seen[dr.id]) { seen[dr.id] = true; out.drills.push(dr); }
-    });
-    var d0 = out.drills[0] || null;
-
-    if (T.esComponente(diag.componente)) {
-      out.componente = diag.componente;
-    } else if (d0) {
-      out.componente = d0.c;
-      console.warn('⚠️ componente inválido ("' + diag.componente +
-                   '") → deducido del drill ' + d0.id + ' = "' + d0.c + '"');
-    }
-
-    if (T.esPilar(diag.pilar)) {
-      out.pilar = diag.pilar;
-    } else if (d0 && d0.p && d0.p.length) {
-      out.pilar = d0.p[0];
-      console.warn('⚠️ pilar inválido ("' + diag.pilar + '") → deducido = "' + out.pilar + '"');
-    }
-
-    if (T.esError(diag.error_tag)) {
-      out.error_tag = diag.error_tag;
-    } else if (d0 && d0.e && d0.e.length) {
-      out.error_tag = d0.e[0];
-      console.warn('⚠️ error_tag inválido ("' + diag.error_tag + '") → deducido = "' + out.error_tag + '"');
-    }
-
-    if (!out.componente) {
-      console.error('❌ Diagnóstico DESCARTADO (sin componente ni drills válidos):', diag);
-      return null;
-    }
-    return out;
-  }
-
-  console.log('✅ normalizeFinding cargada correctamente');
-    
   function $(id) { return document.getElementById(id); }
 
   /* ===== HEADER (idéntico a Biblioteca) ===== */
