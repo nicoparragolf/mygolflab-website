@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · FASE A — Taxonomía de diagnósticos
    Archivo: /js/mgl-fase-a.js
-   Versión: 1.0  ·  2026-07-26
+   Versión: 2.0  ·  2026-07-26
 
    QUÉ HACE
    Este archivo aplica, por sí solo, los pasos 1 a 7 de la Fase A:
@@ -29,7 +29,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.0';
+  var VERSION = '2.0';
 
   /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 1 · TAXONOMÍA
@@ -120,7 +120,11 @@
         'text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:100px;' +
         'border:1px solid currentColor;background:rgba(255,255,255,.03)}' +
       '.diagnosis-chip.muted{color:var(--text-muted);border-color:var(--border-light)}' +
-      '@media(max-width:640px){.diagnosis-chips{padding:0 16px 14px}}';
+      '.eval-summary{font-family:var(--font-heading),sans-serif;font-size:.82rem;' +
+        'letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);' +
+        'text-align:center;margin:0 0 10px;line-height:1.6}' +
+      '@media(max-width:640px){.diagnosis-chips{padding:0 16px 14px}' +
+        '.eval-summary{font-size:.75rem;padding:0 16px}}';
 
     var el = document.createElement('style');
     el.id = 'mgl-fase-a-css';
@@ -210,6 +214,59 @@
 
 
   /* ═════════════════════════════════════════════════════════════════════════
+     BLOQUE 3b · normalizeEvaluacion()
+     Valida la evaluación de los 8 componentes. Garantiza que SIEMPRE queden
+     los 8, aunque el modelo omita alguno (los faltantes → 'no_evaluable').
+     Este objeto no se muestra completo al usuario: es la base del dashboard.
+     ═════════════════════════════════════════════════════════════════════════ */
+
+  var ESTADOS = ['ok', 'leve', 'moderado', 'severo', 'no_evaluable'];
+
+  var ESTADO_A_SEVERIDAD = { severo: 'alta', moderado: 'media', leve: 'baja' };
+
+  function normalizeEvaluacion(evalCruda) {
+    var T = window.MGL_TAX;
+    var out = {};
+    var faltantes = [];
+
+    T.componentes.forEach(function (comp) {
+      var v = evalCruda && evalCruda[comp];
+
+      /* Acepta tanto "severo" como {"estado":"severo"} */
+      if (v && typeof v === 'object') v = v.estado;
+      if (typeof v === 'string') v = v.trim().toLowerCase().replace(/[\s-]/g, '_');
+
+      if (ESTADOS.indexOf(v) >= 0) {
+        out[comp] = v;
+      } else {
+        out[comp] = 'no_evaluable';
+        faltantes.push(comp);
+      }
+    });
+
+    if (faltantes.length) {
+      console.warn('[MGL] La evaluación no traía estos componentes, se marcaron ' +
+                   'no_evaluable: ' + faltantes.join(', '));
+    }
+    return out;
+  }
+
+  window.normalizeEvaluacion = normalizeEvaluacion;
+
+
+  /* Cuenta cuántos componentes hay en cada grupo. Se usa en la línea resumen. */
+  function contarEvaluacion(ev) {
+    var r = { conFalla: 0, ok: 0, noEvaluable: 0 };
+    Object.keys(ev || {}).forEach(function (k) {
+      if (ev[k] === 'ok') r.ok++;
+      else if (ev[k] === 'no_evaluable') r.noEvaluable++;
+      else r.conFalla++;
+    });
+    return r;
+  }
+
+
+  /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 4 · Helper: resolver la lista de drills de un diagnóstico
      Entiende los tres formatos posibles:
        a) drills: [{id,t,c,...}]       ← formato nuevo (ya resuelto)
@@ -267,6 +324,16 @@
       '<span style="font-family:var(--font-heading);font-size:0.8rem;color:var(--text-muted);' +
       'text-transform:uppercase;letter-spacing:1.5px;">' + nivelText + '</span>' +
       '</div></div>';
+
+    /* ── Línea resumen: comunica que el análisis fue completo, sin abrumar ── */
+    if (result.evaluacion) {
+      var c = contarEvaluacion(result.evaluacion);
+      var partes = ['Evaluamos 8 componentes de tu swing'];
+      if (c.conFalla)    partes.push(c.conFalla + (c.conFalla === 1 ? ' necesita' : ' necesitan') + ' trabajo');
+      if (c.ok)          partes.push(c.ok + ' sin observaciones');
+      if (c.noEvaluable) partes.push(c.noEvaluable + ' no evaluable' + (c.noEvaluable === 1 ? '' : 's') + ' desde este ángulo');
+      html += '<p class="eval-summary">' + esc(partes.join(' · ')) + '</p>';
+    }
 
     html += '<p class="score-disclaimer">El puntaje es una guía orientativa basada en 6 imágenes ' +
             'de una sola cámara, no una medición precisa. Concéntrate en los diagnósticos ' +
@@ -403,16 +470,35 @@
       'IMPORTANTE: el "componente" que elijas debe coincidir con el componente de los ' +
       'drills que recomiendas para ese mismo diagnóstico.\n\n' +
 
-      '════ REGLAS ════\n' +
-      '- Máximo 3 diagnósticos. Prioriza causa raíz sobre síntoma.\n' +
-      '- Si dos hallazgos comparten componente, fusiónalos en uno solo.\n' +
-      '- No fuerces encontrar fallas: si el swing está bien, devuelve menos diagnósticos.\n\n' +
+      '════ PASO 1 · EVALÚA LOS 8 COMPONENTES ════\n' +
+      'Antes de escribir cualquier diagnóstico, revisa los 8 componentes uno por uno\n' +
+      'y asigna a cada uno exactamente uno de estos estados:\n' +
+      '  ok            — sin observaciones relevantes\n' +
+      '  leve          — desviación menor, no limita el resultado\n' +
+      '  moderado      — desviación clara que afecta la consistencia\n' +
+      '  severo        — desviación que limita el resultado de forma evidente\n' +
+      '  no_evaluable  — el ángulo o la calidad del video no permiten juzgarlo\n\n' +
+      'Sé honesto con "no_evaluable": es preferible declararlo antes que inventar.\n\n' +
+
+      '════ PASO 2 · NARRA SOLO LAS FALLAS ════\n' +
+      '- Escribe diagnósticos SOLO para componentes marcados severo, moderado o leve.\n' +
+      '- Ordénalos de mayor a menor gravedad. Máximo 3.\n' +
+      '- Si solo hay 2 componentes con falla, entrega 2. Si hay 1, entrega 1.\n' +
+      '- NUNCA inventes una falla para llegar a 3.\n' +
+      '- El "componente" de cada diagnóstico debe coincidir con uno marcado con falla.\n' +
+      '- Mapeo de severidad: severo→alta · moderado→media · leve→baja.\n' +
+      '- Prioriza causa raíz sobre síntoma. Si dos hallazgos comparten componente, fusiónalos.\n\n' +
 
       '════ FORMATO ════\n' +
-      'Responde SOLO en JSON válido, sin backticks ni texto extra:\n' +
+      'Responde SOLO en JSON válido, sin backticks ni texto extra.\n' +
+      'El objeto "evaluacion" debe traer los 8 componentes, siempre, sin excepción:\n' +
       '{"score":<1-100>,"resumen":"<1-2 oraciones>","nivel":"<principiante|intermedio|avanzado>",' +
+      '"evaluacion":{' +
+        '"cara":"<ok|leve|moderado|severo|no_evaluable>",' +
+        '"path":"<...>","lowpoint":"<...>","secuencia":"<...>",' +
+        '"postura":"<...>","ground":"<...>","conexion":"<...>","distancia":"<...>"},' +
       '"diagnosticos":[{' +
-        '"titulo":"<nombre corto del problema>",' +
+        '"titulo":"<nombre técnico estándar del problema>",' +
         '"componente":"<cara|path|lowpoint|secuencia|postura|ground|conexion|distancia>",' +
         '"pilar":"<GF|KS|WC|BT>",' +
         '"error_tag":"<slice|hook|top|gordo|shank|push|pull|potencia|distancia|spin>",' +
@@ -500,11 +586,21 @@
 
         ctx += '\n\n════ ANÁLISIS ANTERIOR ════\n' +
                'Fecha: ' + new Date(prev.date).toLocaleDateString('es-CL') +
-               ' · Score: ' + prev.score + '\n' +
-               'Fallas detectadas entonces:\n' + lineas +
+               ' · Score: ' + prev.score + '\n';
+
+        if (prev.evaluacion) {
+          ctx += 'Estado de los 8 componentes entonces:\n' +
+                 Object.keys(prev.evaluacion).map(function (k) {
+                   return '  ' + k + ': ' + prev.evaluacion[k];
+                 }).join('\n') + '\n';
+        }
+
+        ctx += 'Fallas narradas entonces:\n' + lineas +
                '\n\nEvalúa explícitamente si cada una de esas fallas PERSISTE, MEJORÓ o se ' +
                'RESOLVIÓ, y menciónalo en el resumen. Si una falla persiste, usa EXACTAMENTE ' +
-               'el mismo "componente" que antes. No inventes fallas nuevas solo por variar.';
+               'el mismo "componente" y el mismo título técnico que antes. No inventes fallas ' +
+               'nuevas solo por variar, y no cambies el estado de un componente sin una razón ' +
+               'visible en los frames.';
       }
     } catch (e) {
       console.warn('[MGL] No se pudo leer el análisis anterior:', e);
@@ -539,7 +635,10 @@
       /* Copia cruda, para poder inspeccionar en la consola */
       try { window.__crudo = JSON.parse(JSON.stringify(result)); } catch (e) {}
 
-      /* Normalización */
+      /* Evaluación de los 8 componentes: siempre quedan los 8 */
+      result.evaluacion = normalizeEvaluacion(result.evaluacion);
+
+      /* Normalización de los diagnósticos narrados */
       var totalOriginal = result.diagnosticos.length;
       result.diagnosticos = result.diagnosticos
         .map(normalizeFinding)
@@ -557,7 +656,10 @@
       result.score = Math.max(1, Math.min(100, parseInt(result.score, 10) || 50));
       window.__ultimo = result;
 
-      console.log('%c[MGL] Análisis normalizado', 'color:#2dd4bf;font-weight:bold');
+      console.log('%c[MGL] Evaluación de los 8 componentes', 'color:#2dd4bf;font-weight:bold');
+      console.table(result.evaluacion);
+
+      console.log('%c[MGL] Diagnósticos narrados', 'color:#2dd4bf;font-weight:bold');
       console.table(result.diagnosticos.map(function (d) {
         return {
           titulo:     d.titulo,
@@ -568,6 +670,12 @@
           drills:     d.drills.length
         };
       }));
+
+      /* Firma compacta: sirve para comparar corridas de un vistazo */
+      var firma = window.MGL_TAX.componentes.map(function (k) {
+        return k.slice(0, 4) + ':' + result.evaluacion[k].slice(0, 3);
+      }).join(' | ');
+      console.log('%c[MGL] Firma → ' + firma, 'color:#8a8a8a');
 
       $('analysisLoading').classList.remove('visible');
       renderResults(result);
