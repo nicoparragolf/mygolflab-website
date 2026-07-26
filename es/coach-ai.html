@@ -234,6 +234,10 @@
     .diagnosis-number { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); font-family: var(--font-display); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .diagnosis-card-header h3 { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
     .diagnosis-severity { margin-left: auto; font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; }
+    /* Chip de componente del swing (taxonomía) */
+    .diagnosis-chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 24px 16px; margin-top: -4px; }
+    .diagnosis-chip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 3px 10px; border-radius: 100px; border: 1px solid currentColor; background: rgba(255,255,255,0.03); }
+    .diagnosis-chip.muted { color: var(--text-muted); border-color: var(--border-light); }
     .severity-high { background: rgba(239,68,68,0.15); color: var(--red); }
     .severity-medium { background: rgba(245,158,11,0.15); color: var(--amber); }
     .severity-low { background: rgba(16,185,129,0.15); color: var(--green); }
