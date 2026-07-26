@@ -738,15 +738,8 @@
       return dr.id + ' [' + dr.c + '] errores:' + dr.e.join(',') + ' — ' + dr.t;
     }).join('\n');
   }
-    /* ══════════════════════════════════════════════════════════════
-     Valida y normaliza UN diagnóstico devuelto por la IA.
-     Devuelve un objeto limpio, o null si no se puede recuperar.
 
-     Estrategia de rescate: si la IA no devuelve un componente válido,
-     lo deducimos del primer drill que recomendó (los drills del catálogo
-     ya tienen componente, pilar y errores). En la práctica esto salva
-     casi todos los casos.
-     ══════════════════════════════════════════════════════════════ */
+    /* ═══ Valida y normaliza UN diagnóstico devuelto por la IA ═══ */
   function normalizeFinding(diag) {
     if (!diag || typeof diag !== 'object') return null;
     var T = window.MGL_TAX;
@@ -764,20 +757,17 @@
       drills:          []
     };
 
-    // ── Frame de referencia ──
     var fr = parseInt(diag.frame_referencia, 10);
     if (fr >= 1 && fr <= 6) out.frame_ref = fr;
 
-    // ── 1. Resolver drills PRIMERO (son la fuente más confiable) ──
     var seen = {};
     var recs = Array.isArray(diag.drills_recomendados) ? diag.drills_recomendados : [];
     recs.forEach(function (raw) {
       var dr = resolveDrill(raw);
       if (dr && !seen[dr.id]) { seen[dr.id] = true; out.drills.push(dr); }
     });
-    var d0 = out.drills[0] || null;   // primer drill válido, si existe
+    var d0 = out.drills[0] || null;
 
-    // ── 2. Componente ──
     if (T.esComponente(diag.componente)) {
       out.componente = diag.componente;
     } else if (d0) {
@@ -786,7 +776,6 @@
                    '") → deducido del drill ' + d0.id + ' = "' + d0.c + '"');
     }
 
-    // ── 3. Pilar ──
     if (T.esPilar(diag.pilar)) {
       out.pilar = diag.pilar;
     } else if (d0 && d0.p && d0.p.length) {
@@ -794,7 +783,6 @@
       console.warn('⚠️ pilar inválido ("' + diag.pilar + '") → deducido = "' + out.pilar + '"');
     }
 
-    // ── 4. Error técnico ──
     if (T.esError(diag.error_tag)) {
       out.error_tag = diag.error_tag;
     } else if (d0 && d0.e && d0.e.length) {
@@ -802,7 +790,6 @@
       console.warn('⚠️ error_tag inválido ("' + diag.error_tag + '") → deducido = "' + out.error_tag + '"');
     }
 
-    // ── Sin componente no sirve para el dashboard: se descarta ──
     if (!out.componente) {
       console.error('❌ Diagnóstico DESCARTADO (sin componente ni drills válidos):', diag);
       return null;
@@ -810,6 +797,8 @@
     return out;
   }
 
+  console.log('✅ normalizeFinding cargada correctamente');
+    
   function $(id) { return document.getElementById(id); }
 
   /* ===== HEADER (idéntico a Biblioteca) ===== */
