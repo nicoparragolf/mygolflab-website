@@ -738,6 +738,77 @@
       return dr.id + ' [' + dr.c + '] errores:' + dr.e.join(',') + ' — ' + dr.t;
     }).join('\n');
   }
+    /* ══════════════════════════════════════════════════════════════
+     Valida y normaliza UN diagnóstico devuelto por la IA.
+     Devuelve un objeto limpio, o null si no se puede recuperar.
+
+     Estrategia de rescate: si la IA no devuelve un componente válido,
+     lo deducimos del primer drill que recomendó (los drills del catálogo
+     ya tienen componente, pilar y errores). En la práctica esto salva
+     casi todos los casos.
+     ══════════════════════════════════════════════════════════════ */
+  function normalizeFinding(diag) {
+    if (!diag || typeof diag !== 'object') return null;
+    var T = window.MGL_TAX;
+    if (!T) { console.error('MGL_TAX no está cargada — revisa /js/taxonomy.js'); return null; }
+
+    var out = {
+      titulo:          String(diag.titulo || 'Diagnóstico').slice(0, 120),
+      que_pasa:        String(diag.que_pasa || ''),
+      como_corregirlo: String(diag.como_corregirlo || ''),
+      severidad:       T.esSeveridad(diag.severidad) ? diag.severidad : 'media',
+      frame_ref:       null,
+      componente:      null,
+      pilar:           null,
+      error_tag:       null,
+      drills:          []
+    };
+
+    // ── Frame de referencia ──
+    var fr = parseInt(diag.frame_referencia, 10);
+    if (fr >= 1 && fr <= 6) out.frame_ref = fr;
+
+    // ── 1. Resolver drills PRIMERO (son la fuente más confiable) ──
+    var seen = {};
+    var recs = Array.isArray(diag.drills_recomendados) ? diag.drills_recomendados : [];
+    recs.forEach(function (raw) {
+      var dr = resolveDrill(raw);
+      if (dr && !seen[dr.id]) { seen[dr.id] = true; out.drills.push(dr); }
+    });
+    var d0 = out.drills[0] || null;   // primer drill válido, si existe
+
+    // ── 2. Componente ──
+    if (T.esComponente(diag.componente)) {
+      out.componente = diag.componente;
+    } else if (d0) {
+      out.componente = d0.c;
+      console.warn('⚠️ componente inválido ("' + diag.componente +
+                   '") → deducido del drill ' + d0.id + ' = "' + d0.c + '"');
+    }
+
+    // ── 3. Pilar ──
+    if (T.esPilar(diag.pilar)) {
+      out.pilar = diag.pilar;
+    } else if (d0 && d0.p && d0.p.length) {
+      out.pilar = d0.p[0];
+      console.warn('⚠️ pilar inválido ("' + diag.pilar + '") → deducido = "' + out.pilar + '"');
+    }
+
+    // ── 4. Error técnico ──
+    if (T.esError(diag.error_tag)) {
+      out.error_tag = diag.error_tag;
+    } else if (d0 && d0.e && d0.e.length) {
+      out.error_tag = d0.e[0];
+      console.warn('⚠️ error_tag inválido ("' + diag.error_tag + '") → deducido = "' + out.error_tag + '"');
+    }
+
+    // ── Sin componente no sirve para el dashboard: se descarta ──
+    if (!out.componente) {
+      console.error('❌ Diagnóstico DESCARTADO (sin componente ni drills válidos):', diag);
+      return null;
+    }
+    return out;
+  }
 
   function $(id) { return document.getElementById(id); }
 
