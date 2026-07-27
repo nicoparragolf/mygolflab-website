@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · FASE A — Taxonomía de diagnósticos
    Archivo: /js/mgl-fase-a.js
-   Versión: 2.0  ·  2026-07-26
+   Versión: 3.0  ·  2026-07-26  (Fase A + Fase B)
 
    QUÉ HACE
    Este archivo aplica, por sí solo, los pasos 1 a 7 de la Fase A:
@@ -29,7 +29,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '2.0';
+  var VERSION = '3.0';
 
   /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 1 · TAXONOMÍA
@@ -481,7 +481,8 @@
       'Sé honesto con "no_evaluable": es preferible declararlo antes que inventar.\n\n' +
 
       '════ PASO 2 · NARRA SOLO LAS FALLAS ════\n' +
-      '- Escribe diagnósticos SOLO para componentes marcados severo, moderado o leve.\n' +
+      '- Escribe diagnósticos SOLO para componentes marcados "severo" o "moderado".\n' +
+      '- Si NO hay ninguno severo ni moderado, entonces sí puedes narrar los "leve".\n' +
       '- Ordénalos de mayor a menor gravedad. Máximo 3.\n' +
       '- Si solo hay 2 componentes con falla, entrega 2. Si hay 1, entrega 1.\n' +
       '- NUNCA inventes una falla para llegar a 3.\n' +
@@ -697,6 +698,380 @@
 
 
   /* ═════════════════════════════════════════════════════════════════════════
+     BLOQUE 7b · FASE B — PERSISTENCIA EN SUPABASE
+     Reemplaza el guardado en el navegador (localStorage) por guardado en la
+     nube. Los 6 frames van a una carpeta privada de Storage.
+
+     Cómo convive con el código existente:
+       · getHistory()   → devuelve una copia en memoria (sincrónica, como antes)
+       · saveToHistory()→ guarda en Supabase, sin bloquear la pantalla
+       · loadHistory()  → recupera un análisis y firma las URLs de las imágenes
+       · clearHistory() → borra en la nube, con confirmación
+     Si no hay sesión iniciada, todo cae automáticamente a localStorage.
+     ═════════════════════════════════════════════════════════════════════════ */
+
+  var SB_URL  = 'https://yulpqupmftdjbepqiscs.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+  var BUCKET  = 'swing-frames';
+
+  var _db = null;
+  function db() {
+    if (!_db && window.supabase && window.supabase.createClient) {
+      _db = window.supabase.createClient(SB_URL, SB_ANON);
+    }
+    return _db;
+  }
+
+  /* Copia en memoria del historial. getHistory() lee de acá para no romper
+     el código existente, que espera una respuesta inmediata. */
+  var CACHE = [];
+  var CACHE_LISTA = false;
+  var MODO_NUBE = false;          // true si hay sesión y Supabase responde
+  var HISTORIAL_ABIERTO = false;  // true mientras se ve un análisis del historial
+
+  async function usuario() {
+    var c = db();
+    if (!c) return null;
+    try {
+      var r = await c.auth.getSession();
+      return (r.data && r.data.session) ? r.data.session.user : null;
+    } catch (e) { return null; }
+  }
+
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  }
+
+  function dataURLtoBlob(dataURL) {
+    var partes = dataURL.split(',');
+    var mime = partes[0].match(/:(.*?);/)[1];
+    var bin = atob(partes[1]);
+    var arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  /* ── Historial local (respaldo cuando no hay sesión) ── */
+  var LS_KEY = 'mgl_coach_history';
+  function historialLocal() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch (e) { return []; }
+  }
+  function guardarLocal(result) {
+    try {
+      var h = historialLocal();
+      h.unshift({
+        date: Date.now(), score: result.score, resumen: result.resumen,
+        nivel: result.nivel, evaluacion: result.evaluacion,
+        diagnosticos: result.diagnosticos
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify(h.slice(0, 10)));
+    } catch (e) {}
+  }
+
+
+  /* ═══ GUARDAR UN ANÁLISIS EN LA NUBE ═══ */
+  async function guardarEnNube(result, meta) {
+    var c = db();
+    var u = await usuario();
+    if (!c || !u) { guardarLocal(result); return null; }
+
+    var analysisId = uuid();
+
+    /* 1 · Subir los 6 frames (si falla, el análisis se guarda igual) */
+    var rutas = [];
+    try {
+      var subidas = (window.extractedFrames || []).map(function (dataURL, i) {
+        var ruta = u.id + '/' + analysisId + '/frame-' + (i + 1) + '.jpg';
+        rutas.push(ruta);
+        return c.storage.from(BUCKET).upload(ruta, dataURLtoBlob(dataURL),
+          { contentType: 'image/jpeg', upsert: true });
+      });
+      var res = await Promise.all(subidas);
+      res.forEach(function (r) { if (r.error) throw r.error; });
+    } catch (e) {
+      console.warn('[MGL] No se pudieron subir los frames:', e.message || e);
+      rutas = [];
+    }
+
+    /* 2 · El análisis */
+    var ins = await c.from('swing_analyses').insert({
+      id: analysisId,
+      user_id: u.id,
+      camera_angle: (typeof cameraAngle !== 'undefined' ? cameraAngle : 'face'),
+      score: result.score,
+      nivel: result.nivel,
+      resumen: result.resumen,
+      frame_paths: rutas,
+      frame_times: (typeof frameTimes !== 'undefined' ? frameTimes : []),
+      prompt_version: 'v3',
+      input_handicap: (meta && meta.handicap) || null,
+      input_problema: (meta && meta.problema) || null,
+      input_objetivo: (meta && meta.objetivo) || null
+    });
+    if (ins.error) {
+      console.error('[MGL] Error al guardar el análisis:', ins.error.message);
+      guardarLocal(result);
+      return null;
+    }
+
+    /* 3 · Los 8 componentes */
+    var estados = Object.keys(result.evaluacion || {}).map(function (comp) {
+      return {
+        analysis_id: analysisId, user_id: u.id,
+        componente: comp, estado: result.evaluacion[comp]
+      };
+    });
+    if (estados.length) {
+      var e1 = await c.from('swing_component_states').insert(estados);
+      if (e1.error) console.error('[MGL] Error al guardar componentes:', e1.error.message);
+    }
+
+    /* 4 · Las fallas narradas */
+    var findings = (result.diagnosticos || []).map(function (d, i) {
+      return {
+        analysis_id: analysisId, user_id: u.id, orden: i,
+        componente: d.componente, pilar: d.pilar, error_tag: d.error_tag,
+        severidad: d.severidad, titulo: d.titulo,
+        que_pasa: d.que_pasa, como_corregirlo: d.como_corregirlo,
+        frame_ref: d.frame_ref
+      };
+    });
+    if (findings.length) {
+      var f = await c.from('swing_findings').insert(findings).select('id');
+      if (f.error) {
+        console.error('[MGL] Error al guardar diagnósticos:', f.error.message);
+      } else {
+        /* 5 · Los drills sugeridos */
+        var links = [];
+        f.data.forEach(function (row, i) {
+          ((result.diagnosticos[i] || {}).drills || []).forEach(function (dr, j) {
+            links.push({ finding_id: row.id, drill_id: dr.id, orden: j });
+          });
+        });
+        if (links.length) {
+          var l = await c.from('finding_drills').insert(links);
+          if (l.error) console.error('[MGL] Error al guardar drills:', l.error.message);
+        }
+      }
+    }
+
+    /* 6 · Refrescar la copia en memoria */
+    CACHE.unshift({
+      id: analysisId, date: Date.now(), score: result.score, resumen: result.resumen,
+      nivel: result.nivel, evaluacion: result.evaluacion,
+      diagnosticos: result.diagnosticos, frame_paths: rutas
+    });
+    if (typeof renderHistory === 'function') renderHistory();
+
+    console.log('%c[MGL] ☁️ Análisis guardado en la nube · ' + analysisId,
+                'color:#10b981;font-weight:bold');
+    return analysisId;
+  }
+
+
+  /* ═══ LEER EL HISTORIAL DESDE LA NUBE ═══ */
+  async function cargarHistorial(limite) {
+    var c = db();
+    var u = await usuario();
+    if (!c || !u) { MODO_NUBE = false; CACHE = historialLocal(); CACHE_LISTA = true; return CACHE; }
+
+    var r = await c.from('swing_analyses')
+      .select('id, created_at, score, nivel, resumen, frame_paths, frame_times, prompt_version, ' +
+              'swing_component_states(componente, estado), ' +
+              'swing_findings(orden, componente, pilar, error_tag, severidad, titulo, ' +
+              'que_pasa, como_corregirlo, frame_ref, finding_drills(drill_id, orden))')
+      .eq('user_id', u.id)
+      .order('created_at', { ascending: false })
+      .limit(limite || 50);
+
+    if (r.error) {
+      console.error('[MGL] No se pudo leer el historial:', r.error.message);
+      MODO_NUBE = false; CACHE = historialLocal(); CACHE_LISTA = true; return CACHE;
+    }
+
+    MODO_NUBE = true;
+    CACHE = (r.data || []).map(function (a) {
+      var ev = {};
+      (a.swing_component_states || []).forEach(function (s) { ev[s.componente] = s.estado; });
+
+      var diags = (a.swing_findings || [])
+        .sort(function (x, y) { return (x.orden || 0) - (y.orden || 0); })
+        .map(function (f) {
+          return {
+            titulo: f.titulo, componente: f.componente, pilar: f.pilar,
+            error_tag: f.error_tag, severidad: f.severidad,
+            que_pasa: f.que_pasa, como_corregirlo: f.como_corregirlo,
+            frame_ref: f.frame_ref,
+            drills: (f.finding_drills || [])
+              .sort(function (x, y) { return (x.orden || 0) - (y.orden || 0); })
+              .map(function (fd) { return resolveDrill(fd.drill_id); })
+              .filter(Boolean)
+          };
+        });
+
+      return {
+        id: a.id, date: new Date(a.created_at).getTime(), score: a.score,
+        resumen: a.resumen, nivel: a.nivel,
+        evaluacion: Object.keys(ev).length ? ev : null,
+        diagnosticos: diags, frame_paths: a.frame_paths || [],
+        prompt_version: a.prompt_version
+      };
+    });
+    CACHE_LISTA = true;
+    return CACHE;
+  }
+
+
+  /* ═══ FIRMAR LAS URLs DE LAS IMÁGENES (el bucket es privado) ═══ */
+  async function firmarFrames(rutas) {
+    var c = db();
+    if (!c || !rutas || !rutas.length) return [];
+    try {
+      var r = await c.storage.from(BUCKET).createSignedUrls(rutas, 3600);
+      if (r.error) { console.warn('[MGL] No se pudieron firmar las imágenes'); return []; }
+      return r.data.map(function (x) { return x.signedUrl; });
+    } catch (e) { return []; }
+  }
+
+
+  /* ═══ MIGRAR EL HISTORIAL VIEJO DEL NAVEGADOR ═══ */
+  async function migrarHistorialLocal() {
+    if (localStorage.getItem('mgl_migrado_v3') === '1') return;
+    var c = db();
+    var u = await usuario();
+    if (!c || !u) return;
+
+    var viejos = historialLocal();
+    if (!viejos.length) { localStorage.setItem('mgl_migrado_v3', '1'); return; }
+
+    console.log('[MGL] Migrando ' + viejos.length + ' análisis del navegador a la nube…');
+    var migrados = 0;
+
+    for (var i = 0; i < viejos.length; i++) {
+      var it = viejos[i];
+      var aid = uuid();
+
+      var ins = await c.from('swing_analyses').insert({
+        id: aid, user_id: u.id,
+        created_at: new Date(it.date || Date.now()).toISOString(),
+        camera_angle: 'face', score: it.score || 50, nivel: it.nivel || 'intermedio',
+        resumen: it.resumen || '', frame_paths: [], frame_times: [],
+        prompt_version: it.evaluacion ? 'v2-migrado' : 'v1-migrado'
+      });
+      if (ins.error) continue;
+
+      if (it.evaluacion) {
+        var est = Object.keys(it.evaluacion).map(function (k) {
+          return { analysis_id: aid, user_id: u.id, componente: k, estado: it.evaluacion[k] };
+        });
+        if (est.length) await c.from('swing_component_states').insert(est);
+      }
+
+      var ds = (it.diagnosticos || []).map(function (d, j) {
+        var dr = (d.drills && d.drills[0]) ||
+                 ((d.drills_recomendados || []).map(resolveDrill).filter(Boolean)[0]);
+        return {
+          analysis_id: aid, user_id: u.id, orden: j,
+          componente: d.componente || (dr && dr.c) || 'postura',
+          pilar: d.pilar || (dr && dr.p && dr.p[0]) || null,
+          error_tag: d.error_tag || (dr && dr.e && dr.e[0]) || null,
+          severidad: ['alta','media','baja'].indexOf(d.severidad) >= 0 ? d.severidad : 'media',
+          titulo: d.titulo || 'Diagnóstico',
+          que_pasa: d.que_pasa || null, como_corregirlo: d.como_corregirlo || null,
+          frame_ref: null
+        };
+      });
+      if (ds.length) await c.from('swing_findings').insert(ds);
+      migrados++;
+    }
+
+    localStorage.setItem('mgl_migrado_v3', '1');
+    console.log('%c[MGL] ☁️ Migrados ' + migrados + ' análisis. Los antiguos quedan marcados ' +
+                'como "migrado" y se excluyen de las tendencias.', 'color:#10b981');
+  }
+
+
+  /* ═══ FUNCIONES QUE REEMPLAZAN A LAS DEL HTML ═══ */
+
+  function getHistoryPatched() {
+    return CACHE;
+  }
+
+  function saveToHistoryPatched(result) {
+    var $ = function (id) { return document.getElementById(id); };
+    var meta = {
+      handicap: ($('qHandicap') || {}).value || null,
+      problema: ($('qProblema') || {}).value || null,
+      objetivo: ($('qObjetivo') || {}).value || null
+    };
+    /* No bloquea la pantalla: si falla, el usuario igual ve su análisis */
+    guardarEnNube(result, meta).catch(function (e) {
+      console.error('[MGL] Falló el guardado en la nube:', e);
+      guardarLocal(result);
+    });
+  }
+
+  async function loadHistoryPatched(i) {
+    var item = CACHE[i];
+    if (!item) return;
+    var $ = function (id) { return document.getElementById(id); };
+
+    HISTORIAL_ABIERTO = true;
+
+    /* Recupera las imágenes guardadas, si las hay */
+    window.extractedFrames = await firmarFrames(item.frame_paths);
+    window.frameTimes = [];
+
+    $('uploadSection').style.display = 'none';
+    if ($('recordGuide')) $('recordGuide').style.display = 'none';
+    var sel = document.querySelector('.angle-selector');
+    if (sel) sel.style.display = 'none';
+    $('questionnaireSection').classList.remove('visible');
+
+    renderResults(item);
+  }
+
+  async function clearHistoryPatched() {
+    if (!confirm('¿Seguro que quieres borrar TODOS tus análisis?\n\n' +
+                 'Esto elimina también las imágenes guardadas y no se puede deshacer.')) return;
+
+    var c = db();
+    var u = await usuario();
+
+    if (c && u) {
+      /* Borra las imágenes */
+      try {
+        var todas = [];
+        CACHE.forEach(function (a) { (a.frame_paths || []).forEach(function (p) { todas.push(p); }); });
+        if (todas.length) await c.storage.from(BUCKET).remove(todas);
+      } catch (e) { console.warn('[MGL] No se pudieron borrar todas las imágenes'); }
+
+      /* Borra los análisis (el resto se borra en cascada) */
+      var r = await c.from('swing_analyses').delete().eq('user_id', u.id);
+      if (r.error) { console.error('[MGL] Error al borrar:', r.error.message); alert('No se pudo borrar el historial.'); return; }
+    }
+
+    try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    CACHE = [];
+    if (typeof renderHistory === 'function') renderHistory();
+    console.log('[MGL] Historial borrado');
+  }
+
+  /* Al ver un análisis del historial no hay video que reposicionar */
+  function seekPreviewPatched(idx) {
+    if (HISTORIAL_ABIERTO) return;
+    if (typeof window.__seekPreviewOriginal === 'function') window.__seekPreviewOriginal(idx);
+  }
+
+  /* Al iniciar un análisis nuevo, salimos del modo historial */
+  function marcarAnalisisNuevo() { HISTORIAL_ABIERTO = false; }
+
+
+  /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 8 · INSTALACIÓN + AUTOTEST
      ═════════════════════════════════════════════════════════════════════════ */
 
@@ -719,9 +1094,24 @@
       errores.push('catalogForPrompt() no encontrada');
 
     /* ── Reemplazo de funciones ── */
-    if (!errores.length) {
+    var depsOK = (errores.length === 0);
+    if (depsOK) {
       window.renderResults = renderResultsPatched;
       window.analyzeSwing  = analyzeSwingPatched;
+
+      /* ── FASE B · persistencia ── */
+      window.__seekPreviewOriginal = window.seekPreview;
+      window.getHistory    = getHistoryPatched;
+      window.saveToHistory = saveToHistoryPatched;
+      window.loadHistory   = loadHistoryPatched;
+      window.clearHistory  = clearHistoryPatched;
+      window.seekPreview   = seekPreviewPatched;
+
+      /* El botón "Analizar mi swing" sale del modo historial */
+      var btn = document.getElementById('qAnalyzeBtn');
+      if (btn) btn.addEventListener('click', marcarAnalisisNuevo, true);
+      var btn2 = document.getElementById('qSkipBtn');
+      if (btn2) btn2.addEventListener('click', marcarAnalisisNuevo, true);
     }
 
     /* ── Test 1: validación directa ── */
@@ -778,8 +1168,6 @@
       console.log('%c  ✅ 4 de 4 tests internos pasaron',                                'color:#10b981');
       avisos.forEach(function (a) { console.warn('  ⚠️ ' + a); });
       console.log('%c' + linea, 'color:#2dd4bf');
-      console.log('%c  Ya puedes analizar un swing. Deja esta consola abierta.',
-                  'color:#8a8a8a');
       window.MGL_FASE_A_OK = true;
     } else {
       console.log('%c' + linea, 'color:#ef4444');
@@ -791,6 +1179,49 @@
       console.log('%c  Copia TODO este bloque rojo y envíalo para diagnóstico.', 'color:#ef4444');
       window.MGL_FASE_A_OK = false;
     }
+
+    /* ═══ FASE B · conectar con la nube ═══
+       Corre siempre que las dependencias estén bien, aunque algún test
+       interno haya fallado: el historial no debe quedarse sin guardar. */
+    if (!depsOK) return;
+
+    (async function () {
+      if (!db()) {
+        console.warn('%c  ⚠️ Supabase no disponible — el historial queda en el navegador',
+                     'color:#f59e0b');
+        CACHE = historialLocal(); CACHE_LISTA = true;
+        if (typeof renderHistory === 'function') renderHistory();
+        return;
+      }
+
+      var u = await usuario();
+      if (!u) {
+        console.warn('%c  ⚠️ Sin sesión iniciada — el historial queda en el navegador',
+                     'color:#f59e0b');
+        CACHE = historialLocal(); CACHE_LISTA = true;
+        if (typeof renderHistory === 'function') renderHistory();
+        return;
+      }
+
+      try { await migrarHistorialLocal(); }
+      catch (e) { console.warn('[MGL] Migración omitida:', e); }
+
+      await cargarHistorial(50);
+      if (typeof renderHistory === 'function') renderHistory();
+
+      if (MODO_NUBE) {
+        console.log('%c  ☁️  FASE B ACTIVA · historial en la nube · ' +
+                    CACHE.length + ' análisis guardados',
+                    'color:#10b981;font-weight:bold');
+        console.log('%c  Ya puedes analizar un swing. Deja esta consola abierta.',
+                    'color:#8a8a8a');
+        window.MGL_FASE_B_OK = true;
+      } else {
+        console.warn('%c  ⚠️ No se pudo leer de Supabase. ¿Corriste el SQL de la Fase B?',
+                     'color:#f59e0b');
+        window.MGL_FASE_B_OK = false;
+      }
+    })();
   }
 
   /* Espera a que el documento esté listo (por si el script se carga en el head) */
