@@ -1,13 +1,39 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MyGolfLab · Guardia de sesión
+   Archivo: /js/auth-guard.js
+   Versión: 1.1 · 2026-07-30
+
+   QUÉ CAMBIÓ RESPECTO A LA VERSIÓN ANTERIOR
+   1. El plan Elite ahora pasa el control. Antes se comparaba contra 'pro'
+      exacto, así que un usuario Elite —el plan más caro— rebotaba a la
+      página de upgrade y no podía entrar ni a Coach IA ni a Training Lab.
+   2. El plan se compara sin distinguir mayúsculas ni espacios sobrantes.
+      Si en la base quedó guardado "Pro" o " pro ", igual funciona.
+   3. Si el usuario no tiene fila en la tabla profiles, ya no se cae: avisa
+      en la consola y lo trata como plan básico.
+   4. Al redirigir a upgrade se conserva la página de origen, para poder
+      devolver al jugador donde estaba después de pagar.
+   ═══════════════════════════════════════════════════════════════════════════ */
 (async () => {
   const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
 
   const script = document.currentScript;
   const required = script?.getAttribute('data-require') || 'auth';
-
   const LOGIN_URL = '/es/login.html';
   const UPGRADE_URL = '/es/upgrade.html';
   const CURRENT = window.location.pathname;
+
+  /* Planes que dan acceso a las secciones marcadas con data-require="pro" */
+  const PLANES_CON_ACCESO = ['pro', 'elite'];
+
+  function normalizarPlan(valor) {
+    return String(valor || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
   // Esperar al DOM antes de insertar overlay
   const init = async () => {
@@ -41,24 +67,34 @@
         return;
       }
 
+      /* maybeSingle en vez de single: si el usuario todavía no tiene fila en
+         profiles, devuelve null en vez de lanzar un error. */
       const { data: profile, error } = await client
         .from('profiles')
         .select('plan, pro_expires_at')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (error || !profile) {
-        window.location.href = UPGRADE_URL;
+      if (error) {
+        console.error('Auth guard · no se pudo leer el perfil:', error.message);
+        window.location.href = `${UPGRADE_URL}?redirect=${encodeURIComponent(CURRENT)}`;
         return;
       }
 
-      const isPro = profile.plan === 'pro' && (
-        !profile.pro_expires_at ||
-        new Date(profile.pro_expires_at) > new Date()
-      );
+      if (!profile) {
+        console.warn('Auth guard · el usuario ' + session.user.id +
+                     ' no tiene fila en la tabla profiles. Se trata como plan básico.');
+        window.location.href = `${UPGRADE_URL}?redirect=${encodeURIComponent(CURRENT)}`;
+        return;
+      }
 
-      if (!isPro) {
-        window.location.href = UPGRADE_URL;
+      const plan = normalizarPlan(profile.plan);
+      const planConAcceso = PLANES_CON_ACCESO.includes(plan);
+      const vigente = !profile.pro_expires_at ||
+                      new Date(profile.pro_expires_at) > new Date();
+
+      if (!planConAcceso || !vigente) {
+        window.location.href = `${UPGRADE_URL}?redirect=${encodeURIComponent(CURRENT)}`;
         return;
       }
 
