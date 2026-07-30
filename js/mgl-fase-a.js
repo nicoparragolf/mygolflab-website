@@ -1,7 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · FASE A — Taxonomía de diagnósticos
    Archivo: /js/mgl-fase-a.js
-   Versión: 3.0  ·  2026-07-26  (Fase A + Fase B)
+   Versión: 3.1  ·  2026-07-30  (Fase A + Fase B)
+
+   ── v3.1: EL PILAR SALE DE UNA TABLA FIJA ─────────────────────────────────
+   Antes, cuando la IA devolvía un pilar inválido, se deducía tomando el
+   PRIMER pilar del primer drill recomendado. Eso daba resultados incorrectos,
+   porque los drills declaran varios pilares y el primero no siempre es el que
+   corresponde al componente:
+     drill-path-07      ["WC","KS"] → guardaba WC para un hallazgo de path (KS)
+     drill-lowpoint-04  ["GF","BT"] → guardaba GF para lowpoint (BT)
+     drill-distancia-01 ["KS","BT"] → guardaba KS para distancia (WC)
+   Ahora el pilar se toma siempre de MGL_TAX.pilarDe, que es la misma tabla
+   que quedó escrita en el system prompt de /api/coach.js. Si la IA responde
+   un pilar distinto, se corrige y se avisa en la consola.
 
    QUÉ HACE
    Este archivo aplica, por sí solo, los pasos 1 a 7 de la Fase A:
@@ -29,7 +41,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '3.0';
+  var VERSION = '3.1';
 
   /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 1 · TAXONOMÍA
@@ -49,6 +61,20 @@
               'push', 'pull', 'potencia', 'distancia', 'spin'],
 
     severidades: ['alta', 'media', 'baja'],
+
+    /* A qué pilar pertenece cada componente.
+       Tabla fija de la metodología: NO se decide caso a caso.
+       Debe coincidir con la tabla del system prompt en /api/coach.js. */
+    pilarDe: {
+      cara:      'WC',
+      path:      'KS',
+      lowpoint:  'BT',
+      secuencia: 'KS',
+      postura:   'BT',
+      ground:    'GF',
+      conexion:  'KS',
+      distancia: 'WC'
+    },
 
     /* Nombres para mostrar en pantalla */
     componenteLabel: {
@@ -185,12 +211,24 @@
                    '") → deducido del drill ' + d0.id + ' = "' + d0.c + '"');
     }
 
-    /* Pilar */
-    if (T.esPilar(diag.pilar)) {
+    /* Sin componente no sirve para el dashboard */
+    if (!out.componente) {
+      console.error('[MGL] Diagnóstico DESCARTADO (sin componente ni drills válidos):', diag);
+      return null;
+    }
+
+    /* Pilar — SIEMPRE desde la tabla fija, nunca desde el drill.
+       Los drills declaran varios pilares y el primero no siempre corresponde
+       al componente: drill-path-07 empieza por WC aunque path sea KS. */
+    var pilarFijo = T.pilarDe[out.componente] || null;
+    if (pilarFijo) {
+      out.pilar = pilarFijo;
+      if (diag.pilar && diag.pilar !== pilarFijo) {
+        console.warn('[MGL] pilar "' + diag.pilar + '" corregido a "' + pilarFijo +
+                     '" según la tabla fija (componente "' + out.componente + '")');
+      }
+    } else if (T.esPilar(diag.pilar)) {
       out.pilar = diag.pilar;
-    } else if (d0 && d0.p && d0.p.length) {
-      out.pilar = d0.p[0];
-      console.warn('[MGL] pilar inválido ("' + diag.pilar + '") → deducido = "' + out.pilar + '"');
     }
 
     /* Error técnico */
@@ -199,12 +237,6 @@
     } else if (d0 && d0.e && d0.e.length) {
       out.error_tag = d0.e[0];
       console.warn('[MGL] error_tag inválido ("' + diag.error_tag + '") → deducido = "' + out.error_tag + '"');
-    }
-
-    /* Sin componente no sirve para el dashboard */
-    if (!out.componente) {
-      console.error('[MGL] Diagnóstico DESCARTADO (sin componente ni drills válidos):', diag);
-      return null;
     }
 
     return out;
@@ -459,7 +491,9 @@
       '  conexion   — relación brazos-cuerpo, ancho de arco\n' +
       '  distancia  — control de distancia, spin, calibración\n\n' +
 
-      'pilar (exactamente uno): GF | KS | WC | BT\n' +
+      'pilar: NO lo elijas tú. Cada componente tiene un pilar fijo:\n' +
+      '  cara → WC · path → KS · lowpoint → BT · secuencia → KS\n' +
+      '  postura → BT · ground → GF · conexion → KS · distancia → WC\n' +
       '  GF = Ground Forces · KS = Kinematic Sequence\n' +
       '  WC = Wrist Conditions · BT = Body Tilts\n\n' +
 
@@ -501,7 +535,7 @@
       '"diagnosticos":[{' +
         '"titulo":"<nombre técnico estándar del problema>",' +
         '"componente":"<cara|path|lowpoint|secuencia|postura|ground|conexion|distancia>",' +
-        '"pilar":"<GF|KS|WC|BT>",' +
+        '"pilar":"<el que corresponde al componente según la tabla fija>",' +
         '"error_tag":"<slice|hook|top|gordo|shank|push|pull|potencia|distancia|spin>",' +
         '"severidad":"<alta|media|baja>",' +
         '"que_pasa":"<causa raíz, 2-3 oraciones>",' +
@@ -974,10 +1008,12 @@
       var ds = (it.diagnosticos || []).map(function (d, j) {
         var dr = (d.drills && d.drills[0]) ||
                  ((d.drills_recomendados || []).map(resolveDrill).filter(Boolean)[0]);
+        var comp = d.componente || (dr && dr.c) || 'postura';
         return {
           analysis_id: aid, user_id: u.id, orden: j,
-          componente: d.componente || (dr && dr.c) || 'postura',
-          pilar: d.pilar || (dr && dr.p && dr.p[0]) || null,
+          componente: comp,
+          /* También acá el pilar sale de la tabla fija, no del drill */
+          pilar: MGL_TAX.pilarDe[comp] || d.pilar || null,
           error_tag: d.error_tag || (dr && dr.e && dr.e[0]) || null,
           severidad: ['alta','media','baja'].indexOf(d.severidad) >= 0 ? d.severidad : 'media',
           titulo: d.titulo || 'Diagnóstico',
@@ -1140,7 +1176,8 @@
 
     /* ── Test 4: taxonomía completa ── */
     var ok4 = MGL_TAX.componentes.length === 8 && MGL_TAX.pilares.length === 4 &&
-              MGL_TAX.errores.length === 10;
+              MGL_TAX.errores.length === 10 &&
+              Object.keys(MGL_TAX.pilarDe).length === 8;
     if (!ok4) errores.push('Test 4 (taxonomía) falló');
 
     /* ── Test 5: el prompt incluye la taxonomía ── */
@@ -1153,6 +1190,16 @@
     } catch (e) { }
     if (!ok5) avisos.push('No se pudo verificar el prompt (revisa que DRILLS_CATALOG esté cargado)');
 
+    /* ── Test 6: el pilar sale de la tabla fija, no del drill ──
+       drill-path-07 declara ["WC","KS"]: antes esto devolvía WC para un
+       hallazgo de path. Ahora debe devolver KS. */
+    var t6 = normalizeFinding({
+      titulo: 'Path hacia adentro', componente: 'path', pilar: 'ZZ',
+      drills_recomendados: ['path-07']
+    });
+    var ok6 = !!(t6 && t6.pilar === 'KS');
+    if (!ok6) errores.push('Test 6 (pilar desde la tabla fija) falló');
+
     /* ── Reporte ── */
     var linea = '════════════════════════════════════════════';
     if (errores.length === 0) {
@@ -1161,11 +1208,12 @@
                   'color:#2dd4bf;font-weight:bold;font-size:13px');
       console.log('%c' + linea, 'color:#2dd4bf');
       console.log('%c  ✅ Taxonomía cargada (8 componentes · 4 pilares · 10 errores)', 'color:#10b981');
+      console.log('%c  ✅ Tabla fija componente → pilar activa',                       'color:#10b981');
       console.log('%c  ✅ normalizeFinding() disponible',                                'color:#10b981');
       console.log('%c  ✅ renderResults() reemplazada',                                  'color:#10b981');
       console.log('%c  ✅ analyzeSwing() reemplazada',                                   'color:#10b981');
       console.log('%c  ✅ Prompt con taxonomía activo',                                  'color:#10b981');
-      console.log('%c  ✅ 4 de 4 tests internos pasaron',                                'color:#10b981');
+      console.log('%c  ✅ 5 de 5 tests internos pasaron',                                'color:#10b981');
       avisos.forEach(function (a) { console.warn('  ⚠️ ' + a); });
       console.log('%c' + linea, 'color:#2dd4bf');
       window.MGL_FASE_A_OK = true;
@@ -1187,51 +1235,3 @@
 
     (async function () {
       if (!db()) {
-        console.warn('%c  ⚠️ Supabase no disponible — el historial queda en el navegador',
-                     'color:#f59e0b');
-        CACHE = historialLocal(); CACHE_LISTA = true;
-        if (typeof renderHistory === 'function') renderHistory();
-        return;
-      }
-
-      var u = await usuario();
-      if (!u) {
-        console.warn('%c  ⚠️ Sin sesión iniciada — el historial queda en el navegador',
-                     'color:#f59e0b');
-        CACHE = historialLocal(); CACHE_LISTA = true;
-        if (typeof renderHistory === 'function') renderHistory();
-        return;
-      }
-
-      try { await migrarHistorialLocal(); }
-      catch (e) { console.warn('[MGL] Migración omitida:', e); }
-
-      await cargarHistorial(50);
-      if (typeof renderHistory === 'function') renderHistory();
-
-      if (MODO_NUBE) {
-        console.log('%c  ☁️  FASE B ACTIVA · historial en la nube · ' +
-                    CACHE.length + ' análisis guardados',
-                    'color:#10b981;font-weight:bold');
-        console.log('%c  Ya puedes analizar un swing. Deja esta consola abierta.',
-                    'color:#8a8a8a');
-        window.MGL_FASE_B_OK = true;
-      } else {
-        console.warn('%c  ⚠️ No se pudo leer de Supabase. ¿Corriste el SQL de la Fase B?',
-                     'color:#f59e0b');
-        window.MGL_FASE_B_OK = false;
-      }
-    })();
-  }
-
-  /* Espera a que el documento esté listo (por si el script se carga en el head) */
-  if (typeof document !== 'undefined' && document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', instalar);
-  } else {
-    instalar();
-  }
-
-  /* Expuesto por si hace falta reinstalar manualmente desde la consola */
-  window.MGL_REINSTALAR = instalar;
-
-})();
