@@ -9,168 +9,122 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0a0a; --card:#111111; --card-2:#171717; --line:#242424; --line-2:#343434;
-  --tx:#f0f0f0; --tx-2:#9c9c9c; --tx-3:#6b6b6b;
+  --bg:#0a0a0a; --card:#111111; --card-2:#161616; --line:#232323; --line-2:#333333;
+  --tx:#f0f0f0; --tx-2:#9a9a9a; --tx-3:#6a6a6a;
   --teal:#2dd4bf; --gold:#D4C5A9;
   --ok:#22c55e; --leve:#eab308; --moderado:#f97316; --severo:#ef4444; --nulo:#2e2e2e;
-  --r:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--tx);font-family:'Barlow',system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
-h1,h2,h3{font-weight:400}
-.display{font-family:'Bebas Neue',Impact,sans-serif;letter-spacing:.02em;line-height:1}
-.label{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.13em;font-size:11.5px;color:var(--tx-2);font-weight:600;display:block}
+h1,h2{font-weight:400}
 
-.nav{position:sticky;top:0;z-index:60;background:rgba(10,10,10,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-.nav-in{max-width:1360px;margin:0 auto;padding:0 26px;height:62px;display:flex;align-items:center;gap:28px}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:.06em;white-space:nowrap}
+/* ---------- BARRA SUPERIOR (igual al resto del sitio) ---------- */
+.nav{position:sticky;top:0;z-index:60;background:rgba(10,10,10,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:16px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em;white-space:nowrap}
 .logo em{font-style:normal;color:var(--teal)}
-.nav-links{display:flex;gap:24px;flex:1}
-.nav-links a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.11em;font-size:13.5px;font-weight:500;color:var(--tx-2);padding:4px 0;border-bottom:2px solid transparent}
-.nav-links a:hover{color:var(--tx)}
-.nav-links a.on{color:var(--tx);border-bottom-color:var(--teal)}
-.nav-right{display:flex;align-items:center;gap:10px;position:relative}
-.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tx-2);position:relative}
-.icon-btn:hover{border-color:var(--line-2);color:var(--tx)}
-.icon-btn svg{width:19px;height:19px}
-.dot{position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 3px;background:var(--severo);color:#fff;border-radius:99px;font-size:9.5px;font-weight:600;font-family:'Barlow',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);line-height:1}
-.avatar{width:38px;height:38px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);letter-spacing:.04em}
-.avatar:hover{border-color:var(--line-2)}
-.pop{position:absolute;top:48px;right:0;width:300px;background:var(--card);border:1px solid var(--line-2);border-radius:var(--r);padding:8px;z-index:70;display:none;max-height:72vh;overflow-y:auto}
-.pop.open{display:block}
-.pop-h{padding:9px 11px 7px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.pop a,.pop button{display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:9px;font-size:14px;color:var(--tx-2);text-align:left}
+.menu{flex:1;display:flex;gap:22px;justify-content:center}
+.menu a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:12.5px;font-weight:500;color:var(--tx-2);white-space:nowrap}
+.menu a:hover{color:var(--tx)}
+.menu a.on{color:var(--teal)}
+.derecha{display:flex;align-items:center;gap:11px;position:relative}
+.campana{color:var(--tx-2);position:relative;display:flex;padding:4px}
+.campana:hover{color:var(--tx)}
+.campana svg{width:19px;height:19px}
+.punto{position:absolute;top:0;right:0;min-width:15px;height:15px;padding:0 3px;background:var(--severo);color:#fff;border-radius:99px;font-size:9.5px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);line-height:1}
+.aro{width:32px;height:32px;border-radius:50%;background:var(--teal);color:#06251f;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.04em}
+.enlace-nav{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:600;color:var(--teal);white-space:nowrap}
+.boton-nav{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.09em;font-size:12px;font-weight:600;background:var(--teal);color:#06251f;border-radius:7px;padding:8px 13px;white-space:nowrap}
+.boton-nav:hover{background:#4fe0cf}
+.pop{position:absolute;top:44px;right:0;width:280px;background:var(--card);border:1px solid var(--line-2);border-radius:12px;padding:7px;z-index:70;display:none;max-height:70vh;overflow-y:auto}
+.pop.abierto{display:block}
+.pop .titulo{padding:9px 11px 6px;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.13em;font-size:11px;color:var(--tx-3);font-weight:600}
+.pop a,.pop button{display:block;width:100%;padding:9px 11px;border-radius:8px;font-size:14px;color:var(--tx-2);text-align:left}
 .pop a:hover,.pop button:hover{background:var(--card-2);color:var(--tx)}
-.pop svg{width:17px;height:17px;flex-shrink:0;opacity:.75}
-.pop hr{border:0;border-top:1px solid var(--line);margin:7px 0}
-.pop .salir:hover{color:var(--severo)}
-.hamb{display:none}
+.pop .evento{padding:9px 11px;font-size:13px;color:var(--tx-2);line-height:1.45}
+.pop .evento b{color:var(--tx);font-weight:600}
+.pop .evento span{display:block;font-size:11px;color:var(--tx-3);margin-top:2px}
+.hamb{display:none;color:var(--tx-2);padding:4px}
+.hamb svg{width:22px;height:22px}
 
-.wrap{max-width:1360px;margin:0 auto;padding:24px 26px 80px}
-.row{display:grid;gap:16px;margin-bottom:16px}
-.r21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px}
-.card-h{display:flex;align-items:baseline;gap:11px;margin-bottom:16px;flex-wrap:wrap}
-.card-h h2{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:14.5px;font-weight:600}
-.card-h .sub{font-size:12.5px;color:var(--tx-3)}
-.card-h .spacer{flex:1}
+/* ---------- PÁGINA ---------- */
+.wrap{max-width:1200px;margin:0 auto;padding:26px 24px 70px}
 
-.hero{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;display:flex;flex-direction:column}
-.hero .saludo{font-size:34px;margin-bottom:12px}
-.hero .frase{font-size:18px;line-height:1.5;font-weight:300;max-width:58ch}
-.hero .frase b{font-weight:600}
-.cuentas{display:flex;gap:34px;margin-top:auto;padding-top:24px;flex-wrap:wrap}
-.cuenta .n{font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1}
-.cuenta .t{font-size:12.5px;color:var(--tx-2)}
+/* 1 · FOCO */
+.foco{border:1px solid rgba(45,212,191,.4);border-radius:14px;padding:28px 30px;background:var(--card)}
+.gorro{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.16em;font-size:11.5px;font-weight:600;color:var(--teal);display:block;margin-bottom:7px}
+.foco .nombre{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:1;letter-spacing:.01em;margin-bottom:12px}
+.foco .frase{font-size:16.5px;line-height:1.6;color:var(--tx-2);max-width:60ch;margin-bottom:22px;font-weight:300}
+.puntos{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pt{width:16px;height:16px;border-radius:50%;background:var(--nulo)}
+.pt-ok{background:var(--ok)} .pt-leve{background:var(--leve)}
+.pt-moderado{background:var(--moderado)} .pt-severo{background:var(--severo)}
+.pt.hoy{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--tx)}
+.puntos .cap{font-size:13px;color:var(--tx-3);margin-left:6px}
+.acciones{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}
+.pill{border:1px solid var(--teal);color:var(--teal);border-radius:9px;padding:10px 15px;font-size:13.5px}
+.pill:hover{background:rgba(45,212,191,.09)}
+.pill-gris{border-color:var(--line-2);color:var(--tx-2)}
+.pill-gris:hover{background:var(--card-2);color:var(--tx)}
+.remate{margin-top:22px;padding-top:17px;border-top:1px solid var(--line);font-size:14px;color:var(--tx-2)}
+.remate b{color:var(--ok);font-weight:600}
+.receta{margin-top:16px;padding:14px 16px;background:var(--card-2);border-radius:10px;font-size:14px;color:var(--tx-2);display:none}
+.receta.abierto{display:block}
 
-.foco{background:var(--card);border:1px solid rgba(45,212,191,.38);border-radius:var(--r);padding:20px 22px}
-.foco .eyebrow{color:var(--teal)}
-.foco .comp{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin:7px 0 9px}
-.foco .why{font-size:14px;color:var(--tx-2);margin:11px 0 14px}
-.foco .cert{color:var(--tx-3);font-size:13px;margin-top:6px}
-.drill{display:block;background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:7px;font-size:13.5px}
-.drill:hover{border-color:var(--line-2)}
-.drill .k{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--tx-3)}
+/* 2 · TIRA */
+.tira{display:flex;gap:26px;flex-wrap:wrap;padding:14px 4px 20px;font-size:13px;color:var(--tx-3)}
+.tira b{color:var(--tx);font-weight:600}
 
-.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--teal);color:var(--teal);border-radius:10px;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:13px;font-weight:600}
-.btn:hover{background:rgba(45,212,191,.1)}
-.btn-solid{background:var(--teal);color:#06251f}
-.btn-solid:hover{background:#4fe0cf}
-.btn-quiet{border-color:var(--line-2);color:var(--tx-2)}
-.btn-quiet:hover{background:var(--card-2);color:var(--tx)}
+/* 3-5 · PANELES */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px}
+.rotulo{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.14em;font-size:11.5px;font-weight:600;color:var(--tx-3);display:block;margin-bottom:14px}
+.cabecera{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.cabecera .rotulo{margin:0}
+.verlink{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px;font-weight:600;color:var(--teal)}
 
-.tablero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.tc{background:var(--card-2);border:1px solid var(--line);border-left:3px solid var(--nulo);border-radius:0 10px 10px 0;padding:13px 14px}
-.tc .cn{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:14.5px;font-weight:600}
-.tc .cs{font-size:13px;margin-top:2px}
-.tc .cf{font-size:11.5px;color:var(--tx-3);margin-top:3px}
-.s-ok{color:var(--ok)} .s-leve{color:var(--leve)} .s-moderado{color:var(--moderado)}
-.s-severo{color:var(--severo)} .s-nulo{color:var(--tx-3)}
-.b-ok{border-left-color:var(--ok)} .b-leve{border-left-color:var(--leve)}
-.b-moderado{border-left-color:var(--moderado)} .b-severo{border-left-color:var(--severo)}
-.b-nulo{border-left-color:var(--nulo)}
+.fila{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.fila:last-of-type{border-bottom:0}
+.bolita{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.fila .qn{font-size:15px;flex:1;min-width:0}
+.fila .qs{font-size:13px;color:var(--tx-3);text-align:right}
+.resumen{margin-top:12px;padding-top:13px;border-top:1px solid var(--line);font-size:13px;color:var(--tx-3)}
 
-.mx{display:grid;gap:5px;align-items:center;overflow-x:auto}
-.mx-lab{font-size:13px;color:var(--tx-2);white-space:nowrap;padding-right:6px}
-.mx-lab.off{color:var(--tx-3)}
-.mx-col{font-size:10.5px;color:var(--tx-3);text-align:center;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em}
-.mx-c{height:28px;border-radius:5px;background:var(--nulo);min-width:20px}
-.c-ok{background:var(--ok)} .c-leve{background:var(--leve)}
-.c-moderado{background:var(--moderado)} .c-severo{background:var(--severo)}
-.c-nulo{background:transparent;border:1px solid var(--line)}
-.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px;font-size:12px;color:var(--tx-2)}
-.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;font-style:normal}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.linea{font-size:13.5px;color:var(--tx-2);line-height:1.5;padding:7px 0}
+.linea + .linea{border-top:1px solid var(--line)}
+.linea b{color:var(--tx);font-weight:600}
+.linea span{color:var(--tx-3)}
 
-.ins{display:flex;gap:11px;padding:12px 0;border-top:1px solid var(--line)}
-.ins:first-child{border-top:0;padding-top:0}
-.ins .mk{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:7px;background:var(--tx-3)}
-.ins .tx{font-size:13.5px;color:var(--tx-2);line-height:1.5}
-.ins .tx b{color:var(--tx);font-weight:600}
-.ins .mt{font-size:11.5px;color:var(--tx-3);margin-top:3px}
+.tres{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mini img,.mini .ph{width:100%;height:96px;border-radius:9px;object-fit:cover;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tx-3);font-size:12px}
+.mini .pie{font-size:12.5px;color:var(--tx-3);margin-top:7px}
+.mini .pie b{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:16px;font-weight:400}
 
-.hi{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line);align-items:center}
-.hi:first-child{border-top:0;padding-top:0}
-.frames{display:flex;gap:5px;flex-shrink:0}
-.fr{width:60px;height:48px;border-radius:6px;background:var(--card-2);border:1px solid var(--line);object-fit:cover;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--tx-3)}
-.hi-b{flex:1;min-width:0}
-.hi-b .d{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;color:var(--tx-2)}
-.hi-b .r{font-size:13.5px;color:var(--tx-2);margin-top:3px}
-.tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;padding:2px 8px;border-radius:99px;border:1px solid var(--line-2);color:var(--tx-2);margin:6px 6px 0 0}
-.sc{font-family:'Bebas Neue',sans-serif;font-size:29px;color:var(--gold);flex-shrink:0}
+/* VACÍOS */
+.vacio{border:1px dashed var(--line-2);border-radius:11px;padding:22px;text-align:center}
+.vacio .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.11em;font-size:13px;font-weight:600;margin-bottom:6px}
+.vacio .d{font-size:13.5px;color:var(--tx-2);max-width:420px;margin:0 auto}
+.aviso{background:var(--card);border:1px solid var(--line-2);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:16px 20px;font-size:14px;margin-bottom:16px}
+.aviso .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.13em;font-weight:600;font-size:12.5px;color:var(--gold);margin-bottom:4px}
+.carga{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;z-index:200}
+.carga.off{display:none}
+.giro{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:g .8s linear infinite}
+@keyframes g{to{transform:rotate(360deg)}}
 
-.empty{border:1px dashed var(--line-2);border-radius:10px;padding:20px;text-align:center}
-.empty .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:13.5px;font-weight:600;margin-bottom:6px}
-.empty .d{font-size:13.5px;color:var(--tx-2);max-width:440px;margin:0 auto}
-.bar{height:5px;background:var(--line);border-radius:99px;margin:14px auto 0;max-width:230px;overflow:hidden}
-.bar span{display:block;height:100%;background:var(--gold)}
-.note{background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--tx-2);margin-top:14px}
-.note b{color:var(--tx);font-weight:600}
-.locked{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;overflow:hidden}
-.locked-in{filter:blur(3px);opacity:.3;pointer-events:none}
-.locked-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:rgba(10,10,10,.6)}
-.locked-ov .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.11em;font-size:13.5px;font-weight:600;margin-bottom:5px}
-.locked-ov .d{font-size:13.5px;color:var(--tx-2);max-width:360px;margin-bottom:14px}
-
-.cmp-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-select{background:var(--card-2);color:var(--tx);border:1px solid var(--line-2);border-radius:9px;padding:8px 11px;font-family:'Barlow',sans-serif;font-size:14px}
-.cmp-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.diff{margin-top:16px;display:grid;gap:6px}
-.dr{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr auto 1fr auto;gap:10px;align-items:center;font-size:13px;padding:8px 11px;background:var(--card-2);border-radius:7px}
-.dr .cn{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-.dr .ar{color:var(--tx-3);font-size:11px}
-.dl{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;text-align:right}
-.d-mejor{color:var(--ok)} .d-peor{color:var(--severo)} .d-igual{color:var(--tx-3)}
-
-.heat{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
-.wk{aspect-ratio:1;border-radius:3px;background:var(--line)}
-.wk-1{background:rgba(212,197,169,.42)} .wk-2{background:var(--gold)}
-.heat-l{display:flex;justify-content:space-between;font-size:11.5px;color:var(--tx-3);margin-top:7px}
-
-.banner{background:var(--card);border:1px solid var(--line-2);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:16px 20px;margin-bottom:18px;font-size:14px}
-.banner .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:13px;color:var(--gold);margin-bottom:4px}
-.load{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:200}
-.load.off{display:none}
-.sp{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-
-@media (max-width:1000px){
-  .r21{grid-template-columns:1fr}
-  .tablero{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .cmp-cols{grid-template-columns:1fr}
-}
-@media (max-width:820px){
-  .nav-links{position:absolute;top:62px;left:0;right:0;background:var(--card);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px;display:none}
-  .nav-links.open{display:flex}
-  .nav-links a{padding:11px 12px;border-bottom:0;border-radius:9px;font-size:15px}
-  .nav-links a.on{background:var(--card-2)}
+@media (max-width:900px){
+  .menu{position:absolute;top:60px;left:0;right:0;background:var(--card);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px;display:none;justify-content:flex-start}
+  .menu.abierto{display:flex}
+  .menu a{padding:11px 12px;border-radius:8px;font-size:14px}
   .hamb{display:flex}
-  .wrap{padding:18px 15px 60px}
-  .hero{padding:20px}
-  .hero .saludo{font-size:27px}
-  .hero .frase{font-size:16px}
-  .pop{width:min(300px,calc(100vw - 30px))}
+  .enlace-nav{display:none}
+  .duo,.tres{grid-template-columns:1fr}
+  .wrap{padding:18px 15px 55px}
+  .foco{padding:22px}
+  .foco .nombre{font-size:40px}
+  .foco .frase{font-size:15.5px}
+  .pop{width:min(290px,calc(100vw - 30px))}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 :focus-visible{outline:2px solid var(--teal);outline-offset:2px}
@@ -178,27 +132,31 @@ select{background:var(--card-2);color:var(--tx);border:1px solid var(--line-2);b
 </head>
 <body>
 
-<div class="load" id="load"><div class="logo">MY<em>GOLF</em>LAB</div><div class="sp"></div></div>
+<div class="carga" id="carga"><div class="logo">MY<em>GOLF</em>LAB</div><div class="giro"></div></div>
 
 <nav class="nav"><div class="nav-in">
   <span class="logo">MY<em>GOLF</em>LAB</span>
-  <div class="nav-links" id="links">
-    <a href="/es/dashboard.html" class="on">Dashboard</a>
+  <div class="menu" id="menu">
+    <a href="/es/index.html">Inicio</a>
     <a href="/es/coach-ai.html">Coach IA</a>
     <a href="/es/training.html">Training Lab</a>
     <a href="/es/library.html">Biblioteca</a>
+    <a href="/es/pricing.html">Planes</a>
+    <a href="/es/about.html">Quiénes Somos</a>
   </div>
-  <div class="nav-right">
-    <button class="icon-btn hamb" id="bHamb" aria-label="Menu">
+  <div class="derecha">
+    <button class="hamb" id="bHamb" aria-label="Menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
     </button>
-    <button class="icon-btn" id="bCamp" aria-label="Novedades">
+    <button class="campana" id="bCampana" aria-label="Novedades">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span class="dot" id="badge" style="display:none">0</span>
+      <span class="punto" id="punto" style="display:none">0</span>
     </button>
-    <button class="avatar" id="bAv" aria-label="Mi cuenta">&mdash;</button>
-    <div class="pop" id="popCamp"></div>
-    <div class="pop" id="popMenu"></div>
+    <button class="aro" id="bAro" aria-label="Mi cuenta">&mdash;</button>
+    <a class="enlace-nav" href="/es/dashboard.html">Mi Dashboard</a>
+    <button class="boton-nav" id="bSalir">Cerrar Sesión</button>
+    <div class="pop" id="popNovedades"></div>
+    <div class="pop" id="popCuenta"></div>
   </div>
 </div></nav>
 
@@ -207,20 +165,22 @@ select{background:var(--card-2);color:var(--tx);border:1px solid var(--line-2);b
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
 <script>
 /* ============================================================
-   MyGolfLab - Dashboard v2.0
-   Pagina independiente. Todo lo que muestra sale de la base de
-   datos: no hay ningun numero escrito a mano.
+   MyGolfLab · Dashboard v3.0
+   Cinco secciones. Sin matriz, sin tablero de ocho, sin gráficos
+   que haya que descifrar. Todo sale de la base de datos.
    ============================================================ */
 
 var CONFIG = {
   SUPABASE_URL:      'https://yulpqupmftdjbepqiscs.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
-  CUOTAS: { basico: 8, pro: 30, elite: 60 },
-  PLANES_PRO: ['pro','elite'],
   DIAS_DATO_VIEJO: 21,
+
+  /* Revisa que estas dos coincidan con tus archivos reales.
+     Las demás las saqué de tu menú actual. */
   RUTAS: {
-    coach:'/es/coach-ai.html', training:'/es/training.html', biblioteca:'/es/library.html',
-    planes:'/es/pricing.html', historial:'/es/historial.html', login:'/es/login.html'
+    inicio:'/es/index.html', coach:'/es/coach-ai.html', training:'/es/training.html',
+    biblioteca:'/es/library.html', planes:'/es/pricing.html', nosotros:'/es/about.html',
+    historial:'/es/historial.html', login:'/es/login.html'
   }
 };
 
@@ -229,19 +189,16 @@ var NOMBRES = { cara:'Cara del palo', path:'Path', lowpoint:'Punto bajo', secuen
   postura:'Postura', ground:'Ground forces', conexion:'Conexión', distancia:'Distancia' };
 var PESO = { ok:0, leve:1, moderado:2, severo:3 };
 var FALLA = ['leve','moderado','severo'];
-var PLANES = ['basico','pro','elite'];
 var NOMBRES_DRILLS = {};
 
-var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', analisis:[], estados:[],
-          findings:[], drills:[], firmadas:{}, comp:{}, feed:[], insights:[] };
+var S = { sb:null, demo:false, sesion:null, nombre:'', analisis:[], estados:[], findings:[],
+          drills:[], firmadas:{}, comp:{}, novedades:[], conclusiones:[] };
 
 function el(i){ return document.getElementById(i); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-function fecha(d){ return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}); }
-function fechaCorta(d){ return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}); }
 function dias(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
-function haceTexto(d){
+function hace(d){
   var n = dias(d, new Date());
   if(n <= 0) return 'hoy';
   if(n === 1) return 'ayer';
@@ -249,22 +206,12 @@ function haceTexto(d){
   if(n < 31){ var s = Math.round(n/7); return 'hace ' + s + (s===1?' semana':' semanas'); }
   var m = Math.round(n/30); return 'hace ' + m + (m===1?' mes':' meses');
 }
-function cls(e){ return (e && PESO[e]!==undefined) ? e : 'nulo'; }
-function txtEstado(e){
-  return e==='ok'?'Sólido':e==='leve'?'Falla leve':e==='moderado'?'Falla moderada':
-         e==='severo'?'Falla severa':'Sin datos';
-}
-function faltan(k){ return k===1 ? 'Falta 1 análisis' : 'Faltan '+k+' análisis'; }
 function iniciales(n){
   return String(n||'').split(' ').filter(Boolean).slice(0,2)
     .map(function(w){ return w[0].toUpperCase(); }).join('') || 'MG';
 }
-function normPlan(p){
-  var x = String(p||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  return PLANES.indexOf(x) > -1 ? x : 'basico';
-}
-function etiquetaPlan(p){ return p==='basico'?'Básico':p==='pro'?'Pro':'Elite'; }
 
+/* ---------- carga ---------- */
 async function cargar(){
   S.sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
   var ses = await S.sb.auth.getSession();
@@ -274,11 +221,8 @@ async function cargar(){
   S.nombre = m.full_name || [m.first_name, m.last_name].filter(Boolean).join(' ') ||
              S.sesion.user.email.split('@')[0];
 
-  var pf = await S.sb.from('profiles').select('plan').eq('id', uid).maybeSingle();
-  S.plan = normPlan(pf.data && pf.data.plan);
-
   var an = await S.sb.from('swing_analyses')
-    .select('id,created_at,camera_angle,score,nivel,resumen,frame_paths,prompt_version,input_handicap,input_objetivo')
+    .select('id,created_at,camera_angle,score,resumen,frame_paths,prompt_version')
     .eq('user_id', uid).order('created_at',{ascending:false});
   if(an.error) throw an.error;
   S.analisis = an.data || [];
@@ -288,7 +232,7 @@ async function cargar(){
   S.estados = st.data || [];
 
   var fi = await S.sb.from('swing_findings')
-    .select('id,analysis_id,orden,componente,pilar,severidad,titulo,que_pasa,como_corregirlo')
+    .select('id,analysis_id,orden,componente,severidad,titulo,que_pasa,como_corregirlo')
     .eq('user_id', uid).order('orden',{ascending:true});
   if(fi.error) throw fi.error;
   S.findings = fi.data || [];
@@ -298,22 +242,20 @@ async function cargar(){
       .in('finding_id', S.findings.map(function(f){ return f.id; }));
     S.drills = dr.data || [];
   }
-  await firmar();
+  var rutas = [];
+  S.analisis.slice(0,3).forEach(function(a){
+    (a.frame_paths||[]).slice(0,1).forEach(function(p){ if(p) rutas.push(p); });
+  });
+  if(rutas.length){
+    try{
+      var r = await S.sb.storage.from('swing-frames').createSignedUrls(rutas, 3600);
+      (r.data||[]).forEach(function(x){ if(x.signedUrl) S.firmadas[x.path] = x.signedUrl; });
+    }catch(e){ console.warn('[MGL] frames sin firmar:', e.message); }
+  }
   return true;
 }
 
-async function firmar(){
-  var rutas = [];
-  S.analisis.slice(0,12).forEach(function(a){
-    (a.frame_paths||[]).forEach(function(p){ if(p && rutas.indexOf(p)===-1) rutas.push(p); });
-  });
-  if(!rutas.length) return;
-  try{
-    var r = await S.sb.storage.from('swing-frames').createSignedUrls(rutas, 3600);
-    (r.data||[]).forEach(function(x){ if(x.signedUrl) S.firmadas[x.path] = x.signedUrl; });
-  }catch(e){ console.warn('[MGL] frames sin firmar:', e.message); }
-}
-
+/* ---------- cálculo ---------- */
 function validos(){
   return S.analisis.filter(function(a){
     return String(a.prompt_version||'').toLowerCase().indexOf('migrado') === -1;
@@ -322,7 +264,7 @@ function validos(){
 function ordenAsc(){
   return validos().slice().sort(function(a,b){ return new Date(a.created_at)-new Date(b.created_at); });
 }
-function mapaEstados(){
+function mapa(){
   var m = {};
   S.estados.forEach(function(e){
     if(!m[e.analysis_id]) m[e.analysis_id] = {};
@@ -346,529 +288,338 @@ function episodios(serie){
   return eps;
 }
 function calcular(){
-  var lista = ordenAsc(), m = mapaEstados();
+  var lista = ordenAsc(), m = mapa();
   S.comp = {};
   COMPONENTES.forEach(function(c){
     var serie = [];
     lista.forEach(function(a){
       var e = (m[a.id]||{})[c];
-      if(e && e !== 'no_evaluable') serie.push({ fecha:a.created_at, estado:e, id:a.id });
+      if(e && e !== 'no_evaluable') serie.push({ fecha:a.created_at, estado:e });
     });
     var u3 = serie.slice(-3);
-    var o = {
-      serie: serie,
-      actual: serie.length ? serie[serie.length-1].estado : null,
+    var o = { serie:serie, actual: serie.length ? serie[serie.length-1].estado : null,
       total: serie.length,
       fallas3: u3.filter(function(x){ return FALLA.indexOf(x.estado)>-1; }).length,
       serias3: u3.filter(function(x){ return x.estado==='moderado'||x.estado==='severo'; }).length,
-      ciclo: episodios(serie)
-    };
+      ciclo: episodios(serie) };
     o.confirmado = o.fallas3 >= 2;
     S.comp[c] = o;
   });
 }
-function resumenCiclo(){
-  var a=0, r=0, re=0, t=[];
+function cerradas(){
+  var n = 0;
   COMPONENTES.forEach(function(c){
-    var eps = S.comp[c].ciclo;
-    if(!eps.length) return;
-    eps.filter(function(e){ return e.fin; }).forEach(function(e){ r++; t.push(dias(e.inicio,e.fin)); });
-    if(eps[eps.length-1].fin === null) a++;
-    if(eps.length > 1) re++;
+    n += S.comp[c].ciclo.filter(function(e){ return e.fin; }).length;
   });
-  return { activas:a, resueltas:r, reincidentes:re,
-    medio: t.length ? Math.round(t.reduce(function(x,y){ return x+y; },0)/t.length) : null };
+  return n;
 }
-function foco(){
-  var c = COMPONENTES.filter(function(x){
-    return S.comp[x].actual && FALLA.indexOf(S.comp[x].actual) > -1;
-  });
-  if(!c.length) return null;
-  c.sort(function(a,b){
+function activas(){
+  return COMPONENTES.filter(function(c){
+    return S.comp[c].actual && FALLA.indexOf(S.comp[c].actual) > -1;
+  }).sort(function(a,b){
     var A=S.comp[a], B=S.comp[b];
     return ((B.confirmado?100:0)+PESO[B.actual]*10+B.serias3) -
            ((A.confirmado?100:0)+PESO[A.actual]*10+A.serias3);
   });
-  var k = c[0];
-  var ord = validos().slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
-  var f = null;
-  for(var i=0;i<ord.length && !f;i++){
-    var mm = S.findings.filter(function(x){ return x.analysis_id===ord[i].id && x.componente===k; });
-    if(mm.length) f = mm[0];
+}
+function tendencia(c){
+  var s = S.comp[c].serie;
+  if(s.length === 1) return 'primera lectura';
+  var ult = PESO[s[s.length-1].estado], ant = PESO[s[s.length-2].estado];
+  if(s.length >= 3){
+    var a = PESO[s[s.length-3].estado];
+    if(ult > ant && ant > a) return 'va empeorando';
+    if(ult < ant && ant < a) return 'va mejorando';
   }
-  return { componente:k, info:S.comp[k], finding:f,
-    drills: f ? S.drills.filter(function(d){ return d.finding_id===f.id; })
-                        .sort(function(a,b){ return (a.orden||0)-(b.orden||0); }) : [] };
+  if(ult > ant) return 'va empeorando';
+  if(ult < ant) return 'va mejorando';
+  return 'estable';
+}
+function comentarioFila(c){
+  var i = S.comp[c], eps = i.ciclo;
+  if(eps.length > 1 && eps[eps.length-1].fin === null) return 'reapareció tras estar limpia';
+  var t = tendencia(c);
+  if(t === 'va empeorando' && i.total >= 3) return 'empeorando · 3 análisis seguidos';
+  if(t === 'va empeorando') return 'empeorando';
+  if(t === 'va mejorando') return 'mejorando';
+  if(i.confirmado) return 'confirmada · falló en ' + i.fallas3 + ' de ' + Math.min(i.total,3);
+  if(i.total < 2) return 'por confirmar · 1 lectura';
+  return 'estable';
 }
 function ultimaFecha(){ var v = ordenAsc(); return v.length ? v[v.length-1].created_at : null; }
-
-function frase(){
-  var n = validos().length, f = foco(), c = resumenCiclo();
-  var ult = ultimaFecha(), viejo = ult ? dias(ult, new Date()) : null;
-
-  if(n === 0) return 'Todavía no hay nada que leer. Sube tu primer swing y en menos de un minuto '+
-    'vas a tener acá tu diagnóstico y en qué trabajar.';
-  if(viejo !== null && viejo > CONFIG.DIAS_DATO_VIEJO)
-    return 'Tu última medición fue <b>'+haceTexto(ult)+'</b>. Lo que ves acá describe cómo estabas ese día, '+
-      'no cómo estás hoy. Sube un swing para refrescarlo.';
-  if(!f)
-    return 'Ningún componente evaluado muestra falla. Es buen momento para <b>sostener el patrón</b> '+
-      'y volver a medir en unos días para confirmar que se mantiene.';
-
-  var p;
-  if(n === 1){
-    p = 'Primera lectura tomada. Hoy lo más urgente es <b>'+NOMBRES[f.componente].toLowerCase()+'</b>. '+
-        'Con dos análisis más vamos a saber si es un patrón real o fue una vez.';
-  } else if(f.info.confirmado){
-    p = '<b>'+NOMBRES[f.componente]+'</b> está confirmado: falló en '+f.info.fallas3+' de tus últimos '+
-        Math.min(f.info.total,3)+' análisis. Es lo único en lo que te conviene trabajar hoy.';
-  } else {
-    p = '<b>'+NOMBRES[f.componente]+'</b> aparece con falla, pero todavía sin confirmar. '+
-        'Una medición más y sabemos si es patrón.';
+function focoActual(){
+  var a = activas();
+  if(!a.length) return null;
+  var c = a[0];
+  var ord = validos().slice().sort(function(x,y){ return new Date(y.created_at)-new Date(x.created_at); });
+  var f = null;
+  for(var i=0;i<ord.length && !f;i++){
+    var mm = S.findings.filter(function(x){ return x.analysis_id===ord[i].id && x.componente===c; });
+    if(mm.length) f = mm[0];
   }
-  if(c.resueltas > 0)
-    p += ' Llevas <b>'+c.resueltas+(c.resueltas===1?' falla cerrada':' fallas cerradas')+'</b> desde que empezaste.';
-  return p;
+  return { componente:c, info:S.comp[c], finding:f,
+    drills: f ? S.drills.filter(function(d){ return d.finding_id===f.id; })
+                        .sort(function(x,y){ return (x.orden||0)-(y.orden||0); }) : [] };
 }
 
-function calcularInsights(){
+/* ---------- textos derivados ---------- */
+function calcularConclusiones(){
   var out = [], n = validos().length;
-
   COMPONENTES.forEach(function(c){
     var i = S.comp[c], eps = i.ciclo;
     if(!eps.length) return;
-
     eps.filter(function(e){ return e.fin; }).forEach(function(e){
-      out.push({ peso:70, fecha:e.fin, tx:'<b>'+NOMBRES[c]+'</b> cerrada. Llegó a ser '+
-        txtEstado(e.pico).toLowerCase()+' y tardó '+dias(e.inicio,e.fin)+
-        ' días en desaparecer dos análisis seguidos.' });
+      out.push({ peso:70, tx:'<b>'+NOMBRES[c]+'</b> cerrada. Llegó a ser '+
+        (e.pico==='severo'?'severa':e.pico==='moderado'?'moderada':'leve')+
+        ' y tardó '+dias(e.inicio,e.fin)+' días en desaparecer.' });
     });
     if(eps.length > 1 && eps[eps.length-1].fin === null){
-      out.push({ peso:90, fecha:eps[eps.length-1].inicio, tx:'<b>'+NOMBRES[c]+'</b> volvió a aparecer '+
-        'después de haber estado limpia. Las reincidencias suelen venir de un cambio a medio consolidar.' });
+      out.push({ peso:90, tx:'<b>'+NOMBRES[c]+'</b> volvió tras estar limpia dos análisis.' });
     }
-    var s = i.serie;
-    if(s.length >= 3){
-      var a = s[s.length-3], b = s[s.length-2], d = s[s.length-1];
-      if(PESO[d.estado] > PESO[b.estado] && PESO[b.estado] > PESO[a.estado]){
-        out.push({ peso:95, fecha:d.fecha, tx:'<b>'+NOMBRES[c]+'</b> lleva tres análisis empeorando seguidos.' });
-      }
-    }
-    if(i.confirmado && i.serias3 >= 2){
-      out.push({ peso:85, fecha:s[s.length-1].fecha, tx:'<b>'+NOMBRES[c]+'</b> aparece como falla seria en '+
-        i.serias3+' de tus últimos '+Math.min(i.total,3)+' análisis.' });
+    if(i.total >= 3 && tendencia(c) === 'va empeorando'){
+      out.push({ peso:95, tx:'<b>'+NOMBRES[c]+'</b> lleva tres análisis empeorando seguidos.' });
     }
   });
-
   var sin = COMPONENTES.filter(function(c){ return S.comp[c].total === 0; });
-  if(sin.length >= 3 && n > 0){
-    out.push({ peso:60, fecha:ultimaFecha(), tx:'Hay <b>'+sin.length+' de 8 componentes sin evaluar</b> nunca. '+
-      'Un video desde el otro ángulo de cámara los cubriría casi todos.' });
-  }
-  if(n > 0 && n < 3){
-    out.push({ peso:50, fecha:ultimaFecha(), tx:'Con '+n+' análisis nada está confirmado. '+
-      'La regla de 2 de 3 necesita <b>'+(3-n)+' más</b> para separar un patrón de una lectura suelta.' });
-  }
-  var ult = ultimaFecha();
-  if(ult && dias(ult, new Date()) > CONFIG.DIAS_DATO_VIEJO){
-    out.push({ peso:100, fecha:ult, tx:'Tu última medición fue <b>'+haceTexto(ult)+
-      '</b>. Los datos de este panel están envejeciendo.' });
-  }
-  out.sort(function(a,b){
-    if(b.peso !== a.peso) return b.peso - a.peso;
-    return new Date(b.fecha) - new Date(a.fecha);
-  });
-  S.insights = out.slice(0,5);
+  if(sin.length >= 3 && n > 0)
+    out.push({ peso:60, tx:'Un video desde el otro ángulo cubriría <b>'+sin.length+
+      ' componentes</b> que nunca se han evaluado.' });
+  if(n > 0 && n < 3)
+    out.push({ peso:50, tx:'Con '+n+' análisis nada está confirmado. La regla de 2 de 3 necesita <b>'+
+      (3-n)+' más</b>.' });
+  var u = ultimaFecha();
+  if(u && dias(u, new Date()) > CONFIG.DIAS_DATO_VIEJO)
+    out.push({ peso:100, tx:'Tu última medición fue <b>'+hace(u)+'</b>. Los datos están envejeciendo.' });
+  out.sort(function(a,b){ return b.peso - a.peso; });
+  S.conclusiones = out.slice(0,3);
 }
 
-function calcularFeed(){
+function calcularNovedades(){
   var out = [];
   S.analisis.forEach(function(a){
-    out.push({ fecha:a.created_at, color:'var(--teal)',
-      tx:'Análisis subido · <b>'+(a.camera_angle==='dtl'?'down the line':'de frente')+'</b>'+
-         (a.score!=null?' · puntaje '+a.score:'') });
+    out.push({ fecha:a.created_at, tx:'Análisis subido · <b>'+
+      (a.camera_angle==='dtl'?'down the line':'de frente')+'</b>' });
   });
   S.findings.forEach(function(f){
     var a = S.analisis.filter(function(x){ return x.id===f.analysis_id; })[0];
     if(!a) return;
     var nd = S.drills.filter(function(d){ return d.finding_id===f.id; }).length;
-    out.push({ fecha:a.created_at,
-      color: f.severidad==='severo'?'var(--severo)':f.severidad==='moderado'?'var(--moderado)':'var(--leve)',
-      tx:'Diagnóstico: <b>'+esc(f.titulo || NOMBRES[f.componente] || '')+'</b>'+
-         (nd ? ' · '+nd+(nd===1?' drill recomendado':' drills recomendados') : '') });
+    if(nd) out.push({ fecha:a.created_at, tx:nd+(nd===1?' drill recomendado':' drills recomendados')+
+      ' para <b>'+esc(NOMBRES[f.componente]||f.componente)+'</b>' });
   });
   COMPONENTES.forEach(function(c){
     S.comp[c].ciclo.filter(function(e){ return e.fin; }).forEach(function(e){
-      out.push({ fecha:e.fin, color:'var(--ok)', tx:'<b>'+NOMBRES[c]+'</b> se dio por resuelta' });
+      out.push({ fecha:e.fin, tx:'<b>'+NOMBRES[c]+'</b> se dio por resuelta' });
     });
   });
   out.sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
-  S.feed = out.slice(0,14);
+  S.novedades = out.slice(0,10);
 }
-function noVistos(){
+function sinVer(){
   var t = 0;
   try{ t = parseInt(localStorage.getItem('mgl_visto') || '0', 10) || 0; }catch(e){}
-  return S.feed.filter(function(x){ return new Date(x.fecha).getTime() > t; }).length;
-}
-function marcarVisto(){
-  try{ localStorage.setItem('mgl_visto', String(Date.now())); }catch(e){}
-  var b = el('badge'); if(b) b.style.display = 'none';
+  return S.novedades.filter(function(x){ return new Date(x.fecha).getTime() > t; }).length;
 }
 
+/* ============================================================
+   Render
+   ============================================================ */
 function render(){
-  calcular(); calcularInsights(); calcularFeed();
-  var n = validos().length, pro = CONFIG.PLANES_PRO.indexOf(S.plan) > -1;
-  var h = '';
-  h += '<div class="row r21">' + hero(n) + bloqueFoco(foco(), n) + '</div>';
-  h += '<div class="row">' + tablero() + '</div>';
-  h += '<div class="row r21">' + matriz() + inteligente() + '</div>';
-  h += '<div class="row r21">' + historial() + actividad() + '</div>';
-  h += '<div class="row r21">' + comparador(pro) + constancia() + '</div>';
-  h += '<div class="row">' + rendimiento() + '</div>';
+  calcular(); calcularConclusiones(); calcularNovedades();
+  var n = validos().length;
+  var h = seccionFoco(focoActual(), n) + seccionTira(n) + seccionEstado(n) +
+          seccionDuo(n) + seccionAnalisis();
   el('app').innerHTML = h;
-  el('bAv').textContent = iniciales(S.nombre);
+  el('bAro').textContent = iniciales(S.nombre);
   pintarPopups();
-  if(el('cmp-a')) enlazarComparador();
-  var nv = noVistos();
-  if(nv > 0){ el('badge').textContent = nv > 9 ? '9+' : nv; el('badge').style.display = 'flex'; }
+  var r = el('bReceta');
+  if(r) r.addEventListener('click', function(){ el('receta').classList.toggle('abierto'); });
+  var v = sinVer();
+  if(v > 0){ el('punto').textContent = v > 9 ? '9+' : v; el('punto').style.display = 'flex'; }
 }
 
-function hero(n){
-  var c = resumenCiclo(), ahora = new Date();
-  var mes = S.analisis.filter(function(a){
-    var d = new Date(a.created_at);
-    return d.getMonth()===ahora.getMonth() && d.getFullYear()===ahora.getFullYear();
-  }).length;
-  var cuota = CONFIG.CUOTAS[S.plan], hcp = null;
-  for(var i=0;i<S.analisis.length && hcp===null;i++){
-    if(S.analisis[i].input_handicap != null) hcp = S.analisis[i].input_handicap;
-  }
-  return '<div class="hero"><div class="display saludo">'+esc(S.nombre)+'</div>'+
-    '<div class="frase">'+frase()+'</div><div class="cuentas">'+
-    '<div class="cuenta"><div class="n s-severo">'+c.activas+'</div><div class="t">Fallas activas</div></div>'+
-    '<div class="cuenta"><div class="n s-ok">'+c.resueltas+'</div><div class="t">Fallas cerradas</div></div>'+
-    '<div class="cuenta"><div class="n">'+n+'</div><div class="t">Análisis</div></div>'+
-    '<div class="cuenta"><div class="n">'+mes+'<span style="font-size:20px;color:var(--tx-3)">/'+cuota+'</span></div>'+
-      '<div class="t">Este mes · '+etiquetaPlan(S.plan)+'</div></div>'+
-    (hcp!=null ? '<div class="cuenta"><div class="n">'+esc(hcp)+'</div><div class="t">Hándicap</div></div>' : '')+
-    '</div></div>';
-}
+/* 1 · FOCO */
+function seccionFoco(f, n){
+  if(n === 0)
+    return '<div class="foco"><span class="gorro">Tu foco de hoy</span>'+
+      '<div class="nombre">Sin definir</div><div class="frase">Sube tu primer swing y acá va a quedar '+
+      'un solo componente en el que trabajar, con sus drills. Toma menos de un minuto.</div>'+
+      '<div class="acciones"><a class="pill" href="'+CONFIG.RUTAS.coach+'">Analizar un swing</a></div></div>';
 
-function bloqueFoco(f, n){
-  if(!f){
-    if(n === 0)
-      return '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
-        '<div class="comp">Sin definir</div><div class="why">Sube un swing y acá va a quedar un solo '+
-        'componente en el que trabajar, con sus drills.</div>'+
-        '<a class="btn btn-solid" href="'+CONFIG.RUTAS.coach+'">Analizar un swing</a></div>';
-    return '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
-      '<div class="comp">Todo sólido</div><div class="why">Ningún componente evaluado muestra falla. '+
-      'Sostén el patrón y vuelve a medir en unos días.</div>'+
-      '<a class="btn" href="'+CONFIG.RUTAS.coach+'">Volver a medir</a></div>';
-  }
+  if(!f)
+    return '<div class="foco"><span class="gorro">Tu foco de hoy</span>'+
+      '<div class="nombre">Todo sólido</div><div class="frase">Ningún componente evaluado muestra falla. '+
+      'Sostén el patrón y vuelve a medir en unos días para confirmar que se mantiene.</div>'+
+      '<div class="acciones"><a class="pill" href="'+CONFIG.RUTAS.coach+'">Volver a medir</a></div></div>';
+
   var i = f.info, fi = f.finding;
-  var cert = i.confirmado
-    ? 'Confirmado: falló en '+i.fallas3+' de tus últimos '+Math.min(i.total,3)+'.'
-    : (i.total < 2 ? 'Basado en una sola lectura. Vuelve a medir para confirmarlo.'
-                   : 'Por confirmar: falló en '+i.fallas3+' de '+Math.min(i.total,3)+'.');
-  var h = '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
-    '<div class="comp">'+esc(NOMBRES[f.componente])+'</div>'+
-    '<span class="tag s-'+cls(i.actual)+'" style="margin:0">'+txtEstado(i.actual)+'</span>'+
-    (fi && fi.pilar ? ' <span class="tag" style="margin:0;color:var(--gold);border-color:rgba(212,197,169,.4)">'+
-      esc(fi.pilar)+'</span>' : '')+
-    '<div class="why">'+esc(fi && fi.que_pasa ? fi.que_pasa : (fi && fi.titulo ? fi.titulo : ''))+
-    '<div class="cert">'+cert+'</div></div>';
+  var certeza = i.confirmado
+    ? ' Falló en tus últimos '+i.fallas3+' análisis, así que ya no es casualidad.'
+    : (i.total < 2 ? ' Es una sola lectura: vuelve a medir para confirmarlo.'
+                   : ' Todavía sin confirmar: una medición más y sabemos si es patrón.');
+
+  var serie = i.serie.slice(-5);
+  var puntos = serie.map(function(p,k){
+    return '<span class="pt pt-'+p.estado+(k===serie.length-1?' hoy':'')+'"></span>';
+  }).join('');
+  var cap = serie.length === 1 ? 'primera lectura'
+          : 'últimos '+serie.length+' análisis · '+tendencia(f.componente);
+
+  var h = '<div class="foco"><span class="gorro">Tu foco de hoy</span>'+
+    '<div class="nombre">'+esc(NOMBRES[f.componente])+'</div>'+
+    '<div class="frase">'+esc(fi && fi.que_pasa ? fi.que_pasa : (fi && fi.titulo ? fi.titulo : ''))+
+    certeza+'</div>'+
+    '<div class="puntos">'+puntos+'<span class="cap">'+cap+'</span></div><div class="acciones">';
+
+  f.drills.slice(0,2).forEach(function(d){
+    h += '<a class="pill" href="'+CONFIG.RUTAS.biblioteca+'#'+encodeURIComponent(d.drill_id)+'">'+
+         esc(NOMBRES_DRILLS[d.drill_id] || d.drill_id)+'</a>';
+  });
+  if(fi && fi.como_corregirlo) h += '<button class="pill pill-gris" id="bReceta">Cómo corregirlo</button>';
+  h += '</div>';
   if(fi && fi.como_corregirlo)
-    h += '<span class="label">Cómo corregirlo</span><div style="font-size:13.5px;color:var(--tx-2);'+
-         'margin:6px 0 14px">'+esc(fi.como_corregirlo)+'</div>';
-  if(f.drills.length){
-    h += '<span class="label">Drills para hoy</span><div style="margin-top:8px">';
-    f.drills.slice(0,3).forEach(function(d,k){
-      h += '<a class="drill" href="'+CONFIG.RUTAS.biblioteca+'#'+encodeURIComponent(d.drill_id)+'">'+
-           '<span class="k">Drill '+(k+1)+'</span>'+esc(NOMBRES_DRILLS[d.drill_id] || d.drill_id)+'</a>';
-    });
-    h += '</div>';
-  }
+    h += '<div class="receta" id="receta">'+esc(fi.como_corregirlo)+'</div>';
+
+  var c = cerradas();
+  if(c > 0)
+    h += '<div class="remate">Ya cerraste <b>'+c+(c===1?' falla':' fallas')+
+         '</b> desde que empezaste. Esta es la '+(c+1)+'ª.</div>';
   return h + '</div>';
 }
 
-function tablero(){
-  var con = COMPONENTES.filter(function(c){ return S.comp[c].actual !== null; });
-  var sin = COMPONENTES.filter(function(c){ return S.comp[c].actual === null; });
-  con.sort(function(a,b){ return PESO[S.comp[b].actual] - PESO[S.comp[a].actual]; });
-  var h = '<div class="card"><div class="card-h"><h2>El tablero</h2>'+
-    '<span class="sub">Los 8 componentes · un problema cuenta si falla en 2 de los últimos 3</span></div>';
-  if(!con.length){
-    h += '<div class="empty"><div class="t">Todavía sin lectura</div><div class="d">Ningún componente '+
-         'pudo evaluarse. Un video de frente y otro desde la línea de tiro dan la mejor cobertura.</div></div>';
+/* 2 · TIRA */
+function seccionTira(n){
+  var a = activas().length, u = ultimaFecha();
+  var sin = COMPONENTES.filter(function(c){ return S.comp[c].total === 0; }).length;
+  var p = [];
+  p.push('<b>'+a+'</b> '+(a===1?'falla activa':'fallas activas'));
+  p.push('<b>'+n+'</b> '+(n===1?'análisis':'análisis'));
+  if(u) p.push('última medición <b>'+hace(u)+'</b>');
+  if(sin) p.push(sin+' '+(sin===1?'componente sin datos':'componentes sin datos'));
+  return '<div class="tira"><span>'+p.join('</span><span>')+'</span></div>';
+}
+
+/* 3 · ESTADO */
+function seccionEstado(n){
+  if(n === 0) return '';
+  var act = activas();
+  var c = cerradas();
+  var sin = COMPONENTES.filter(function(x){ return S.comp[x].total === 0; }).length;
+  var h = '<div class="panel"><span class="rotulo">Tu estado</span>';
+
+  if(!act.length){
+    h += '<div class="vacio"><div class="t">Ninguna falla activa</div><div class="d">'+
+         'Todos los componentes que se pudieron evaluar están sólidos.</div></div>';
   } else {
-    h += '<div class="tablero">';
-    con.forEach(function(c){
-      var i = S.comp[c], k = cls(i.actual), pie;
-      if(FALLA.indexOf(i.actual) > -1){
-        pie = i.confirmado ? 'Confirmado · '+i.fallas3+' de '+Math.min(i.total,3)
-          : (i.total < 2 ? 'Por confirmar · 1 lectura'
-                         : 'Por confirmar · '+i.fallas3+' de '+Math.min(i.total,3));
-      } else { pie = i.total + (i.total===1?' lectura':' lecturas'); }
-      h += '<div class="tc b-'+k+'"><div class="cn">'+esc(NOMBRES[c])+'</div>'+
-           '<div class="cs s-'+k+'">'+txtEstado(i.actual)+'</div><div class="cf">'+pie+'</div></div>';
+    act.forEach(function(x){
+      h += '<div class="fila"><span class="bolita" style="background:var(--'+S.comp[x].actual+')"></span>'+
+           '<span class="qn">'+esc(NOMBRES[x])+'</span>'+
+           '<span class="qs">'+comentarioFila(x)+'</span></div>';
     });
-    h += '</div>';
   }
-  if(sin.length)
-    h += '<div class="note"><b>'+sin.length+' de 8 sin datos:</b> '+
-      sin.map(function(c){ return NOMBRES[c].toLowerCase(); }).join(', ')+
-      '. La cámara actual no alcanza a verlos. Sube el mismo swing desde el otro ángulo.</div>';
+  var r = [];
+  if(c) r.push(c+(c===1?' cerrada':' cerradas'));
+  if(sin) r.push(sin+(sin===1?' componente sin datos suficientes':' componentes sin datos suficientes'));
+  h += '<div class="resumen">'+(r.length ? r.join(' · ')+' · ' : '')+
+       '<a class="verlink" style="text-transform:none;letter-spacing:0;font-size:13px" href="'+
+       CONFIG.RUTAS.historial+'">ver todo en el historial</a></div>';
   return h + '</div>';
 }
 
-function matriz(){
-  var lista = ordenAsc(), m = mapaEstados();
-  var h = '<div class="card"><div class="card-h"><h2>Evolución por componente</h2>'+
-    '<span class="sub">Cada columna es un análisis, del más antiguo al más reciente</span></div>';
-  if(!lista.length)
-    return h + '<div class="empty"><div class="t">Acá va tu evidencia de progreso</div><div class="d">'+
-      'Cada análisis suma una columna. Vas a poder ver de un vistazo qué fallas se cerraron, '+
-      'cuáles volvieron y cuáles se están deteriorando.</div></div></div>';
+/* 4 · CONCLUSIONES Y NOVEDADES */
+function seccionDuo(n){
+  if(n === 0) return '';
+  var a = '<div class="panel" style="margin:0"><span class="rotulo">Progreso inteligente</span>';
+  if(!S.conclusiones.length){
+    a += '<div class="linea"><span>Todavía sin conclusiones. Aparecen a partir del segundo análisis.</span></div>';
+  } else {
+    S.conclusiones.forEach(function(x){ a += '<div class="linea">'+x.tx+'</div>'; });
+  }
+  a += '</div>';
 
-  var cols = lista.slice(-12);
-  h += '<div class="mx" style="grid-template-columns:96px repeat('+cols.length+',minmax(20px,1fr))"><div></div>';
-  cols.forEach(function(a){ h += '<div class="mx-col">'+fechaCorta(a.created_at)+'</div>'; });
-
-  var orden = COMPONENTES.slice().sort(function(a,b){
-    var A = S.comp[a], B = S.comp[b];
-    if(A.total===0 && B.total>0) return 1;
-    if(B.total===0 && A.total>0) return -1;
-    return PESO[B.actual||'ok'] - PESO[A.actual||'ok'];
-  });
-  orden.forEach(function(c){
-    h += '<div class="mx-lab'+(S.comp[c].total===0?' off':'')+'">'+esc(NOMBRES[c])+'</div>';
-    cols.forEach(function(a){
-      var e = (m[a.id]||{})[c];
-      var k = (e && e !== 'no_evaluable') ? e : 'nulo';
-      h += '<div class="mx-c c-'+k+'" title="'+esc(NOMBRES[c])+' · '+fecha(a.created_at)+' · '+
-           txtEstado(e)+'"></div>';
+  var b = '<div class="panel" style="margin:0"><span class="rotulo">Actividad reciente</span>';
+  if(!S.novedades.length){
+    b += '<div class="linea"><span>Sin movimiento todavía.</span></div>';
+  } else {
+    S.novedades.slice(0,3).forEach(function(x){
+      b += '<div class="linea">'+x.tx+' <span>— '+hace(x.fecha)+'</span></div>';
     });
-  });
-  h += '</div><div class="leg">'+
-    '<span><i style="background:var(--ok)"></i>Sólido</span>'+
-    '<span><i style="background:var(--leve)"></i>Leve</span>'+
-    '<span><i style="background:var(--moderado)"></i>Moderada</span>'+
-    '<span><i style="background:var(--severo)"></i>Severa</span>'+
-    '<span><i style="border:1px solid var(--line-2)"></i>Sin datos</span></div>';
-  return h + '</div>';
+  }
+  b += '</div>';
+  return '<div class="duo">'+a+b+'</div>';
 }
 
-function inteligente(){
-  var h = '<div class="card"><div class="card-h"><h2>Progreso inteligente</h2></div>';
-  if(!S.insights.length)
-    return h + '<div class="empty"><div class="t">Sin lecturas todavía</div><div class="d">'+
-      'Acá van a aparecer las conclusiones que salgan de tus análisis: fallas que cerraste, '+
-      'las que reaparecieron y las que se están deteriorando.</div></div></div>';
-  S.insights.forEach(function(i){
-    h += '<div class="ins"><span class="mk"></span><div><div class="tx">'+i.tx+'</div>'+
-         (i.fecha ? '<div class="mt">'+haceTexto(i.fecha)+'</div>' : '')+'</div></div>';
-  });
-  return h + '</div>';
-}
-
-function actividad(){
-  var h = '<div class="card"><div class="card-h"><h2>Actividad reciente</h2><span class="spacer"></span>'+
-    '<a class="sub" style="color:var(--teal)" href="'+CONFIG.RUTAS.historial+'">Ver historial →</a></div>';
-  if(!S.feed.length)
-    return h + '<div class="empty"><div class="t">Sin movimiento aún</div><div class="d">'+
-      'Cada análisis, diagnóstico y falla resuelta va a quedar registrado acá con su fecha.</div></div></div>';
-  S.feed.slice(0,7).forEach(function(f){
-    h += '<div class="ins"><span class="mk" style="background:'+f.color+'"></span>'+
-         '<div><div class="tx">'+f.tx+'</div><div class="mt">'+haceTexto(f.fecha)+'</div></div></div>';
-  });
-  return h + '</div>';
-}
-
-function historial(){
+/* 5 · ÚLTIMOS ANÁLISIS */
+function seccionAnalisis(){
   var lista = S.analisis.slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
-  var h = '<div class="card"><div class="card-h"><h2>Historial</h2>'+
-    '<span class="sub">'+lista.length+' análisis · completo en todos los planes</span>'+
-    '<span class="spacer"></span><a class="sub" style="color:var(--teal)" href="'+
-    CONFIG.RUTAS.historial+'">Ver todo →</a></div>';
+  var h = '<div class="panel"><div class="cabecera"><span class="rotulo">Tus últimos análisis</span>'+
+          '<a class="verlink" href="'+CONFIG.RUTAS.historial+'">Ver historial completo</a></div>';
   if(!lista.length)
-    return h + '<div class="empty"><div class="t">Sin análisis todavía</div><div class="d">'+
-      'Cada swing que subas queda acá con sus frames, para que puedas volver a mirarlo.</div>'+
-      '<div style="margin-top:14px"><a class="btn" href="'+CONFIG.RUTAS.coach+
-      '">Subir mi primer swing</a></div></div></div>';
-  lista.slice(0,5).forEach(function(a){
-    var fr = (a.frame_paths||[]).slice(0,3).map(function(p,i){
-      var u = S.firmadas[p];
-      return u ? '<img class="fr" src="'+esc(u)+'" alt="Frame '+(i+1)+'">' : '<div class="fr">F'+(i+1)+'</div>';
-    }).join('');
-    var mig = String(a.prompt_version||'').toLowerCase().indexOf('migrado') > -1;
-    h += '<div class="hi"><div class="frames">'+fr+'</div><div class="hi-b">'+
-      '<div class="d">'+fecha(a.created_at)+'</div>'+
-      '<div class="r">'+esc(a.resumen||'Sin resumen')+'</div>'+
-      '<span class="tag">'+(a.camera_angle==='dtl'?'Down the line':'De frente')+'</span>'+
-      (a.nivel ? '<span class="tag">'+esc(a.nivel)+'</span>' : '')+
-      (mig ? '<span class="tag">Migrado</span>' : '')+
-      '</div><div class="sc">'+(a.score!=null?a.score:'—')+'</div></div>';
+    return h + '<div class="vacio"><div class="t">Sin análisis todavía</div><div class="d">'+
+      'Cada swing que subas queda guardado con sus frames.</div></div></div>';
+  h += '<div class="tres">';
+  lista.slice(0,3).forEach(function(a){
+    var p = (a.frame_paths||[])[0], u = p ? S.firmadas[p] : null;
+    h += '<a class="mini" href="'+CONFIG.RUTAS.historial+'">'+
+      (u ? '<img src="'+esc(u)+'" alt="Frame del análisis">' : '<div class="ph">Sin frame</div>')+
+      '<div class="pie">'+hace(a.created_at)+(a.score!=null?' · <b>'+a.score+'</b>':'')+'</div></a>';
   });
-  return h + '</div>';
+  return h + '</div></div>';
 }
 
-function comparador(pro){
-  var lista = validos().slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
-  if(!pro)
-    return '<div class="locked"><div class="locked-in"><div class="card-h"><h2>Antes y después</h2></div>'+
-      '<div class="cmp-cols"><div class="empty"><div class="t">Análisis A</div></div>'+
-      '<div class="empty"><div class="t">Análisis B</div></div></div></div>'+
-      '<div class="locked-ov"><div class="t">Comparador y tendencias</div><div class="d">'+
-      'Pone dos swings lado a lado y te muestra qué componentes mejoraron y cuáles no. '+
-      'Tu historial completo ya es tuyo; esto es la lectura de ese historial.</div>'+
-      '<a class="btn" href="'+CONFIG.RUTAS.planes+'">Ver plan Pro</a></div></div>';
-
-  var h = '<div class="card"><div class="card-h"><h2>Antes y después</h2>'+
-    '<span class="sub">Elige dos análisis</span></div>';
-  if(lista.length < 2)
-    return h + '<div class="empty"><div class="t">'+faltan(2-lista.length)+'</div><div class="d">'+
-      'Con dos swings en fechas distintas se puede comparar frame contra frame y ver qué se movió.</div>'+
-      '<div class="bar"><span style="width:'+Math.round((lista.length/2)*100)+'%"></span></div></div></div>';
-
-  function ops(sel){
-    return lista.map(function(a,i){
-      return '<option value="'+esc(a.id)+'"'+(i===sel?' selected':'')+'>'+fecha(a.created_at)+
-             (a.score!=null?' · '+a.score:'')+'</option>';
-    }).join('');
-  }
-  h += '<div class="cmp-bar"><span class="label" style="display:inline">Antes</span>'+
-    '<select id="cmp-a">'+ops(lista.length-1)+'</select>'+
-    '<span class="label" style="display:inline">Después</span>'+
-    '<select id="cmp-b">'+ops(0)+'</select></div><div id="cmp-out"></div>';
-  return h + '</div>';
-}
-
-function enlazarComparador(){
-  el('cmp-a').addEventListener('change', pintarComparador);
-  el('cmp-b').addEventListener('change', pintarComparador);
-  pintarComparador();
-}
-
-function pintarComparador(){
-  var A = S.analisis.filter(function(x){ return String(x.id)===el('cmp-a').value; })[0];
-  var B = S.analisis.filter(function(x){ return String(x.id)===el('cmp-b').value; })[0];
-  if(!A || !B){ el('cmp-out').innerHTML = ''; return; }
-  var m = mapaEstados();
-  function col(a,t){
-    var fr = (a.frame_paths||[]).slice(0,4).map(function(p,i){
-      var u = S.firmadas[p];
-      return u ? '<img class="fr" style="width:68px;height:54px" src="'+esc(u)+'" alt="Frame '+(i+1)+'">'
-               : '<div class="fr" style="width:68px;height:54px">F'+(i+1)+'</div>';
-    }).join('');
-    return '<div><span class="label">'+t+' · '+fecha(a.created_at)+'</span>'+
-      '<div class="frames" style="margin-top:9px">'+fr+'</div>'+
-      '<div style="margin-top:9px;font-size:13px;color:var(--tx-2)">'+esc(a.resumen||'')+'</div></div>';
-  }
-  var filas = '';
-  COMPONENTES.forEach(function(c){
-    var ea = (m[A.id]||{})[c], eb = (m[B.id]||{})[c];
-    if(!ea || !eb || ea==='no_evaluable' || eb==='no_evaluable') return;
-    var d = PESO[ea] - PESO[eb];
-    filas += '<div class="dr"><span class="cn">'+esc(NOMBRES[c])+'</span>'+
-      '<span class="s-'+cls(ea)+'">'+txtEstado(ea)+'</span><span class="ar">→</span>'+
-      '<span class="s-'+cls(eb)+'">'+txtEstado(eb)+'</span>'+
-      '<span class="dl '+(d>0?'d-mejor':d<0?'d-peor':'d-igual')+'">'+
-      (d>0?'Mejoró':d<0?'Retrocedió':'Igual')+'</span></div>';
-  });
-  if(!filas) filas = '<div class="note">Estos dos análisis no comparten componentes evaluables. '+
-    'Suele pasar cuando uno es de frente y el otro desde la línea de tiro.</div>';
-  el('cmp-out').innerHTML = '<div class="cmp-cols">'+col(A,'Antes')+col(B,'Después')+'</div>'+
-    '<div class="diff">'+filas+'</div>';
-}
-
-function constancia(){
-  var hoy = new Date(), lun = new Date(hoy);
-  lun.setDate(hoy.getDate() - ((hoy.getDay()+6)%7)); lun.setHours(0,0,0,0);
-  var sem = [];
-  for(var i=11;i>=0;i--){
-    var ini = new Date(lun); ini.setDate(lun.getDate()-i*7);
-    var fin = new Date(ini); fin.setDate(ini.getDate()+7);
-    sem.push(S.analisis.filter(function(a){
-      var d = new Date(a.created_at); return d >= ini && d < fin; }).length);
-  }
-  var act = sem.filter(function(x){ return x > 0; }).length;
-  return '<div class="card"><div class="card-h"><h2>Constancia</h2><span class="sub">12 semanas</span></div>'+
-    '<div class="heat">'+sem.map(function(c){
-      return '<div class="wk'+(c===0?'':(c===1?' wk-1':' wk-2'))+'" title="'+c+' análisis"></div>';
-    }).join('')+'</div><div class="heat-l"><span>Hace 12 semanas</span><span>Esta semana</span></div>'+
-    '<div class="note">'+act+' de 12 semanas con actividad. Hoy cuenta solo los análisis de swing; '+
-    'cuando Training Lab registre sesiones se sumarán acá.</div></div>';
-}
-
-function rendimiento(){
-  return '<div class="card"><div class="card-h"><h2>Rendimiento por área</h2>'+
-    '<span class="sub">Pendiente</span></div><div class="empty"><div class="t">Esperando a Training Lab</div>'+
-    '<div class="d">Cuando los drills de rendimiento guarden su puntaje, acá vas a ver qué tan bien ejecutas '+
-    'por área, en un índice donde 50 es aceptable y 85 excelente. Es distinto de la técnica: no responde '+
-    'cómo corregir el movimiento, sino qué tan bien lo ejecutas.</div>'+
-    '<div style="margin-top:14px"><a class="btn btn-quiet" href="'+CONFIG.RUTAS.training+
-    '">Ir a Training Lab</a></div></div></div>';
-}
-
+/* ---------- barra superior ---------- */
 function pintarPopups(){
-  var h = '<div class="pop-h"><span class="label">Novedades</span></div>';
-  if(!S.feed.length){
-    h += '<div style="padding:12px;font-size:13.5px;color:var(--tx-2)">Nada nuevo por ahora.</div>';
+  var h = '<div class="titulo">Novedades</div>';
+  if(!S.novedades.length){
+    h += '<div class="evento">Nada nuevo por ahora.</div>';
   } else {
-    S.feed.slice(0,8).forEach(function(f){
-      h += '<div class="ins" style="padding:10px 11px;border-top:0"><span class="mk" style="background:'+
-        f.color+'"></span><div><div class="tx">'+f.tx+'</div><div class="mt">'+haceTexto(f.fecha)+
-        '</div></div></div>';
+    S.novedades.slice(0,8).forEach(function(x){
+      h += '<div class="evento">'+x.tx+'<span>'+hace(x.fecha)+'</span></div>';
     });
   }
-  el('popCamp').innerHTML = h;
+  el('popNovedades').innerHTML = h;
 
-  el('popMenu').innerHTML =
-    '<div class="pop-h"><span class="label">'+esc(S.nombre)+'</span>'+
-    '<span class="label" style="color:var(--gold)">'+etiquetaPlan(S.plan)+'</span></div>'+
-    '<a href="'+CONFIG.RUTAS.historial+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-      'stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" '+
-      'rx="2"/></svg>Historial del Coach IA</a>'+
-    '<a href="'+CONFIG.RUTAS.coach+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-      'stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Analizar un swing</a>'+
-    '<a href="'+CONFIG.RUTAS.planes+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-      'stroke-width="2"><polygon points="12 2 15 9 22 9.5 17 14 18 21 12 17.5 6 21 7 14 2 9.5 9 9 12 2"/>'+
-      '</svg>Mi plan</a><hr>'+
-    '<button class="salir" id="bSalir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-      'stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/>'+
-      '<line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</button>';
-
-  var b = el('bSalir');
-  if(b) b.addEventListener('click', async function(){
-    if(S.sb) await S.sb.auth.signOut();
-    location.href = CONFIG.RUTAS.login;
-  });
+  el('popCuenta').innerHTML = '<div class="titulo">'+esc(S.nombre)+'</div>'+
+    '<a href="'+CONFIG.RUTAS.historial+'">Historial del Coach IA</a>'+
+    '<a href="'+CONFIG.RUTAS.coach+'">Analizar un swing</a>'+
+    '<a href="'+CONFIG.RUTAS.planes+'">Mi plan</a>';
 }
 
 function enlazarBarra(){
-  function cerrar(){ el('popCamp').classList.remove('open'); el('popMenu').classList.remove('open'); }
-  el('bCamp').addEventListener('click', function(e){
+  function cerrar(){
+    el('popNovedades').classList.remove('abierto');
+    el('popCuenta').classList.remove('abierto');
+  }
+  el('bCampana').addEventListener('click', function(e){
     e.stopPropagation();
-    var a = el('popCamp').classList.contains('open');
-    cerrar(); if(!a){ el('popCamp').classList.add('open'); marcarVisto(); }
+    var a = el('popNovedades').classList.contains('abierto');
+    cerrar();
+    if(!a){
+      el('popNovedades').classList.add('abierto');
+      try{ localStorage.setItem('mgl_visto', String(Date.now())); }catch(x){}
+      el('punto').style.display = 'none';
+    }
   });
-  el('bAv').addEventListener('click', function(e){
+  el('bAro').addEventListener('click', function(e){
     e.stopPropagation();
-    var a = el('popMenu').classList.contains('open');
-    cerrar(); if(!a) el('popMenu').classList.add('open');
+    var a = el('popCuenta').classList.contains('abierto');
+    cerrar(); if(!a) el('popCuenta').classList.add('abierto');
   });
   el('bHamb').addEventListener('click', function(e){
-    e.stopPropagation(); el('links').classList.toggle('open');
+    e.stopPropagation(); el('menu').classList.toggle('abierto');
+  });
+  el('bSalir').addEventListener('click', async function(){
+    if(S.sb) await S.sb.auth.signOut();
+    location.href = CONFIG.RUTAS.login;
   });
   document.addEventListener('click', cerrar);
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrar(); });
 }
 
+/* ---------- demo ---------- */
 function cargarDemo(q){
   S.demo = true;
-  S.plan = normPlan((q && q.get('plan')) || 'pro');
-  S.nombre = 'Jugador de ejemplo';
+  S.nombre = 'Gabriel Morgan';
   var lim = (q && q.get('n')) ? parseInt(q.get('n'),10) : null;
   var hoy = new Date();
   function atras(d){ var x = new Date(hoy); x.setDate(hoy.getDate()-d); return x.toISOString(); }
@@ -880,96 +631,89 @@ function cargarDemo(q){
     { d:33, sc:63, ang:'face', est:{postura:'leve',secuencia:'ok',cara:'ok',path:'leve',lowpoint:'leve'} },
     { d:21, sc:67, ang:'dtl',  est:{postura:'ok',secuencia:'ok',cara:'ok',path:'moderado',lowpoint:'leve'} },
     { d:11, sc:66, ang:'face', est:{postura:'ok',secuencia:'leve',cara:'ok',path:'moderado',lowpoint:'ok'} },
-    { d:3,  sc:71, ang:'dtl',  est:{postura:'ok',secuencia:'moderado',cara:'ok',path:'moderado',lowpoint:'ok'} }
+    { d:3,  sc:71, ang:'dtl',  est:{postura:'ok',secuencia:'moderado',cara:'ok',path:'severo',lowpoint:'ok'} }
   ];
-  var res = [
-    'Pérdida de postura marcada en la bajada, con la cadera acercándose a la bola.',
-    'Sigue el mismo patrón de postura, algo más contenido en el impacto.',
-    'La postura mejora. Aparece un punto bajo inconsistente detrás de la bola.',
-    'Postura casi resuelta. El path empieza a irse hacia adentro.',
-    'Postura estable dos análisis seguidos. El path es ahora lo dominante.',
-    'La secuencia vuelve a adelantarse levemente. Path sin cambios.',
-    'Secuencia reincidente y path moderado. La postura se mantiene sólida.'
-  ];
+  var res = ['Pérdida de postura marcada en la bajada.','Mismo patrón de postura, algo más contenido.',
+    'La postura mejora. Punto bajo inconsistente.','Postura casi resuelta. El path se va hacia adentro.',
+    'Postura estable. El path es lo dominante.','La secuencia se adelanta levemente.',
+    'Secuencia reincidente y path severo.'];
   if(lim && lim > 0 && lim < guion.length){ guion = guion.slice(-lim); res = res.slice(-lim); }
 
   S.analisis = []; S.estados = []; S.findings = []; S.drills = [];
   guion.forEach(function(g,i){
     var id = 'demo-'+i;
     S.analisis.push({ id:id, created_at:atras(g.d), camera_angle:g.ang, score:g.sc,
-      nivel: g.sc<58?'Intermedio bajo':(g.sc<68?'Intermedio':'Intermedio alto'),
-      resumen:res[i], frame_paths:[], prompt_version:'v3.0', input_handicap:18 });
+      resumen:res[i], frame_paths:[], prompt_version:'v3.0' });
     COMPONENTES.forEach(function(c){
       S.estados.push({ analysis_id:id, componente:c, estado: g.est[c] || 'no_evaluable' });
     });
   });
   var ult = S.analisis[S.analisis.length-1].id;
-  S.findings.push({ id:'f1', analysis_id:ult, orden:1, componente:'path', pilar:'KS', severidad:'moderado',
+  S.findings.push({ id:'f1', analysis_id:ult, orden:1, componente:'path', severidad:'severo',
     titulo:'Path hacia adentro en la bajada',
-    que_pasa:'El palo entra por dentro del plano y obliga a las manos a corregir en el impacto, lo que abre la cara.',
-    como_corregirlo:'Sensación de que el mango apunta a la bola más tiempo en la bajada, sin tirar del brazo derecho hacia el cuerpo.' });
-  S.findings.push({ id:'f2', analysis_id:ult, orden:2, componente:'secuencia', pilar:'KS', severidad:'moderado',
+    que_pasa:'El palo entra por dentro del plano y obliga a las manos a corregir en el impacto.',
+    como_corregirlo:'Sensación de que el mango apunta a la bola más tiempo en la bajada, sin tirar del brazo derecho hacia el cuerpo. Diez swings lentos antes de cada sesión.' });
+  S.findings.push({ id:'f2', analysis_id:ult, orden:2, componente:'secuencia', severidad:'moderado',
     titulo:'La pelvis y el torso arrancan juntos',
-    que_pasa:'El torso se adelanta a la pelvis al iniciar la bajada, perdiendo el orden pelvis-torso-brazos.',
-    como_corregirlo:'Iniciar la bajada solo con el pie delantero apretando el suelo, dejando que los brazos lleguen tarde.' });
+    que_pasa:'El torso se adelanta a la pelvis al iniciar la bajada.',
+    como_corregirlo:'Iniciar la bajada con el pie delantero apretando el suelo.' });
   S.drills = [
     { finding_id:'f1', drill_id:'path-plano-alineado', orden:1 },
     { finding_id:'f1', drill_id:'palo-paralelo-tee', orden:2 },
     { finding_id:'f2', drill_id:'step-drill-secuencia', orden:1 }
   ];
   NOMBRES_DRILLS['path-plano-alineado']  = 'Plano alineado con bastón guía';
-  NOMBRES_DRILLS['palo-paralelo-tee']    = 'Palo paralelo con tee de referencia';
+  NOMBRES_DRILLS['palo-paralelo-tee']    = 'Palo paralelo con tee';
   NOMBRES_DRILLS['step-drill-secuencia'] = 'Step drill de secuencia';
 }
 
+/* ---------- autotest ---------- */
 function MGL_DASHBOARD_TEST(){
   var r = [];
   function t(n,ok,d){ r.push({ prueba:n, resultado: ok?'OK':'REVISAR', detalle:d }); }
   t('Sesión activa', S.demo || !!S.sesion, S.sesion ? S.sesion.user.email : (S.demo?'demo':'sin sesión'));
-  t('Plan leído desde profiles', PLANES.indexOf(S.plan) > -1, S.plan);
   t('Análisis cargados', S.analisis.length > 0, S.analisis.length+' filas');
   t('Estados de componentes', S.estados.length > 0, S.estados.length+' filas');
   t('Proporción 8 por análisis', S.analisis.length===0 || S.estados.length===S.analisis.length*8,
-    S.estados.length+' vs '+(S.analisis.length*8)+' esperadas');
+    S.estados.length+' vs '+(S.analisis.length*8));
   t('Diagnósticos narrados', S.findings.length > 0, S.findings.length+' filas');
   t('Migrados excluidos', true, (S.analisis.length-validos().length)+' excluidos');
-  t('Frames firmados', S.demo || Object.keys(S.firmadas).length > 0, Object.keys(S.firmadas).length+' URLs');
-  t('Frase de estado generada', document.querySelector('.hero .frase') !== null, '');
-  t('Matriz dibujada', S.analisis.length===0 || document.querySelectorAll('.mx-c').length > 0,
-    document.querySelectorAll('.mx-c').length+' celdas');
-  t('Insights derivados', S.analisis.length===0 || S.insights.length > 0, S.insights.length+' conclusiones');
-  t('Actividad derivada', S.analisis.length===0 || S.feed.length > 0, S.feed.length+' eventos');
-  t('Foco de hoy', true, foco() ? NOMBRES[foco().componente] : 'sin falla activa');
-  t('Menú superior enlazado', !!el('popMenu').innerHTML, '');
-  t('Bloques dibujados', document.querySelectorAll('.card,.hero,.foco,.locked').length >= 8,
-    document.querySelectorAll('.card,.hero,.foco,.locked').length+' bloques');
+  t('Foco definido', true, focoActual() ? NOMBRES[focoActual().componente] : 'sin falla activa');
+  t('Puntos de evolución', S.analisis.length===0 || document.querySelectorAll('.pt').length > 0,
+    document.querySelectorAll('.pt').length+' puntos');
+  t('Fallas activas listadas', true, activas().length+' filas');
+  t('Conclusiones', S.analisis.length===0 || S.conclusiones.length > 0, S.conclusiones.length);
+  t('Novedades', S.analisis.length===0 || S.novedades.length > 0, S.novedades.length+' eventos');
+  t('Secciones en pantalla', document.querySelectorAll('.foco,.panel').length >= 3,
+    document.querySelectorAll('.foco,.panel').length+' de 5');
+  t('Menú de cuenta enlazado', !!el('popCuenta').innerHTML, '');
 
-  console.log('%c MGL DASHBOARD v2.0 — AUTOTEST ','background:#2dd4bf;color:#06251f;font-weight:bold');
+  console.log('%c MGL DASHBOARD v3.0 — AUTOTEST ','background:#2dd4bf;color:#06251f;font-weight:bold');
   console.table(r);
   var e = {};
   COMPONENTES.forEach(function(c){
-    e[c] = { estado:S.comp[c].actual||'no_evaluable', lecturas:S.comp[c].total,
-      fallas_ult_3:S.comp[c].fallas3, confirmado:S.comp[c].confirmado, episodios:S.comp[c].ciclo.length };
+    e[c] = { estado:S.comp[c].actual||'sin datos', lecturas:S.comp[c].total,
+      tendencia: S.comp[c].total ? tendencia(c) : '—', confirmado:S.comp[c].confirmado };
   });
   console.log('Estado por componente:'); console.table(e);
   var f = r.filter(function(x){ return x.resultado === 'REVISAR'; });
   if(!f.length) console.log('%c Todo correcto. ','background:#22c55e;color:#04210e');
-  else console.warn('Revisar '+f.length+': '+f.map(function(x){ return x.prueba; }).join(', '));
+  else console.warn('Revisar: '+f.map(function(x){ return x.prueba; }).join(', '));
   return r;
 }
 window.MGL_DASHBOARD_TEST = MGL_DASHBOARD_TEST;
 window.MGL = { estado:S, render:function(){ render(); }, test:MGL_DASHBOARD_TEST };
 
+/* ---------- arranque ---------- */
 (async function(){
   enlazarBarra();
   var q = new URLSearchParams(location.search);
-
   if(q.get('demo') === '1'){
-    cargarDemo(q); render(); el('load').classList.add('off'); MGL_DASHBOARD_TEST(); return;
+    cargarDemo(q); render(); el('carga').classList.add('off'); MGL_DASHBOARD_TEST(); return;
   }
   if(!window.supabase || !window.supabase.createClient){
-    el('load').classList.add('off');
-    el('app').innerHTML = '<div class="banner"><div class="t">No cargó la librería</div>'+
+    el('carga').classList.add('off');
+    el('app').innerHTML = '<div class="aviso"><div class="t">No cargó la librería</div>'+
       'No se pudo descargar el cliente de Supabase. Revisa la conexión y recarga.</div>';
     return;
   }
@@ -978,12 +722,11 @@ window.MGL = { estado:S, render:function(){ render(); }, test:MGL_DASHBOARD_TEST
     if(!hay){ location.href = CONFIG.RUTAS.login; return; }
     render();
   }catch(e){
-    el('app').innerHTML = '<div class="banner"><div class="t">No se pudieron leer los datos</div>'+
-      esc(e.message||'Error desconocido')+'<br><span style="color:var(--tx-3)">'+
-      'Abre la consola con Cmd + Option + C para ver el detalle.</span></div>';
+    el('app').innerHTML = '<div class="aviso"><div class="t">No se pudieron leer los datos</div>'+
+      esc(e.message||'Error desconocido')+'</div>';
     console.error('[MGL] Error cargando el dashboard:', e);
   }
-  el('load').classList.add('off');
+  el('carga').classList.add('off');
   MGL_DASHBOARD_TEST();
 })();
 </script>
