@@ -1,11 +1,21 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Backend del Coach IA
    Archivo: /api/coach.js
-   Versión: 4.0 · 2026-07-27  ·  con modo diagnóstico
+   Versión: 4.1 · 2026-07-30  ·  mapeo componente → pilar
+
+   ── v4.1: MAPEO FIJO DE COMPONENTES A PILARES ─────────────────────────────
+   Hasta ahora el prompt definía los 4 pilares por un lado y los 8 componentes
+   por otro, sin conectarlos. El modelo asignaba el pilar a criterio propio en
+   cada análisis, así que el campo `pilar` variaba entre análisis del mismo
+   swing. Ahora la tabla está escrita y es obligatoria.
+   El mapeo se tomó del catálogo de 84 drills de coach-ai.html, donde cada
+   drill ya tiene declarados sus pilares.
+
+   ── v4.0: modo diagnóstico (GET /api/coach devuelve estado del backend)
 
    ── v3.0: EVALUACIÓN DE LOS 8 COMPONENTES ─────────────────────────────────
-   El modelo ahora evalúa SIEMPRE los 8 componentes del swing antes de opinar,
-   y solo narra los que tienen falla (máximo 3). Evaluar es más estable que
+   El modelo evalúa SIEMPRE los 8 componentes del swing antes de opinar, y
+   solo narra los que tienen falla (máximo 3). Evaluar es más estable que
    elegir: esto reduce la variación entre análisis del mismo video.
    Los 8 estados se guardan aunque no se muestren: son la base del dashboard.
 
@@ -73,6 +83,24 @@ BT · BODY TILTS — el chasis
    Forward bend, side bend y rotación en cada fase del swing.
    Errores típicos: early extension, reverse spine, hanging back, standing up.
 
+════ A QUÉ PILAR PERTENECE CADA COMPONENTE — TABLA FIJA ════
+Esta correspondencia es parte de la metodología y NO se decide caso a caso.
+Úsala siempre, exactamente así, en todos los análisis:
+
+  cara       → WC
+  path       → KS
+  lowpoint   → BT
+  secuencia  → KS
+  postura    → BT
+  ground     → GF
+  conexion   → KS
+  distancia  → WC
+
+Nunca asignes un pilar distinto al de esta tabla, aunque el defecto concreto
+te parezca relacionado con otro pilar. Un mismo componente debe reportar
+siempre el mismo pilar: de eso depende que el jugador vea su progreso de
+forma coherente entre un análisis y el siguiente.
+
 ════ CÓMO ANALIZAR ════
 Recibirás 6 frames tomados a intervalos aproximadamente iguales del video.
 NO asumas que cada frame corresponde a una fase específica: identifica tú
@@ -110,6 +138,11 @@ Recién después de completar los 8, escribe los diagnósticos narrados: solo
 para los componentes marcados severo, moderado o leve, ordenados de mayor a
 menor gravedad, con un máximo de 3. Si solo hay 2 componentes con falla,
 entrega 2. Si solo hay 1, entrega 1. NUNCA inventes una falla para llegar a 3.
+
+En cada diagnóstico incluye siempre estos dos campos, además de los que pida
+el esquema del mensaje del usuario:
+  "componente" — uno de los 8 nombres exactos de la lista de arriba
+  "pilar"      — la sigla GF, KS, WC o BT que le corresponde según la tabla fija
 
 Esta evaluación completa no es opcional: es lo que hace que dos análisis del
 mismo swing coincidan.
@@ -212,7 +245,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
         estado: 'ok',
         mensaje: 'El backend del Coach IA está vivo y funcionando.',
-        version_endpoint: '4.0',
+        version_endpoint: '4.1',
+        mapeo_pilares: 'activo',
         modelo_configurado: MODEL,
         clave_api_presente: !!process.env.ANTHROPIC_API_KEY,
         largo_clave: process.env.ANTHROPIC_API_KEY
