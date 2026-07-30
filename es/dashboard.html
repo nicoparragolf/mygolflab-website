@@ -1,1059 +1,991 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyGolfLab | Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --primary-subtle: rgba(45, 212, 191, 0.08);
-            --primary-15: rgba(45, 212, 191, 0.15);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
-            --red: #ef4444;
-            --red-bg: rgba(239, 68, 68, 0.1);
-            --yellow: #eab308;
-            --yellow-bg: rgba(234, 179, 8, 0.1);
-            --green: #22c55e;
-            --green-bg: rgba(34, 197, 94, 0.1);
-            --blue: #3b82f6;
-            --blue-bg: rgba(59, 130, 246, 0.1);
-            --sidebar-w: 260px;
-            --font-display: 'Bebas Neue', sans-serif;
-            --font-heading: 'Barlow Condensed', sans-serif;
-            --font-body: 'Barlow', sans-serif;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · MyGolfLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a; --card:#111111; --card-2:#171717; --line:#242424; --line-2:#343434;
+  --tx:#f0f0f0; --tx-2:#9c9c9c; --tx-3:#6b6b6b;
+  --teal:#2dd4bf; --gold:#D4C5A9;
+  --ok:#22c55e; --leve:#eab308; --moderado:#f97316; --severo:#ef4444; --nulo:#2e2e2e;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:'Barlow',system-ui,sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+h1,h2,h3{font-weight:400}
+.display{font-family:'Bebas Neue',Impact,sans-serif;letter-spacing:.02em;line-height:1}
+.label{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.13em;font-size:11.5px;color:var(--tx-2);font-weight:600;display:block}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+.nav{position:sticky;top:0;z-index:60;background:rgba(10,10,10,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1360px;margin:0 auto;padding:0 26px;height:62px;display:flex;align-items:center;gap:28px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:.06em;white-space:nowrap}
+.logo em{font-style:normal;color:var(--teal)}
+.nav-links{display:flex;gap:24px;flex:1}
+.nav-links a{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.11em;font-size:13.5px;font-weight:500;color:var(--tx-2);padding:4px 0;border-bottom:2px solid transparent}
+.nav-links a:hover{color:var(--tx)}
+.nav-links a.on{color:var(--tx);border-bottom-color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;position:relative}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tx-2);position:relative}
+.icon-btn:hover{border-color:var(--line-2);color:var(--tx)}
+.icon-btn svg{width:19px;height:19px}
+.dot{position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 3px;background:var(--severo);color:#fff;border-radius:99px;font-size:9.5px;font-weight:600;font-family:'Barlow',sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);line-height:1}
+.avatar{width:38px;height:38px;border-radius:10px;background:var(--card-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--gold);letter-spacing:.04em}
+.avatar:hover{border-color:var(--line-2)}
+.pop{position:absolute;top:48px;right:0;width:300px;background:var(--card);border:1px solid var(--line-2);border-radius:var(--r);padding:8px;z-index:70;display:none;max-height:72vh;overflow-y:auto}
+.pop.open{display:block}
+.pop-h{padding:9px 11px 7px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.pop a,.pop button{display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;border-radius:9px;font-size:14px;color:var(--tx-2);text-align:left}
+.pop a:hover,.pop button:hover{background:var(--card-2);color:var(--tx)}
+.pop svg{width:17px;height:17px;flex-shrink:0;opacity:.75}
+.pop hr{border:0;border-top:1px solid var(--line);margin:7px 0}
+.pop .salir:hover{color:var(--severo)}
+.hamb{display:none}
 
-        /* Loading screen */
-        .loading-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .loading-screen.hidden { display: none; }
-        .loading-logo {
-            font-family: var(--font-display);
-            font-size: 2rem;
-            letter-spacing: 0.08em;
-            color: var(--primary);
-        }
-        .loading-spinner {
-            width: 32px; height: 32px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
+.wrap{max-width:1360px;margin:0 auto;padding:24px 26px 80px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.r21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px}
+.card-h{display:flex;align-items:baseline;gap:11px;margin-bottom:16px;flex-wrap:wrap}
+.card-h h2{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:14.5px;font-weight:600}
+.card-h .sub{font-size:12.5px;color:var(--tx-3)}
+.card-h .spacer{flex:1}
 
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed;
-            top: 0; left: 0;
-            width: var(--sidebar-w);
-            height: 100vh;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            z-index: 100;
-            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-        }
-        .sidebar-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-        }
-        .sidebar-logo-icon {
-            width: 32px; height: 32px;
-            background: var(--gradient-1);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .sidebar-logo-icon svg { width: 18px; height: 18px; fill: var(--bg-dark); }
-        .sidebar-logo-text {
-            font-family: var(--font-display);
-            font-size: 1.35rem;
-            letter-spacing: 0.05em;
-        }
-        .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
-        .sidebar-section-label {
-            font-family: var(--font-heading);
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-muted);
-            padding: 0.75rem 0.75rem 0.5rem;
-        }
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.7rem 0.75rem;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-family: var(--font-heading);
-            font-size: 0.95rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            margin-bottom: 2px;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-        }
-        .sidebar-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
-        .sidebar-link.active { background: var(--primary-subtle); color: var(--primary); }
-        .sidebar-link svg { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.7; }
-        .sidebar-link.active svg { opacity: 1; }
-        .sidebar-link .badge {
-            margin-left: auto;
-            background: var(--red);
-            color: #fff;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 0.15rem 0.45rem;
-            border-radius: 100px;
-        }
-        .sidebar-footer {
-            padding: 1rem 0.75rem;
-            border-top: 1px solid var(--border);
-        }
-        .sidebar-user {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-bottom: 0.5rem;
-        }
-        .sidebar-user:hover { background: var(--bg-elevated); }
-        .sidebar-avatar {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            background: var(--gradient-1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 1rem;
-            color: var(--bg-dark);
-            flex-shrink: 0;
-        }
-        .sidebar-user-info { overflow: hidden; flex: 1; }
-        .sidebar-user-name {
-            font-family: var(--font-heading);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .sidebar-user-plan {
-            font-size: 0.7rem;
-            color: var(--primary);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        .sidebar-logout {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 0.75rem;
-            color: var(--text-muted);
-            font-family: var(--font-heading);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s;
-            border: none;
-            background: none;
-            width: 100%;
-        }
-        .sidebar-logout:hover { color: var(--red); background: var(--red-bg); }
-        .sidebar-logout svg { width: 16px; height: 16px; }
+.hero{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;display:flex;flex-direction:column}
+.hero .saludo{font-size:34px;margin-bottom:12px}
+.hero .frase{font-size:18px;line-height:1.5;font-weight:300;max-width:58ch}
+.hero .frase b{font-weight:600}
+.cuentas{display:flex;gap:34px;margin-top:auto;padding-top:24px;flex-wrap:wrap}
+.cuenta .n{font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:1}
+.cuenta .t{font-size:12.5px;color:var(--tx-2)}
 
-        /* MAIN */
-        .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+.foco{background:var(--card);border:1px solid rgba(45,212,191,.38);border-radius:var(--r);padding:20px 22px}
+.foco .eyebrow{color:var(--teal)}
+.foco .comp{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin:7px 0 9px}
+.foco .why{font-size:14px;color:var(--tx-2);margin:11px 0 14px}
+.foco .cert{color:var(--tx-3);font-size:13px;margin-top:6px}
+.drill{display:block;background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:7px;font-size:13.5px}
+.drill:hover{border-color:var(--line-2)}
+.drill .k{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--tx-3)}
 
-        /* TOPBAR */
-        .topbar {
-            position: sticky;
-            top: 0; z-index: 50;
-            padding: 1rem 2rem;
-            background: rgba(10,10,10,0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-        .topbar-left { display: flex; align-items: center; gap: 1rem; }
-        .topbar-hamburger {
-            display: none;
-            width: 40px; height: 40px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .topbar-hamburger span { width: 16px; height: 2px; background: var(--text-primary); border-radius: 2px; }
-        .topbar-title {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            letter-spacing: 0.03em;
-        }
-        .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
-        .topbar-btn {
-            width: 40px; height: 40px;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            position: relative;
-            transition: all 0.2s;
-        }
-        .topbar-btn:hover { border-color: var(--primary); color: var(--text-primary); }
-        .topbar-btn svg { width: 20px; height: 20px; }
-        .topbar-btn .dot {
-            position: absolute;
-            top: 8px; right: 8px;
-            width: 7px; height: 7px;
-            background: var(--red);
-            border-radius: 50%;
-            border: 2px solid var(--bg-dark);
-        }
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--teal);color:var(--teal);border-radius:10px;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:13px;font-weight:600}
+.btn:hover{background:rgba(45,212,191,.1)}
+.btn-solid{background:var(--teal);color:#06251f}
+.btn-solid:hover{background:#4fe0cf}
+.btn-quiet{border-color:var(--line-2);color:var(--tx-2)}
+.btn-quiet:hover{background:var(--card-2);color:var(--tx)}
 
-        /* CONTENT */
-        .content { padding: 1.5rem 2rem 3rem; max-width: 1280px; }
+.tablero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tc{background:var(--card-2);border:1px solid var(--line);border-left:3px solid var(--nulo);border-radius:0 10px 10px 0;padding:13px 14px}
+.tc .cn{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:14.5px;font-weight:600}
+.tc .cs{font-size:13px;margin-top:2px}
+.tc .cf{font-size:11.5px;color:var(--tx-3);margin-top:3px}
+.s-ok{color:var(--ok)} .s-leve{color:var(--leve)} .s-moderado{color:var(--moderado)}
+.s-severo{color:var(--severo)} .s-nulo{color:var(--tx-3)}
+.b-ok{border-left-color:var(--ok)} .b-leve{border-left-color:var(--leve)}
+.b-moderado{border-left-color:var(--moderado)} .b-severo{border-left-color:var(--severo)}
+.b-nulo{border-left-color:var(--nulo)}
 
-        /* PROFILE BANNER */
-        .profile-banner {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            padding: 1.75rem 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .profile-banner::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: radial-gradient(ellipse at top left, var(--primary-subtle) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .profile-avatar {
-            width: 72px; height: 72px;
-            border-radius: 16px;
-            background: var(--gradient-1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 2rem;
-            color: var(--bg-dark);
-            flex-shrink: 0;
-            position: relative;
-        }
-        .profile-info { flex: 1; position: relative; }
-        .profile-name {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            line-height: 1;
-            margin-bottom: 0.35rem;
-        }
-        .profile-meta { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
-        .profile-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        .profile-tag svg { width: 14px; height: 14px; opacity: 0.6; }
-        .plan-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.7rem;
-            background: var(--primary-15);
-            border: 1px solid rgba(45,212,191,0.25);
-            border-radius: 100px;
-            font-family: var(--font-heading);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--primary);
-        }
-        .profile-actions { position: relative; display: flex; gap: 0.5rem; }
-        .btn-outline {
-            padding: 0.6rem 1.25rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-secondary);
-            font-family: var(--font-heading);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.mx{display:grid;gap:5px;align-items:center;overflow-x:auto}
+.mx-lab{font-size:13px;color:var(--tx-2);white-space:nowrap;padding-right:6px}
+.mx-lab.off{color:var(--tx-3)}
+.mx-col{font-size:10.5px;color:var(--tx-3);text-align:center;font-family:'Barlow Condensed',sans-serif;letter-spacing:.05em}
+.mx-c{height:28px;border-radius:5px;background:var(--nulo);min-width:20px}
+.c-ok{background:var(--ok)} .c-leve{background:var(--leve)}
+.c-moderado{background:var(--moderado)} .c-severo{background:var(--severo)}
+.c-nulo{background:transparent;border:1px solid var(--line)}
+.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px;font-size:12px;color:var(--tx-2)}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;font-style:normal}
 
-        /* KPI GRID */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .kpi-card {
-            padding: 1.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: border-color 0.3s;
-        }
-        .kpi-card:hover { border-color: rgba(45,212,191,0.3); }
-        .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-        .kpi-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .kpi-icon svg { width: 20px; height: 20px; }
-        .kpi-icon.teal { background: var(--primary-15); color: var(--primary); }
-        .kpi-icon.blue { background: var(--blue-bg); color: var(--blue); }
-        .kpi-icon.yellow { background: var(--yellow-bg); color: var(--yellow); }
-        .kpi-icon.green { background: var(--green-bg); color: var(--green); }
-        .kpi-trend {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.2rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.2rem 0.5rem;
-            border-radius: 100px;
-        }
-        .kpi-trend.up { background: var(--green-bg); color: var(--green); }
-        .kpi-trend.down { background: var(--red-bg); color: var(--red); }
-        .kpi-trend svg { width: 12px; height: 12px; }
-        .kpi-value { font-family: var(--font-display); font-size: 2.25rem; line-height: 1; letter-spacing: 0.02em; margin-bottom: 0.25rem; }
-        .kpi-label { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.ins{display:flex;gap:11px;padding:12px 0;border-top:1px solid var(--line)}
+.ins:first-child{border-top:0;padding-top:0}
+.ins .mk{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:7px;background:var(--tx-3)}
+.ins .tx{font-size:13.5px;color:var(--tx-2);line-height:1.5}
+.ins .tx b{color:var(--tx);font-weight:600}
+.ins .mt{font-size:11.5px;color:var(--tx-3);margin-top:3px}
 
-        /* GRID LAYOUTS */
-        .grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+.hi{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line);align-items:center}
+.hi:first-child{border-top:0;padding-top:0}
+.frames{display:flex;gap:5px;flex-shrink:0}
+.fr{width:60px;height:48px;border-radius:6px;background:var(--card-2);border:1px solid var(--line);object-fit:cover;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--tx-3)}
+.hi-b{flex:1;min-width:0}
+.hi-b .d{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;color:var(--tx-2)}
+.hi-b .r{font-size:13.5px;color:var(--tx-2);margin-top:3px}
+.tag{display:inline-block;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;padding:2px 8px;border-radius:99px;border:1px solid var(--line-2);color:var(--tx-2);margin:6px 6px 0 0}
+.sc{font-family:'Bebas Neue',sans-serif;font-size:29px;color:var(--gold);flex-shrink:0}
 
-        /* CARD */
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
-        .card-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
-        .card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; gap: 0.5rem; }
-        .card-title svg { width: 18px; height: 18px; color: var(--primary); }
-        .card-action { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
-        .card-action:hover { opacity: 0.7; }
-        .card-body { padding: 1.5rem; }
+.empty{border:1px dashed var(--line-2);border-radius:10px;padding:20px;text-align:center}
+.empty .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.empty .d{font-size:13.5px;color:var(--tx-2);max-width:440px;margin:0 auto}
+.bar{height:5px;background:var(--line);border-radius:99px;margin:14px auto 0;max-width:230px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--gold)}
+.note{background:var(--card-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--tx-2);margin-top:14px}
+.note b{color:var(--tx);font-weight:600}
+.locked{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;overflow:hidden}
+.locked-in{filter:blur(3px);opacity:.3;pointer-events:none}
+.locked-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:rgba(10,10,10,.6)}
+.locked-ov .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.11em;font-size:13.5px;font-weight:600;margin-bottom:5px}
+.locked-ov .d{font-size:13.5px;color:var(--tx-2);max-width:360px;margin-bottom:14px}
 
-        /* CHART */
-        .chart-container { width: 100%; height: 240px; position: relative; }
-        .chart-svg { width: 100%; height: 100%; }
-        .chart-grid-line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 4 4; }
-        .chart-line { fill: none; stroke: var(--primary); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-        .chart-area { fill: url(#chartGradient); }
-        .chart-dot { fill: var(--primary); stroke: var(--bg-card); stroke-width: 3; }
-        .chart-label { font-family: var(--font-body); font-size: 11px; fill: var(--text-muted); }
-        .chart-legend { display: flex; gap: 1.5rem; padding-top: 1rem; }
-        .chart-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-secondary); }
-        .chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.cmp-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+select{background:var(--card-2);color:var(--tx);border:1px solid var(--line-2);border-radius:9px;padding:8px 11px;font-family:'Barlow',sans-serif;font-size:14px}
+.cmp-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.diff{margin-top:16px;display:grid;gap:6px}
+.dr{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr auto 1fr auto;gap:10px;align-items:center;font-size:13px;padding:8px 11px;background:var(--card-2);border-radius:7px}
+.dr .cn{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.dr .ar{color:var(--tx-3);font-size:11px}
+.dl{font-family:'Barlow Condensed',sans-serif;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;text-align:right}
+.d-mejor{color:var(--ok)} .d-peor{color:var(--severo)} .d-igual{color:var(--tx-3)}
 
-        /* INSIGHTS */
-        .insight-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .insight-item { display: flex; gap: 0.75rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: border-color 0.2s; }
-        .insight-item:hover { border-color: var(--border); }
-        .insight-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .insight-icon svg { width: 18px; height: 18px; }
-        .insight-icon.up { background: var(--green-bg); color: var(--green); }
-        .insight-icon.warn { background: var(--yellow-bg); color: var(--yellow); }
-        .insight-icon.down { background: var(--red-bg); color: var(--red); }
-        .insight-icon.info { background: var(--blue-bg); color: var(--blue); }
-        .insight-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
-        .insight-text strong { color: var(--text-primary); font-weight: 600; }
-        .insight-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+.heat{display:grid;grid-template-columns:repeat(12,1fr);gap:4px}
+.wk{aspect-ratio:1;border-radius:3px;background:var(--line)}
+.wk-1{background:rgba(212,197,169,.42)} .wk-2{background:var(--gold)}
+.heat-l{display:flex;justify-content:space-between;font-size:11.5px;color:var(--tx-3);margin-top:7px}
 
-        /* ANALYSIS */
-        .analysis-list { display: flex; flex-direction: column; gap: 0.75rem; }
-        .analysis-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
-        .analysis-item:hover { border-color: var(--border); transform: translateX(4px); }
-        .analysis-thumb { width: 56px; height: 56px; border-radius: 10px; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; overflow: hidden; }
-        .analysis-thumb svg { width: 24px; height: 24px; color: var(--text-muted); }
-        .analysis-thumb .play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.2s; }
-        .analysis-item:hover .play-icon { opacity: 1; }
-        .analysis-thumb .play-icon svg { width: 20px; height: 20px; color: #fff; }
-        .analysis-info { flex: 1; overflow: hidden; }
-        .analysis-title { font-family: var(--font-heading); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .analysis-date { font-size: 0.8rem; color: var(--text-muted); }
-        .analysis-score { font-family: var(--font-display); font-size: 1.5rem; color: var(--primary); flex-shrink: 0; }
+.banner{background:var(--card);border:1px solid var(--line-2);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:16px 20px;margin-bottom:18px;font-size:14px}
+.banner .t{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:13px;color:var(--gold);margin-bottom:4px}
+.load{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:200}
+.load.off{display:none}
+.sp{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-        /* DRILLS */
-        .drill-list { display: flex; flex-direction: column; gap: 0.5rem; }
-        .drill-item { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: all 0.2s; }
-        .drill-item:hover { border-color: var(--border); }
-        .drill-status { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .drill-status svg { width: 16px; height: 16px; }
-        .drill-status.done { background: var(--green-bg); color: var(--green); }
-        .drill-status.progress { background: var(--yellow-bg); color: var(--yellow); }
-        .drill-status.pending { background: var(--bg-dark); color: var(--text-muted); border: 1px solid var(--border); }
-        .drill-info { flex: 1; }
-        .drill-name { font-family: var(--font-heading); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.1rem; }
-        .drill-category { font-size: 0.75rem; color: var(--text-muted); }
-        .drill-progress-bar { width: 80px; height: 4px; background: var(--bg-dark); border-radius: 100px; overflow: hidden; flex-shrink: 0; }
-        .drill-progress-fill { height: 100%; border-radius: 100px; background: var(--gradient-1); transition: width 0.4s ease; }
-
-        /* NOTIFICATIONS */
-        .notif-list { display: flex; flex-direction: column; gap: 0.5rem; }
-        .notif-item { display: flex; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-elevated); border-radius: 12px; align-items: flex-start; border: 1px solid transparent; transition: border-color 0.2s; }
-        .notif-item:hover { border-color: var(--border); }
-        .notif-item.unread { border-left: 3px solid var(--primary); }
-        .notif-dot { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .notif-dot svg { width: 16px; height: 16px; }
-        .notif-dot.analysis { background: var(--primary-15); color: var(--primary); }
-        .notif-dot.coach { background: var(--blue-bg); color: var(--blue); }
-        .notif-dot.drill { background: var(--yellow-bg); color: var(--yellow); }
-        .notif-dot.achievement { background: var(--green-bg); color: var(--green); }
-        .notif-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; }
-        .notif-text strong { color: var(--text-primary); }
-        .notif-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
-
-        /* COACH FEEDBACK */
-        .coach-feedback-item { display: flex; gap: 1rem; padding: 1rem; background: var(--bg-elevated); border-radius: 12px; border: 1px solid transparent; transition: border-color 0.2s; }
-        .coach-feedback-item:hover { border-color: var(--border); }
-        .coach-avatar { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--font-display); font-size: 1.1rem; color: #fff; }
-        .coach-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
-        .coach-text strong { color: var(--text-primary); }
-        .coach-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.5rem; }
-        .coach-meta .voice-badge { display: inline-flex; align-items: center; gap: 0.2rem; color: var(--primary); font-weight: 600; }
-        .coach-meta .voice-badge svg { width: 12px; height: 12px; }
-        .elite-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem; background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(139,92,246,0.25); border-radius: 100px; font-family: var(--font-heading); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #a78bfa; }
-        .elite-badge svg { width: 10px; height: 10px; }
-
-        /* MOBILE */
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
-
-        /* ANIMATIONS */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.5s ease both; }
-        .animate-in:nth-child(2) { animation-delay: 0.05s; }
-        .animate-in:nth-child(3) { animation-delay: 0.1s; }
-        .animate-in:nth-child(4) { animation-delay: 0.15s; }
-
-        /* RESPONSIVE */
-        @media (max-width: 1100px) {
-            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .grid-2 { grid-template-columns: 1fr; }
-            .grid-3 { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .sidebar-overlay.open { display: block; }
-            .main { margin-left: 0; }
-            .topbar-hamburger { display: flex; }
-            .content { padding: 1rem; }
-            .profile-banner { flex-direction: column; text-align: center; padding: 1.5rem; }
-            .profile-meta { justify-content: center; }
-            .profile-actions { justify-content: center; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-            .kpi-card { padding: 1.15rem; }
-            .kpi-value { font-size: 1.75rem; }
-        }
-        @media (max-width: 480px) {
-            .kpi-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+@media (max-width:1000px){
+  .r21{grid-template-columns:1fr}
+  .tablero{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cmp-cols{grid-template-columns:1fr}
+}
+@media (max-width:820px){
+  .nav-links{position:absolute;top:62px;left:0;right:0;background:var(--card);border-bottom:1px solid var(--line);flex-direction:column;gap:0;padding:8px;display:none}
+  .nav-links.open{display:flex}
+  .nav-links a{padding:11px 12px;border-bottom:0;border-radius:9px;font-size:15px}
+  .nav-links a.on{background:var(--card-2)}
+  .hamb{display:flex}
+  .wrap{padding:18px 15px 60px}
+  .hero{padding:20px}
+  .hero .saludo{font-size:27px}
+  .hero .frase{font-size:16px}
+  .pop{width:min(300px,calc(100vw - 30px))}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+</style>
 </head>
 <body>
 
-    <!-- LOADING SCREEN -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-logo">MYGOLFLAB</div>
-        <div class="loading-spinner"></div>
-    </div>
+<div class="load" id="load"><div class="logo">MY<em>GOLF</em>LAB</div><div class="sp"></div></div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>
-            <span class="sidebar-logo-text">MYGOLFLAB</span>
-        </div>
-        <nav class="sidebar-nav">
-            <div class="sidebar-section-label">Principal</div>
-            <button class="sidebar-link active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                Dashboard
-            </button>
-            <a href="/es/coach-ai.html" class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><circle cx="12" cy="12" r="3"/></svg>
-                Coach IA
-            </a>
-            <a href="/es/training.html" class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                Training Lab
-                <span class="badge">3</span>
-            </a>
-            <a href="/es/library.html" class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                Biblioteca
-            </a>
-            <div class="sidebar-section-label" style="margin-top:0.5rem">Análisis</div>
-            <button class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                Historial Videos
-            </button>
-            <button class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                Estadísticas
-            </button>
-            <div class="sidebar-section-label" style="margin-top:0.5rem">Cuenta</div>
-            <button class="sidebar-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                Configuración
-            </button>
-        </nav>
-        <div class="sidebar-footer">
-            <div class="sidebar-user">
-                <div class="sidebar-avatar" id="sidebarAvatar">—</div>
-                <div class="sidebar-user-info">
-                    <div class="sidebar-user-name" id="sidebarName">Cargando...</div>
-                    <div class="sidebar-user-plan" id="sidebarPlan">—</div>
-                </div>
-            </div>
-            <button class="sidebar-logout" id="logoutBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Cerrar Sesión
-            </button>
-        </div>
-    </aside>
+<nav class="nav"><div class="nav-in">
+  <span class="logo">MY<em>GOLF</em>LAB</span>
+  <div class="nav-links" id="links">
+    <a href="/es/dashboard.html" class="on">Dashboard</a>
+    <a href="/es/coach-ai.html">Coach IA</a>
+    <a href="/es/training.html">Training Lab</a>
+    <a href="/es/library.html">Biblioteca</a>
+  </div>
+  <div class="nav-right">
+    <button class="icon-btn hamb" id="bHamb" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+    <button class="icon-btn" id="bCamp" aria-label="Novedades">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="dot" id="badge" style="display:none">0</span>
+    </button>
+    <button class="avatar" id="bAv" aria-label="Mi cuenta">&mdash;</button>
+    <div class="pop" id="popCamp"></div>
+    <div class="pop" id="popMenu"></div>
+  </div>
+</div></nav>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="wrap" id="app"></div>
 
-    <!-- MAIN -->
-    <div class="main">
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="topbar-hamburger" id="menuToggle" aria-label="Menú">
-                    <span></span><span></span><span></span>
-                </button>
-                <h1 class="topbar-title">Dashboard</h1>
-            </div>
-            <div class="topbar-right">
-                <button class="topbar-btn" title="Buscar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                </button>
-                <button class="topbar-btn" title="Notificaciones">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                    <span class="dot"></span>
-                </button>
-            </div>
-        </header>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script>
+<script>
+/* ============================================================
+   MyGolfLab - Dashboard v2.0
+   Pagina independiente. Todo lo que muestra sale de la base de
+   datos: no hay ningun numero escrito a mano.
+   ============================================================ */
 
-        <div class="content">
+var CONFIG = {
+  SUPABASE_URL:      'https://yulpqupmftdjbepqiscs.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
+  CUOTAS: { basico: 8, pro: 30, elite: 60 },
+  PLANES_PRO: ['pro','elite'],
+  DIAS_DATO_VIEJO: 21,
+  RUTAS: {
+    coach:'/es/coach-ai.html', training:'/es/training.html', biblioteca:'/es/library.html',
+    planes:'/es/pricing.html', historial:'/es/historial.html', login:'/es/login.html'
+  }
+};
 
-            <!-- PROFILE BANNER -->
-            <div class="profile-banner animate-in">
-                <div class="profile-avatar" id="profileAvatar">—</div>
-                <div class="profile-info">
-                    <h2 class="profile-name" id="profileName">—</h2>
-                    <div class="profile-meta">
-                        <span class="profile-tag" id="profileHcp" style="display:none">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                            <span id="profileHcpValue"></span>
-                        </span>
-                        <span class="plan-badge" id="profilePlan">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            Starter
-                        </span>
-                        <span class="profile-tag" style="color:var(--green);">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l2.5 2.5L16 9"/></svg>
-                            Activo hoy
-                        </span>
-                    </div>
-                </div>
-                <div class="profile-actions">
-                    <button class="btn-outline">Editar Perfil</button>
-                    <a href="/es/coach-ai.html" class="btn-outline" style="text-decoration:none;">Subir Video</a>
-                </div>
-            </div>
+var COMPONENTES = ['cara','path','lowpoint','secuencia','postura','ground','conexion','distancia'];
+var NOMBRES = { cara:'Cara del palo', path:'Path', lowpoint:'Punto bajo', secuencia:'Secuencia',
+  postura:'Postura', ground:'Ground forces', conexion:'Conexión', distancia:'Distancia' };
+var PESO = { ok:0, leve:1, moderado:2, severo:3 };
+var FALLA = ['leve','moderado','severo'];
+var PLANES = ['basico','pro','elite'];
+var NOMBRES_DRILLS = {};
 
-            <!-- KPI GRID -->
-            <div class="kpi-grid">
-                <div class="kpi-card animate-in">
-                    <div class="kpi-header">
-                        <div class="kpi-icon teal">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                        </div>
-                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+8</span>
-                    </div>
-                    <div class="kpi-value">76</div>
-                    <div class="kpi-label">Score Técnico</div>
-                </div>
-                <div class="kpi-card animate-in">
-                    <div class="kpi-header">
-                        <div class="kpi-icon blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                        </div>
-                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+12%</span>
-                    </div>
-                    <div class="kpi-value">82%</div>
-                    <div class="kpi-label">Consistencia</div>
-                </div>
-                <div class="kpi-card animate-in">
-                    <div class="kpi-header">
-                        <div class="kpi-icon yellow">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        </div>
-                        <span class="kpi-trend down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>-5%</span>
-                    </div>
-                    <div class="kpi-value">68%</div>
-                    <div class="kpi-label">Adherencia al Plan</div>
-                </div>
-                <div class="kpi-card animate-in">
-                    <div class="kpi-header">
-                        <div class="kpi-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                        </div>
-                        <span class="kpi-trend up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>+3</span>
-                    </div>
-                    <div class="kpi-value">24</div>
-                    <div class="kpi-label">Drills Completados</div>
-                </div>
-            </div>
+var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', analisis:[], estados:[],
+          findings:[], drills:[], firmadas:{}, comp:{}, feed:[], insights:[] };
 
-            <!-- CHART + INSIGHTS -->
-            <div class="grid-2">
-                <div class="card animate-in">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                            Evolución Score Técnico
-                        </span>
-                        <span class="card-action">Últimos 6 meses</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <svg class="chart-svg" viewBox="0 0 600 220" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.25"/>
-                                        <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
-                                    </linearGradient>
-                                </defs>
-                                <line class="chart-grid-line" x1="60" y1="20" x2="580" y2="20"/>
-                                <line class="chart-grid-line" x1="60" y1="70" x2="580" y2="70"/>
-                                <line class="chart-grid-line" x1="60" y1="120" x2="580" y2="120"/>
-                                <line class="chart-grid-line" x1="60" y1="170" x2="580" y2="170"/>
-                                <text class="chart-label" x="50" y="24" text-anchor="end">100</text>
-                                <text class="chart-label" x="50" y="74" text-anchor="end">80</text>
-                                <text class="chart-label" x="50" y="124" text-anchor="end">60</text>
-                                <text class="chart-label" x="50" y="174" text-anchor="end">40</text>
-                                <text class="chart-label" x="100" y="200" text-anchor="middle">Nov</text>
-                                <text class="chart-label" x="196" y="200" text-anchor="middle">Dic</text>
-                                <text class="chart-label" x="292" y="200" text-anchor="middle">Ene</text>
-                                <text class="chart-label" x="388" y="200" text-anchor="middle">Feb</text>
-                                <text class="chart-label" x="484" y="200" text-anchor="middle">Mar</text>
-                                <text class="chart-label" x="560" y="200" text-anchor="middle">Abr</text>
-                                <path class="chart-area" d="M100,145 L196,130 L292,115 L388,95 L484,78 L560,58 L560,180 L100,180 Z"/>
-                                <polyline class="chart-line" points="100,145 196,130 292,115 388,95 484,78 560,58"/>
-                                <circle class="chart-dot" cx="100" cy="145" r="5"/>
-                                <circle class="chart-dot" cx="196" cy="130" r="5"/>
-                                <circle class="chart-dot" cx="292" cy="115" r="5"/>
-                                <circle class="chart-dot" cx="388" cy="95" r="5"/>
-                                <circle class="chart-dot" cx="484" cy="78" r="5"/>
-                                <circle class="chart-dot" cx="560" cy="58" r="6" stroke-width="4"/>
-                            </svg>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="chart-legend-item">
-                                <div class="chart-legend-dot" style="background:var(--primary)"></div>
-                                Score Técnico
-                            </div>
-                            <div class="chart-legend-item" style="color:var(--text-muted);">
-                                Nov: 52 → Abr: 76 <strong style="color:var(--green);margin-left:0.25rem;">+46%</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+function el(i){ return document.getElementById(i); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function fecha(d){ return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}); }
+function fechaCorta(d){ return new Date(d).toLocaleDateString('es-CL',{day:'2-digit',month:'short'}); }
+function dias(a,b){ return Math.round((new Date(b)-new Date(a))/86400000); }
+function haceTexto(d){
+  var n = dias(d, new Date());
+  if(n <= 0) return 'hoy';
+  if(n === 1) return 'ayer';
+  if(n < 7) return 'hace ' + n + ' días';
+  if(n < 31){ var s = Math.round(n/7); return 'hace ' + s + (s===1?' semana':' semanas'); }
+  var m = Math.round(n/30); return 'hace ' + m + (m===1?' mes':' meses');
+}
+function cls(e){ return (e && PESO[e]!==undefined) ? e : 'nulo'; }
+function txtEstado(e){
+  return e==='ok'?'Sólido':e==='leve'?'Falla leve':e==='moderado'?'Falla moderada':
+         e==='severo'?'Falla severa':'Sin datos';
+}
+function faltan(k){ return k===1 ? 'Falta 1 análisis' : 'Faltan '+k+' análisis'; }
+function iniciales(n){
+  return String(n||'').split(' ').filter(Boolean).slice(0,2)
+    .map(function(w){ return w[0].toUpperCase(); }).join('') || 'MG';
+}
+function normPlan(p){
+  var x = String(p||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return PLANES.indexOf(x) > -1 ? x : 'basico';
+}
+function etiquetaPlan(p){ return p==='basico'?'Básico':p==='pro'?'Pro':'Elite'; }
 
-                <div class="card animate-in">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 12 18.469c-.74 0-1.461.245-2.039.708l-.499-.5z"/></svg>
-                            Progreso Inteligente
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="insight-list">
-                            <div class="insight-item">
-                                <div class="insight-icon up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
-                                <div>
-                                    <div class="insight-text"><strong>Backswing consistency</strong> mejoró un <strong style="color:var(--green)">18%</strong> en las últimas 3 semanas.</div>
-                                    <div class="insight-time">Hace 2 horas</div>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <div class="insight-icon warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-                                <div>
-                                    <div class="insight-text">Tu <strong>frecuencia de entrenamiento</strong> bajó esta semana. Solo 2 de 5 sesiones planeadas.</div>
-                                    <div class="insight-time">Hace 1 día</div>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <div class="insight-icon info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
-                                <div>
-                                    <div class="insight-text"><strong>Drill sugerido:</strong> Presión lateral con step drill. Tu transferencia de peso necesita trabajo.</div>
-                                    <div class="insight-time">Recomendación AI</div>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <div class="insight-icon down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg></div>
-                                <div>
-                                    <div class="insight-text">Posible <strong>estancamiento</strong> en posiciones de impacto. Revisa tu wrist condition en el último análisis.</div>
-                                    <div class="insight-time">Hace 3 días</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+async function cargar(){
+  S.sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  var ses = await S.sb.auth.getSession();
+  S.sesion = ses.data.session;
+  if(!S.sesion) return false;
+  var uid = S.sesion.user.id, m = S.sesion.user.user_metadata || {};
+  S.nombre = m.full_name || [m.first_name, m.last_name].filter(Boolean).join(' ') ||
+             S.sesion.user.email.split('@')[0];
 
-            <!-- 3 COLUMNS -->
-            <div class="grid-3">
-                <!-- ANALYSIS HISTORY -->
-                <div class="card animate-in">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-                            Últimos Análisis
-                        </span>
-                        <span class="card-action">Ver todos →</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="analysis-list">
-                            <div class="analysis-item">
-                                <div class="analysis-thumb">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                                </div>
-                                <div class="analysis-info">
-                                    <div class="analysis-title">Driver – Face On</div>
-                                    <div class="analysis-date">5 Abr 2026</div>
-                                </div>
-                                <div class="analysis-score">81</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-thumb">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                                </div>
-                                <div class="analysis-info">
-                                    <div class="analysis-title">Iron 7 – Down the Line</div>
-                                    <div class="analysis-date">2 Abr 2026</div>
-                                </div>
-                                <div class="analysis-score">74</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-thumb">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                                </div>
-                                <div class="analysis-info">
-                                    <div class="analysis-title">Wedge – Face On</div>
-                                    <div class="analysis-date">28 Mar 2026</div>
-                                </div>
-                                <div class="analysis-score">69</div>
-                            </div>
-                            <div class="analysis-item">
-                                <div class="analysis-thumb">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                    <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-                                </div>
-                                <div class="analysis-info">
-                                    <div class="analysis-title">Driver – DTL Slow-Mo</div>
-                                    <div class="analysis-date">21 Mar 2026</div>
-                                </div>
-                                <div class="analysis-score">72</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  var pf = await S.sb.from('profiles').select('plan').eq('id', uid).maybeSingle();
+  S.plan = normPlan(pf.data && pf.data.plan);
 
-                <!-- TRAINING LAB -->
-                <div class="card animate-in">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                            Training Lab
-                        </span>
-                        <a href="/es/training.html" class="card-action">Ver plan →</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="drill-list">
-                            <div class="drill-item">
-                                <div class="drill-status done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-                                <div class="drill-info">
-                                    <div class="drill-name">Step Drill – Presión Lateral</div>
-                                    <div class="drill-category">Ground Pressure • Nivel Pro</div>
-                                </div>
-                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:100%"></div></div>
-                            </div>
-                            <div class="drill-item">
-                                <div class="drill-status done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-                                <div class="drill-info">
-                                    <div class="drill-name">Pivot Drill – Anti Reverse</div>
-                                    <div class="drill-category">Backswing • Nivel Pro</div>
-                                </div>
-                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:100%"></div></div>
-                            </div>
-                            <div class="drill-item">
-                                <div class="drill-status progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                                <div class="drill-info">
-                                    <div class="drill-name">Wrist Condition – Impact</div>
-                                    <div class="drill-category">Impacto • Nivel Pro+</div>
-                                </div>
-                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:60%"></div></div>
-                            </div>
-                            <div class="drill-item">
-                                <div class="drill-status pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
-                                <div class="drill-info">
-                                    <div class="drill-name">Tilt & Rotation Balance</div>
-                                    <div class="drill-category">Downswing • Nivel Pro+</div>
-                                </div>
-                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:0%"></div></div>
-                            </div>
-                            <div class="drill-item">
-                                <div class="drill-status pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg></div>
-                                <div class="drill-info">
-                                    <div class="drill-name">Tempo Drill – 3:1 Ratio</div>
-                                    <div class="drill-category">Timing • Nivel Starter</div>
-                                </div>
-                                <div class="drill-progress-bar"><div class="drill-progress-fill" style="width:0%"></div></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  var an = await S.sb.from('swing_analyses')
+    .select('id,created_at,camera_angle,score,nivel,resumen,frame_paths,prompt_version,input_handicap,input_objetivo')
+    .eq('user_id', uid).order('created_at',{ascending:false});
+  if(an.error) throw an.error;
+  S.analisis = an.data || [];
 
-                <!-- ACTIVIDAD + COACH FEEDBACK -->
-                <div class="card animate-in">
-                    <div class="card-header">
-                        <span class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            Actividad Reciente
-                        </span>
-                        <span class="elite-badge">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                            Elite
-                        </span>
-                    </div>
-                    <div class="card-body">
-                        <div class="notif-list" style="margin-bottom:1rem;">
-                            <div class="notif-item unread">
-                                <div class="notif-dot coach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                                <div>
-                                    <div class="notif-text"><strong>Coach Nico</strong> dejó un comentario en tu análisis de Driver.</div>
-                                    <div class="notif-time">Hace 30 min</div>
-                                </div>
-                            </div>
-                            <div class="notif-item unread">
-                                <div class="notif-dot analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/></svg></div>
-                                <div>
-                                    <div class="notif-text">Nuevo <strong>análisis AI</strong> disponible: Driver Face On</div>
-                                    <div class="notif-time">Hace 2 horas</div>
-                                </div>
-                            </div>
-                            <div class="notif-item">
-                                <div class="notif-dot achievement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
-                                <div>
-                                    <div class="notif-text">¡Hito! Completaste <strong>20 drills</strong> este mes.</div>
-                                    <div class="notif-time">Hace 1 día</div>
-                                </div>
-                            </div>
-                            <div class="notif-item">
-                                <div class="notif-dot drill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-                                <div>
-                                    <div class="notif-text"><strong>Coach Nico</strong> asignó 2 drills nuevos a tu plan.</div>
-                                    <div class="notif-time">Hace 2 días</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="border-top:1px solid var(--border); padding-top:1rem;">
-                            <div class="coach-feedback-item">
-                                <div class="coach-avatar">NP</div>
-                                <div>
-                                    <div class="coach-text">"<strong>Buen progreso en el pivot</strong>. Ahora enfócate en mantener la flexión de muñeca en el impacto. Revisamos el viernes."</div>
-                                    <div class="coach-meta">
-                                        Coach Nico • 5 Abr
-                                        <span class="voice-badge">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-                                            + Audio
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  var st = await S.sb.from('swing_component_states').select('analysis_id,componente,estado').eq('user_id', uid);
+  if(st.error) throw st.error;
+  S.estados = st.data || [];
 
-        </div>
-    </div>
+  var fi = await S.sb.from('swing_findings')
+    .select('id,analysis_id,orden,componente,pilar,severidad,titulo,que_pasa,como_corregirlo')
+    .eq('user_id', uid).order('orden',{ascending:true});
+  if(fi.error) throw fi.error;
+  S.findings = fi.data || [];
 
-    <script>
-        // ── SUPABASE INIT ──
-        const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
-        const { createClient } = supabase;
-        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if(S.findings.length){
+    var dr = await S.sb.from('finding_drills').select('finding_id,drill_id,orden')
+      .in('finding_id', S.findings.map(function(f){ return f.id; }));
+    S.drills = dr.data || [];
+  }
+  await firmar();
+  return true;
+}
 
-        // ── AUTH GUARD ──
-        async function initDashboard() {
-            const { data: { session } } = await sb.auth.getSession();
+async function firmar(){
+  var rutas = [];
+  S.analisis.slice(0,12).forEach(function(a){
+    (a.frame_paths||[]).forEach(function(p){ if(p && rutas.indexOf(p)===-1) rutas.push(p); });
+  });
+  if(!rutas.length) return;
+  try{
+    var r = await S.sb.storage.from('swing-frames').createSignedUrls(rutas, 3600);
+    (r.data||[]).forEach(function(x){ if(x.signedUrl) S.firmadas[x.path] = x.signedUrl; });
+  }catch(e){ console.warn('[MGL] frames sin firmar:', e.message); }
+}
 
-            if (!session) {
-                window.location.href = '/es/login.html';
-                return;
-            }
+function validos(){
+  return S.analisis.filter(function(a){
+    return String(a.prompt_version||'').toLowerCase().indexOf('migrado') === -1;
+  });
+}
+function ordenAsc(){
+  return validos().slice().sort(function(a,b){ return new Date(a.created_at)-new Date(b.created_at); });
+}
+function mapaEstados(){
+  var m = {};
+  S.estados.forEach(function(e){
+    if(!m[e.analysis_id]) m[e.analysis_id] = {};
+    m[e.analysis_id][e.componente] = e.estado;
+  });
+  return m;
+}
+function episodios(serie){
+  var eps = [], ab = null, oks = 0;
+  serie.forEach(function(p){
+    if(FALLA.indexOf(p.estado) > -1){
+      if(!ab) ab = { inicio:p.fecha, fin:null, pico:p.estado };
+      if(PESO[p.estado] > PESO[ab.pico]) ab.pico = p.estado;
+      oks = 0;
+    } else {
+      oks++;
+      if(ab && oks >= 2){ ab.fin = p.fecha; eps.push(ab); ab = null; }
+    }
+  });
+  if(ab) eps.push(ab);
+  return eps;
+}
+function calcular(){
+  var lista = ordenAsc(), m = mapaEstados();
+  S.comp = {};
+  COMPONENTES.forEach(function(c){
+    var serie = [];
+    lista.forEach(function(a){
+      var e = (m[a.id]||{})[c];
+      if(e && e !== 'no_evaluable') serie.push({ fecha:a.created_at, estado:e, id:a.id });
+    });
+    var u3 = serie.slice(-3);
+    var o = {
+      serie: serie,
+      actual: serie.length ? serie[serie.length-1].estado : null,
+      total: serie.length,
+      fallas3: u3.filter(function(x){ return FALLA.indexOf(x.estado)>-1; }).length,
+      serias3: u3.filter(function(x){ return x.estado==='moderado'||x.estado==='severo'; }).length,
+      ciclo: episodios(serie)
+    };
+    o.confirmado = o.fallas3 >= 2;
+    S.comp[c] = o;
+  });
+}
+function resumenCiclo(){
+  var a=0, r=0, re=0, t=[];
+  COMPONENTES.forEach(function(c){
+    var eps = S.comp[c].ciclo;
+    if(!eps.length) return;
+    eps.filter(function(e){ return e.fin; }).forEach(function(e){ r++; t.push(dias(e.inicio,e.fin)); });
+    if(eps[eps.length-1].fin === null) a++;
+    if(eps.length > 1) re++;
+  });
+  return { activas:a, resueltas:r, reincidentes:re,
+    medio: t.length ? Math.round(t.reduce(function(x,y){ return x+y; },0)/t.length) : null };
+}
+function foco(){
+  var c = COMPONENTES.filter(function(x){
+    return S.comp[x].actual && FALLA.indexOf(S.comp[x].actual) > -1;
+  });
+  if(!c.length) return null;
+  c.sort(function(a,b){
+    var A=S.comp[a], B=S.comp[b];
+    return ((B.confirmado?100:0)+PESO[B.actual]*10+B.serias3) -
+           ((A.confirmado?100:0)+PESO[A.actual]*10+A.serias3);
+  });
+  var k = c[0];
+  var ord = validos().slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  var f = null;
+  for(var i=0;i<ord.length && !f;i++){
+    var mm = S.findings.filter(function(x){ return x.analysis_id===ord[i].id && x.componente===k; });
+    if(mm.length) f = mm[0];
+  }
+  return { componente:k, info:S.comp[k], finding:f,
+    drills: f ? S.drills.filter(function(d){ return d.finding_id===f.id; })
+                        .sort(function(a,b){ return (a.orden||0)-(b.orden||0); }) : [] };
+}
+function ultimaFecha(){ var v = ordenAsc(); return v.length ? v[v.length-1].created_at : null; }
 
-            const user = session.user;
-            const meta = user.user_metadata || {};
+function frase(){
+  var n = validos().length, f = foco(), c = resumenCiclo();
+  var ult = ultimaFecha(), viejo = ult ? dias(ult, new Date()) : null;
 
-            // Build display name
-            const firstName = meta.first_name || meta.given_name || '';
-            const lastName = meta.last_name || meta.family_name || '';
-            const fullName = meta.full_name || `${firstName} ${lastName}`.trim() || user.email.split('@')[0];
-            const initials = getInitials(fullName);
-            const plan = meta.plan || 'Starter';
-            const hcp = meta.handicap;
+  if(n === 0) return 'Todavía no hay nada que leer. Sube tu primer swing y en menos de un minuto '+
+    'vas a tener acá tu diagnóstico y en qué trabajar.';
+  if(viejo !== null && viejo > CONFIG.DIAS_DATO_VIEJO)
+    return 'Tu última medición fue <b>'+haceTexto(ult)+'</b>. Lo que ves acá describe cómo estabas ese día, '+
+      'no cómo estás hoy. Sube un swing para refrescarlo.';
+  if(!f)
+    return 'Ningún componente evaluado muestra falla. Es buen momento para <b>sostener el patrón</b> '+
+      'y volver a medir en unos días para confirmar que se mantiene.';
 
-            // Populate sidebar
-            document.getElementById('sidebarAvatar').textContent = initials;
-            document.getElementById('sidebarName').textContent = fullName.toUpperCase();
-            document.getElementById('sidebarPlan').textContent = `Plan ${plan}`;
+  var p;
+  if(n === 1){
+    p = 'Primera lectura tomada. Hoy lo más urgente es <b>'+NOMBRES[f.componente].toLowerCase()+'</b>. '+
+        'Con dos análisis más vamos a saber si es un patrón real o fue una vez.';
+  } else if(f.info.confirmado){
+    p = '<b>'+NOMBRES[f.componente]+'</b> está confirmado: falló en '+f.info.fallas3+' de tus últimos '+
+        Math.min(f.info.total,3)+' análisis. Es lo único en lo que te conviene trabajar hoy.';
+  } else {
+    p = '<b>'+NOMBRES[f.componente]+'</b> aparece con falla, pero todavía sin confirmar. '+
+        'Una medición más y sabemos si es patrón.';
+  }
+  if(c.resueltas > 0)
+    p += ' Llevas <b>'+c.resueltas+(c.resueltas===1?' falla cerrada':' fallas cerradas')+'</b> desde que empezaste.';
+  return p;
+}
 
-            // Populate profile banner
-            document.getElementById('profileAvatar').textContent = initials;
-            document.getElementById('profileName').textContent = fullName;
-            document.getElementById('profilePlan').innerHTML = `
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                ${plan}
-            `;
+function calcularInsights(){
+  var out = [], n = validos().length;
 
-            if (hcp !== null && hcp !== undefined) {
-                document.getElementById('profileHcpValue').textContent = `HCP ${hcp}`;
-                document.getElementById('profileHcp').style.display = 'inline-flex';
-            }
+  COMPONENTES.forEach(function(c){
+    var i = S.comp[c], eps = i.ciclo;
+    if(!eps.length) return;
 
-            // Hide loading screen
-            document.getElementById('loadingScreen').classList.add('hidden');
-        }
+    eps.filter(function(e){ return e.fin; }).forEach(function(e){
+      out.push({ peso:70, fecha:e.fin, tx:'<b>'+NOMBRES[c]+'</b> cerrada. Llegó a ser '+
+        txtEstado(e.pico).toLowerCase()+' y tardó '+dias(e.inicio,e.fin)+
+        ' días en desaparecer dos análisis seguidos.' });
+    });
+    if(eps.length > 1 && eps[eps.length-1].fin === null){
+      out.push({ peso:90, fecha:eps[eps.length-1].inicio, tx:'<b>'+NOMBRES[c]+'</b> volvió a aparecer '+
+        'después de haber estado limpia. Las reincidencias suelen venir de un cambio a medio consolidar.' });
+    }
+    var s = i.serie;
+    if(s.length >= 3){
+      var a = s[s.length-3], b = s[s.length-2], d = s[s.length-1];
+      if(PESO[d.estado] > PESO[b.estado] && PESO[b.estado] > PESO[a.estado]){
+        out.push({ peso:95, fecha:d.fecha, tx:'<b>'+NOMBRES[c]+'</b> lleva tres análisis empeorando seguidos.' });
+      }
+    }
+    if(i.confirmado && i.serias3 >= 2){
+      out.push({ peso:85, fecha:s[s.length-1].fecha, tx:'<b>'+NOMBRES[c]+'</b> aparece como falla seria en '+
+        i.serias3+' de tus últimos '+Math.min(i.total,3)+' análisis.' });
+    }
+  });
 
-        function getInitials(name) {
-            return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
-        }
+  var sin = COMPONENTES.filter(function(c){ return S.comp[c].total === 0; });
+  if(sin.length >= 3 && n > 0){
+    out.push({ peso:60, fecha:ultimaFecha(), tx:'Hay <b>'+sin.length+' de 8 componentes sin evaluar</b> nunca. '+
+      'Un video desde el otro ángulo de cámara los cubriría casi todos.' });
+  }
+  if(n > 0 && n < 3){
+    out.push({ peso:50, fecha:ultimaFecha(), tx:'Con '+n+' análisis nada está confirmado. '+
+      'La regla de 2 de 3 necesita <b>'+(3-n)+' más</b> para separar un patrón de una lectura suelta.' });
+  }
+  var ult = ultimaFecha();
+  if(ult && dias(ult, new Date()) > CONFIG.DIAS_DATO_VIEJO){
+    out.push({ peso:100, fecha:ult, tx:'Tu última medición fue <b>'+haceTexto(ult)+
+      '</b>. Los datos de este panel están envejeciendo.' });
+  }
+  out.sort(function(a,b){
+    if(b.peso !== a.peso) return b.peso - a.peso;
+    return new Date(b.fecha) - new Date(a.fecha);
+  });
+  S.insights = out.slice(0,5);
+}
 
-        // ── LOGOUT ──
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await sb.auth.signOut();
-            window.location.href = '/es/login.html';
-        });
+function calcularFeed(){
+  var out = [];
+  S.analisis.forEach(function(a){
+    out.push({ fecha:a.created_at, color:'var(--teal)',
+      tx:'Análisis subido · <b>'+(a.camera_angle==='dtl'?'down the line':'de frente')+'</b>'+
+         (a.score!=null?' · puntaje '+a.score:'') });
+  });
+  S.findings.forEach(function(f){
+    var a = S.analisis.filter(function(x){ return x.id===f.analysis_id; })[0];
+    if(!a) return;
+    var nd = S.drills.filter(function(d){ return d.finding_id===f.id; }).length;
+    out.push({ fecha:a.created_at,
+      color: f.severidad==='severo'?'var(--severo)':f.severidad==='moderado'?'var(--moderado)':'var(--leve)',
+      tx:'Diagnóstico: <b>'+esc(f.titulo || NOMBRES[f.componente] || '')+'</b>'+
+         (nd ? ' · '+nd+(nd===1?' drill recomendado':' drills recomendados') : '') });
+  });
+  COMPONENTES.forEach(function(c){
+    S.comp[c].ciclo.filter(function(e){ return e.fin; }).forEach(function(e){
+      out.push({ fecha:e.fin, color:'var(--ok)', tx:'<b>'+NOMBRES[c]+'</b> se dio por resuelta' });
+    });
+  });
+  out.sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
+  S.feed = out.slice(0,14);
+}
+function noVistos(){
+  var t = 0;
+  try{ t = parseInt(localStorage.getItem('mgl_visto') || '0', 10) || 0; }catch(e){}
+  return S.feed.filter(function(x){ return new Date(x.fecha).getTime() > t; }).length;
+}
+function marcarVisto(){
+  try{ localStorage.setItem('mgl_visto', String(Date.now())); }catch(e){}
+  var b = el('badge'); if(b) b.style.display = 'none';
+}
 
-        // ── MOBILE SIDEBAR ──
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
+function render(){
+  calcular(); calcularInsights(); calcularFeed();
+  var n = validos().length, pro = CONFIG.PLANES_PRO.indexOf(S.plan) > -1;
+  var h = '';
+  h += '<div class="row r21">' + hero(n) + bloqueFoco(foco(), n) + '</div>';
+  h += '<div class="row">' + tablero() + '</div>';
+  h += '<div class="row r21">' + matriz() + inteligente() + '</div>';
+  h += '<div class="row r21">' + historial() + actividad() + '</div>';
+  h += '<div class="row r21">' + comparador(pro) + constancia() + '</div>';
+  h += '<div class="row">' + rendimiento() + '</div>';
+  el('app').innerHTML = h;
+  el('bAv').textContent = iniciales(S.nombre);
+  pintarPopups();
+  if(el('cmp-a')) enlazarComparador();
+  var nv = noVistos();
+  if(nv > 0){ el('badge').textContent = nv > 9 ? '9+' : nv; el('badge').style.display = 'flex'; }
+}
 
-        function toggleSidebar() {
-            sidebar.classList.toggle('open');
-            sidebarOverlay.classList.toggle('open');
-            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-        }
+function hero(n){
+  var c = resumenCiclo(), ahora = new Date();
+  var mes = S.analisis.filter(function(a){
+    var d = new Date(a.created_at);
+    return d.getMonth()===ahora.getMonth() && d.getFullYear()===ahora.getFullYear();
+  }).length;
+  var cuota = CONFIG.CUOTAS[S.plan], hcp = null;
+  for(var i=0;i<S.analisis.length && hcp===null;i++){
+    if(S.analisis[i].input_handicap != null) hcp = S.analisis[i].input_handicap;
+  }
+  return '<div class="hero"><div class="display saludo">'+esc(S.nombre)+'</div>'+
+    '<div class="frase">'+frase()+'</div><div class="cuentas">'+
+    '<div class="cuenta"><div class="n s-severo">'+c.activas+'</div><div class="t">Fallas activas</div></div>'+
+    '<div class="cuenta"><div class="n s-ok">'+c.resueltas+'</div><div class="t">Fallas cerradas</div></div>'+
+    '<div class="cuenta"><div class="n">'+n+'</div><div class="t">Análisis</div></div>'+
+    '<div class="cuenta"><div class="n">'+mes+'<span style="font-size:20px;color:var(--tx-3)">/'+cuota+'</span></div>'+
+      '<div class="t">Este mes · '+etiquetaPlan(S.plan)+'</div></div>'+
+    (hcp!=null ? '<div class="cuenta"><div class="n">'+esc(hcp)+'</div><div class="t">Hándicap</div></div>' : '')+
+    '</div></div>';
+}
 
-        menuToggle.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
+function bloqueFoco(f, n){
+  if(!f){
+    if(n === 0)
+      return '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
+        '<div class="comp">Sin definir</div><div class="why">Sube un swing y acá va a quedar un solo '+
+        'componente en el que trabajar, con sus drills.</div>'+
+        '<a class="btn btn-solid" href="'+CONFIG.RUTAS.coach+'">Analizar un swing</a></div>';
+    return '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
+      '<div class="comp">Todo sólido</div><div class="why">Ningún componente evaluado muestra falla. '+
+      'Sostén el patrón y vuelve a medir en unos días.</div>'+
+      '<a class="btn" href="'+CONFIG.RUTAS.coach+'">Volver a medir</a></div>';
+  }
+  var i = f.info, fi = f.finding;
+  var cert = i.confirmado
+    ? 'Confirmado: falló en '+i.fallas3+' de tus últimos '+Math.min(i.total,3)+'.'
+    : (i.total < 2 ? 'Basado en una sola lectura. Vuelve a medir para confirmarlo.'
+                   : 'Por confirmar: falló en '+i.fallas3+' de '+Math.min(i.total,3)+'.');
+  var h = '<div class="foco"><span class="label eyebrow">Tu foco de hoy</span>'+
+    '<div class="comp">'+esc(NOMBRES[f.componente])+'</div>'+
+    '<span class="tag s-'+cls(i.actual)+'" style="margin:0">'+txtEstado(i.actual)+'</span>'+
+    (fi && fi.pilar ? ' <span class="tag" style="margin:0;color:var(--gold);border-color:rgba(212,197,169,.4)">'+
+      esc(fi.pilar)+'</span>' : '')+
+    '<div class="why">'+esc(fi && fi.que_pasa ? fi.que_pasa : (fi && fi.titulo ? fi.titulo : ''))+
+    '<div class="cert">'+cert+'</div></div>';
+  if(fi && fi.como_corregirlo)
+    h += '<span class="label">Cómo corregirlo</span><div style="font-size:13.5px;color:var(--tx-2);'+
+         'margin:6px 0 14px">'+esc(fi.como_corregirlo)+'</div>';
+  if(f.drills.length){
+    h += '<span class="label">Drills para hoy</span><div style="margin-top:8px">';
+    f.drills.slice(0,3).forEach(function(d,k){
+      h += '<a class="drill" href="'+CONFIG.RUTAS.biblioteca+'#'+encodeURIComponent(d.drill_id)+'">'+
+           '<span class="k">Drill '+(k+1)+'</span>'+esc(NOMBRES_DRILLS[d.drill_id] || d.drill_id)+'</a>';
+    });
+    h += '</div>';
+  }
+  return h + '</div>';
+}
 
-        document.querySelectorAll('.sidebar-link').forEach(link => {
-            link.addEventListener('click', function() {
-                if (!this.href) {
-                    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                }
-                if (sidebar.classList.contains('open')) toggleSidebar();
-            });
-        });
+function tablero(){
+  var con = COMPONENTES.filter(function(c){ return S.comp[c].actual !== null; });
+  var sin = COMPONENTES.filter(function(c){ return S.comp[c].actual === null; });
+  con.sort(function(a,b){ return PESO[S.comp[b].actual] - PESO[S.comp[a].actual]; });
+  var h = '<div class="card"><div class="card-h"><h2>El tablero</h2>'+
+    '<span class="sub">Los 8 componentes · un problema cuenta si falla en 2 de los últimos 3</span></div>';
+  if(!con.length){
+    h += '<div class="empty"><div class="t">Todavía sin lectura</div><div class="d">Ningún componente '+
+         'pudo evaluarse. Un video de frente y otro desde la línea de tiro dan la mejor cobertura.</div></div>';
+  } else {
+    h += '<div class="tablero">';
+    con.forEach(function(c){
+      var i = S.comp[c], k = cls(i.actual), pie;
+      if(FALLA.indexOf(i.actual) > -1){
+        pie = i.confirmado ? 'Confirmado · '+i.fallas3+' de '+Math.min(i.total,3)
+          : (i.total < 2 ? 'Por confirmar · 1 lectura'
+                         : 'Por confirmar · '+i.fallas3+' de '+Math.min(i.total,3));
+      } else { pie = i.total + (i.total===1?' lectura':' lecturas'); }
+      h += '<div class="tc b-'+k+'"><div class="cn">'+esc(NOMBRES[c])+'</div>'+
+           '<div class="cs s-'+k+'">'+txtEstado(i.actual)+'</div><div class="cf">'+pie+'</div></div>';
+    });
+    h += '</div>';
+  }
+  if(sin.length)
+    h += '<div class="note"><b>'+sin.length+' de 8 sin datos:</b> '+
+      sin.map(function(c){ return NOMBRES[c].toLowerCase(); }).join(', ')+
+      '. La cámara actual no alcanza a verlos. Sube el mismo swing desde el otro ángulo.</div>';
+  return h + '</div>';
+}
 
-        // ── INIT ──
-        initDashboard();
-    </script>
+function matriz(){
+  var lista = ordenAsc(), m = mapaEstados();
+  var h = '<div class="card"><div class="card-h"><h2>Evolución por componente</h2>'+
+    '<span class="sub">Cada columna es un análisis, del más antiguo al más reciente</span></div>';
+  if(!lista.length)
+    return h + '<div class="empty"><div class="t">Acá va tu evidencia de progreso</div><div class="d">'+
+      'Cada análisis suma una columna. Vas a poder ver de un vistazo qué fallas se cerraron, '+
+      'cuáles volvieron y cuáles se están deteriorando.</div></div></div>';
+
+  var cols = lista.slice(-12);
+  h += '<div class="mx" style="grid-template-columns:96px repeat('+cols.length+',minmax(20px,1fr))"><div></div>';
+  cols.forEach(function(a){ h += '<div class="mx-col">'+fechaCorta(a.created_at)+'</div>'; });
+
+  var orden = COMPONENTES.slice().sort(function(a,b){
+    var A = S.comp[a], B = S.comp[b];
+    if(A.total===0 && B.total>0) return 1;
+    if(B.total===0 && A.total>0) return -1;
+    return PESO[B.actual||'ok'] - PESO[A.actual||'ok'];
+  });
+  orden.forEach(function(c){
+    h += '<div class="mx-lab'+(S.comp[c].total===0?' off':'')+'">'+esc(NOMBRES[c])+'</div>';
+    cols.forEach(function(a){
+      var e = (m[a.id]||{})[c];
+      var k = (e && e !== 'no_evaluable') ? e : 'nulo';
+      h += '<div class="mx-c c-'+k+'" title="'+esc(NOMBRES[c])+' · '+fecha(a.created_at)+' · '+
+           txtEstado(e)+'"></div>';
+    });
+  });
+  h += '</div><div class="leg">'+
+    '<span><i style="background:var(--ok)"></i>Sólido</span>'+
+    '<span><i style="background:var(--leve)"></i>Leve</span>'+
+    '<span><i style="background:var(--moderado)"></i>Moderada</span>'+
+    '<span><i style="background:var(--severo)"></i>Severa</span>'+
+    '<span><i style="border:1px solid var(--line-2)"></i>Sin datos</span></div>';
+  return h + '</div>';
+}
+
+function inteligente(){
+  var h = '<div class="card"><div class="card-h"><h2>Progreso inteligente</h2></div>';
+  if(!S.insights.length)
+    return h + '<div class="empty"><div class="t">Sin lecturas todavía</div><div class="d">'+
+      'Acá van a aparecer las conclusiones que salgan de tus análisis: fallas que cerraste, '+
+      'las que reaparecieron y las que se están deteriorando.</div></div></div>';
+  S.insights.forEach(function(i){
+    h += '<div class="ins"><span class="mk"></span><div><div class="tx">'+i.tx+'</div>'+
+         (i.fecha ? '<div class="mt">'+haceTexto(i.fecha)+'</div>' : '')+'</div></div>';
+  });
+  return h + '</div>';
+}
+
+function actividad(){
+  var h = '<div class="card"><div class="card-h"><h2>Actividad reciente</h2><span class="spacer"></span>'+
+    '<a class="sub" style="color:var(--teal)" href="'+CONFIG.RUTAS.historial+'">Ver historial →</a></div>';
+  if(!S.feed.length)
+    return h + '<div class="empty"><div class="t">Sin movimiento aún</div><div class="d">'+
+      'Cada análisis, diagnóstico y falla resuelta va a quedar registrado acá con su fecha.</div></div></div>';
+  S.feed.slice(0,7).forEach(function(f){
+    h += '<div class="ins"><span class="mk" style="background:'+f.color+'"></span>'+
+         '<div><div class="tx">'+f.tx+'</div><div class="mt">'+haceTexto(f.fecha)+'</div></div></div>';
+  });
+  return h + '</div>';
+}
+
+function historial(){
+  var lista = S.analisis.slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  var h = '<div class="card"><div class="card-h"><h2>Historial</h2>'+
+    '<span class="sub">'+lista.length+' análisis · completo en todos los planes</span>'+
+    '<span class="spacer"></span><a class="sub" style="color:var(--teal)" href="'+
+    CONFIG.RUTAS.historial+'">Ver todo →</a></div>';
+  if(!lista.length)
+    return h + '<div class="empty"><div class="t">Sin análisis todavía</div><div class="d">'+
+      'Cada swing que subas queda acá con sus frames, para que puedas volver a mirarlo.</div>'+
+      '<div style="margin-top:14px"><a class="btn" href="'+CONFIG.RUTAS.coach+
+      '">Subir mi primer swing</a></div></div></div>';
+  lista.slice(0,5).forEach(function(a){
+    var fr = (a.frame_paths||[]).slice(0,3).map(function(p,i){
+      var u = S.firmadas[p];
+      return u ? '<img class="fr" src="'+esc(u)+'" alt="Frame '+(i+1)+'">' : '<div class="fr">F'+(i+1)+'</div>';
+    }).join('');
+    var mig = String(a.prompt_version||'').toLowerCase().indexOf('migrado') > -1;
+    h += '<div class="hi"><div class="frames">'+fr+'</div><div class="hi-b">'+
+      '<div class="d">'+fecha(a.created_at)+'</div>'+
+      '<div class="r">'+esc(a.resumen||'Sin resumen')+'</div>'+
+      '<span class="tag">'+(a.camera_angle==='dtl'?'Down the line':'De frente')+'</span>'+
+      (a.nivel ? '<span class="tag">'+esc(a.nivel)+'</span>' : '')+
+      (mig ? '<span class="tag">Migrado</span>' : '')+
+      '</div><div class="sc">'+(a.score!=null?a.score:'—')+'</div></div>';
+  });
+  return h + '</div>';
+}
+
+function comparador(pro){
+  var lista = validos().slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+  if(!pro)
+    return '<div class="locked"><div class="locked-in"><div class="card-h"><h2>Antes y después</h2></div>'+
+      '<div class="cmp-cols"><div class="empty"><div class="t">Análisis A</div></div>'+
+      '<div class="empty"><div class="t">Análisis B</div></div></div></div>'+
+      '<div class="locked-ov"><div class="t">Comparador y tendencias</div><div class="d">'+
+      'Pone dos swings lado a lado y te muestra qué componentes mejoraron y cuáles no. '+
+      'Tu historial completo ya es tuyo; esto es la lectura de ese historial.</div>'+
+      '<a class="btn" href="'+CONFIG.RUTAS.planes+'">Ver plan Pro</a></div></div>';
+
+  var h = '<div class="card"><div class="card-h"><h2>Antes y después</h2>'+
+    '<span class="sub">Elige dos análisis</span></div>';
+  if(lista.length < 2)
+    return h + '<div class="empty"><div class="t">'+faltan(2-lista.length)+'</div><div class="d">'+
+      'Con dos swings en fechas distintas se puede comparar frame contra frame y ver qué se movió.</div>'+
+      '<div class="bar"><span style="width:'+Math.round((lista.length/2)*100)+'%"></span></div></div></div>';
+
+  function ops(sel){
+    return lista.map(function(a,i){
+      return '<option value="'+esc(a.id)+'"'+(i===sel?' selected':'')+'>'+fecha(a.created_at)+
+             (a.score!=null?' · '+a.score:'')+'</option>';
+    }).join('');
+  }
+  h += '<div class="cmp-bar"><span class="label" style="display:inline">Antes</span>'+
+    '<select id="cmp-a">'+ops(lista.length-1)+'</select>'+
+    '<span class="label" style="display:inline">Después</span>'+
+    '<select id="cmp-b">'+ops(0)+'</select></div><div id="cmp-out"></div>';
+  return h + '</div>';
+}
+
+function enlazarComparador(){
+  el('cmp-a').addEventListener('change', pintarComparador);
+  el('cmp-b').addEventListener('change', pintarComparador);
+  pintarComparador();
+}
+
+function pintarComparador(){
+  var A = S.analisis.filter(function(x){ return String(x.id)===el('cmp-a').value; })[0];
+  var B = S.analisis.filter(function(x){ return String(x.id)===el('cmp-b').value; })[0];
+  if(!A || !B){ el('cmp-out').innerHTML = ''; return; }
+  var m = mapaEstados();
+  function col(a,t){
+    var fr = (a.frame_paths||[]).slice(0,4).map(function(p,i){
+      var u = S.firmadas[p];
+      return u ? '<img class="fr" style="width:68px;height:54px" src="'+esc(u)+'" alt="Frame '+(i+1)+'">'
+               : '<div class="fr" style="width:68px;height:54px">F'+(i+1)+'</div>';
+    }).join('');
+    return '<div><span class="label">'+t+' · '+fecha(a.created_at)+'</span>'+
+      '<div class="frames" style="margin-top:9px">'+fr+'</div>'+
+      '<div style="margin-top:9px;font-size:13px;color:var(--tx-2)">'+esc(a.resumen||'')+'</div></div>';
+  }
+  var filas = '';
+  COMPONENTES.forEach(function(c){
+    var ea = (m[A.id]||{})[c], eb = (m[B.id]||{})[c];
+    if(!ea || !eb || ea==='no_evaluable' || eb==='no_evaluable') return;
+    var d = PESO[ea] - PESO[eb];
+    filas += '<div class="dr"><span class="cn">'+esc(NOMBRES[c])+'</span>'+
+      '<span class="s-'+cls(ea)+'">'+txtEstado(ea)+'</span><span class="ar">→</span>'+
+      '<span class="s-'+cls(eb)+'">'+txtEstado(eb)+'</span>'+
+      '<span class="dl '+(d>0?'d-mejor':d<0?'d-peor':'d-igual')+'">'+
+      (d>0?'Mejoró':d<0?'Retrocedió':'Igual')+'</span></div>';
+  });
+  if(!filas) filas = '<div class="note">Estos dos análisis no comparten componentes evaluables. '+
+    'Suele pasar cuando uno es de frente y el otro desde la línea de tiro.</div>';
+  el('cmp-out').innerHTML = '<div class="cmp-cols">'+col(A,'Antes')+col(B,'Después')+'</div>'+
+    '<div class="diff">'+filas+'</div>';
+}
+
+function constancia(){
+  var hoy = new Date(), lun = new Date(hoy);
+  lun.setDate(hoy.getDate() - ((hoy.getDay()+6)%7)); lun.setHours(0,0,0,0);
+  var sem = [];
+  for(var i=11;i>=0;i--){
+    var ini = new Date(lun); ini.setDate(lun.getDate()-i*7);
+    var fin = new Date(ini); fin.setDate(ini.getDate()+7);
+    sem.push(S.analisis.filter(function(a){
+      var d = new Date(a.created_at); return d >= ini && d < fin; }).length);
+  }
+  var act = sem.filter(function(x){ return x > 0; }).length;
+  return '<div class="card"><div class="card-h"><h2>Constancia</h2><span class="sub">12 semanas</span></div>'+
+    '<div class="heat">'+sem.map(function(c){
+      return '<div class="wk'+(c===0?'':(c===1?' wk-1':' wk-2'))+'" title="'+c+' análisis"></div>';
+    }).join('')+'</div><div class="heat-l"><span>Hace 12 semanas</span><span>Esta semana</span></div>'+
+    '<div class="note">'+act+' de 12 semanas con actividad. Hoy cuenta solo los análisis de swing; '+
+    'cuando Training Lab registre sesiones se sumarán acá.</div></div>';
+}
+
+function rendimiento(){
+  return '<div class="card"><div class="card-h"><h2>Rendimiento por área</h2>'+
+    '<span class="sub">Pendiente</span></div><div class="empty"><div class="t">Esperando a Training Lab</div>'+
+    '<div class="d">Cuando los drills de rendimiento guarden su puntaje, acá vas a ver qué tan bien ejecutas '+
+    'por área, en un índice donde 50 es aceptable y 85 excelente. Es distinto de la técnica: no responde '+
+    'cómo corregir el movimiento, sino qué tan bien lo ejecutas.</div>'+
+    '<div style="margin-top:14px"><a class="btn btn-quiet" href="'+CONFIG.RUTAS.training+
+    '">Ir a Training Lab</a></div></div></div>';
+}
+
+function pintarPopups(){
+  var h = '<div class="pop-h"><span class="label">Novedades</span></div>';
+  if(!S.feed.length){
+    h += '<div style="padding:12px;font-size:13.5px;color:var(--tx-2)">Nada nuevo por ahora.</div>';
+  } else {
+    S.feed.slice(0,8).forEach(function(f){
+      h += '<div class="ins" style="padding:10px 11px;border-top:0"><span class="mk" style="background:'+
+        f.color+'"></span><div><div class="tx">'+f.tx+'</div><div class="mt">'+haceTexto(f.fecha)+
+        '</div></div></div>';
+    });
+  }
+  el('popCamp').innerHTML = h;
+
+  el('popMenu').innerHTML =
+    '<div class="pop-h"><span class="label">'+esc(S.nombre)+'</span>'+
+    '<span class="label" style="color:var(--gold)">'+etiquetaPlan(S.plan)+'</span></div>'+
+    '<a href="'+CONFIG.RUTAS.historial+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" '+
+      'rx="2"/></svg>Historial del Coach IA</a>'+
+    '<a href="'+CONFIG.RUTAS.coach+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Analizar un swing</a>'+
+    '<a href="'+CONFIG.RUTAS.planes+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2"><polygon points="12 2 15 9 22 9.5 17 14 18 21 12 17.5 6 21 7 14 2 9.5 9 9 12 2"/>'+
+      '</svg>Mi plan</a><hr>'+
+    '<button class="salir" id="bSalir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+      'stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/>'+
+      '<line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión</button>';
+
+  var b = el('bSalir');
+  if(b) b.addEventListener('click', async function(){
+    if(S.sb) await S.sb.auth.signOut();
+    location.href = CONFIG.RUTAS.login;
+  });
+}
+
+function enlazarBarra(){
+  function cerrar(){ el('popCamp').classList.remove('open'); el('popMenu').classList.remove('open'); }
+  el('bCamp').addEventListener('click', function(e){
+    e.stopPropagation();
+    var a = el('popCamp').classList.contains('open');
+    cerrar(); if(!a){ el('popCamp').classList.add('open'); marcarVisto(); }
+  });
+  el('bAv').addEventListener('click', function(e){
+    e.stopPropagation();
+    var a = el('popMenu').classList.contains('open');
+    cerrar(); if(!a) el('popMenu').classList.add('open');
+  });
+  el('bHamb').addEventListener('click', function(e){
+    e.stopPropagation(); el('links').classList.toggle('open');
+  });
+  document.addEventListener('click', cerrar);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrar(); });
+}
+
+function cargarDemo(q){
+  S.demo = true;
+  S.plan = normPlan((q && q.get('plan')) || 'pro');
+  S.nombre = 'Jugador de ejemplo';
+  var lim = (q && q.get('n')) ? parseInt(q.get('n'),10) : null;
+  var hoy = new Date();
+  function atras(d){ var x = new Date(hoy); x.setDate(hoy.getDate()-d); return x.toISOString(); }
+
+  var guion = [
+    { d:68, sc:52, ang:'face', est:{postura:'severo',secuencia:'moderado',cara:'leve',path:'ok'} },
+    { d:57, sc:55, ang:'face', est:{postura:'severo',secuencia:'moderado',cara:'ok',path:'ok'} },
+    { d:44, sc:58, ang:'dtl',  est:{postura:'moderado',secuencia:'leve',cara:'ok',path:'leve',lowpoint:'moderado'} },
+    { d:33, sc:63, ang:'face', est:{postura:'leve',secuencia:'ok',cara:'ok',path:'leve',lowpoint:'leve'} },
+    { d:21, sc:67, ang:'dtl',  est:{postura:'ok',secuencia:'ok',cara:'ok',path:'moderado',lowpoint:'leve'} },
+    { d:11, sc:66, ang:'face', est:{postura:'ok',secuencia:'leve',cara:'ok',path:'moderado',lowpoint:'ok'} },
+    { d:3,  sc:71, ang:'dtl',  est:{postura:'ok',secuencia:'moderado',cara:'ok',path:'moderado',lowpoint:'ok'} }
+  ];
+  var res = [
+    'Pérdida de postura marcada en la bajada, con la cadera acercándose a la bola.',
+    'Sigue el mismo patrón de postura, algo más contenido en el impacto.',
+    'La postura mejora. Aparece un punto bajo inconsistente detrás de la bola.',
+    'Postura casi resuelta. El path empieza a irse hacia adentro.',
+    'Postura estable dos análisis seguidos. El path es ahora lo dominante.',
+    'La secuencia vuelve a adelantarse levemente. Path sin cambios.',
+    'Secuencia reincidente y path moderado. La postura se mantiene sólida.'
+  ];
+  if(lim && lim > 0 && lim < guion.length){ guion = guion.slice(-lim); res = res.slice(-lim); }
+
+  S.analisis = []; S.estados = []; S.findings = []; S.drills = [];
+  guion.forEach(function(g,i){
+    var id = 'demo-'+i;
+    S.analisis.push({ id:id, created_at:atras(g.d), camera_angle:g.ang, score:g.sc,
+      nivel: g.sc<58?'Intermedio bajo':(g.sc<68?'Intermedio':'Intermedio alto'),
+      resumen:res[i], frame_paths:[], prompt_version:'v3.0', input_handicap:18 });
+    COMPONENTES.forEach(function(c){
+      S.estados.push({ analysis_id:id, componente:c, estado: g.est[c] || 'no_evaluable' });
+    });
+  });
+  var ult = S.analisis[S.analisis.length-1].id;
+  S.findings.push({ id:'f1', analysis_id:ult, orden:1, componente:'path', pilar:'KS', severidad:'moderado',
+    titulo:'Path hacia adentro en la bajada',
+    que_pasa:'El palo entra por dentro del plano y obliga a las manos a corregir en el impacto, lo que abre la cara.',
+    como_corregirlo:'Sensación de que el mango apunta a la bola más tiempo en la bajada, sin tirar del brazo derecho hacia el cuerpo.' });
+  S.findings.push({ id:'f2', analysis_id:ult, orden:2, componente:'secuencia', pilar:'KS', severidad:'moderado',
+    titulo:'La pelvis y el torso arrancan juntos',
+    que_pasa:'El torso se adelanta a la pelvis al iniciar la bajada, perdiendo el orden pelvis-torso-brazos.',
+    como_corregirlo:'Iniciar la bajada solo con el pie delantero apretando el suelo, dejando que los brazos lleguen tarde.' });
+  S.drills = [
+    { finding_id:'f1', drill_id:'path-plano-alineado', orden:1 },
+    { finding_id:'f1', drill_id:'palo-paralelo-tee', orden:2 },
+    { finding_id:'f2', drill_id:'step-drill-secuencia', orden:1 }
+  ];
+  NOMBRES_DRILLS['path-plano-alineado']  = 'Plano alineado con bastón guía';
+  NOMBRES_DRILLS['palo-paralelo-tee']    = 'Palo paralelo con tee de referencia';
+  NOMBRES_DRILLS['step-drill-secuencia'] = 'Step drill de secuencia';
+}
+
+function MGL_DASHBOARD_TEST(){
+  var r = [];
+  function t(n,ok,d){ r.push({ prueba:n, resultado: ok?'OK':'REVISAR', detalle:d }); }
+  t('Sesión activa', S.demo || !!S.sesion, S.sesion ? S.sesion.user.email : (S.demo?'demo':'sin sesión'));
+  t('Plan leído desde profiles', PLANES.indexOf(S.plan) > -1, S.plan);
+  t('Análisis cargados', S.analisis.length > 0, S.analisis.length+' filas');
+  t('Estados de componentes', S.estados.length > 0, S.estados.length+' filas');
+  t('Proporción 8 por análisis', S.analisis.length===0 || S.estados.length===S.analisis.length*8,
+    S.estados.length+' vs '+(S.analisis.length*8)+' esperadas');
+  t('Diagnósticos narrados', S.findings.length > 0, S.findings.length+' filas');
+  t('Migrados excluidos', true, (S.analisis.length-validos().length)+' excluidos');
+  t('Frames firmados', S.demo || Object.keys(S.firmadas).length > 0, Object.keys(S.firmadas).length+' URLs');
+  t('Frase de estado generada', document.querySelector('.hero .frase') !== null, '');
+  t('Matriz dibujada', S.analisis.length===0 || document.querySelectorAll('.mx-c').length > 0,
+    document.querySelectorAll('.mx-c').length+' celdas');
+  t('Insights derivados', S.analisis.length===0 || S.insights.length > 0, S.insights.length+' conclusiones');
+  t('Actividad derivada', S.analisis.length===0 || S.feed.length > 0, S.feed.length+' eventos');
+  t('Foco de hoy', true, foco() ? NOMBRES[foco().componente] : 'sin falla activa');
+  t('Menú superior enlazado', !!el('popMenu').innerHTML, '');
+  t('Bloques dibujados', document.querySelectorAll('.card,.hero,.foco,.locked').length >= 8,
+    document.querySelectorAll('.card,.hero,.foco,.locked').length+' bloques');
+
+  console.log('%c MGL DASHBOARD v2.0 — AUTOTEST ','background:#2dd4bf;color:#06251f;font-weight:bold');
+  console.table(r);
+  var e = {};
+  COMPONENTES.forEach(function(c){
+    e[c] = { estado:S.comp[c].actual||'no_evaluable', lecturas:S.comp[c].total,
+      fallas_ult_3:S.comp[c].fallas3, confirmado:S.comp[c].confirmado, episodios:S.comp[c].ciclo.length };
+  });
+  console.log('Estado por componente:'); console.table(e);
+  var f = r.filter(function(x){ return x.resultado === 'REVISAR'; });
+  if(!f.length) console.log('%c Todo correcto. ','background:#22c55e;color:#04210e');
+  else console.warn('Revisar '+f.length+': '+f.map(function(x){ return x.prueba; }).join(', '));
+  return r;
+}
+window.MGL_DASHBOARD_TEST = MGL_DASHBOARD_TEST;
+window.MGL = { estado:S, render:function(){ render(); }, test:MGL_DASHBOARD_TEST };
+
+(async function(){
+  enlazarBarra();
+  var q = new URLSearchParams(location.search);
+
+  if(q.get('demo') === '1'){
+    cargarDemo(q); render(); el('load').classList.add('off'); MGL_DASHBOARD_TEST(); return;
+  }
+  if(!window.supabase || !window.supabase.createClient){
+    el('load').classList.add('off');
+    el('app').innerHTML = '<div class="banner"><div class="t">No cargó la librería</div>'+
+      'No se pudo descargar el cliente de Supabase. Revisa la conexión y recarga.</div>';
+    return;
+  }
+  try{
+    var hay = await cargar();
+    if(!hay){ location.href = CONFIG.RUTAS.login; return; }
+    render();
+  }catch(e){
+    el('app').innerHTML = '<div class="banner"><div class="t">No se pudieron leer los datos</div>'+
+      esc(e.message||'Error desconocido')+'<br><span style="color:var(--tx-3)">'+
+      'Abre la consola con Cmd + Option + C para ver el detalle.</span></div>';
+    console.error('[MGL] Error cargando el dashboard:', e);
+  }
+  el('load').classList.add('off');
+  MGL_DASHBOARD_TEST();
+})();
+</script>
 </body>
 </html>
