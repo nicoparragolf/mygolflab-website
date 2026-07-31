@@ -225,6 +225,7 @@
       padding-top: 12px;
     }
     .nav-auth .nav-avatar { align-self: flex-start; }
+    .nav-auth .nav-cta { align-self: flex-start; }
     .btn-outline, .btn-primary { text-align: center; }
   }
 
@@ -844,6 +845,7 @@
       <li><a href="/es/about.html">Quiénes Somos</a></li>
     </ul>
     <div class="nav-auth" id="header-auth">
+      <a href="/es/jugador.html" class="nav-cta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg>Coach Hub</a>
       <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
       <a href="/es/login.html" class="btn-primary">Únete</a>
     </div>
@@ -1202,6 +1204,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       : '<span class="nav-avatar-initials">' + initials + '</span>';
 
     document.getElementById('header-auth').innerHTML =
+      '<a href="/es/jugador.html" class="nav-cta"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg>Coach Hub</a>' +
       '<a href="/es/dashboard.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
       '<a href="/es/dashboard.html" class="btn-outline">Mi Dashboard</a>' +
       '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>';
