@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil del Jugador · MyGolfLab Coach Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
+    --border:#262626; --border2:#333;
+    --teal:#2dd4bf; --teal-dim:#1a7d72; --gold:#D4C5A9; --gold-strong:#c9b48a;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
+    --blue:#5b9bd5; --purple:#a98fd4; --red:#e06a6a; --orange:#e0a15b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.3px}
+  .display{font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+
+  /* ---------- HEADER ---------- */
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .nav-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text)}
+  .brand span{color:var(--teal)}
+  .nav-links{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:32px}
+  .nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--teal)}
+  .nav-auth{display:flex;align-items:center;gap:14px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;color:#04211d;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer}
+  .hamburger span{width:24px;height:2px;background:var(--text)}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start}
+
+  /* roster */
+  .roster{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;position:sticky;top:88px}
+  .roster-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .roster-head h2{font-size:20px;text-transform:uppercase;color:var(--muted)}
+  .btn-add{background:var(--teal);color:#04211d;border:none;border-radius:9px;width:30px;height:30px;font-size:20px;font-weight:700;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center}
+  .btn-add:hover{filter:brightness(1.1)}
+  .roster-search{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:'Barlow';font-size:14px;margin-bottom:12px}
+  .roster-search::placeholder{color:var(--muted2)}
+  .player-row{display:flex;align-items:center;gap:11px;padding:10px;border-radius:11px;cursor:pointer;transition:background .15s;border:1px solid transparent}
+  .player-row:hover{background:var(--card2)}
+  .player-row.sel{background:var(--card2);border-color:var(--teal-dim)}
+  .pr-avatar{width:40px;height:40px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;font-size:15px;overflow:hidden;flex-shrink:0}
+  .pr-avatar img{width:100%;height:100%;object-fit:cover}
+  .pr-info{min-width:0}
+  .pr-name{font-family:'Barlow Condensed';font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pr-meta{font-size:12px;color:var(--muted)}
+  .roster-empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
+
+  /* main */
+  .main{min-width:0}
+  .empty-hero{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:64px 32px;text-align:center}
+  .empty-hero h2{font-size:28px;margin-bottom:10px}
+  .empty-hero p{color:var(--muted);max-width:420px;margin:0 auto 22px}
+
+  /* player hero card */
+  .phero{background:linear-gradient(135deg,var(--card) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .phero-av{width:82px;height:82px;border-radius:16px;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:32px;color:#04211d;overflow:hidden;flex-shrink:0}
+  .phero-av img{width:100%;height:100%;object-fit:cover}
+  .phero-id{flex:1;min-width:200px}
+  .phero-id h1{font-size:32px;line-height:1}
+  .phero-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .badge{font-family:'Barlow Condensed';font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:4px 11px;border-radius:20px}
+  .badge.cat{background:rgba(45,212,191,.14);color:var(--teal);border:1px solid var(--teal-dim)}
+  .badge.tier{background:rgba(212,197,169,.14);color:var(--gold);border:1px solid rgba(212,197,169,.3)}
+  .badge.hcp{background:var(--card2);color:var(--text);border:1px solid var(--border2)}
+  .phero-stats{display:flex;gap:26px}
+  .pstat{text-align:center}
+  .pstat .n{font-family:'Bebas Neue';font-size:30px;line-height:1;color:var(--teal)}
+  .pstat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+
+  /* subnav */
+  .subnav{display:flex;gap:6px;margin:20px 0 16px;border-bottom:1px solid var(--border)}
+  .subnav button{background:none;border:none;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:17px;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .subnav button.on{color:var(--teal);border-bottom-color:var(--teal)}
+
+  /* filters */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .chip{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed';font-weight:500;font-size:14px;padding:6px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
+  .chip:hover{border-color:var(--border2);color:var(--text)}
+  .chip.on{background:var(--teal);color:#04211d;border-color:var(--teal)}
+  .filters-right{margin-left:auto;display:flex;gap:8px}
+  .btn-primary{background:var(--teal);color:#04211d;border:none;border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+  .btn-primary:hover{filter:brightness(1.1)}
+  .btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+
+  /* timeline */
+  .timeline{position:relative;padding-left:36px}
+  .timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:var(--border2)}
+  .tl-event{position:relative;margin-bottom:16px}
+  .tl-dot{position:absolute;left:-30px;top:4px;width:26px;height:26px;border-radius:50%;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center}
+  .tl-dot svg{width:13px;height:13px}
+  .tl-event.milestone .tl-dot{border-color:var(--gold);background:rgba(212,197,169,.12);box-shadow:0 0 0 4px rgba(212,197,169,.08)}
+  .tl-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 16px;transition:border-color .15s}
+  .tl-card:hover{border-color:var(--border2)}
+  .tl-event.milestone .tl-card{border-color:rgba(212,197,169,.35)}
+  .tl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+  .tl-title{font-family:'Barlow Condensed';font-weight:600;font-size:18px}
+  .tl-date{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tl-type{font-family:'Barlow Condensed';font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+  .tl-summary{font-size:14px;color:#cfcfcf;line-height:1.5}
+  .tl-tags{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  .tl-pill{font-size:11px;padding:2px 9px;border-radius:12px;background:var(--card2);color:var(--muted);border:1px solid var(--border)}
+  .tl-pill.pillar{color:var(--teal);border-color:var(--teal-dim)}
+  .tl-pill.media{color:var(--blue)}
+  .ms-flag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);background:rgba(212,197,169,.12);padding:2px 8px;border-radius:10px}
+  .tl-empty{text-align:center;color:var(--muted);padding:40px}
+
+  /* métricas */
+  .metric-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+  .metric-select-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .metric-select-row select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:9px 12px;border-radius:9px;min-width:220px}
+  .chart-wrap{position:relative;margin-top:14px}
+  .chart-legend{display:flex;gap:18px;align-items:center;margin-top:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  .lg{display:flex;align-items:center;gap:7px}
+  .lg .swatch{width:14px;height:14px;border-radius:3px}
+  .lg .line-gold{width:16px;height:0;border-top:2px dashed var(--gold)}
+  .metric-empty{text-align:center;color:var(--muted);padding:50px 20px}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:26px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+  .modal h2{font-size:24px;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:5px}
+  .field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:10px 12px;border-radius:9px}
+  .field textarea{resize:vertical;min-height:70px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .check{display:flex;align-items:center;gap:9px;cursor:pointer;padding:10px;background:rgba(212,197,169,.06);border:1px solid rgba(212,197,169,.2);border-radius:9px}
+  .check input{width:auto}
+  .check span{font-family:'Barlow Condensed';font-weight:600;font-size:15px;color:var(--gold)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  .metric-rows{margin-top:6px}
+  .metric-input-row{display:grid;grid-template-columns:1fr 90px 30px;gap:8px;margin-bottom:8px;align-items:center}
+  .metric-input-row select,.metric-input-row input{padding:8px 10px;font-size:14px}
+  .btn-x{background:var(--card2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;height:36px;cursor:pointer}
+  .link-add{color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--teal);color:#04211d;font-family:'Barlow Condensed';font-weight:600;padding:12px 22px;border-radius:11px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.err{background:var(--red);color:#fff}
+
+  .loading{text-align:center;color:var(--muted);padding:60px}
+
+  @media(max-width:900px){
+    .shell{grid-template-columns:1fr}
+    .roster{position:static}
+    .nav-links{display:none}
+    .hamburger{display:flex}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
+    <nav class="nav-links">
+      <a href="/es/index.html">Inicio</a>
+      <a href="/es/biblioteca.html">Biblioteca</a>
+      <a href="/es/training.html">Training Lab</a>
+      <a href="/es/coach/jugadores.html" class="active">Coach Hub</a>
+    </nav>
+    <div class="nav-auth">
+      <div class="avatar" id="navAvatar">?</div>
+      <div class="hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <!-- ROSTER -->
+  <aside class="roster">
+    <div class="roster-head">
+      <h2>Mis jugadores</h2>
+      <button class="btn-add" id="btnNewPlayer" title="Agregar jugador">+</button>
+    </div>
+    <input class="roster-search" id="rosterSearch" placeholder="Buscar...">
+    <div id="rosterList"><div class="loading">Cargando...</div></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainPanel">
+    <div class="empty-hero">
+      <h2>Selecciona un jugador</h2>
+      <p>Elige un jugador de la lista para ver su historial completo, o agrega uno nuevo para empezar a construir su perfil desde el primer día.</p>
+    </div>
+  </main>
+
+</div>
+
+<!-- MODAL: NUEVO JUGADOR -->
+<div class="overlay" id="ovPlayer">
+  <div class="modal">
+    <h2>Nuevo jugador</h2>
+    <div class="field-row">
+      <div class="field"><label>Nombre</label><input id="np_first"></div>
+      <div class="field"><label>Apellido</label><input id="np_last"></div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Categoría</label>
+        <select id="np_cat">
+          <option value="iniciacion">Iniciación</option>
+          <option value="junior">Junior</option>
+          <option value="amateur" selected>Amateur</option>
+          <option value="college">College</option>
+          <option value="elite_amateur">Elite amateur</option>
+          <option value="profesional">Profesional</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nivel de estadística</label>
+        <select id="np_tier">
+          <option value="basico" selected>Básico</option>
+          <option value="intermedio">Intermedio</option>
+          <option value="avanzado">Avanzado (SG)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Handicap</label><input id="np_hcp" type="number" step="0.1" placeholder="Opcional"></div>
+      <div class="field"><label>Entrena desde</label><input id="np_since" type="date"></div>
+    </div>
+    <div class="field"><label>Club</label><input id="np_club" placeholder="Opcional"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('ovPlayer')">Cancelar</button>
+      <button class="btn-primary" id="np_save">Crear jugador</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO EVENTO -->
+<div class="overlay" id="ovEvent">
+  <div class="modal">
+    <h2>Registrar evento</h2>
+    <div class="field">
+      <label>Tipo de evento</label>
+      <select id="ne_type"></select>
+    </div>
+    <div class="field"><label>Título</label><input id="ne_title" placeholder="Ej: Clase — trabajo de pivot"></div>
+    <div class="field-row">
+      <div class="field"><label>Fecha</label><input id="ne_date" type="date"></div>
+      <div class="field">
+        <label>Pilar (opcional)</label>
+        <select id="ne_pillar">
+          <option value="">—</option>
+          <option value="ground_forces">Ground Forces</option>
+          <option value="kinematic_sequence">Kinematic Sequence</option>
+          <option value="body_tilts">Body Tilts</option>
+          <option value="wrist_conditions">Wrist Conditions</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Resumen / notas</label><textarea id="ne_summary" placeholder="Qué se trabajó, observaciones..."></textarea></div>
+    <label class="check"><input type="checkbox" id="ne_milestone"><span>Marcar como hito (cambio técnico) — aparece en el gráfico de métricas</span></label>
+
+    <div class="field" style="margin-top:16px">
+      <label>Métricas de este evento (opcional)</label>
+      <div class="metric-rows" id="ne_metricRows"></div>
+      <span class="link-add" id="ne_addMetric">+ agregar métrica</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('ovEvent')">Cancelar</button>
+      <button class="btn-primary" id="ne_save">Guardar evento</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ============================================================
+// STATE
+// ============================================================
+var USER = null;
+var PLAYERS = [];
+var SEL = null;              // jugador seleccionado
+var EVENTS = [];             // eventos del jugador seleccionado
+var METRIC_DEFS = [];        // catálogo
+var METRIC_BY_KEY = {};
+var VIEW = 'timeline';       // timeline | metricas
+var FILTER_TYPE = 'all';
+var FILTER_PILLAR = 'all';
+
+// ============================================================
+// CONFIG: tipos de evento
+// ============================================================
+var EVENT_TYPES = {
+  clase:                {label:'Clase',                color:'var(--teal)',  icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
+  video_swing:          {label:'Video de swing',       color:'var(--teal)',  icon:'M4 4h16v16H4z M10 9l5 3-5 3z'},
+  cambio_tecnico:       {label:'Cambio técnico',       color:'var(--gold)',  icon:'M12 2v20 M5 9l7-7 7 7'},
+  sesion_trackman:      {label:'Sesión Trackman',      color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
+  sesion_sportsbox:     {label:'Sesión Sportsbox',     color:'var(--purple)',icon:'M12 2l9 5v10l-9 5-9-5V7z'},
+  launch_monitor:       {label:'Launch monitor',       color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
+  ronda_torneo:         {label:'Ronda de torneo',      color:'var(--gold)',  icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  ronda_practica:       {label:'Ronda de práctica',    color:'var(--teal)',  icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  sesion_entrenamiento: {label:'Entrenamiento',        color:'var(--teal)',  icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
+  test_fisico:          {label:'Test físico',          color:'var(--orange)',icon:'M6 7v10 M18 7v10 M4 12h16'},
+  analisis_ia:          {label:'Análisis IA',          color:'var(--teal)',  icon:'M12 2a5 5 0 015 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 015-5z M9 17h6 M10 20h4'},
+  plan_asignado:        {label:'Plan asignado',        color:'var(--teal)',  icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
+  objetivo_creado:      {label:'Objetivo creado',      color:'var(--gold)',  icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
+  objetivo_logrado:     {label:'Objetivo logrado',     color:'var(--gold)',  icon:'M20 6L9 17l-5-5'},
+  nota:                 {label:'Nota',                 color:'var(--muted)', icon:'M4 4h16v16H4z M8 9h8 M8 13h5'},
+  lesion:               {label:'Lesión',               color:'var(--red)',   icon:'M12 5v14 M5 12h14'},
+  cambio_equipo:        {label:'Cambio de equipo',     color:'var(--muted)', icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  otro:                 {label:'Otro',                 color:'var(--muted)', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'}
+};
+var PILLAR_LABEL = {ground_forces:'Ground Forces',kinematic_sequence:'Kinematic Sequence',body_tilts:'Body Tilts',wrist_conditions:'Wrist Conditions'};
+var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional'};
+var TIER_LABEL = {basico:'Básico',intermedio:'Intermedio',avanzado:'Avanzado'};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(a,b){ return ((a||'?').charAt(0)+(b||'').charAt(0)).toUpperCase(); }
+function fmtDate(d){ if(!d) return ''; var p=String(d).split('-'); if(p.length<3) return d; return p[2]+'/'+p[1]+'/'+p[0].slice(2); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function icon(path,color){
+  var parts=path.split(' M');
+  var d = parts.map(function(p,i){ return i===0?p:'M'+p; }).join(' ');
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="'+d+'"/></svg>';
+}
+function toast(msg,isErr){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  setTimeout(function(){ t.className='toast'+(isErr?' err':''); },2600);
+}
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+// ============================================================
+// AUTH
+// ============================================================
+async function init(){
+  var res = await sb.auth.getSession();
+  var session = res.data.session;
+  if(!session){ window.location.href='/es/login.html'; return; }
+  USER = session.user;
+  var av=document.getElementById('navAvatar');
+  var meta=USER.user_metadata||{};
+  if(meta.avatar_url){ av.innerHTML='<img src="'+esc(meta.avatar_url)+'">'; }
+  else { av.textContent=(meta.full_name||USER.email||'?').charAt(0).toUpperCase(); }
+
+  await loadMetricDefs();
+  await loadPlayers();
+}
+
+async function loadMetricDefs(){
+  var r = await sb.from('metric_definitions').select('*').order('sort_order');
+  if(r.error){ console.error(r.error); return; }
+  METRIC_DEFS = r.data||[];
+  METRIC_DEFS.forEach(function(m){ METRIC_BY_KEY[m.key]=m; });
+}
+
+// ============================================================
+// ROSTER
+// ============================================================
+async function loadPlayers(){
+  var r = await sb.from('v_player_summary').select('*').order('first_name');
+  if(r.error){ document.getElementById('rosterList').innerHTML='<div class="roster-empty">Error al cargar. Revisa tu conexión.</div>'; console.error(r.error); return; }
+  PLAYERS = (r.data||[]).filter(function(p){ return p.status!=='archivado'; });
+  renderRoster();
+}
+
+function renderRoster(){
+  var box=document.getElementById('rosterList');
+  var q=(document.getElementById('rosterSearch').value||'').toLowerCase();
+  var list=PLAYERS.filter(function(p){ return (p.first_name+' '+p.last_name).toLowerCase().indexOf(q)>=0; });
+  if(list.length===0){
+    box.innerHTML='<div class="roster-empty">'+(PLAYERS.length===0?'Aún no tienes jugadores.<br>Toca + para agregar el primero.':'Sin resultados.')+'</div>';
+    return;
+  }
+  var html='';
+  list.forEach(function(p){
+    var sel = SEL && SEL.id===p.id ? ' sel':'';
+    var av = p.photo_url ? '<img src="'+esc(p.photo_url)+'">' : esc(initials(p.first_name,p.last_name));
+    html+='<div class="player-row'+sel+'" onclick="selectPlayer(\''+p.id+'\')">'
+        + '<div class="pr-avatar">'+av+'</div>'
+        + '<div class="pr-info"><div class="pr-name">'+esc(p.first_name+' '+p.last_name)+'</div>'
+        + '<div class="pr-meta">'+esc(CAT_LABEL[p.category]||p.category)+' · '+(p.total_eventos||0)+' eventos</div></div></div>';
+  });
+  box.innerHTML=html;
+}
+document.getElementById('rosterSearch').addEventListener('input',renderRoster);
+
+// ============================================================
+// SELECT + LOAD PROFILE
+// ============================================================
+async function selectPlayer(id){
+  SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
+  if(!SEL) return;
+  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all';
+  renderRoster();
+  document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
+  await loadEvents(id);
+  renderProfile();
+}
+
+async function loadEvents(playerId){
+  var r = await sb.from('v_player_timeline').select('*').eq('player_id',playerId).order('event_date',{ascending:false}).order('created_at',{ascending:false});
+  if(r.error){ console.error(r.error); EVENTS=[]; return; }
+  EVENTS = r.data||[];
+}
+
+// ============================================================
+// RENDER PROFILE
+// ============================================================
+function renderProfile(){
+  var p=SEL;
+  var av = p.photo_url ? '<img src="'+esc(p.photo_url)+'">' : esc(initials(p.first_name,p.last_name));
+  var dias = p.dias_entrenando!=null ? p.dias_entrenando : 0;
+  var hcp = p.handicap_index!=null ? Number(p.handicap_index).toFixed(1) : '—';
+
+  var html='<div class="phero">'
+    + '<div class="phero-av">'+av+'</div>'
+    + '<div class="phero-id"><h1>'+esc(p.first_name+' '+p.last_name)+'</h1>'
+    + '<div class="phero-badges">'
+    +   '<span class="badge cat">'+esc(CAT_LABEL[p.category]||p.category)+'</span>'
+    +   '<span class="badge tier">Stats: '+esc(TIER_LABEL[p.stats_tier]||p.stats_tier)+'</span>'
+    +   '<span class="badge hcp">HCP '+hcp+'</span>'
+    + '</div></div>'
+    + '<div class="phero-stats">'
+    +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
+    +   '<div class="pstat"><div class="n">'+(p.total_eventos||0)+'</div><div class="l">eventos</div></div>'
+    +   '<div class="pstat"><div class="n">'+(p.total_clases||0)+'</div><div class="l">clases</div></div>'
+    + '</div></div>';
+
+  html+='<div class="subnav">'
+    + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
+    + '<button class="'+(VIEW==='metricas'?'on':'')+'" onclick="setView(\'metricas\')">Métricas</button>'
+    + '</div>';
+
+  html+='<div id="viewBox"></div>';
+  document.getElementById('mainPanel').innerHTML=html;
+  if(VIEW==='timeline') renderTimeline(); else renderMetrics();
+}
+
+function setView(v){ VIEW=v; renderProfile(); }
+
+// ============================================================
+// TIMELINE
+// ============================================================
+function renderTimeline(){
+  var box=document.getElementById('viewBox');
+
+  // chips de tipo presentes
+  var typesPresent={};
+  EVENTS.forEach(function(e){ typesPresent[e.event_type]=true; });
+  var typeChips='<div class="chip'+(FILTER_TYPE==='all'?' on':'')+'" onclick="setFilterType(\'all\')">Todos</div>';
+  Object.keys(typesPresent).forEach(function(t){
+    var cfg=EVENT_TYPES[t]||{label:t};
+    typeChips+='<div class="chip'+(FILTER_TYPE===t?' on':'')+'" onclick="setFilterType(\''+t+'\')">'+esc(cfg.label)+'</div>';
+  });
+
+  var html='<div class="filters">'+typeChips
+    + '<div class="filters-right"><button class="btn-primary" onclick="openEventModal()">+ Evento</button></div></div>';
+
+  var list=EVENTS.filter(function(e){
+    if(FILTER_TYPE!=='all' && e.event_type!==FILTER_TYPE) return false;
+    if(FILTER_PILLAR!=='all' && e.pillar!==FILTER_PILLAR) return false;
+    return true;
+  });
+
+  if(list.length===0){
+    html+='<div class="tl-empty">'+(EVENTS.length===0?'Este perfil aún no tiene eventos. Registra el primero — una clase, un video, una ronda — y empieza a construir su historial.':'Ningún evento con este filtro.')+'</div>';
+    box.innerHTML=html; return;
+  }
+
+  html+='<div class="timeline">';
+  list.forEach(function(e){
+    var cfg=EVENT_TYPES[e.event_type]||{label:e.event_type,color:'var(--muted)',icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'};
+    var ms = e.is_milestone ? ' milestone':'';
+    html+='<div class="tl-event'+ms+'">'
+       + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
+       + '<div class="tl-card">'
+       +   '<div class="tl-top"><div class="tl-title">'+esc(e.title)+'</div><div class="tl-date">'+fmtDate(e.event_date)+'</div></div>'
+       +   '<div class="tl-type">'+esc(cfg.label)+'</div>'
+       +   (e.summary?'<div class="tl-summary">'+esc(e.summary)+'</div>':'')
+       +   '<div class="tl-tags">'
+       +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
+       +     (e.pillar?'<span class="tl-pill pillar">'+esc(PILLAR_LABEL[e.pillar]||e.pillar)+'</span>':'')
+       +     (e.media_count>0?'<span class="tl-pill media">'+e.media_count+' archivo'+(e.media_count>1?'s':'')+'</span>':'')
+       +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
+       +   '</div>'
+       + '</div></div>';
+  });
+  html+='</div>';
+  box.innerHTML=html;
+}
+function setFilterType(t){ FILTER_TYPE=t; renderTimeline(); }
+
+// ============================================================
+// MÉTRICAS — gráfico SVG con hitos superpuestos
+// ============================================================
+async function renderMetrics(){
+  var box=document.getElementById('viewBox');
+  box.innerHTML='<div class="loading">Cargando métricas...</div>';
+
+  var r = await sb.from('player_metrics').select('*').eq('player_id',SEL.id).order('measured_at');
+  if(r.error){ box.innerHTML='<div class="metric-empty">Error al cargar métricas.</div>'; return; }
+  var all=r.data||[];
+
+  if(all.length===0){
+    box.innerHTML='<div class="metric-panel"><div class="metric-empty">Todavía no hay métricas para este jugador.<br>Regístralas al crear un evento (Trackman, torneo, tests) y aparecerán acá graficadas en el tiempo.</div></div>';
+    return;
+  }
+
+  // qué métricas tiene el jugador
+  var keysPresent=[];
+  all.forEach(function(m){ if(keysPresent.indexOf(m.metric_key)<0) keysPresent.push(m.metric_key); });
+
+  var opts='';
+  keysPresent.forEach(function(k){
+    var d=METRIC_BY_KEY[k]||{label_es:k};
+    opts+='<option value="'+k+'">'+esc(d.label_es)+(d.unit?' ('+esc(d.unit)+')':'')+'</option>';
+  });
+
+  var html='<div class="metric-panel">'
+    + '<div class="metric-select-row"><select id="metricPick" onchange="drawMetric()">'+opts+'</select></div>'
+    + '<div class="chart-wrap" id="chartWrap"></div>'
+    + '<div class="chart-legend"><div class="lg"><span class="swatch" style="background:var(--teal)"></span>Métrica</div>'
+    +   '<div class="lg"><span class="line-gold"></span>Hito / cambio técnico</div></div>'
+    + '</div>';
+  box.innerHTML=html;
+
+  window.__metricData=all;
+  drawMetric();
+}
+
+function drawMetric(){
+  var key=document.getElementById('metricPick').value;
+  var def=METRIC_BY_KEY[key]||{label_es:key,decimals:1,higher_is_better:true};
+  var pts=window.__metricData.filter(function(m){return m.metric_key===key;})
+            .map(function(m){return {date:m.measured_at,value:Number(m.value)};})
+            .sort(function(a,b){return a.date<b.date?-1:1;});
+
+  var milestones=EVENTS.filter(function(e){return e.is_milestone;})
+            .map(function(e){return {date:e.event_date,title:e.title};});
+
+  document.getElementById('chartWrap').innerHTML=buildChart(pts,milestones,def);
+}
+
+function buildChart(pts,milestones,def){
+  var W=780,H=340, ml=54,mr=20,mt=28,mb=46;
+  var iw=W-ml-mr, ih=H-mt-mb;
+  if(pts.length===0) return '<div class="metric-empty">Sin datos.</div>';
+
+  // rango temporal
+  var times=pts.map(function(p){return new Date(p.date).getTime();});
+  var tmin=Math.min.apply(null,times), tmax=Math.max.apply(null,times);
+  milestones.forEach(function(m){ var t=new Date(m.date).getTime(); if(t<tmin)tmin=t; if(t>tmax)tmax=t; });
+  if(tmin===tmax){ tmin-=86400000; tmax+=86400000; }
+
+  // rango de valores
+  var vals=pts.map(function(p){return p.value;});
+  var vmin=Math.min.apply(null,vals), vmax=Math.max.apply(null,vals);
+  if(vmin===vmax){ vmin-=1; vmax+=1; }
+  var pad=(vmax-vmin)*0.12; vmin-=pad; vmax+=pad;
+
+  function sx(t){ return ml + (t-tmin)/(tmax-tmin)*iw; }
+  function sy(v){ return mt + (1-(v-vmin)/(vmax-vmin))*ih; }
+
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" font-family="Barlow">';
+
+  // grid horizontal + labels Y
+  var steps=4;
+  for(var i=0;i<=steps;i++){
+    var v=vmin+(vmax-vmin)*i/steps;
+    var y=sy(v);
+    svg+='<line x1="'+ml+'" y1="'+y+'" x2="'+(W-mr)+'" y2="'+y+'" stroke="#262626" stroke-width="1"/>';
+    svg+='<text x="'+(ml-8)+'" y="'+(y+4)+'" fill="#8a8a8a" font-size="12" text-anchor="end">'+v.toFixed(def.decimals!=null?def.decimals:1)+'</text>';
+  }
+
+  // hitos: líneas verticales doradas
+  milestones.forEach(function(m){
+    var x=sx(new Date(m.date).getTime());
+    svg+='<line x1="'+x+'" y1="'+mt+'" x2="'+x+'" y2="'+(mt+ih)+'" stroke="#D4C5A9" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.7"/>';
+    svg+='<circle cx="'+x+'" cy="'+mt+'" r="3" fill="#D4C5A9"/>';
+    var lbl=m.title.length>22?m.title.slice(0,22)+'…':m.title;
+    svg+='<text x="'+(x+4)+'" y="'+(mt+ih-6)+'" fill="#c9b48a" font-size="10" transform="rotate(-90 '+(x+4)+' '+(mt+ih-6)+')">'+esc(lbl)+'</text>';
+  });
+
+  // área bajo la curva
+  var area='M'+sx(times[0])+' '+(mt+ih);
+  pts.forEach(function(p){ area+=' L'+sx(new Date(p.date).getTime())+' '+sy(p.value); });
+  area+=' L'+sx(times[times.length-1])+' '+(mt+ih)+' Z';
+  svg+='<defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf" stop-opacity="0.25"/><stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/></linearGradient></defs>';
+  svg+='<path d="'+area+'" fill="url(#fill)"/>';
+
+  // línea principal
+  var line='';
+  pts.forEach(function(p,i){ line+=(i===0?'M':'L')+sx(new Date(p.date).getTime())+' '+sy(p.value)+' '; });
+  svg+='<path d="'+line+'" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linejoin="round"/>';
+
+  // puntos + labels X
+  pts.forEach(function(p){
+    var x=sx(new Date(p.date).getTime()), y=sy(p.value);
+    svg+='<circle cx="'+x+'" cy="'+y+'" r="4" fill="#0a0a0a" stroke="#2dd4bf" stroke-width="2"/>';
+  });
+  // primeras/últimas fechas en X
+  svg+='<text x="'+ml+'" y="'+(H-14)+'" fill="#8a8a8a" font-size="12">'+fmtDate(pts[0].date)+'</text>';
+  svg+='<text x="'+(W-mr)+'" y="'+(H-14)+'" fill="#8a8a8a" font-size="12" text-anchor="end">'+fmtDate(pts[pts.length-1].date)+'</text>';
+
+  svg+='</svg>';
+  return svg;
+}
+
+// ============================================================
+// MODAL: NUEVO JUGADOR
+// ============================================================
+document.getElementById('btnNewPlayer').addEventListener('click',function(){
+  document.getElementById('np_since').value=todayISO();
+  openModal('ovPlayer');
+});
+document.getElementById('np_save').addEventListener('click',async function(){
+  var first=document.getElementById('np_first').value.trim();
+  var last=document.getElementById('np_last').value.trim();
+  if(!first||!last){ toast('Nombre y apellido son obligatorios',true); return; }
+  var row={
+    coach_id:USER.id, first_name:first, last_name:last,
+    category:document.getElementById('np_cat').value,
+    stats_tier:document.getElementById('np_tier').value,
+    home_club:document.getElementById('np_club').value.trim()||null,
+    coaching_since:document.getElementById('np_since').value||todayISO()
+  };
+  var hcp=document.getElementById('np_hcp').value;
+  if(hcp!=='') row.handicap_index=Number(hcp);
+
+  var r=await sb.from('players').insert(row).select().single();
+  if(r.error){ toast('Error: '+r.error.message,true); return; }
+  closeModal('ovPlayer');
+  ['np_first','np_last','np_hcp','np_club'].forEach(function(id){document.getElementById(id).value='';});
+  toast('Jugador creado');
+  await loadPlayers();
+  selectPlayer(r.data.id);
+});
+
+// ============================================================
+// MODAL: NUEVO EVENTO
+// ============================================================
+function openEventModal(){
+  var sel=document.getElementById('ne_type');
+  if(!sel.options.length){
+    var html='';
+    Object.keys(EVENT_TYPES).forEach(function(t){ html+='<option value="'+t+'">'+EVENT_TYPES[t].label+'</option>'; });
+    sel.innerHTML=html;
+  }
+  document.getElementById('ne_date').value=todayISO();
+  document.getElementById('ne_metricRows').innerHTML='';
+  addMetricRow();
+  openModal('ovEvent');
+}
+
+function metricOptions(){
+  var tierRank={basico:1,intermedio:2,avanzado:3};
+  var max=tierRank[SEL.stats_tier]||1;
+  var html='<option value="">— métrica —</option>';
+  METRIC_DEFS.forEach(function(m){
+    if((tierRank[m.min_tier]||1)<=max)
+      html+='<option value="'+m.key+'">'+esc(m.label_es)+(m.unit?' ('+esc(m.unit)+')':'')+'</option>';
+  });
+  return html;
+}
+function addMetricRow(){
+  var row=document.createElement('div');
+  row.className='metric-input-row';
+  row.innerHTML='<select>'+metricOptions()+'</select><input type="number" step="any" placeholder="valor"><button class="btn-x" type="button">×</button>';
+  row.querySelector('.btn-x').addEventListener('click',function(){ row.remove(); });
+  document.getElementById('ne_metricRows').appendChild(row);
+}
+document.getElementById('ne_addMetric').addEventListener('click',addMetricRow);
+
+document.getElementById('ne_save').addEventListener('click',async function(){
+  var title=document.getElementById('ne_title').value.trim();
+  var type=document.getElementById('ne_type').value;
+  if(!title){ toast('Ponle un título al evento',true); return; }
+
+  var ev={
+    player_id:SEL.id, coach_id:USER.id, created_by:USER.id,
+    event_type:type, title:title,
+    event_date:document.getElementById('ne_date').value||todayISO(),
+    summary:document.getElementById('ne_summary').value.trim()||null,
+    pillar:document.getElementById('ne_pillar').value||null,
+    is_milestone:document.getElementById('ne_milestone').checked,
+    source:'manual'
+  };
+  var r=await sb.from('player_events').insert(ev).select().single();
+  if(r.error){ toast('Error: '+r.error.message,true); return; }
+
+  // métricas asociadas
+  var rows=document.querySelectorAll('#ne_metricRows .metric-input-row');
+  var metrics=[];
+  rows.forEach(function(row){
+    var k=row.querySelector('select').value;
+    var v=row.querySelector('input').value;
+    if(k&&v!==''){
+      metrics.push({player_id:SEL.id,event_id:r.data.id,metric_key:k,value:Number(v),measured_at:ev.event_date,source:'manual'});
+    }
+  });
+  if(metrics.length){
+    var rm=await sb.from('player_metrics').insert(metrics);
+    if(rm.error){ toast('Evento guardado, pero fallaron las métricas: '+rm.error.message,true); }
+  }
+
+  closeModal('ovEvent');
+  document.getElementById('ne_title').value='';
+  document.getElementById('ne_summary').value='';
+  document.getElementById('ne_milestone').checked=false;
+  toast('Evento guardado');
+  await loadEvents(SEL.id);
+  // refrescar contadores del summary
+  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).single();
+  if(!sm.error){ SEL=sm.data; PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?sm.data:p;}); renderRoster(); }
+  renderProfile();
+});
+
+// cerrar overlay al click fuera
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click',function(e){ if(e.target===o) o.classList.remove('show'); });
+});
+
+init();
+</script>
+</body>
+</html>
