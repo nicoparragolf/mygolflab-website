@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mi Dashboard — MyGolfLab</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -218,7 +219,18 @@
     line-height: 0.95; letter-spacing: 1px; margin-bottom: 14px;
   }
   .page-title span { color: var(--teal); }
-  .page-sub { font-size: 16px; font-weight: 300; color: var(--text-muted); line-height: 1.7; max-width: 560px; }
+  .page-sub { font-size: 15.5px; font-weight: 300; color: var(--text-muted); line-height: 1.9; max-width: 620px; }
+  .page-sub b { color: var(--text); font-weight: 500; }
+  .page-sub .sep { margin: 0 10px; opacity: 0.4; }
+  .acciones-hero { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+  .btn-hero { display: inline-flex; align-items: center; gap: 8px; padding: 14px 30px;
+    border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
+    font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none;
+    transition: all 0.25s; }
+  .btn-hero.teal { background: var(--teal); color: #0a0a0a; border: 1px solid var(--teal); }
+  .btn-hero.teal:hover { background: #4eecd9; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(45,212,191,0.25); }
+  .btn-hero.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-mid); }
+  .btn-hero.ghost:hover { border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
 
   main { max-width: 1100px; margin: 0 auto; padding: 0 32px 40px; }
 
@@ -376,6 +388,68 @@
     *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
     .reveal { opacity: 1 !important; transform: none !important; }
   }
+  /* Franja de onboarding */
+  .onboard { max-width: 1100px; margin: 0 auto 24px; background: var(--bg-card);
+    border: 1px solid var(--border-mid); border-left: 3px solid var(--gold);
+    border-radius: 0 14px 14px 0; padding: 22px 26px; }
+  .onboard .t { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .onboard p { font-size: 14.5px; font-weight: 300; line-height: 1.7; color: var(--text-muted);
+    margin-bottom: 18px; max-width: 60ch; }
+  .onboard p b { color: var(--text); font-weight: 500; }
+  .ob-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .ob-campo { display: flex; flex-direction: column; gap: 6px; }
+  .ob-campo label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .ob-campo select, .ob-campo input { background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px; color: var(--text); font-family: 'Barlow', sans-serif;
+    font-size: 14px; outline: none; min-width: 150px; }
+  .ob-campo select:focus, .ob-campo input:focus { border-color: var(--teal); }
+  .ob-campo select option { background: var(--bg-card); }
+  .ob-guardar { padding: 11px 24px; border-radius: 8px; background: var(--teal); color: #0a0a0a;
+    border: none; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+  .ob-guardar:hover { background: #4ee0cf; }
+  .ob-guardar:disabled { opacity: 0.5; cursor: wait; }
+  .ob-msg { font-size: 13.5px; margin-top: 12px; color: var(--text-muted); }
+
+  /* Franja de ciclo */
+  .ciclo { display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 20px 26px; border-top: 1px solid var(--border); background: var(--bg-card); }
+  .ciclo-pasos { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .paso { display: flex; align-items: center; gap: 7px; font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-muted); opacity: 0.4; }
+  .paso.on { opacity: 1; color: var(--teal); }
+  .paso i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; display: block; }
+  .ciclo-linea { width: 18px; height: 1px; background: var(--border-mid); flex-shrink: 0; }
+  .ciclo-txt { flex: 1; min-width: 220px; font-size: 14px; font-weight: 300;
+    line-height: 1.65; color: var(--text-muted); }
+  .ciclo-txt b { color: var(--text); font-weight: 500; }
+  .ciclo-cta { padding: 10px 20px; border-radius: 8px; background: var(--teal); color: #0a0a0a;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; white-space: nowrap; }
+  .ciclo-cta:hover { background: #4ee0cf; }
+
+  /* Viñetas */
+  .vinetas { list-style: none; margin: 0 0 22px; padding: 0; }
+  .vinetas li { position: relative; padding-left: 20px; font-size: 15px; font-weight: 300;
+    line-height: 1.7; color: var(--text-muted); margin-bottom: 9px; }
+  .vinetas li::before { content: ''; position: absolute; left: 2px; top: 11px; width: 5px;
+    height: 5px; border-radius: 50%; background: var(--teal); }
+  .ver-detalle { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--teal); text-decoration: none; }
+
+  /* Training Lab */
+  .areas { display: flex; flex-direction: column; gap: 12px; }
+  .area { display: flex; align-items: center; gap: 14px; }
+  .area .nom { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 600;
+    letter-spacing: 0.5px; min-width: 118px; flex-shrink: 0; }
+  .area .barra { flex: 1; height: 7px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden; }
+  .area .barra i { display: block; height: 100%; background: var(--teal); border-radius: 4px; }
+  .area .val { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--text-muted);
+    min-width: 78px; text-align: right; flex-shrink: 0; }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -412,6 +486,7 @@
   <div class="page-eyebrow">Mi Dashboard</div>
   <h1 class="page-title" id="titulo">Cargando…</h1>
   <p class="page-sub" id="subtitulo"></p>
+  <div class="acciones-hero" id="acciones"></div>
 </div>
 
 <main id="app"></main>
@@ -437,7 +512,7 @@
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Cuenta</div>
-      <a href="/es/historial.html">Historial del Coach IA</a>
+      <a href="/es/logbook.html">Mi Logbook</a>
       <a href="/es/pricing.html">Ver Planes</a>
       <a href="/es/login.html">Iniciar Sesión</a>
     </div>
@@ -454,7 +529,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v4.0 · 2026-07-30
+   MyGolfLab · Dashboard v5.0 · 2026-07-30
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -471,10 +546,16 @@ var CONFIG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
   BUCKET: 'swing-frames',
   DIAS_DATO_VIEJO: 21,
+
+  /* Cuota de análisis al mes por plan. Ajusta con tus números reales. */
+  CUOTAS: { basico: 8, pro: 30, elite: 60 },
+
+  /* Cuándo el dashboard te dice que vuelvas a medir */
+  CICLO: { dias_entrenando: 4, dias_remedir: 14, sesiones_remedir: 6 },
   RUTAS: {
     coach: '/es/coach-ai.html', training: '/es/training.html',
     biblioteca: '/es/library.html', planes: '/es/pricing.html',
-    historial: '/es/historial.html', login: '/es/login.html',
+    logbook: '/es/logbook.html', login: '/es/login.html',
     upgrade: '/es/upgrade.html', inicio: '/es/index.html'
   }
 };
@@ -600,8 +681,12 @@ var DRILLS = {
 };
 
 var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
+          perfil:{}, perfilOK:false, sesiones:[], sesionesOK:false,
           analisis:[], estados:[], findings:[], drills:[], firmadas:{},
-          comp:{}, tarjetas:[], hitos:[] };
+          comp:{}, tarjetas:[], hitos:[], indices:[] };
+
+/* Áreas de Training Lab, en el orden en que se muestran */
+var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
 
 /* ═══════════════ Utilidades ═══════════════ */
 function $(i){ return document.getElementById(i); }
@@ -657,8 +742,28 @@ async function cargar(){
              S.sesion.user.email.split('@')[0];
   S.avatar = m.avatar_url || m.picture || '';
 
-  var pf = await S.sb.from('profiles').select('plan').eq('id', uid).maybeSingle();
-  S.plan = normPlan(pf.data && pf.data.plan);
+  /* El perfil ampliado puede no existir todavía si no corriste mgl-setup.sql */
+  var pf = await S.sb.from('profiles')
+    .select('plan,mano_dominante,handicap,anos_jugando,objetivo,frecuencia,perfil_completo')
+    .eq('id', uid).maybeSingle();
+  if(pf.error){
+    var basico = await S.sb.from('profiles').select('plan').eq('id', uid).maybeSingle();
+    S.plan = normPlan(basico.data && basico.data.plan);
+    S.perfilOK = false;
+    console.warn('[MGL] La tabla profiles no tiene los campos nuevos. Corre mgl-setup.sql.');
+  } else {
+    S.perfil = pf.data || {};
+    S.plan = normPlan(S.perfil.plan);
+    S.perfilOK = true;
+  }
+
+  /* Sesiones de entrenamiento. Si la tabla no existe, el bloque queda en espera. */
+  try{
+    var ts = await S.sb.from('training_sessions')
+      .select('id,created_at,drill_id,drill_nombre,categoria,variante,puntaje,puntaje_max,duracion_min,componente')
+      .eq('user_id', uid).order('created_at',{ascending:false}).limit(200);
+    if(!ts.error){ S.sesiones = ts.data || []; S.sesionesOK = true; }
+  }catch(e){ S.sesionesOK = false; }
 
   var an = await S.sb.from('swing_analyses')
     .select('id,created_at,camera_angle,score,nivel,resumen,frame_paths,prompt_version,input_handicap')
@@ -785,6 +890,119 @@ function tendencia(c){
 }
 function ultimaFecha(){ var v = ordenAsc(); return v.length ? v[v.length-1].created_at : null; }
 
+/* ── Índice técnico ──
+   Un solo número de 0 a 100 derivado de los 8 componentes: cada uno resta
+   según su severidad (ok 0, leve 1, moderado 2, severo 3) y el índice es
+   cuánto te falta para el máximo. Es más estable que el puntaje del Coach IA
+   porque sale de la evaluación de los 8, que sí es consistente entre análisis. */
+function indiceDe(mapaDelAnalisis){
+  var ev = COMPONENTES.filter(function(c){
+    var e = mapaDelAnalisis[c];
+    return e && e !== 'no_evaluable';
+  });
+  if(!ev.length) return null;
+  var suma = ev.reduce(function(t,c){ return t + PESO[mapaDelAnalisis[c]]; }, 0);
+  return { valor: Math.round(100 - (100 * suma) / (3 * ev.length)), evaluados: ev.length };
+}
+
+function calcularIndices(){
+  var m = mapaEstados();
+  S.indices = ordenAsc().map(function(a){
+    var i = indiceDe(m[a.id] || {});
+    return { fecha:a.created_at, valor: i ? i.valor : null, evaluados: i ? i.evaluados : 0 };
+  }).filter(function(x){ return x.valor !== null; });
+}
+
+function indiceActual(){ return S.indices.length ? S.indices[S.indices.length-1].valor : null; }
+function indicePrimero(){ return S.indices.length ? S.indices[0].valor : null; }
+
+/* ── Ciclo: medir → entrenar → volver a medir ── */
+function estadoCiclo(){
+  var u = ultimaFecha();
+  if(!u) return null;
+  var d = dias(u, new Date());
+  var f = focoActual();
+
+  /* Sesiones de entrenamiento posteriores al último análisis */
+  var desde = S.sesiones.filter(function(s){ return new Date(s.created_at) > new Date(u); });
+  var n = desde.length;
+
+  var fase, texto, cta = false;
+  if(d >= CONFIG.CICLO.dias_remedir || n >= CONFIG.CICLO.sesiones_remedir){
+    fase = 'remedir';
+    texto = 'Llevas <b>' + d + ' días</b>' +
+      (n ? ' y <b>' + n + (n===1?' sesión':' sesiones') + '</b>' : '') +
+      (f ? ' trabajando ' + NOMBRES[f.componente].toLowerCase() : ' desde tu última medición') +
+      '. Sube un swing y veamos si funcionó.';
+    cta = true;
+  } else if(d >= CONFIG.CICLO.dias_entrenando){
+    fase = 'entrenando';
+    texto = n
+      ? 'Llevas <b>' + n + (n===1?' sesión':' sesiones') + '</b> desde tu último análisis. ' +
+        'Sigue así: en ' + Math.max(1, CONFIG.CICLO.dias_remedir - d) + ' días conviene volver a medir.'
+      : 'Han pasado <b>' + d + ' días</b> desde tu último análisis y aún no registras entrenamiento. ' +
+        'Los drills de arriba son el punto de partida.';
+  } else {
+    fase = 'recien';
+    texto = f
+      ? 'Análisis recién tomado. Tu foco es <b>' + NOMBRES[f.componente].toLowerCase() +
+        '</b>: empieza por los drills de arriba.' +
+        (n ? ' Ya llevas <b>' + n + (n===1?' sesión':' sesiones') + '</b>.' : '')
+      : 'Análisis recién tomado y sin fallas activas. Mantén el patrón.';
+  }
+  return { fase:fase, texto:texto, dias:d, sesiones:n, cta:cta };
+}
+
+/* ── Resumen de Training Lab ── */
+function resumenEntrenamiento(){
+  var hoy = new Date();
+  var hace7 = new Date(hoy); hace7.setDate(hoy.getDate()-7);
+  var hace30 = new Date(hoy); hace30.setDate(hoy.getDate()-30);
+
+  var semana = S.sesiones.filter(function(s){ return new Date(s.created_at) >= hace7; });
+  var mes    = S.sesiones.filter(function(s){ return new Date(s.created_at) >= hace30; });
+
+  /* Puntaje medio por área, solo donde el jugador anotó resultado */
+  var areas = {};
+  mes.forEach(function(s){
+    var a = s.categoria || 'Otros';
+    if(!areas[a]) areas[a] = { n:0, suma:0, conPuntaje:0 };
+    areas[a].n++;
+    if(s.puntaje != null && s.puntaje_max){
+      areas[a].suma += (s.puntaje / s.puntaje_max) * 100;
+      areas[a].conPuntaje++;
+    }
+  });
+  var lista = Object.keys(areas).map(function(a){
+    return { area:a, sesiones:areas[a].n,
+      pct: areas[a].conPuntaje ? Math.round(areas[a].suma / areas[a].conPuntaje) : null };
+  }).sort(function(x,y){ return y.sesiones - x.sesiones; });
+
+  var minutos = mes.reduce(function(t,s){ return t + (s.duracion_min || 0); }, 0);
+
+  return { semana:semana.length, mes:mes.length, areas:lista, minutos:minutos, total:S.sesiones.length };
+}
+
+/* ── ¿Falta completar el perfil? ── */
+function faltaPerfil(){
+  if(!S.perfilOK) return null;
+  var p = S.perfil || {};
+  var faltan = [];
+  if(!p.mano_dominante) faltan.push('mano dominante');
+  if(p.handicap == null) faltan.push('hándicap');
+  if(!p.objetivo) faltan.push('objetivo');
+  return faltan.length ? faltan : null;
+}
+
+/* ── Análisis usados este mes ── */
+function usadosEsteMes(){
+  var hoy = new Date();
+  return S.analisis.filter(function(a){
+    var d = new Date(a.created_at);
+    return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
+  }).length;
+}
+
 function focoActual(){
   var a = activas();
   if(!a.length) return null;
@@ -904,36 +1122,155 @@ function render(){
   calcular(); calcularTarjetas(); calcularHitos();
   var n = validos().length;
 
+  calcularIndices();
   pintarEncabezado(n);
-  var h = bloqueFoco(focoActual(), n) + bloqueNumeros(n) + bloqueProgreso(n) + bloqueFrames();
+
+  var h = bloqueOnboarding() +
+          bloqueFoco(focoActual(), n) +
+          bloqueNumeros(n) +
+          bloqueIndice() +
+          bloqueTraining() +
+          bloqueProgreso(n);
   $('app').innerHTML = h;
 
   pintarBarra();
+
   var b = $('bReceta');
   if(b) b.addEventListener('click', function(){
     var r = $('receta');
     r.classList.toggle('abierto');
     this.textContent = r.classList.contains('abierto') ? 'Ocultar' : 'Cómo corregirlo ↓';
   });
+
+  var g = $('obGuardar');
+  if(g) g.addEventListener('click', guardarPerfil);
+
+  dibujarGrafico();
   observarReveal();
+}
+
+/* ── Gráfico del índice técnico ── */
+function dibujarGrafico(){
+  var c = $('chIndice');
+  if(!c || !window.Chart || S.indices.length < 2) return;
+  var etiquetas = S.indices.map(function(x){
+    return new Date(x.fecha).toLocaleDateString('es-CL',{day:'2-digit',month:'short'});
+  });
+  new window.Chart(c, {
+    type: 'line',
+    data: { labels: etiquetas, datasets: [{
+      label: 'Índice técnico',
+      data: S.indices.map(function(x){ return x.valor; }),
+      borderColor: '#2dd4bf', borderWidth: 2,
+      backgroundColor: 'rgba(45,212,191,0.10)', fill: true,
+      pointBackgroundColor: '#2dd4bf', pointBorderColor: '#111111',
+      pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6,
+      tension: 0.25
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 100, ticks: { stepSize: 25, color: '#888' },
+             grid: { color: 'rgba(255,255,255,0.07)' } },
+        x: { ticks: { color: '#888', autoSkip: false, maxRotation: 0 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+/* ── Guardar el perfil desde la franja de onboarding ── */
+async function guardarPerfil(){
+  var btn = $('obGuardar'), msg = $('obMsg');
+  var mano = $('obMano').value, hcp = $('obHcp').value;
+  var anos = $('obAnos').value, obj = $('obObj').value, frec = $('obFrec').value;
+
+  if(!mano){ msg.textContent = 'La mano dominante es obligatoria: es el dato que más cambia el análisis.';
+    msg.style.color = 'var(--severo)'; return; }
+
+  if(S.demo){ msg.textContent = 'Modo demo: no se guarda nada.'; msg.style.color = 'var(--text-muted)'; return; }
+
+  btn.disabled = true; btn.textContent = 'Guardando…';
+  msg.style.color = 'var(--text-muted)'; msg.textContent = '';
+
+  var fila = {
+    mano_dominante: mano,
+    handicap: hcp === '' ? null : Number(hcp),
+    anos_jugando: anos || null,
+    objetivo: obj || null,
+    frecuencia: frec || null,
+    perfil_completo: !!(mano && hcp !== '' && obj),
+    perfil_fecha: new Date().toISOString()
+  };
+
+  try{
+    var r = await S.sb.from('profiles').update(fila).eq('id', S.sesion.user.id);
+    if(r.error) throw r.error;
+    Object.keys(fila).forEach(function(k){ S.perfil[k] = fila[k]; });
+    msg.textContent = 'Guardado. Tus próximos análisis van a usar estos datos.';
+    msg.style.color = 'var(--ok)';
+    setTimeout(function(){ render(); }, 1400);
+  }catch(e){
+    msg.textContent = 'No se pudo guardar: ' + (e.message || 'error desconocido');
+    msg.style.color = 'var(--severo)';
+    btn.disabled = false; btn.textContent = 'Guardar';
+    console.error('[MGL] Error guardando el perfil:', e);
+  }
 }
 
 function pintarEncabezado(n){
   var u = ultimaFecha();
-  var hcp = null;
-  for(var i=0;i<S.analisis.length && hcp===null;i++){
-    if(S.analisis[i].input_handicap) hcp = S.analisis[i].input_handicap;
+  var hcp = (S.perfil && S.perfil.handicap != null) ? S.perfil.handicap : null;
+  if(hcp === null){
+    for(var i=0;i<S.analisis.length && hcp===null;i++){
+      if(S.analisis[i].input_handicap) hcp = S.analisis[i].input_handicap;
+    }
   }
   var nom = String(S.nombre).split(' ')[0];
   $('titulo').innerHTML = 'Hola,<br><span>' + esc(nom) + '</span>';
 
-  var partes = [];
-  if(n === 0) partes.push('Todavía no has analizado ningún swing');
-  else partes.push(n + (n===1 ? ' análisis' : ' análisis'));
+  var usados = usadosEsteMes();
+  var cuota = CONFIG.CUOTAS[S.plan] || CONFIG.CUOTAS.basico;
+  var restan = Math.max(0, cuota - usados);
+
+  var partes = [
+    '<b>Plan ' + etiquetaPlan(S.plan) + '</b>',
+    '<b>' + restan + '</b> de ' + cuota + ' análisis disponibles este mes'
+  ];
+  if(hcp != null) partes.push('hándicap <b>' + esc(hcp) + '</b>');
   if(u) partes.push('última medición ' + hace(u));
-  if(hcp) partes.push('hándicap ' + esc(hcp));
-  partes.push('plan ' + etiquetaPlan(S.plan));
-  $('subtitulo').textContent = partes.join(' · ');
+  else partes.push('sin análisis todavía');
+
+  $('subtitulo').innerHTML = '<span class="meta-linea">' + partes.join('</span><span class="sep">·</span><span class="meta-linea">') + '</span>';
+
+  $('acciones').innerHTML =
+    (restan > 0
+      ? '<a class="btn-hero teal" href="' + CONFIG.RUTAS.coach + '">Analizar un swing</a>'
+      : '<a class="btn-hero teal" href="' + CONFIG.RUTAS.planes + '">Ampliar mi plan</a>') +
+    '<a class="btn-hero ghost" href="' + CONFIG.RUTAS.logbook + '">Mi Logbook</a>';
+}
+
+/* ── Convierte un diagnóstico en 2-3 viñetas cortas ──
+   Si la IA ya escribió viñetas (campo puntos), las usa. Si no, parte el
+   párrafo en frases y muestra las dos primeras, con enlace al detalle. */
+function vinetasDe(fi){
+  if(!fi) return '<p class="foco-frase">Este componente aparece con falla en tu última medición.</p>';
+
+  var puntos = [];
+  if(Array.isArray(fi.puntos) && fi.puntos.length){
+    puntos = fi.puntos.slice(0,3);
+  } else {
+    var txt = String(fi.que_pasa || fi.titulo || '').trim();
+    puntos = txt.split(/(?<=\.)\s+/).map(function(x){ return x.trim(); })
+                .filter(function(x){ return x.length > 12; }).slice(0,2);
+    if(!puntos.length && txt) puntos = [txt];
+  }
+  if(!puntos.length) return '<p class="foco-frase">Este componente aparece con falla en tu última medición.</p>';
+
+  return '<ul class="vinetas">' +
+    puntos.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') +
+    '</ul><a class="ver-detalle" href="' + CONFIG.RUTAS.logbook +
+    '" style="display:inline-block;margin:-10px 0 20px">Ver el análisis completo →</a>';
 }
 
 /* ── 1 · Foco del día + anillos de pilares ── */
@@ -986,9 +1323,7 @@ function bloqueFoco(f, n){
 
     izq = '<span class="rotulo teal">Tu foco de hoy</span>' +
       '<div class="foco-nombre">' + esc(NOMBRES[f.componente]) + '</div>' +
-      '<p class="foco-frase">' + esc(fi && fi.que_pasa ? fi.que_pasa :
-        (fi && fi.titulo ? fi.titulo : 'Este componente aparece con falla en tu última medición.')) +
-      '</p>' +
+      vinetasDe(fi) +
       '<div class="escala">' + barras + '</div>' +
       '<div class="escala-lab">' + labels + '</div>' +
       '<p class="escala-pie">' + pie + '</p>';
@@ -1038,11 +1373,30 @@ function bloqueFoco(f, n){
   if(cer) resumen.push(cer + (cer===1?' cerrada':' cerradas'));
 
   der += '<div class="pilares-pie">' + resumen.join(' · ') + '. ' +
-    '<a href="' + CONFIG.RUTAS.historial + '">Ver el detalle de los 8 componentes →</a></div>';
+    '<a href="' + CONFIG.RUTAS.logbook + '">Ver el detalle de los 8 componentes →</a></div>';
 
-  return '<div class="rejilla r-foco reveal">' +
+  var rej = '<div class="rejilla r-foco reveal" style="margin-bottom:0;border-bottom-left-radius:0;' +
+    'border-bottom-right-radius:0">' +
     '<div class="celda">' + izq + '</div>' +
     '<div class="celda">' + der + '</div></div>';
+
+  var c = estadoCiclo();
+  if(!c) return rej.replace(';border-bottom-left-radius:0;border-bottom-right-radius:0','');
+
+  function paso(k, txt, on){
+    return '<span class="paso' + (on?' on':'') + '"><i></i>' + txt + '</span>';
+  }
+  var franja = '<div class="ciclo reveal" style="border:1px solid var(--border);border-top:0;' +
+    'border-radius:0 0 16px 16px;margin-bottom:24px">' +
+    '<div class="ciclo-pasos">' +
+      paso(1,'Medido', true) + '<span class="ciclo-linea"></span>' +
+      paso(2,'Entrenando', c.fase!=='recien') + '<span class="ciclo-linea"></span>' +
+      paso(3,'Re-medir', c.fase==='remedir') +
+    '</div><div class="ciclo-txt">' + c.texto + '</div>' +
+    (c.cta ? '<a class="ciclo-cta" href="' + CONFIG.RUTAS.coach + '">Volver a medir</a>' : '') +
+    '</div>';
+
+  return rej + franja;
 }
 
 /* ── 2 · Tira de números ── */
@@ -1101,50 +1455,139 @@ function bloqueProgreso(n){
   return '<div class="rejilla r-dos reveal">' + a + b + '</div>';
 }
 
-/* ── 4 · Frames del último análisis ── */
-function bloqueFrames(){
+/* ── 4 · Índice técnico: un solo gráfico ── */
+function bloqueIndice(){
   var lista = ordenAsc();
   var ult = lista.length ? lista[lista.length-1] : null;
 
   var h = '<div class="rejilla reveal"><div class="celda">' +
     '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">' +
-    '<span class="rotulo" style="margin:0">Tu último swing</span>' +
-    '<a href="' + CONFIG.RUTAS.historial + '" style="font-family:\'Barlow Condensed\',sans-serif;' +
-    'font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);' +
-    'text-decoration:none">Ver historial completo →</a></div>';
+    '<span class="rotulo" style="margin:0">Tu índice técnico</span>' +
+    '<a class="ver-detalle" href="' + CONFIG.RUTAS.logbook + '">Ver mi Logbook →</a></div>';
 
   if(!ult){
     return h + '<div class="vacio" style="margin-top:18px"><div class="t">Sin análisis todavía</div>' +
-      '<div class="d">Cada swing que subas queda guardado con sus seis frames, para que puedas ' +
-      'volver a mirarlo cuando quieras.</div>' +
+      '<div class="d">Este número resume el estado de los 8 componentes de tu swing en una sola ' +
+      'cifra de 0 a 100. Sube cuando cierras fallas y baja cuando aparecen nuevas.</div>' +
       '<a class="cta-vacio" href="' + CONFIG.RUTAS.coach + '">Subir mi primer swing</a></div></div></div>';
   }
 
-  var rutas = (ult.frame_paths || []).slice(0,6);
-  h += '<p style="font-size:14px;font-weight:300;color:var(--text-muted);line-height:1.7;' +
-       'margin:0 0 20px;max-width:60ch">' + esc(ult.resumen || 'Sin resumen') + '</p>';
+  var act = indiceActual(), pri = indicePrimero();
+  var delta = (S.indices.length >= 2) ? act - pri : null;
 
-  if(!rutas.length){
-    h += '<div class="vacio"><div class="t">Este análisis no guardó frames</div><div class="d">' +
-      'Pasa con los análisis migrados desde el navegador. Los nuevos sí los guardan.</div></div>';
-  } else {
-    h += '<div class="tira-frames">';
-    rutas.forEach(function(p, k){
-      var url = S.firmadas[p];
-      h += '<div class="cuadro">' +
-        (url ? '<img src="' + esc(url) + '" alt="Frame ' + (k+1) + ' del swing" loading="lazy">'
-             : '<div class="sin">Frame ' + (k+1) + '</div>') +
-        '<div class="fase">' + (FASES[k] || ('Frame ' + (k+1))) + '</div></div>';
-    });
-    h += '</div>';
+  h += '<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin:18px 0 6px">' +
+    '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:62px;line-height:1;' +
+    'letter-spacing:1px;color:var(--teal)">' + (act !== null ? act : '—') + '</span>' +
+    (delta !== null
+      ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;letter-spacing:1px;' +
+        'text-transform:uppercase;font-weight:600;color:' +
+        (delta > 0 ? 'var(--ok)' : delta < 0 ? 'var(--severo)' : 'var(--text-muted)') + '">' +
+        (delta > 0 ? '+' : '') + delta + ' desde tu primer análisis</span>'
+      : '<span style="font-size:13.5px;color:var(--text-muted)">Con el segundo análisis vas a ver la tendencia</span>') +
+    '</div>';
+
+  if(S.indices.length >= 2){
+    h += '<div style="position:relative;width:100%;height:190px;margin-top:14px">' +
+      '<canvas id="chIndice" role="img" aria-label="Evolución del índice técnico: ' +
+      S.indices.map(function(x){ return x.valor; }).join(', ') + '">Índice técnico por análisis: ' +
+      S.indices.map(function(x){ return x.valor; }).join(', ') + '.</canvas></div>';
   }
 
-  h += '<div style="margin-top:20px;font-size:13px;color:var(--text-muted)">' +
-       fecha(ult.created_at) + ' · ' + (ult.camera_angle==='dtl'?'Down the line':'De frente') +
-       (ult.score!=null ? ' · puntaje ' + ult.score : '') +
-       (ult.nivel ? ' · ' + esc(ult.nivel) : '') + '</div>';
+  h += '<p style="font-size:13.5px;font-weight:300;color:var(--text-muted);line-height:1.7;' +
+    'margin-top:16px;max-width:64ch">Resume los 8 componentes en una cifra: cada falla resta según ' +
+    'su gravedad. Es más estable que el puntaje del análisis porque no depende de la calidad del video.</p>';
+
+  h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);' +
+    'font-size:13px;color:var(--text-muted)">Último swing · ' + fecha(ult.created_at) + ' · ' +
+    (ult.camera_angle==='dtl'?'Down the line':'De frente') +
+    (ult.nivel ? ' · ' + esc(ult.nivel) : '') + '</div>';
 
   return h + '</div></div>';
+}
+
+/* ── 5 · Training Lab ── */
+function bloqueTraining(){
+  var h = '<div class="rejilla reveal"><div class="celda">' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">' +
+    '<span class="rotulo" style="margin:0">Tu entrenamiento</span>' +
+    '<a class="ver-detalle" href="' + CONFIG.RUTAS.training + '">Ir a Training Lab →</a></div>';
+
+  if(!S.sesionesOK){
+    return h + '<div class="vacio" style="margin-top:18px"><div class="t">Falta un paso</div>' +
+      '<div class="d">La tabla de sesiones todavía no existe. Corre el archivo ' +
+      '<b>mgl-setup.sql</b> en Supabase y sube <b>mgl-training.js</b> para que Training Lab ' +
+      'registre lo que entrenas.</div></div></div></div>';
+  }
+
+  var r = resumenEntrenamiento();
+
+  if(!r.total){
+    return h + '<div class="vacio" style="margin-top:18px"><div class="t">Sin sesiones todavía</div>' +
+      '<div class="d">Cuando termines un drill en Training Lab, queda registrado acá con su área y ' +
+      'su puntaje. Con eso el dashboard puede decirte si entrenar está moviendo tu técnica.</div>' +
+      '<a class="cta-vacio" href="' + CONFIG.RUTAS.training + '">Empezar a entrenar</a></div></div></div>';
+  }
+
+  h += '<div style="display:flex;gap:34px;flex-wrap:wrap;margin:18px 0 24px">' +
+    '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1;color:var(--teal)">' +
+      r.semana + '</div><div class="num-lab">Esta semana</div></div>' +
+    '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1">' +
+      r.mes + '</div><div class="num-lab">Últimos 30 días</div></div>' +
+    (r.minutos ? '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1;' +
+      'color:var(--gold)">' + Math.round(r.minutos/60) + 'h</div><div class="num-lab">Tiempo entrenado</div></div>' : '') +
+    '</div>';
+
+  if(r.areas.length){
+    h += '<span class="rotulo">Por área · últimos 30 días</span><div class="areas">';
+    r.areas.slice(0,6).forEach(function(a){
+      var pct = a.pct !== null ? a.pct : 0;
+      h += '<div class="area"><span class="nom">' + esc(a.area) + '</span>' +
+        '<span class="barra"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="val">' + (a.pct !== null ? a.pct + '% · ' : '') +
+        a.sesiones + (a.sesiones===1?' sesión':' sesiones') + '</span></div>';
+    });
+    h += '</div>';
+    var sinPuntaje = r.areas.filter(function(a){ return a.pct === null; }).length;
+    if(sinPuntaje){
+      h += '<p style="font-size:13px;color:var(--text-muted);margin-top:14px">' +
+        'Las áreas sin porcentaje son sesiones en las que no anotaste tu puntaje.</p>';
+    }
+  }
+
+  return h + '</div></div>';
+}
+
+/* ── Franja de onboarding ── */
+function bloqueOnboarding(){
+  var faltan = faltaPerfil();
+  if(!faltan) return '';
+
+  var p = S.perfil || {};
+  function sel(id, label, opciones, valor){
+    return '<div class="ob-campo"><label for="' + id + '">' + label + '</label><select id="' + id + '">' +
+      opciones.map(function(o){
+        var v = typeof o === 'string' ? o : o[0], t = typeof o === 'string' ? o : o[1];
+        return '<option value="' + esc(v) + '"' + (valor===v?' selected':'') + '>' + esc(t) + '</option>';
+      }).join('') + '</select></div>';
+  }
+
+  return '<div class="onboard reveal"><div class="t">Completa tu perfil</div>' +
+    '<p>Faltan <b>' + faltan.join(', ') + '</b>. La <b>mano dominante</b> es la más importante: ' +
+    'sin ese dato la IA puede invertir todo el diagnóstico de dirección de tu swing.</p>' +
+    '<div class="ob-form">' +
+    sel('obMano','Mano dominante',[['','Elige…'],['diestro','Diestro'],['zurdo','Zurdo']], p.mano_dominante||'') +
+    '<div class="ob-campo"><label for="obHcp">Hándicap</label>' +
+      '<input type="number" id="obHcp" min="-5" max="54" step="0.1" placeholder="18" value="' +
+      (p.handicap != null ? esc(p.handicap) : '') + '" style="min-width:110px"></div>' +
+    sel('obAnos','Años jugando',[['','Elige…'],['<1','Menos de 1'],['1-3','1 a 3'],['3-10','3 a 10'],['10+','Más de 10']], p.anos_jugando||'') +
+    sel('obObj','Objetivo principal',[['','Elige…'],
+      ['bajar-handicap','Bajar mi hándicap'],['mas-distancia','Ganar distancia'],
+      ['consistencia','Ser más consistente'],['corregir-falla','Corregir una falla puntual'],
+      ['competir','Competir']], p.objetivo||'') +
+    sel('obFrec','Práctica',[['','Elige…'],['1-semana','1 vez por semana'],
+      ['2-3-semana','2 a 3 por semana'],['4+-semana','4 o más'],['ocasional','Ocasional']], p.frecuencia||'') +
+    '<button class="ob-guardar" id="obGuardar">Guardar</button></div>' +
+    '<div class="ob-msg" id="obMsg"></div></div>';
 }
 
 /* ═══════════════ Barra superior ═══════════════ */
@@ -1172,7 +1615,7 @@ function pintarBarra(){
 
   var cuenta = '<div class="pop-titulo"><span>' + esc(S.nombre) + '</span>' +
     '<em>' + etiquetaPlan(S.plan) + '</em></div>' +
-    '<a href="' + CONFIG.RUTAS.historial + '">Historial del Coach IA</a>' +
+    '<a href="' + CONFIG.RUTAS.logbook + '">Mi Logbook</a>' +
     '<a href="' + CONFIG.RUTAS.coach + '">Analizar un swing</a>' +
     '<a href="' + CONFIG.RUTAS.biblioteca + '">Biblioteca de drills</a>' +
     '<a href="' + CONFIG.RUTAS.planes + '">Mi plan</a><hr>' +
@@ -1242,8 +1685,17 @@ function cargarDemo(q){
   S.nombre = 'Gabriel Morgan';
   S.plan = normPlan((q && q.get('plan')) || 'pro');
   var lim = (q && q.get('n')) ? parseInt(q.get('n'),10) : null;
+
+  /* ?ciclo=entrenando o ?ciclo=remedir desplaza las fechas para poder ver
+     las tres fases de la franja de ciclo sin esperar días reales. */
+  var desfase = 0;
+  var fase = q && q.get('ciclo');
+  if(fase === 'entrenando') desfase = 6;
+  else if(fase === 'remedir') desfase = 15;
+
   var hoy = new Date();
-  function atras(d){ var x = new Date(hoy); x.setDate(hoy.getDate()-d); return x.toISOString(); }
+  function atras(d){ var x = new Date(hoy); x.setDate(hoy.getDate()-d-desfase); return x.toISOString(); }
+  function atrasSesion(d){ var x = new Date(hoy); x.setDate(hoy.getDate()-d); return x.toISOString(); }
 
   var guion = [
     { d:68, sc:52, ang:'face', est:{postura:'severo',secuencia:'moderado',cara:'leve',path:'ok',ground:'moderado'} },
@@ -1296,6 +1748,36 @@ function cargarDemo(q){
     { finding_id:'f1', drill_id:'drill-path-06', orden:2 },
     { finding_id:'f2', drill_id:'drill-secuencia-01', orden:0 }
   ];
+
+  /* Perfil: por defecto completo. Con ?perfil=0 se ve la franja de onboarding. */
+  S.perfilOK = true;
+  var pincompleto = q && q.get('perfil') === '0';
+  S.perfil = pincompleto
+    ? { plan:S.plan }
+    : { plan:S.plan, mano_dominante:'diestro', handicap:18, anos_jugando:'3-10',
+        objetivo:'bajar-handicap', frecuencia:'2-3-semana', perfil_completo:true };
+
+  /* Sesiones de entrenamiento. Con ?training=0 se ve el estado vacío. */
+  S.sesionesOK = !(q && q.get('training') === 'off');
+  S.sesiones = [];
+  if(S.sesionesOK && !(q && q.get('training') === '0')){
+    var plan = [
+      ['Tee','drill-tee','3-Zone Control',22,'advanced',14,18],
+      ['Tee','drill-tee2','Angle Targets',19,'advanced',12,18],
+      ['Approach','drill-ap','3 Lives 100-150Y',16,'intermediate',9,15],
+      ['Approach','drill-ap2','3 Window Approach',12,'intermediate',11,15],
+      ['Putting','drill-pu','5 Putts (10–15 pies)',9,'intermediate',3,5],
+      ['Putting','drill-pu2','30 Feet Game',6,'beginner',null,null],
+      ['Short Game','drill-sg','7-7-4 Short Game Combine',4,'intermediate',13,18],
+      ['Tee','drill-tee3','3-Strike Rule',2,'advanced',15,18],
+      ['Mental','drill-me','Breath Gate',1,'intermediate',null,null]
+    ];
+    plan.forEach(function(x, k){
+      S.sesiones.push({ id:'s'+k, created_at:atrasSesion(x[3]), drill_id:x[1], drill_nombre:x[2],
+        categoria:x[0], variante:x[4], puntaje:x[5], puntaje_max:x[6], duracion_min:25,
+        componente:'path' });
+    });
+  }
 }
 
 /* ═══════════════ Autotest ═══════════════ */
@@ -1340,8 +1822,25 @@ function MGL_DASHBOARD_TEST(){
     Object.keys(S.firmadas).length > 0, Object.keys(S.firmadas).length + ' URLs');
   t('Header con menú de cuenta', !!$('popCuenta'), '');
   t('Footer presente', !!document.querySelector('.footer-expanded'), '');
+  t('Botones del encabezado', document.querySelectorAll('.btn-hero').length === 2,
+    document.querySelectorAll('.btn-hero').length + ' botones');
+  t('Cuota del mes', true, usadosEsteMes() + ' usados de ' + (CONFIG.CUOTAS[S.plan]||0));
+  t('Perfil ampliado disponible', S.perfilOK,
+    S.perfilOK ? (faltaPerfil() ? 'faltan: ' + faltaPerfil().join(', ') : 'completo')
+               : 'falta correr mgl-setup.sql');
+  t('Tabla training_sessions', S.sesionesOK,
+    S.sesionesOK ? S.sesiones.length + ' sesiones' : 'falta correr mgl-setup.sql');
+  var ci = estadoCiclo();
+  t('Franja de ciclo', S.analisis.length === 0 || !!ci, ci ? ci.fase : 'sin análisis');
+  t('Índice técnico', S.analisis.length === 0 || S.indices.length > 0,
+    S.indices.length ? 'actual ' + indiceActual() + ' · ' + S.indices.length + ' puntos'
+                     : 'sin componentes evaluados');
+  t('Gráfico dibujado', S.indices.length < 2 || !!$('chIndice'),
+    S.indices.length < 2 ? 'necesita 2 análisis' : 'canvas presente');
+  t('Chart.js cargado', !!window.Chart || S.indices.length < 2,
+    window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v4.0 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.0 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
