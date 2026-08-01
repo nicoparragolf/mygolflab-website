@@ -1,7 +1,22 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · FASE A — Taxonomía de diagnósticos
    Archivo: /js/mgl-fase-a.js
-   Versión: 3.1  ·  2026-07-30  (Fase A + Fase B)
+   Versión: 3.2  ·  2026-07-30  (Fase A + Fase B)
+
+   ── v3.2: VIÑETAS Y MANO DOMINANTE ────────────────────────────────────────
+   Dos cambios, los dos para el jugador:
+
+   1. La IA ahora escribe además 2 o 3 VIÑETAS cortas por diagnóstico, en el
+      campo "puntos". El dashboard las muestra en vez del párrafo largo, que
+      era difícil de leer de un vistazo. El párrafo sigue estando para quien
+      quiera el detalle.
+
+   2. Se le entrega a la IA la MANO DOMINANTE del jugador, que se lee de la
+      tabla profiles. Hasta ahora el análisis se hacía sin ese dato, y en un
+      video de frente eso puede invertir por completo el diagnóstico de
+      dirección: lo que para un diestro es un slice, para un zurdo es un hook.
+      Si el jugador todavía no la completó, el prompt se lo dice al modelo
+      para que no afirme direcciones que no puede saber.
 
    ── v3.1: EL PILAR SALE DE UNA TABLA FIJA ─────────────────────────────────
    Antes, cuando la IA devolvía un pilar inválido, se deducía tomando el
@@ -41,7 +56,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '3.1';
+  var VERSION = '3.2';
 
   /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 1 · TAXONOMÍA
@@ -167,6 +182,23 @@
      Devuelve null solo si el diagnóstico es irrecuperable.
      ═════════════════════════════════════════════════════════════════════════ */
 
+  /* Valida las viñetas: máximo 3, cortas, sin viñetas vacías ni repetidas.
+     Si la IA no las mandó (o es un análisis viejo), devuelve lista vacía y
+     el dashboard cae al párrafo, como antes. */
+  function limpiarPuntos(raw) {
+    if (!Array.isArray(raw)) return [];
+    var vistos = {}, out = [];
+    raw.forEach(function (x) {
+      var t = String(x == null ? '' : x).trim();
+      if (t.length < 8 || t.length > 160) return;
+      var k = t.toLowerCase();
+      if (vistos[k]) return;
+      vistos[k] = true;
+      out.push(t);
+    });
+    return out.slice(0, 3);
+  }
+
   function normalizeFinding(diag) {
     if (!diag || typeof diag !== 'object') return null;
 
@@ -175,6 +207,7 @@
 
     var out = {
       titulo:          String(diag.titulo || 'Diagnóstico').slice(0, 120),
+      puntos:          limpiarPuntos(diag.puntos),
       que_pasa:        String(diag.que_pasa || ''),
       como_corregirlo: String(diag.como_corregirlo || ''),
       severidad:       T.esSeveridad(diag.severidad) ? diag.severidad : 'media',
@@ -524,6 +557,17 @@
       '- Mapeo de severidad: severo→alta · moderado→media · leve→baja.\n' +
       '- Prioriza causa raíz sobre síntoma. Si dos hallazgos comparten componente, fusiónalos.\n\n' +
 
+      '════ VIÑETAS ════\n' +
+      'Además del párrafo "que_pasa", escribe 2 o 3 viñetas cortas en el campo "puntos".\n' +
+      'Cada viñeta: una sola idea, máximo 15 palabras, en lenguaje de sensación, no de manual.\n' +
+      'La primera dice QUÉ está pasando, la segunda POR QUÉ importa, la tercera (opcional)\n' +
+      'la señal concreta que el jugador puede notar en su propio golpe.\n' +
+      'Ejemplo para un path hacia adentro:\n' +
+      '  ["El palo entra por dentro del plano en la bajada",\n' +
+      '   "Tus manos corrigen en el impacto y abren la cara",\n' +
+      '   "Lo notas cuando la bola sale a la derecha con curva"]\n' +
+      'No repitas el título en la primera viñeta. No uses punto final.\n\n' +
+
       '════ FORMATO ════\n' +
       'Responde SOLO en JSON válido, sin backticks ni texto extra.\n' +
       'El objeto "evaluacion" debe traer los 8 componentes, siempre, sin excepción:\n' +
@@ -538,7 +582,8 @@
         '"pilar":"<el que corresponde al componente según la tabla fija>",' +
         '"error_tag":"<slice|hook|top|gordo|shank|push|pull|potencia|distancia|spin>",' +
         '"severidad":"<alta|media|baja>",' +
-        '"que_pasa":"<causa raíz, 2-3 oraciones>",' +
+        '"puntos":["<viñeta corta 1>","<viñeta corta 2>"],' +
+      '"que_pasa":"<causa raíz, 2-3 oraciones>",' +
         '"como_corregirlo":"<instrucciones concretas>",' +
         '"frame_referencia":<1-6 o null>,' +
         '"drills_recomendados":["<id exacto del catálogo>"]}]}';
@@ -601,6 +646,42 @@
     var ctx = '\n\nÁNGULO DE CÁMARA: ' + angleText + ' (toma esto en cuenta para el análisis).';
     ctx += '\n\nNOTA: los 6 frames están tomados a intervalos aproximadamente iguales; ' +
            'identifica tú mismo la fase real de cada uno.';
+
+    /* ── MANO DOMINANTE ──
+       Es el dato que más cambia el análisis. Sin él, en un video de frente
+       el modelo no puede saber qué lado es cuál, y una misma imagen se lee
+       como slice para un diestro y como hook para un zurdo. */
+    var mano = PERFIL && PERFIL.mano_dominante;
+    if (mano === 'diestro' || mano === 'zurdo') {
+      ctx += '\n\n════ MANO DOMINANTE: ' + mano.toUpperCase() + ' ════\n';
+      if (mano === 'zurdo') {
+        ctx += 'El jugador es ZURDO. Todo está espejado respecto al caso habitual:\n' +
+               '- Su pie y mano de ADELANTE son los DERECHOS; los de ATRÁS, los IZQUIERDOS.\n' +
+               '- Un swing out-to-in produce un slice que se va a la IZQUIERDA, no a la derecha.\n' +
+               '- Un swing in-to-out produce un hook que se va a la DERECHA.\n' +
+               '- La transferencia de presión va hacia el pie DERECHO en la bajada.\n' +
+               'Revisa cada afirmación de dirección antes de escribirla. Un error de lado ' +
+               'invierte el diagnóstico completo y manda al jugador a corregir lo contrario.';
+      } else {
+        ctx += 'El jugador es DIESTRO. Su pie y mano de adelante son los izquierdos; ' +
+               'la presión va hacia el pie izquierdo en la bajada.';
+      }
+    } else {
+      ctx += '\n\n════ MANO DOMINANTE: NO DECLARADA ════\n' +
+             'El jugador no indicó si es diestro o zurdo, y desde estos frames no siempre ' +
+             'se puede deducir con seguridad. NO afirmes direcciones concretas (slice, hook, ' +
+             'push, pull) a menos que el video las muestre sin ambigüedad. Describe el defecto ' +
+             'en términos del plano y la cara ("el palo entra por dentro del plano") en vez de ' +
+             'su consecuencia direccional. Si el dato te hace falta para un diagnóstico, dilo ' +
+             'en el campo que_pasa.';
+    }
+
+    if (PERFIL && (PERFIL.anos_jugando || PERFIL.frecuencia)) {
+      ctx += '\n\nCONTEXTO DEL JUGADOR:';
+      if (PERFIL.anos_jugando) ctx += '\n- Años jugando: ' + PERFIL.anos_jugando;
+      if (PERFIL.frecuencia)   ctx += '\n- Practica: ' + PERFIL.frecuencia;
+      ctx += '\nUsa esto para calibrar el vocabulario y qué tan ambiciosa es la corrección.';
+    }
 
     if (handicap || problema || objetivo) {
       ctx += '\n\nINFORMACIÓN DEL JUGADOR:';
@@ -763,6 +844,24 @@
   var MODO_NUBE = false;          // true si hay sesión y Supabase responde
   var HISTORIAL_ABIERTO = false;  // true mientras se ve un análisis del historial
 
+  /* Perfil del jugador: mano dominante, hándicap, objetivo.
+     Se carga una vez al iniciar y se usa en cada análisis. */
+  var PERFIL = null;
+
+  async function cargarPerfil() {
+    var c = db(), u = await usuario();
+    if (!c || !u) return null;
+    try {
+      var r = await c.from('profiles')
+        .select('mano_dominante, handicap, anos_jugando, objetivo, frecuencia')
+        .eq('id', u.id).maybeSingle();
+      if (!r.error) PERFIL = r.data || {};
+    } catch (e) {
+      console.warn('[MGL] No se pudo leer el perfil. ¿Corriste mgl-setup.sql?');
+    }
+    return PERFIL;
+  }
+
   async function usuario() {
     var c = db();
     if (!c) return null;
@@ -870,6 +969,7 @@
         analysis_id: analysisId, user_id: u.id, orden: i,
         componente: d.componente, pilar: d.pilar, error_tag: d.error_tag,
         severidad: d.severidad, titulo: d.titulo,
+        puntos: (d.puntos && d.puntos.length) ? d.puntos : null,
         que_pasa: d.que_pasa, como_corregirlo: d.como_corregirlo,
         frame_ref: d.frame_ref
       };
@@ -916,7 +1016,7 @@
     var r = await c.from('swing_analyses')
       .select('id, created_at, score, nivel, resumen, frame_paths, frame_times, prompt_version, ' +
               'swing_component_states(componente, estado), ' +
-              'swing_findings(orden, componente, pilar, error_tag, severidad, titulo, ' +
+              'swing_findings(orden, componente, pilar, error_tag, severidad, titulo, puntos, ' +
               'que_pasa, como_corregirlo, frame_ref, finding_drills(drill_id, orden))')
       .eq('user_id', u.id)
       .order('created_at', { ascending: false })
@@ -937,7 +1037,7 @@
         .map(function (f) {
           return {
             titulo: f.titulo, componente: f.componente, pilar: f.pilar,
-            error_tag: f.error_tag, severidad: f.severidad,
+            error_tag: f.error_tag, severidad: f.severidad, puntos: f.puntos || [],
             que_pasa: f.que_pasa, como_corregirlo: f.como_corregirlo,
             frame_ref: f.frame_ref,
             drills: (f.finding_drills || [])
@@ -1190,6 +1290,24 @@
     } catch (e) { }
     if (!ok5) avisos.push('No se pudo verificar el prompt (revisa que DRILLS_CATALOG esté cargado)');
 
+    /* ── Test 7: las viñetas se validan y recortan ── */
+    var t7 = normalizeFinding({
+      titulo: 'Prueba', componente: 'cara',
+      puntos: ['La cara llega abierta al impacto', 'x', '', 'La bola sale a la derecha',
+               'La cara llega abierta al impacto', 'Cuarta viñeta que sobra porque el máximo es tres'],
+      drills_recomendados: ['cara-01']
+    });
+    var ok7 = !!(t7 && t7.puntos.length === 3 && t7.puntos[0].indexOf('abierta') > -1);
+    if (!ok7) errores.push('Test 7 (viñetas) falló · quedaron ' + (t7 ? t7.puntos.length : 0));
+
+    /* ── Test 8: el prompt pide viñetas y contempla la mano dominante ── */
+    var ok8 = false;
+    try {
+      var pp = buildPromptText('');
+      ok8 = pp.indexOf('"puntos"') > -1 && pp.indexOf('VIÑETAS') > -1;
+    } catch (e) {}
+    if (!ok8) avisos.push('No se pudo verificar que el prompt pida viñetas');
+
     /* ── Test 6: el pilar sale de la tabla fija, no del drill ──
        drill-path-07 declara ["WC","KS"]: antes esto devolvía WC para un
        hallazgo de path. Ahora debe devolver KS. */
@@ -1213,7 +1331,8 @@
       console.log('%c  ✅ renderResults() reemplazada',                                  'color:#10b981');
       console.log('%c  ✅ analyzeSwing() reemplazada',                                   'color:#10b981');
       console.log('%c  ✅ Prompt con taxonomía activo',                                  'color:#10b981');
-      console.log('%c  ✅ 5 de 5 tests internos pasaron',                                'color:#10b981');
+      console.log('%c  ✅ 6 de 6 tests internos pasaron',                                'color:#10b981');
+      console.log('%c  ✅ Viñetas cortas activas',                                       'color:#10b981');
       avisos.forEach(function (a) { console.warn('  ⚠️ ' + a); });
       console.log('%c' + linea, 'color:#2dd4bf');
       window.MGL_FASE_A_OK = true;
@@ -1235,3 +1354,60 @@
 
     (async function () {
       if (!db()) {
+        console.warn('%c  ⚠️ Supabase no disponible — el historial queda en el navegador',
+                     'color:#f59e0b');
+        CACHE = historialLocal(); CACHE_LISTA = true;
+        if (typeof renderHistory === 'function') renderHistory();
+        return;
+      }
+
+      var u = await usuario();
+      if (!u) {
+        console.warn('%c  ⚠️ Sin sesión iniciada — el historial queda en el navegador',
+                     'color:#f59e0b');
+        CACHE = historialLocal(); CACHE_LISTA = true;
+        if (typeof renderHistory === 'function') renderHistory();
+        return;
+      }
+
+      await cargarPerfil();
+      if (PERFIL && (PERFIL.mano_dominante === 'diestro' || PERFIL.mano_dominante === 'zurdo')) {
+        console.log('%c  ✅ Mano dominante: ' + PERFIL.mano_dominante +
+                    ' — el análisis la va a tener en cuenta', 'color:#10b981');
+      } else {
+        console.warn('%c  ⚠️ Falta la mano dominante. Complétala en el dashboard: sin ese dato ' +
+                     'la IA no puede afirmar direcciones con seguridad.', 'color:#f59e0b');
+      }
+
+      try { await migrarHistorialLocal(); }
+      catch (e) { console.warn('[MGL] Migración omitida:', e); }
+
+      await cargarHistorial(50);
+      if (typeof renderHistory === 'function') renderHistory();
+
+      if (MODO_NUBE) {
+        console.log('%c  ☁️  FASE B ACTIVA · historial en la nube · ' +
+                    CACHE.length + ' análisis guardados',
+                    'color:#10b981;font-weight:bold');
+        console.log('%c  Ya puedes analizar un swing. Deja esta consola abierta.',
+                    'color:#8a8a8a');
+        window.MGL_FASE_B_OK = true;
+      } else {
+        console.warn('%c  ⚠️ No se pudo leer de Supabase. ¿Corriste el SQL de la Fase B?',
+                     'color:#f59e0b');
+        window.MGL_FASE_B_OK = false;
+      }
+    })();
+  }
+
+  /* Espera a que el documento esté listo (por si el script se carga en el head) */
+  if (typeof document !== 'undefined' && document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', instalar);
+  } else {
+    instalar();
+  }
+
+  /* Expuesto por si hace falta reinstalar manualmente desde la consola */
+  window.MGL_REINSTALAR = instalar;
+
+})();
