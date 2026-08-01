@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Bitácora — MyGolfLab</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#0a0a0a; --bg-card:#111111; --bg-elevated:#1a1a1a;
+    --teal:#2dd4bf; --teal-dim:rgba(45,212,191,0.12); --teal-mid:rgba(45,212,191,0.35);
+    --gold:#D4C5A9; --text:#f0f0f0; --text-muted:#888;
+    --border:rgba(255,255,255,0.07); --border-mid:rgba(255,255,255,0.12);
+    --nav-height:68px;
+    --ok:#22c55e; --leve:#eab308; --moderado:#f97316; --severo:#ef4444; --nulo:#2e2e2e;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; padding-top:var(--nav-height); }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:0.4;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  /* HEADER */
+  header { position:fixed; top:0; left:0; right:0; z-index:1000; height:var(--nav-height);
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center; column-gap:24px; padding:0 32px;
+    background:rgba(10,10,10,0.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border); }
+  .logo { grid-column:1; justify-self:start; font-family:'Bebas Neue',sans-serif; font-size:26px;
+    letter-spacing:0.06em; color:var(--text); text-decoration:none; flex-shrink:0; }
+  .logo span { color:var(--teal); }
+  .nav-collapse { display:contents; }
+  .nav-links { grid-column:2; justify-self:center; display:flex; align-items:center; gap:30px; list-style:none; }
+  .nav-links a { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:600;
+    letter-spacing:0.04em; text-transform:uppercase; color:var(--text-muted); text-decoration:none; transition:color .2s; }
+  .nav-links a:hover { color:var(--text); }
+  .nav-links a.active { color:var(--teal); }
+  .nav-auth { grid-column:3; justify-self:end; display:flex; align-items:center; gap:12px; flex-shrink:0; position:relative; }
+  .nav-avatar { width:36px; height:36px; border-radius:50%; overflow:hidden; flex-shrink:0;
+    border:1px solid var(--border-mid); display:flex; align-items:center; justify-content:center;
+    background:var(--teal-dim); transition:border-color .2s; cursor:pointer; padding:0; }
+  .nav-avatar:hover { border-color:var(--teal); }
+  .nav-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+  .nav-avatar-initials { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--teal); }
+  .btn-outline, .btn-primary { display:inline-flex; align-items:center; justify-content:center;
+    padding:9px 18px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-size:14px;
+    font-weight:600; letter-spacing:0.04em; text-transform:uppercase; text-decoration:none;
+    transition:all .2s; cursor:pointer; white-space:nowrap; }
+  .btn-outline { color:var(--text); border:1px solid var(--border-mid); background:none; }
+  .btn-outline:hover { border-color:var(--text-muted); }
+  .btn-outline.aqui { color:var(--teal); border-color:var(--teal-mid); }
+  .btn-primary { color:#0a0a0a; background:var(--teal); border:1px solid var(--teal); }
+  .btn-primary:hover { background:#4ee0cf; border-color:#4ee0cf; }
+  .hamburger { grid-column:3; justify-self:end; display:none; width:40px; height:40px;
+    flex-direction:column; align-items:center; justify-content:center; gap:5px; cursor:pointer;
+    background:none; border:none; flex-shrink:0; }
+  .hamburger span { display:block; width:24px; height:2px; background:var(--text); border-radius:2px; transition:all .3s; }
+  .hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.active span:nth-child(2){opacity:0}
+  .hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .pop { position:absolute; top:46px; right:0; width:280px; background:var(--bg-card);
+    border:1px solid var(--border-mid); border-radius:14px; padding:7px; z-index:1100; display:none;
+    box-shadow:0 20px 50px rgba(0,0,0,.5); }
+  .pop.abierto { display:block; }
+  .pop-titulo { padding:10px 12px 7px; display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:3px;
+    text-transform:uppercase; color:var(--text-muted); }
+  .pop-titulo em { font-style:normal; color:var(--gold); letter-spacing:2px; }
+  .pop a, .pop button { display:block; width:100%; padding:10px 12px; border-radius:9px;
+    font-family:'Barlow',sans-serif; font-size:14px; color:var(--text-muted); text-align:left;
+    text-decoration:none; background:none; border:none; cursor:pointer; }
+  .pop a:hover, .pop button:hover { background:var(--bg-elevated); color:var(--text); }
+  .pop hr { border:0; border-top:1px solid var(--border); margin:6px 8px; }
+  @media (max-width:880px){
+    header{padding:0 20px} .hamburger{display:flex}
+    .nav-collapse{display:flex;flex-direction:column;position:fixed;top:var(--nav-height);left:0;right:0;
+      background:rgba(10,10,10,.98);backdrop-filter:blur(20px);border-bottom:1px solid transparent;
+      padding:0 24px;max-height:0;overflow:hidden;transition:max-height .32s ease,padding .32s ease,border-color .32s ease}
+    header.menu-open .nav-collapse{max-height:85vh;padding:8px 24px 20px;border-bottom-color:var(--border)}
+    .nav-links{flex-direction:column;align-items:stretch;gap:0}
+    .nav-links a{padding:14px 2px}
+    .nav-auth{flex-direction:column;align-items:stretch;gap:10px;padding-top:12px;position:static}
+    .nav-auth .nav-avatar{align-self:flex-start}
+    .pop{position:fixed;top:auto;left:16px;right:16px;width:auto}
+  }
+
+  /* PÁGINA */
+  .page-hero { max-width:900px; margin:0 auto; padding:56px 32px 28px; }
+  .page-eyebrow { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:4px; text-transform:uppercase; color:var(--teal);
+    display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .page-eyebrow::before { content:''; display:block; width:24px; height:1px; background:var(--teal); }
+  .page-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(44px,6vw,72px);
+    line-height:.95; letter-spacing:1px; margin-bottom:14px; }
+  .page-title span { color:var(--teal); }
+  .page-sub { font-size:16px; font-weight:300; color:var(--text-muted); line-height:1.7; max-width:560px; }
+
+  main { max-width:900px; margin:0 auto; padding:0 32px 60px; }
+
+  /* FILTROS */
+  .filtros { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:28px;
+    padding-bottom:20px; border-bottom:1px solid var(--border); }
+  .chip { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px;
+    text-transform:uppercase; padding:8px 16px; border-radius:20px; border:1px solid var(--border);
+    color:var(--text-muted); background:transparent; cursor:pointer; transition:all .2s; white-space:nowrap; }
+  .chip:hover { border-color:var(--teal); color:var(--teal); }
+  .chip.on { background:var(--teal); color:#0a0a0a; border-color:var(--teal); font-weight:700; }
+  select, input[type=search] { background:var(--bg-card); border:1px solid var(--border);
+    border-radius:8px; padding:9px 12px; color:var(--text); font-family:'Barlow',sans-serif;
+    font-size:14px; outline:none; transition:border-color .2s; }
+  select:focus, input[type=search]:focus { border-color:var(--teal); }
+  input[type=search] { min-width:200px; flex:1; }
+  select option { background:var(--bg-card); }
+  .cuenta { margin-left:auto; font-family:'Barlow Condensed',sans-serif; font-size:13px;
+    letter-spacing:1px; color:var(--text-muted); white-space:nowrap; }
+
+  /* TARJETA DE ANÁLISIS */
+  .entrada { position:relative; padding-left:30px; padding-bottom:32px; }
+  .entrada::before { content:''; position:absolute; left:5px; top:22px; bottom:-10px; width:1px; background:var(--border); }
+  .entrada:last-child::before { display:none; }
+  .entrada::after { content:''; position:absolute; left:0; top:16px; width:11px; height:11px;
+    border-radius:50%; background:var(--teal); border:2px solid var(--bg); }
+  .entrada.chat::after { background:var(--gold); }
+
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .card-top { padding:22px 26px; }
+  .card-fecha { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
+  .card-fila { display:flex; align-items:flex-start; gap:18px; flex-wrap:wrap; }
+  .card-txt { flex:1; min-width:220px; }
+  .card-txt h3 { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:1px;
+    font-weight:400; margin-bottom:6px; }
+  .card-txt p { font-size:14.5px; font-weight:300; line-height:1.7; color:var(--text-muted); }
+  .puntaje { font-family:'Bebas Neue',sans-serif; font-size:44px; line-height:1; color:var(--gold); flex-shrink:0; }
+  .puntaje small { display:block; font-family:'Barlow Condensed',sans-serif; font-size:10px;
+    letter-spacing:2px; color:var(--text-muted); }
+  .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+  .tag { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:1.5px;
+    text-transform:uppercase; padding:4px 10px; border-radius:6px; border:1px solid var(--border-mid);
+    color:var(--text-muted); }
+
+  .frames { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:18px; }
+  .frames img, .frames .sin { width:100%; aspect-ratio:16/9; display:block; border-radius:6px;
+    border:1px solid var(--border); background:var(--bg-elevated); object-fit:cover; }
+  .frames .sin { display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:10px; }
+
+  .dx { border-top:1px solid var(--border); padding:22px 26px; }
+  .dx-i { border-left:2px solid var(--nulo); padding-left:16px; margin-bottom:22px; }
+  .dx-i:last-child { margin-bottom:0; }
+  .dx-i h4 { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:600;
+    letter-spacing:.3px; margin-bottom:8px; }
+  .dx-i p { font-size:14px; font-weight:300; line-height:1.7; color:var(--text-muted); margin-bottom:10px; }
+  .dx-i p b { color:var(--text); font-weight:500; }
+  .b-alta{border-left-color:var(--severo)} .b-media{border-left-color:var(--moderado)} .b-baja{border-left-color:var(--leve)}
+  .drills { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .drill { display:inline-flex; align-items:center; gap:8px; background:var(--bg-elevated);
+    border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-size:13.5px;
+    color:var(--text); text-decoration:none; transition:all .2s; }
+  .drill:hover { border-color:var(--teal-mid); color:var(--teal); }
+  .drill i { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+  /* CONVERSACIÓN */
+  .chat-wrap { padding:22px 26px; }
+  .msg { display:flex; gap:12px; margin-bottom:16px; }
+  .msg:last-child { margin-bottom:0; }
+  .msg .quien { width:32px; height:32px; border-radius:9px; flex-shrink:0; display:flex;
+    align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:1px; }
+  .msg .quien.yo { background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-muted); }
+  .msg .quien.ia { background:var(--teal-dim); color:var(--teal); }
+  .msg .cuerpo { flex:1; min-width:0; }
+  .msg .texto { font-size:14.5px; font-weight:300; line-height:1.7; color:var(--text-muted);
+    white-space:pre-wrap; word-wrap:break-word; }
+  .msg .hora { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:1px;
+    color:var(--text-muted); opacity:.6; margin-top:4px; }
+
+  /* VACÍOS */
+  .vacio { border:1px dashed var(--border-mid); border-radius:14px; padding:36px 28px; text-align:center; }
+  .vacio .t { font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+  .vacio .d { font-size:14.5px; font-weight:300; color:var(--text-muted); line-height:1.75; max-width:480px; margin:0 auto; }
+  .cta { display:inline-flex; align-items:center; gap:8px; margin-top:20px; padding:13px 28px;
+    border-radius:8px; background:var(--teal); color:#0a0a0a; font-family:'Barlow Condensed',sans-serif;
+    font-size:14px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-decoration:none; }
+  .cta:hover { background:#4ee0cf; }
+  .nota { background:var(--bg-card); border:1px solid var(--border-mid); border-left:3px solid var(--gold);
+    border-radius:0 12px 12px 0; padding:18px 22px; font-size:14px; font-weight:300; line-height:1.7;
+    color:var(--text-muted); margin-bottom:28px; }
+  .nota .t { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+
+  .cargando { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:18px; z-index:5000; }
+  .cargando.off { display:none; }
+  .giro { width:34px; height:34px; border:2px solid var(--border); border-top-color:var(--teal);
+    border-radius:50%; animation:giro .8s linear infinite; }
+  @keyframes giro { to { transform:rotate(360deg); } }
+
+  @media (max-width:700px){
+    .page-hero{padding:40px 20px 22px} main{padding:0 20px 40px}
+    .card-top,.dx,.chat-wrap{padding:20px}
+    .frames{grid-template-columns:repeat(3,1fr)}
+    .cuenta{margin-left:0;width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;transition-duration:.001ms!important} }
+  :focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="cargando" id="cargando">
+  <div class="logo">MY<span>GOLF</span>LAB</div><div class="giro"></div>
+</div>
+
+<header id="siteHeader">
+  <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+  <div class="nav-collapse">
+    <ul class="nav-links">
+      <li><a href="/es/index.html">Inicio</a></li>
+      <li><a href="/es/coach-ai.html">Coach IA</a></li>
+      <li><a href="/es/training.html">Training Lab</a></li>
+      <li><a href="/es/library.html">Biblioteca</a></li>
+      <li><a href="/es/pricing.html">Planes</a></li>
+      <li><a href="/es/about.html">Quiénes Somos</a></li>
+    </ul>
+    <div class="nav-auth" id="header-auth">
+      <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+      <a href="/es/login.html" class="btn-primary">Únete</a>
+    </div>
+  </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="page-hero">
+  <div class="page-eyebrow">Coach IA</div>
+  <h1 class="page-title">Mi <span>bitácora</span></h1>
+  <p class="page-sub">Todo lo que has hecho con el coach: cada swing analizado con sus frames, los diagnósticos, los drills que te recomendó y las conversaciones.</p>
+</div>
+
+<main id="app"></main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   MyGolfLab · Mi bitácora v1.0 · 2026-07-30
+   Página independiente. Solo lee datos, no escribe nada.
+   Para verla sin tocar tus datos:  ?demo=1
+   ═══════════════════════════════════════════════════════════════════════════ */
+'use strict';
+
+var CONFIG = {
+  SUPABASE_URL:'https://yulpqupmftdjbepqiscs.supabase.co',
+  SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
+  BUCKET:'swing-frames',
+  RUTAS:{ coach:'/es/coach-ai.html', biblioteca:'/es/library.html', training:'/es/training.html',
+    dashboard:'/es/dashboard.html', planes:'/es/pricing.html', perfil:'/es/perfil.html',
+    login:'/es/login.html', inicio:'/es/index.html' }
+};
+
+var COMPONENTES = ['cara','path','lowpoint','secuencia','postura','ground','conexion','distancia'];
+var NOMBRES = { cara:'Cara del palo', path:'Path', lowpoint:'Punto bajo', secuencia:'Secuencia',
+  postura:'Postura', ground:'Ground forces', conexion:'Conexión', distancia:'Distancia' };
+var COLOR_COMP = { cara:'#2dd4bf', path:'#3b82f6', lowpoint:'#f59e0b', secuencia:'#ec4899',
+  postura:'#8b5cf6', ground:'#06b6d4', conexion:'#10b981', distancia:'#fb923c' };
+var PILARES_NOM = { GF:'Ground Forces', KS:'Kinematic Sequence', WC:'Wrist Conditions', BT:'Body Tilts' };
+var FASES = ['Setup','Takeaway','Top','Transición','Impacto','Finish'];
+
+var DRILLS = {
+'drill-cara-01':'Cierre con la mano de atrás','drill-cara-02':'Sentir el nudillo en el target',
+'drill-cara-03':'Logo del guante al cielo','drill-cara-04':'Swing del reloj con un solo brazo',
+'drill-cara-05':'Cara cerrada exagerada','drill-cara-06':'Cara abierta exagerada',
+'drill-cara-07':'Tee como referencia de cara','drill-cara-08':'Impact bag de cara cuadrada',
+'drill-cara-09':'Banderines de forma de bola','drill-cara-10':'Curva controlada en campo',
+'drill-path-01':'La pausa al tope','drill-path-02':'Brazo de atrás en sombrilla',
+'drill-path-03':'Codo de atrás pegado al cuerpo','drill-path-04':'Salida desde adentro con stick',
+'drill-path-05':'Stick externo como pared','drill-path-06':'Headcover detrás de la bola',
+'drill-path-07':'Draw obligado con tee bajo','drill-path-08':'Bolas en línea diagonal',
+'drill-path-09':'Path interno exagerado','drill-path-10':'Forma de bola por target',
+'drill-lowpoint-01':'Línea de tiza para low point','drill-lowpoint-02':'Toques al suelo sin bola',
+'drill-lowpoint-03':'Sentir el pecho sobre la bola','drill-lowpoint-04':'Pies juntos para encontrar fondo',
+'drill-lowpoint-05':'Tee blanco en spray','drill-lowpoint-06':'Dos tees como ventana',
+'drill-lowpoint-07':'Bola sobre billete','drill-lowpoint-08':'Stance progresivo',
+'drill-lowpoint-09':'Bolas sobre lies variados','drill-lowpoint-10':'Hoyo simulado con hierros',
+'drill-lowpoint-11':'Lies extremos en campo','drill-lowpoint-12':'Test de divot consistente',
+'drill-secuencia-01':'Step drill cruzando los pies','drill-secuencia-02':'Inicio de caderas con pausa',
+'drill-secuencia-03':'Brazos pasivos, cuerpo activo','drill-secuencia-04':'Pump drill',
+'drill-secuencia-05':'Ritmo 3-1 contado en voz alta','drill-secuencia-06':'Step-through finish',
+'drill-secuencia-07':'Swing completo a 70%','drill-secuencia-08':'Pelota medicinal lateral',
+'drill-secuencia-09':'Swings con metrónomo','drill-secuencia-10':'Tres tempos progresivos',
+'drill-secuencia-11':'Driver y wedge alternados','drill-secuencia-12':'Ronda con tempo único',
+'drill-postura-01':'Setup frente al espejo','drill-postura-02':'Inclinación columna desde cadera',
+'drill-postura-03':'Stick en el pecho como guía','drill-postura-04':'Wall drill anti early-extension',
+'drill-postura-05':'Bolas a distancia del cuerpo','drill-postura-06':'Headcover externo al palo',
+'drill-postura-07':'Trasero contra silla','drill-postura-08':'Postura mantenida hasta finish',
+'drill-postura-09':'Tiros incómodos de postura',
+'drill-ground-01':'Cambio de presión 50-80-90','drill-ground-02':'Pies descalzos en superficie blanda',
+'drill-ground-03':'Squat-jump del swing','drill-ground-04':'Pie de atrás levantado',
+'drill-ground-05':'Pie de adelante levantado','drill-ground-06':'Plancha de presión visualizada',
+'drill-ground-07':'Saltar al impacto','drill-ground-08':'Driver a máxima velocidad',
+'drill-ground-09':'Hierros en pendiente',
+'drill-conexion-01':'Headcover bajo ambas axilas','drill-conexion-02':'Toalla bajo el brazo de adelante',
+'drill-conexion-03':'Manos lejos al inicio del backswing','drill-conexion-04':'Brazo conectado, brazo libre',
+'drill-conexion-05':'Bolas con headcover en axila','drill-conexion-06':'Half-swing conectado a swing completo',
+'drill-conexion-07':'Sensación de ancho con fierro largo','drill-conexion-08':'Driver de ancho máximo',
+'drill-distancia-01':'Tres largos de swing · hierros','drill-distancia-02':'Sentir el reloj en wedges',
+'drill-distancia-03':'Manos suaves en wedge','drill-distancia-04':'Ángulo de ataque descendente',
+'drill-distancia-05':'Tres distancias por hierro','drill-distancia-06':'Escalera de wedges',
+'drill-distancia-07':'Wedge con cara abierta progresiva','drill-distancia-08':'Contacto cuadrado con divot direccional',
+'drill-distancia-09':'Distancias específicas a target','drill-distancia-10':'Wedges desde lies variables',
+'drill-distancia-11':'Spin alto vs bajo a demanda','drill-distancia-12':'Control distancia en hoyo par 3',
+'drill-distancia-13':'Aproximaciones desde 100m','drill-distancia-14':'Wedges en green con bandera'
+};
+
+var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
+  analisis:[], findings:[], drills:[], firmadas:{}, chat:[], chatOK:false,
+  filtro:{ tipo:'todo', comp:'', texto:'' } };
+
+function $(i){ return document.getElementById(i); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function fechaLarga(d){ return new Date(d).toLocaleDateString('es-CL',
+  { weekday:'long', day:'numeric', month:'long', year:'numeric' }); }
+function hora(d){ return new Date(d).toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}); }
+function diaClave(d){ return new Date(d).toISOString().slice(0,10); }
+function iniciales(n){ return String(n||'').trim().split(/\s+/).filter(Boolean).slice(0,2)
+  .map(function(w){ return w[0].toUpperCase(); }).join('') || 'MG'; }
+function normPlan(p){ var x=String(p||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return ['basico','pro','elite'].indexOf(x)>-1 ? x : 'basico'; }
+function etiquetaPlan(p){ return p==='basico'?'Básico':p==='pro'?'Pro':'Elite'; }
+function drillNombre(id){ return DRILLS[id] || id; }
+function drillURL(id){ return CONFIG.RUTAS.biblioteca+'?drill='+encodeURIComponent(String(id).replace(/^drill-/,'')); }
+function sev(s){ return s==='alta'?'Prioridad alta':s==='baja'?'Prioridad baja':'Prioridad media'; }
+
+/* ── Carga ── */
+async function cargar(){
+  S.sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  var ses = await S.sb.auth.getSession();
+  S.sesion = ses.data.session;
+  if(!S.sesion) return false;
+
+  var uid = S.sesion.user.id, m = S.sesion.user.user_metadata || {};
+  S.nombre = m.full_name || [m.first_name,m.last_name].filter(Boolean).join(' ') ||
+             S.sesion.user.email.split('@')[0];
+  S.avatar = m.avatar_url || m.picture || '';
+
+  var pf = await S.sb.from('profiles').select('plan').eq('id',uid).maybeSingle();
+  S.plan = normPlan(pf.data && pf.data.plan);
+
+  var an = await S.sb.from('swing_analyses')
+    .select('id,created_at,camera_angle,score,nivel,resumen,frame_paths,prompt_version,input_problema,input_objetivo')
+    .eq('user_id',uid).order('created_at',{ascending:false});
+  if(an.error) throw an.error;
+  S.analisis = an.data || [];
+
+  var fi = await S.sb.from('swing_findings')
+    .select('id,analysis_id,orden,componente,pilar,error_tag,severidad,titulo,que_pasa,como_corregirlo')
+    .eq('user_id',uid).order('orden',{ascending:true});
+  if(fi.error) throw fi.error;
+  S.findings = fi.data || [];
+
+  if(S.findings.length){
+    var dr = await S.sb.from('finding_drills').select('finding_id,drill_id,orden')
+      .in('finding_id', S.findings.map(function(f){ return f.id; }));
+    S.drills = dr.data || [];
+  }
+
+  try{
+    var ch = await S.sb.from('coach_messages')
+      .select('id,created_at,rol,contenido,sesion_id').eq('user_id',uid)
+      .order('created_at',{ascending:true});
+    if(!ch.error){ S.chat = ch.data || []; S.chatOK = true; }
+  }catch(e){ S.chatOK = false; }
+
+  await firmar();
+  return true;
+}
+
+async function firmar(){
+  var rutas = [];
+  S.analisis.slice(0,15).forEach(function(a){
+    (a.frame_paths||[]).forEach(function(p){ if(p && rutas.indexOf(p)===-1) rutas.push(p); });
+  });
+  if(!rutas.length) return;
+  try{
+    for(var i=0;i<rutas.length;i+=100){
+      var r = await S.sb.storage.from(CONFIG.BUCKET).createSignedUrls(rutas.slice(i,i+100), 3600);
+      (r.data||[]).forEach(function(x){ if(x.signedUrl) S.firmadas[x.path] = x.signedUrl; });
+    }
+  }catch(e){ console.warn('[MGL] frames sin firmar:', e.message); }
+}
+
+/* ── Construir la línea de tiempo mezclando análisis y conversaciones ── */
+function entradas(){
+  var out = [], f = S.filtro;
+
+  if(f.tipo !== 'chat'){
+    S.analisis.forEach(function(a){
+      var dx = S.findings.filter(function(x){ return x.analysis_id === a.id; })
+                         .sort(function(x,y){ return (x.orden||0)-(y.orden||0); });
+      if(f.comp && !dx.some(function(x){ return x.componente === f.comp; })) return;
+      if(f.texto){
+        var t = f.texto.toLowerCase();
+        var blob = [a.resumen, a.nivel, a.input_problema, a.input_objetivo]
+          .concat(dx.map(function(x){ return [x.titulo,x.que_pasa,x.como_corregirlo].join(' '); }))
+          .join(' ').toLowerCase();
+        if(blob.indexOf(t) === -1) return;
+      }
+      out.push({ tipo:'analisis', fecha:a.created_at, a:a, dx:dx });
+    });
+  }
+
+  if(f.tipo !== 'analisis' && !f.comp){
+    var grupos = {};
+    S.chat.forEach(function(m){
+      if(f.texto && String(m.contenido).toLowerCase().indexOf(f.texto.toLowerCase()) === -1) return;
+      var k = m.sesion_id || diaClave(m.created_at);
+      if(!grupos[k]) grupos[k] = [];
+      grupos[k].push(m);
+    });
+    Object.keys(grupos).forEach(function(k){
+      var ms = grupos[k].sort(function(x,y){ return new Date(x.created_at)-new Date(y.created_at); });
+      out.push({ tipo:'chat', fecha:ms[ms.length-1].created_at, ms:ms });
+    });
+  }
+
+  out.sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
+  return out;
+}
+
+/* ── Render ── */
+function render(){
+  var lista = entradas();
+  var h = barraFiltros(lista.length);
+
+  if(!S.analisis.length && !S.chat.length){
+    h += '<div class="vacio"><div class="t">Tu bitácora está vacía</div><div class="d">' +
+      'Cuando analices tu primer swing, acá va a quedar guardado con sus frames, su diagnóstico ' +
+      'y los drills que el coach te recomiende. También todo lo que converses con él.</div>' +
+      '<a class="cta" href="' + CONFIG.RUTAS.coach + '">Analizar mi primer swing</a></div>';
+  } else if(!lista.length){
+    h += '<div class="vacio"><div class="t">Nada coincide</div><div class="d">' +
+      'Prueba quitando algún filtro o buscando otra palabra.</div></div>';
+  } else {
+    if(!S.chatOK){
+      h += '<div class="nota"><div class="t">Las conversaciones aún no se guardan</div>' +
+        'Hoy el chat con el coach se pierde al recargar la página. En cuanto instales el archivo ' +
+        '<code>mgl-chat.js</code>, cada conversación va a quedar acá junto a tus análisis.</div>';
+    }
+    lista.forEach(function(e){
+      h += e.tipo === 'analisis' ? tarjetaAnalisis(e) : tarjetaChat(e);
+    });
+  }
+
+  $('app').innerHTML = h;
+  enlazarFiltros();
+}
+
+function barraFiltros(n){
+  var f = S.filtro;
+  var opts = '<option value="">Todos los componentes</option>' +
+    COMPONENTES.map(function(c){
+      return '<option value="' + c + '"' + (f.comp===c?' selected':'') + '>' + NOMBRES[c] + '</option>';
+    }).join('');
+
+  return '<div class="filtros">' +
+    '<button class="chip' + (f.tipo==='todo'?' on':'') + '" data-t="todo">Todo</button>' +
+    '<button class="chip' + (f.tipo==='analisis'?' on':'') + '" data-t="analisis">Análisis</button>' +
+    '<button class="chip' + (f.tipo==='chat'?' on':'') + '" data-t="chat">Conversaciones</button>' +
+    '<select id="fComp">' + opts + '</select>' +
+    '<input type="search" id="fTexto" placeholder="Buscar…" value="' + esc(f.texto) + '">' +
+    '<span class="cuenta">' + n + (n===1?' entrada':' entradas') + '</span></div>';
+}
+
+function tarjetaAnalisis(e){
+  var a = e.a, dx = e.dx;
+  var mig = String(a.prompt_version||'').toLowerCase().indexOf('migrado') > -1;
+
+  var h = '<div class="entrada"><div class="card"><div class="card-top">' +
+    '<div class="card-fecha">' + fechaLarga(a.created_at) + '</div>' +
+    '<div class="card-fila"><div class="card-txt">' +
+    '<h3>Análisis de swing</h3>' +
+    '<p>' + esc(a.resumen || 'Sin resumen') + '</p><div class="tags">' +
+    '<span class="tag">' + (a.camera_angle==='dtl'?'Down the line':'De frente') + '</span>' +
+    (a.nivel ? '<span class="tag">' + esc(a.nivel) + '</span>' : '') +
+    (dx.length ? '<span class="tag">' + dx.length + (dx.length===1?' diagnóstico':' diagnósticos') + '</span>' : '') +
+    (mig ? '<span class="tag">Migrado</span>' : '') +
+    '</div></div>' +
+    (a.score!=null ? '<div class="puntaje">' + a.score + '<small>Puntaje</small></div>' : '') +
+    '</div>';
+
+  var rutas = (a.frame_paths||[]).slice(0,6);
+  if(rutas.length){
+    h += '<div class="frames">';
+    rutas.forEach(function(p,k){
+      var u = S.firmadas[p];
+      h += u ? '<img src="' + esc(u) + '" alt="' + (FASES[k]||('Frame '+(k+1))) + '" loading="lazy">'
+             : '<div class="sin">' + (FASES[k]||('F'+(k+1))) + '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+
+  if(dx.length){
+    h += '<div class="dx">';
+    dx.forEach(function(d){
+      var ds = S.drills.filter(function(x){ return x.finding_id === d.id; })
+                       .sort(function(x,y){ return (x.orden||0)-(y.orden||0); });
+      h += '<div class="dx-i b-' + (d.severidad||'media') + '">' +
+        '<h4>' + esc(d.titulo || NOMBRES[d.componente] || 'Diagnóstico') + '</h4>' +
+        '<div class="tags" style="margin:0 0 12px">' +
+        '<span class="tag" style="color:' + (COLOR_COMP[d.componente]||'var(--teal)') +
+          ';border-color:' + (COLOR_COMP[d.componente]||'var(--teal)') + '44">' +
+          esc(NOMBRES[d.componente] || d.componente) + '</span>' +
+        (d.pilar ? '<span class="tag">' + esc(PILARES_NOM[d.pilar] || d.pilar) + '</span>' : '') +
+        '<span class="tag">' + sev(d.severidad) + '</span></div>' +
+        (d.que_pasa ? '<p><b>Qué pasa.</b> ' + esc(d.que_pasa) + '</p>' : '') +
+        (d.como_corregirlo ? '<p><b>Cómo corregirlo.</b> ' + esc(d.como_corregirlo) + '</p>' : '') +
+        (ds.length ? '<div class="drills">' + ds.map(function(x){
+            return '<a class="drill" href="' + drillURL(x.drill_id) + '">' +
+              '<i style="background:' + (COLOR_COMP[d.componente]||'var(--teal)') + '"></i>' +
+              esc(drillNombre(x.drill_id)) + '</a>';
+          }).join('') + '</div>' : '') +
+        '</div>';
+    });
+    h += '</div>';
+  }
+  return h + '</div></div>';
+}
+
+function tarjetaChat(e){
+  var ms = e.ms;
+  var h = '<div class="entrada chat"><div class="card"><div class="chat-wrap">' +
+    '<div class="card-fecha">' + fechaLarga(ms[0].created_at) + ' · ' +
+    ms.length + (ms.length===1?' mensaje':' mensajes') + '</div>';
+  ms.forEach(function(m){
+    var yo = m.rol === 'usuario';
+    h += '<div class="msg"><div class="quien ' + (yo?'yo':'ia') + '">' + (yo?'TÚ':'IA') + '</div>' +
+      '<div class="cuerpo"><div class="texto">' + esc(m.contenido) + '</div>' +
+      '<div class="hora">' + hora(m.created_at) + '</div></div></div>';
+  });
+  return h + '</div></div></div>';
+}
+
+function enlazarFiltros(){
+  document.querySelectorAll('[data-t]').forEach(function(b){
+    b.addEventListener('click', function(){
+      S.filtro.tipo = this.getAttribute('data-t');
+      if(S.filtro.tipo === 'chat') S.filtro.comp = '';
+      render();
+    });
+  });
+  var c = $('fComp');
+  if(c) c.addEventListener('change', function(){
+    S.filtro.comp = this.value;
+    if(this.value) S.filtro.tipo = 'todo';
+    render();
+  });
+  var t = $('fTexto');
+  if(t) t.addEventListener('input', function(){
+    S.filtro.texto = this.value;
+    var pos = this.selectionStart;
+    render();
+    var n = $('fTexto');
+    if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} }
+  });
+}
+
+/* ── Barra superior ── */
+function toggleMenu(){
+  var h = $('siteHeader'), b = $('hamburger');
+  var a = h.classList.toggle('menu-open');
+  b.classList.toggle('active', a);
+  b.setAttribute('aria-expanded', a ? 'true' : 'false');
+}
+window.toggleMenu = toggleMenu;
+
+function pintarBarra(){
+  var inner = S.avatar
+    ? '<img src="' + esc(S.avatar) + '" alt="' + esc(S.nombre) + '">'
+    : '<span class="nav-avatar-initials">' + iniciales(S.nombre) + '</span>';
+
+  $('header-auth').innerHTML =
+    '<button class="nav-avatar" id="bAvatar" title="' + esc(S.nombre) + '">' + inner + '</button>' +
+    '<a href="' + CONFIG.RUTAS.dashboard + '" class="btn-outline">Mi Dashboard</a>' +
+    '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>' +
+    '<div class="pop" id="popCuenta">' +
+      '<div class="pop-titulo"><span>' + esc(S.nombre) + '</span><em>' + etiquetaPlan(S.plan) + '</em></div>' +
+      '<a href="' + CONFIG.RUTAS.dashboard + '">Mi Dashboard</a>' +
+      '<a href="' + CONFIG.RUTAS.coach + '">Analizar un swing</a>' +
+      '<a href="' + CONFIG.RUTAS.perfil + '">Mi perfil</a>' +
+      '<a href="' + CONFIG.RUTAS.planes + '">Mi plan</a><hr>' +
+      '<button id="bSalir">Cerrar sesión</button></div>';
+
+  $('bAvatar').addEventListener('click', function(e){
+    e.stopPropagation();
+    $('popCuenta').classList.toggle('abierto');
+  });
+  document.addEventListener('click', function(){ $('popCuenta').classList.remove('abierto'); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') $('popCuenta').classList.remove('abierto');
+  });
+
+  async function salir(e){
+    if(e) e.preventDefault();
+    if(S.sb){ try{ await S.sb.auth.signOut(); }catch(x){} }
+    window.location.href = CONFIG.RUTAS.inicio;
+  }
+  document.querySelectorAll('[data-logout]').forEach(function(b){ b.addEventListener('click', salir); });
+  var bs = $('bSalir'); if(bs) bs.addEventListener('click', salir);
+}
+
+/* ── Demo ── */
+function cargarDemo(){
+  S.demo = true; S.nombre = 'Gabriel Morgan'; S.plan = 'pro';
+  var hoy = new Date();
+  function atras(d,h){ var x = new Date(hoy); x.setDate(hoy.getDate()-d); x.setHours(h||10,30,0,0); return x.toISOString(); }
+
+  S.analisis = [
+    { id:'a1', created_at:atras(3), camera_angle:'dtl', score:71, nivel:'Intermedio alto',
+      resumen:'Secuencia reincidente y path moderado. La postura se mantiene sólida.',
+      frame_paths:['d/1','d/2','d/3','d/4','d/5','d/6'], prompt_version:'v3' },
+    { id:'a2', created_at:atras(21), camera_angle:'face', score:67, nivel:'Intermedio',
+      resumen:'Postura estable dos análisis seguidos. El path es ahora lo dominante.',
+      frame_paths:['d/7','d/8','d/9','d/10','d/11','d/12'], prompt_version:'v3' }
+  ];
+  S.findings = [
+    { id:'f1', analysis_id:'a1', orden:0, componente:'path', pilar:'KS', severidad:'media',
+      titulo:'Path hacia adentro en la bajada',
+      que_pasa:'El palo entra por dentro del plano y obliga a las manos a corregir en el impacto, lo que abre la cara.',
+      como_corregirlo:'Sensación de que el mango apunta a la bola más tiempo en la bajada, sin tirar del brazo derecho hacia el cuerpo.' },
+    { id:'f2', analysis_id:'a1', orden:1, componente:'secuencia', pilar:'KS', severidad:'media',
+      titulo:'La pelvis y el torso arrancan juntos',
+      que_pasa:'El torso se adelanta a la pelvis al iniciar la bajada, perdiendo el orden pelvis-torso-brazos.',
+      como_corregirlo:'Iniciar la bajada solo con el pie delantero apretando el suelo.' },
+    { id:'f3', analysis_id:'a2', orden:0, componente:'postura', pilar:'BT', severidad:'baja',
+      titulo:'Leve pérdida de postura en el impacto',
+      que_pasa:'La cadera se acerca ligeramente a la bola en la bajada.',
+      como_corregirlo:'Mantener la sensación de sentarse hacia atrás durante la transición.' }
+  ];
+  S.drills = [
+    { finding_id:'f1', drill_id:'drill-path-04', orden:0 },
+    { finding_id:'f1', drill_id:'drill-path-05', orden:1 },
+    { finding_id:'f2', drill_id:'drill-secuencia-01', orden:0 },
+    { finding_id:'f3', drill_id:'drill-postura-07', orden:0 }
+  ];
+  S.chatOK = true;
+  S.chat = [
+    { id:'c1', created_at:atras(2,18), rol:'usuario', sesion_id:'s1',
+      contenido:'¿Qué hago si el step drill me descoloca el equilibrio?' },
+    { id:'c2', created_at:atras(2,18), rol:'coach', sesion_id:'s1',
+      contenido:'Es normal las primeras veces. Reduce el tamaño del paso a la mitad y haz swings al 50% de velocidad hasta que el pie caiga sin pensarlo.\n\nEl objetivo no es el paso, es que la parte de abajo arranque antes que la de arriba. Si el paso te descoloca, es que estás usando demasiado impulso.' },
+    { id:'c3', created_at:atras(2,18), rol:'usuario', sesion_id:'s1',
+      contenido:'¿Cuántas repeticiones por sesión?' },
+    { id:'c4', created_at:atras(2,18), rol:'coach', sesion_id:'s1',
+      contenido:'Veinte swings lentos valen más que cien rápidos. Dos bloques de diez, con descanso entre medio.' },
+    { id:'c5', created_at:atras(14,9), rol:'usuario', sesion_id:'s2',
+      contenido:'¿Por qué pierdo distancia con el driver comparado con el hierro 3?' },
+    { id:'c6', created_at:atras(14,9), rol:'coach', sesion_id:'s2',
+      contenido:'La causa más común es el ángulo de ataque. Con hierros golpeas hacia abajo, con driver necesitas golpear hacia arriba. Si atacas el driver con el mismo ángulo descendente, pierdes altura de lanzamiento y ganas spin: la bola sube poco y cae rápido.\n\nProba adelantando la bola en el stance, a la altura del talón izquierdo, y sintiendo el hombro derecho más bajo en el setup.' }
+  ];
+}
+
+/* ── Autotest ── */
+function MGL_BITACORA_TEST(){
+  var r = [];
+  function t(n,ok,d){ r.push({ prueba:n, resultado: ok?'OK':'REVISAR', detalle:d }); }
+
+  t('Sesión activa', S.demo || !!S.sesion, S.sesion ? S.sesion.user.email : (S.demo?'modo demo':'sin sesión'));
+  t('Análisis cargados', S.analisis.length > 0, S.analisis.length + ' filas');
+  t('Diagnósticos cargados', S.findings.length > 0, S.findings.length + ' filas');
+  t('Drills recomendados', S.drills.length > 0, S.drills.length + ' filas');
+  t('Frames firmados', S.demo || !S.analisis.length || Object.keys(S.firmadas).length > 0,
+    Object.keys(S.firmadas).length + ' URLs');
+  t('Tabla coach_messages', S.chatOK, S.chatOK ? S.chat.length + ' mensajes'
+    : 'falta correr mgl-setup.sql o instalar mgl-chat.js');
+
+  var sinNombre = S.drills.filter(function(d){ return !DRILLS[d.drill_id]; })
+                          .map(function(d){ return d.drill_id; });
+  t('Nombres de drills resueltos', sinNombre.length === 0,
+    sinNombre.length ? 'sin nombre: ' + sinNombre.join(', ') : Object.keys(DRILLS).length + ' en catálogo');
+
+  t('Entradas en pantalla', document.querySelectorAll('.entrada').length > 0 || !S.analisis.length,
+    document.querySelectorAll('.entrada').length + ' entradas');
+  t('Filtros enlazados', !!$('fComp') || !S.analisis.length, '');
+
+  console.log('%c MGL BITÁCORA v1.0 — AUTOTEST ',
+    'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
+  console.table(r);
+  var malos = r.filter(function(x){ return x.resultado === 'REVISAR'; });
+  if(!malos.length) console.log('%c Todo correcto. ','background:#22c55e;color:#04210e');
+  else console.warn('Revisar: ' + malos.map(function(x){ return x.prueba; }).join(', '));
+  return r;
+}
+window.MGL_BITACORA_TEST = MGL_BITACORA_TEST;
+window.MGL = { estado:S, render:function(){ render(); }, test:MGL_BITACORA_TEST };
+
+/* ── Arranque ── */
+(async function(){
+  var q = new URLSearchParams(window.location.search);
+
+  if(q.get('demo') === '1'){
+    cargarDemo(); pintarBarra(); render();
+    $('cargando').classList.add('off'); MGL_BITACORA_TEST(); return;
+  }
+  if(!window.supabase || !window.supabase.createClient){
+    $('cargando').classList.add('off');
+    $('app').innerHTML = '<div class="nota"><div class="t">Sin conexión</div>' +
+      'No se pudo descargar el cliente de Supabase. Revisa tu conexión y recarga.</div>';
+    return;
+  }
+  try{
+    var hay = await cargar();
+    if(!hay){
+      window.location.href = CONFIG.RUTAS.login + '?redirect=' +
+        encodeURIComponent(window.location.pathname);
+      return;
+    }
+    pintarBarra();
+    render();
+  }catch(e){
+    $('app').innerHTML = '<div class="nota"><div class="t">No se pudieron leer los datos</div>' +
+      esc(e.message || 'Error desconocido') + '</div>';
+    console.error('[MGL] Error cargando la bitácora:', e);
+  }
+  $('cargando').classList.add('off');
+  MGL_BITACORA_TEST();
+})();
+</script>
+</body>
+</html>
