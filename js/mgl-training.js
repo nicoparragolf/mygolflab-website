@@ -1,5 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · mgl-training.js  v1.0  ·  2026-07-30
+   MyGolfLab · mgl-training.js  v1.1  ·  2026-08-01
+
+   ── v1.1: ARREGLO DE LECTURA DEL CATÁLOGO ─────────────────────────────────
+   La v1.0 buscaba el catálogo de drills en window.allDrills y no lo
+   encontraba, así que abortaba con "allDrills no existe". El motivo: en
+   training.html el catálogo se declara con `let allDrills`, y las variables
+   declaradas con let o const NO quedan colgadas de window, aunque sí sean
+   globales. Ahora se lee por nombre directo, con window como respaldo.
 
    QUÉ HACE
    Hace que Training Lab registre lo que entrenas. Hoy el botón "Empezar Drill"
@@ -28,7 +35,7 @@
 (function () {
   'use strict';
 
-  var VERSION = '1.0';
+  var VERSION = '1.1';
 
   var SB_URL  = 'https://yulpqupmftdjbepqiscs.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
@@ -39,6 +46,18 @@
     drillActual: null, varianteActual: null,
     componenteFoco: null, guardadas: 0, ultimoError: null
   };
+
+  /* ── Catálogo de drills de training.html ──
+     Se declara allá con `let allDrills`, y las variables declaradas con let
+     o const no aparecen en window aunque sean globales. Por eso se lee por
+     nombre directo; window queda como respaldo por si algún día cambia. */
+  function catalogo() {
+    try {
+      if (typeof allDrills !== 'undefined' && Array.isArray(allDrills)) return allDrills;
+    } catch (e) { /* la variable aún no existe */ }
+    if (Array.isArray(window.allDrills)) return window.allDrills;
+    return null;
+  }
 
   /* ── Cliente de Supabase: reusa el de la página si ya existe ── */
   function db() {
@@ -257,12 +276,27 @@
   }
 
   /* ── Interceptar la apertura del modal ── */
+  var intentos = 0;
+
   function instalar() {
+    if (estado.instalado) return;
     inyectarCSS();
 
     var errores = [];
-    if (typeof window.openModal !== 'function') errores.push('openModal() no existe — ¿estás en training.html?');
-    if (typeof window.allDrills === 'undefined') errores.push('allDrills no existe');
+    if (typeof window.openModal !== 'function') {
+      errores.push('openModal() no existe — ¿el archivo está al final del <body> de training.html?');
+    }
+    if (catalogo() === null) {
+      errores.push('No se encontró el catálogo de drills (allDrills)');
+    }
+
+    /* El catálogo se descarga por fetch al cargar la página, así que puede
+       no estar listo todavía. Reintentamos unas cuantas veces antes de rendirnos. */
+    if (errores.length && intentos < 12) {
+      intentos++;
+      setTimeout(instalar, 500);
+      return;
+    }
 
     if (errores.length) {
       console.log('%c════════════════════════════════════════════', 'color:#ef4444');
@@ -278,7 +312,8 @@
     window.openModal = function (drillId, levelKey) {
       original.apply(this, arguments);
       try {
-        var d = (window.allDrills || []).filter(function (x) { return x.id === drillId; })[0];
+        var lista = catalogo() || [];
+        var d = lista.filter(function (x) { return String(x.id) === String(drillId); })[0];
         estado.drillActual = d || null;
         estado.nombreVariante = levelKey || null;
         estado.varianteActual = (d && d.variaciones) ? d.variaciones[levelKey] : null;
@@ -344,8 +379,8 @@
 
     t('Sesiones guardadas', true, cuantas + ' en total · ' + estado.guardadas + ' en esta visita');
     t('openModal interceptada', typeof window.openModal === 'function', '');
-    t('Catálogo de drills', (window.allDrills || []).length > 0,
-      (window.allDrills || []).length + ' drills');
+    var cat = catalogo() || [];
+    t('Catálogo de drills', cat.length > 0, cat.length + ' drills disponibles');
     t('Componente en foco', true, estado.componenteFoco || 'sin diagnóstico previo');
     t('Sin errores', !estado.ultimoError, estado.ultimoError || 'ninguno');
 
