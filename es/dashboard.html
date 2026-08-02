@@ -555,7 +555,7 @@ var CONFIG = {
   RUTAS: {
     coach: '/es/coach-ai.html', training: '/es/training.html',
     biblioteca: '/es/library.html', planes: '/es/pricing.html',
-    logbook: '/es/logbook.html', login: '/es/login.html',
+    logbook: '/es/logbook.html', profile: '/es/profile.html', login: '/es/login.html',
     upgrade: '/es/upgrade.html', inicio: '/es/index.html'
   }
 };
@@ -1587,7 +1587,11 @@ function bloqueOnboarding(){
     sel('obFrec','Práctica',[['','Elige…'],['1-semana','1 vez por semana'],
       ['2-3-semana','2 a 3 por semana'],['4+-semana','4 o más'],['ocasional','Ocasional']], p.frecuencia||'') +
     '<button class="ob-guardar" id="obGuardar">Guardar</button></div>' +
-    '<div class="ob-msg" id="obMsg"></div></div>';
+    '<div class="ob-msg" id="obMsg"></div>' +
+    '<div style="margin-top:12px"><a href="' + CONFIG.RUTAS.profile +
+    '" style="font-family:\'Barlow Condensed\',sans-serif;font-size:12px;font-weight:700;' +
+    'letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);text-decoration:none">' +
+    'Ver mi perfil completo →</a></div></div>';
 }
 
 /* ═══════════════ Barra superior ═══════════════ */
@@ -1618,6 +1622,7 @@ function pintarBarra(){
     '<a href="' + CONFIG.RUTAS.logbook + '">Mi Logbook</a>' +
     '<a href="' + CONFIG.RUTAS.coach + '">Analizar un swing</a>' +
     '<a href="' + CONFIG.RUTAS.biblioteca + '">Biblioteca de drills</a>' +
+    '<a href="' + CONFIG.RUTAS.profile + '">Mi perfil</a>' +
     '<a href="' + CONFIG.RUTAS.planes + '">Mi plan</a><hr>' +
     '<button id="bSalir">Cerrar sesión</button>';
 
