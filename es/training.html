@@ -504,6 +504,120 @@ function getCardIllus(category, tipologia) {
 }
 function setupThumb(){ const teal='#2dd4bf'; return '<svg viewBox="0 0 84 60" xmlns="http://www.w3.org/2000/svg"><rect width="84" height="60" fill="#0d0f11"/><circle cx="14" cy="46" r="3" fill="#fff" opacity="0.85"/><circle cx="34" cy="30" r="4" fill="none" stroke="'+teal+'" stroke-width="1" opacity="0.6"/><circle cx="54" cy="20" r="4" fill="none" stroke="'+teal+'" stroke-width="1" opacity="0.6"/><circle cx="70" cy="12" r="5" fill="rgba(45,212,191,0.15)" stroke="'+teal+'" stroke-width="1.2"/><path d="M14 46Q40 20 70 12" fill="none" stroke="'+teal+'" stroke-width="0.9" stroke-dasharray="3 3" opacity="0.55"/></svg>'; }
 
+/* ── Ilustraciones específicas por drill (paramétricas, desde los datos: category, tipologia, name, num_pelotas, elementos). Aplica a los 270 automáticamente. ── */
+const drillIllus = (function(){
+  const T='#2dd4bf', G='#D4C5A9', GREEN='#12301d', GREENL='rgba(45,130,70,0.25)', SAND='#3a3320';
+  const VK=['beginner','intermediate','advanced','expert'];
+  const fv=d=>{const v=d.variaciones||{};const k=VK.filter(x=>v[x]);return v[k[0]]||{};};
+  const bg=()=>'<rect width="320" height="160" fill="#101214"/><g stroke="rgba(255,255,255,0.03)" stroke-width="1"><line x1="0" y1="53" x2="320" y2="53"/><line x1="0" y1="107" x2="320" y2="107"/><line x1="106" y1="0" x2="106" y2="160"/><line x1="213" y1="0" x2="213" y2="160"/></g>';
+  const eyebrow=(t,c)=>'<text x="14" y="20" font-family="Barlow Condensed,sans-serif" font-size="9" fill="'+c+'" opacity="0.5" font-weight="700" letter-spacing="2">'+t+'</text>';
+  const ball=(x,y,r)=>{r=r||5;return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#f2f2f2"/><circle cx="'+(x-r*0.35)+'" cy="'+(y-r*0.35)+'" r="'+(r*0.32)+'" fill="#fff" opacity="0.55"/>';};
+  const hole=(x,y)=>'<ellipse cx="'+x+'" cy="'+y+'" rx="7.5" ry="3.4" fill="#050807" stroke="rgba(212,197,169,0.35)" stroke-width="1"/>';
+  const flag=(x,y,top,col)=>{col=col||G;return '<line x1="'+x+'" y1="'+y+'" x2="'+x+'" y2="'+top+'" stroke="#cfcfcf" stroke-width="1.6" opacity="0.7"/><polygon points="'+x+','+top+' '+(x+16)+','+(top+5)+' '+x+','+(top+10)+'" fill="'+col+'"/>';};
+  const greenBlob=(cx,cy,rx,ry)=>'<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="'+GREEN+'"/><ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="none" stroke="'+GREENL+'" stroke-width="1"/>';
+  const rings=(cx,cy,base,n,col)=>{col=col||T;let s='';for(let i=n;i>=1;i--)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(base*i/n).toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="'+(0.5+i*0.18).toFixed(2)+'" opacity="'+(0.12+i*0.11).toFixed(2)+'"/>';s+='<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="'+col+'"/>';return s;};
+  const label=(x,y,t,col)=>{col=col||T;return '<text x="'+x+'" y="'+y+'" font-family="Barlow Condensed,sans-serif" font-size="9" font-weight="700" fill="'+col+'" text-anchor="middle" opacity="0.8">'+t+'</text>';};
+  const arc=(x1,y1,x2,y2,peak,col,op,dash,w)=>{col=col||T;op=op==null?0.6:op;dash=dash||'6 5';w=w||1.4;return '<path d="M '+x1+' '+y1+' Q '+Math.round((x1+x2)/2)+' '+peak+' '+x2+' '+y2+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-dasharray="'+dash+'" opacity="'+op+'"/>';};
+  const tee=(x,y)=>'<line x1="'+x+'" y1="'+(y-6)+'" x2="'+x+'" y2="'+(y+2)+'" stroke="'+G+'" stroke-width="2" stroke-linecap="round" opacity="0.85"/>';
+  const cone=(x,y)=>'<polygon points="'+x+','+(y-7)+' '+(x-3.5)+','+y+' '+(x+3.5)+','+y+'" fill="'+G+'" opacity="0.8"/>';
+  const wrap=inner=>'<svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">'+bg()+inner+'</svg>';
+  const has=(t,...ks)=>ks.some(k=>t.indexOf(k)>-1);
+  function numsFrom(text){
+    const runs=[...text.matchAll(/(\d+(?:[.,]\d+)?)(?:\s*[-–—]\s*\d+(?:[.,]\d+)?)+/g)].map(m=>m[0]);
+    if(runs.length) return runs[0].split(/[-–—]/).map(s=>parseFloat(s.replace(',','.'))).filter(n=>!isNaN(n));
+    const one=text.match(/(\d+(?:[.,]\d+)?)\s*(m|metros|pies|feet|ft|yardas|yd)\b/);
+    return one?[parseFloat(one[1].replace(',','.'))]:[];
+  }
+  const unitFrom=t=>/pies|feet|\bft\b/.test(t)?'pies':(/yard|yd/.test(t)?'yd':'m');
+  function countFrom(v,text){ if(v.num_pelotas) return Math.min(12,v.num_pelotas); const m=text.match(/(\d+)\s*(putts?|bolas?|golpes?|tiros?)/); return m?Math.min(12,parseInt(m[1])):5; }
+
+  function scenePutting(text,v,cnt,dists,unit){
+    let s=greenBlob(160,118,150,36)+hole(160,92)+flag(160,92,52);
+    if(has(text,'reloj','clock')){
+      const n=Math.min(12,Math.max(6,cnt));let b='';
+      for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2-Math.PI/2;b+=ball(160+Math.cos(a)*34,92+Math.sin(a)*15,4.2);}
+      s+='<ellipse cx="160" cy="92" rx="34" ry="15" fill="none" stroke="'+G+'" stroke-width="0.6" stroke-dasharray="3 4" opacity="0.3"/>'+b+eyebrow('RELOJ',G);
+    } else if(dists.length>=2||has(text,'escalera','ladder')){
+      const st=(dists.length?dists:[3,6,9]).slice(0,4);
+      s+='<line x1="160" y1="98" x2="160" y2="150" stroke="'+G+'" stroke-width="0.7" stroke-dasharray="4 4" opacity="0.35"/>';
+      st.forEach((d,i)=>{const y=st.length===1?126:104+i*(46/Math.max(1,st.length-1));s+=ball(160,y,5)+label(186,y+3,d+' '+unit,G);});
+      s+=eyebrow('ESCALERA',G);
+    } else if(has(text,'lag')||(dists.length===1&&dists[0]>=8)){
+      s+='<ellipse cx="160" cy="92" rx="30" ry="13" fill="none" stroke="'+G+'" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>'+label(160,74,'ZONA',G)+ball(160,146,5.5)+(dists[0]?label(192,148,dists[0]+' '+unit,G):'')+eyebrow('LAG',G);
+    } else {
+      const n=Math.min(7,cnt);const step=Math.min(24,180/n);const x0=160-((n-1)*step)/2;
+      for(let i=0;i<n;i++)s+=ball(x0+i*step,132,5);
+      s+=eyebrow('PUTTING',G);
+    }
+    if(has(text,'presión','presion','circuito','21','desafío','desafio'))
+      s+='<circle cx="160" cy="92" r="52" fill="none" stroke="'+T+'" stroke-width="0.5" stroke-dasharray="2 6" opacity="0.25"/>'+label(160,44,'PRESIÓN',T);
+    return s;
+  }
+  function sceneApproach(text,v,cnt,dists,unit){
+    let s=tee(40,120)+ball(40,120,5.5);
+    if(dists.length>=2||has(text,'ventana','adaptab')){
+      const st=dists.length?dists.slice(0,3):[50,70,90];
+      const ys=[60,92,124],xs=[250,240,232];
+      st.forEach((d,i)=>{s+=rings(xs[i],ys[i],16,2)+label(xs[i],ys[i]-22,d+' '+unit)+arc(46,120,xs[i]-4,ys[i]+4,Math.min(ys[i],56)-30);});
+      s+=eyebrow('VENTANAS',T);
+    } else {
+      const d=dists[0],pr=has(text,'presión','presion');
+      s+=rings(238,74,24,pr?4:3)+arc(46,120,232,78,20)+(d?label(238,42,d+' '+unit):'')+eyebrow(pr?'BAJO PRESIÓN':'APPROACH',T);
+      if(pr) s+=label(238,118,'7/10',T);
+    }
+    return s;
+  }
+  function sceneShort(text,v,cnt,dists,unit){
+    let s=greenBlob(228,104,86,32)+hole(232,96)+flag(232,96,58);
+    s+='<ellipse cx="228" cy="104" rx="98" ry="40" fill="none" stroke="rgba(45,130,70,0.15)" stroke-width="1" stroke-dasharray="3 5"/>';
+    if(has(text,'bunker','arena')){
+      s+='<path d="M120 128 Q140 108 168 118 Q186 124 176 138 Q150 148 128 142 Q116 138 120 128 Z" fill="'+SAND+'" opacity="0.9" stroke="rgba(212,197,169,0.25)" stroke-width="0.8"/>'+label(148,112,'BUNKER',G)+ball(146,130,5)+arc(146,130,222,100,60)+eyebrow('BUNKER',T);
+    } else {
+      const n=Math.min(4,cnt);for(let i=0;i<n;i++)s+=ball(44+i*11,132,4.5);
+      s+=arc(48,128,220,100,58)+'<ellipse cx="222" cy="100" rx="16" ry="7" fill="none" stroke="'+T+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>'+eyebrow('SHORT GAME',T);
+    }
+    if(has(text,'up','down','par 18','par18')) s+=label(232,150,'UP & DOWN',T);
+    return s;
+  }
+  function sceneTee(text,v,cnt,dists,unit){
+    let s='<path d="M20 150 L110 40" stroke="rgba(45,130,70,0.35)" stroke-width="1.2" stroke-dasharray="5 5" fill="none"/><path d="M300 150 L210 40" stroke="rgba(45,130,70,0.35)" stroke-width="1.2" stroke-dasharray="5 5" fill="none"/>';
+    s+=tee(160,140)+ball(160,140,6);
+    const gap=dists[0]?Math.max(24,Math.min(80,dists[0]*2)):40;
+    s+=cone(160-gap/2,64)+cone(160+gap/2,64)+'<line x1="'+(160-gap/2)+'" y1="64" x2="'+(160+gap/2)+'" y2="64" stroke="'+T+'" stroke-width="0.8" stroke-dasharray="3 4" opacity="0.5"/>'+(dists[0]?label(160,54,dists[0]+' '+unit+' puerta'):label(160,54,'PUERTA'));
+    s+='<path d="M160 136 L142 70" stroke="'+T+'" stroke-width="0.6" stroke-dasharray="2 5" opacity="0.25"/><path d="M160 136 L178 70" stroke="'+T+'" stroke-width="0.6" stroke-dasharray="2 5" opacity="0.25"/>'+eyebrow('TEE',T);
+    return s;
+  }
+  function sceneMental(text,v,cnt,dists,unit){
+    let s=rings(160,88,46,4,G);
+    const m=text.match(/(\d+)\s*paso/);const n=m?parseInt(m[1]):(has(text,'rutina')?5:6);
+    for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2-Math.PI/2;const x=160+Math.cos(a)*66,y=88+Math.sin(a)*40;
+      s+='<circle cx="'+x+'" cy="'+y+'" r="8" fill="rgba(212,197,169,0.08)" stroke="'+G+'" stroke-width="0.9" opacity="0.7"/>'+label(x,y+3.2,String(i+1),G);}
+    s+=eyebrow(has(text,'primer tee')?'PRIMER TEE':'MENTAL',G);
+    if(has(text,'presión','presion','consecuencia')) s+=label(160,150,'PRESIÓN',T);
+    return s;
+  }
+  function sceneCourse(text,v,cnt,dists,unit){
+    let s='<path d="M30 128 Q80 96 128 108 Q176 120 200 82 Q224 48 292 66" fill="none" stroke="rgba(45,212,191,0.3)" stroke-width="1.5" stroke-dasharray="5 4"/>';
+    const holes=[[128,108],[200,82],[292,66]],pars=['P4','P3','P5'];
+    holes.forEach((h,i)=>{s+='<circle cx="'+h[0]+'" cy="'+h[1]+'" r="6" fill="rgba(45,212,191,0.1)" stroke="'+T+'" stroke-width="1.1"/>'+flag(h[0],h[1],h[1]-20,i===2?G:T)+label(h[0],h[1]+18,pars[i],T);});
+    s+=ball(30,128,6)+eyebrow(has(text,'9')?'9 HOYOS':'CAMPO',T);
+    return s;
+  }
+  return function(d){
+    const v=fv(d),cat=d.category;
+    const text=((d.name||'')+' '+(d.tipologia||'')+' '+(v.elementos?v.elementos.join(' '):'')).toLowerCase();
+    const dists=numsFrom(text),unit=unitFrom(text),cnt=countFrom(v,text);
+    let inner;
+    if(cat==='Putting') inner=scenePutting(text,v,cnt,dists,unit);
+    else if(cat==='Approach') inner=sceneApproach(text,v,cnt,dists,unit);
+    else if(cat==='Short Game') inner=sceneShort(text,v,cnt,dists,unit);
+    else if(cat==='Tee') inner=sceneTee(text,v,cnt,dists,unit);
+    else if(cat==='Mental') inner=sceneMental(text,v,cnt,dists,unit);
+    else inner=sceneCourse(text,v,cnt,dists,unit);
+    return wrap(inner);
+  };
+})();
+
 /* ═══════════════════════════════════════════════════════════════════
    LIBRARY RENDER (diseño nuevo, datos reales)
    ═══════════════════════════════════════════════════════════════════ */
@@ -522,7 +636,7 @@ function renderLibrary(){
       const gg=GOLD_CATEGORIES.has(d.category);
       const lv=VARIANT_KEYS.filter(k=>(d.variaciones||{})[k]);
       return '<div class="card '+(gg?'gold':'')+'" onclick="openModal(\''+d.id+'\',\''+(lv[0]||'beginner')+'\')">'
-        +'<div class="card-illus">'+getCardIllus(d.category,d.tipologia)+'</div>'
+        +'<div class="card-illus">'+drillIllus(d)+'</div>'
         +'<div class="card-body"><div class="card-cat-row"><span class="card-cat '+(gg?'gold':'')+'">'+d.category+'</span><span class="card-var">'+lv.length+' variantes</span></div>'
         +'<div class="card-name">'+(d.name||'')+'</div><div class="card-desc">'+(d.tipologia||'')+'</div>'
         +'<div class="card-levels">'+lv.map(k=>'<span class="lvl-dot '+k+'" onclick="event.stopPropagation();openModal(\''+d.id+'\',\''+k+'\')">'+k.slice(0,3)+'</span>').join('')+'</div></div></div>';
@@ -562,7 +676,7 @@ function formatInstructions(text){
 function openModal(drillId, levelKey){
   const d=allDrills.find(x=>x.id===drillId); if(!d)return;
   const v=(d.variaciones||{})[levelKey]||firstVariant(d)||{}; const g=GOLD_CATEGORIES.has(d.category);
-  document.getElementById('modalHero').innerHTML=getCardIllus(d.category,d.tipologia).replace('viewBox="0 0 320 140"','viewBox="0 0 320 140" preserveAspectRatio="xMidYMid meet"')+'<span class="modal-badge '+levelKey+'">'+levelKey.charAt(0).toUpperCase()+levelKey.slice(1)+'</span><button class="modal-close" onclick="closeModal()">✕</button>';
+  document.getElementById('modalHero').innerHTML=drillIllus(d).replace('viewBox="0 0 320 160"','viewBox="0 0 320 160" preserveAspectRatio="xMidYMid meet"')+'<span class="modal-badge '+levelKey+'">'+levelKey.charAt(0).toUpperCase()+levelKey.slice(1)+'</span><button class="modal-close" onclick="closeModal()">✕</button>';
   const cat=document.getElementById('modalCat'); cat.textContent=d.category; cat.className='modal-cat'+(g?' gold':'');
   document.getElementById('modalTitle').textContent=d.name||'';
   document.getElementById('modalTip').textContent=(d.tipologia||'')+(v.nivel?' · '+v.nivel:'');
