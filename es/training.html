@@ -338,7 +338,7 @@ header { position:fixed; top:0; left:0; right:0; z-index:1000; height:var(--nav-
 @media (prefers-reduced-motion:reduce){ * { animation:none !important; transition-duration:0.01ms !important; } }
 
 /* PDF print container (offscreen) */
-#planPrintHost { position:fixed; left:-99999px; top:0; }
+#planPrintHost { position:fixed; left:0; top:0; width:0; height:0; overflow:hidden; z-index:-1; }
 </style>
 </head>
 <body>
@@ -365,14 +365,11 @@ header { position:fixed; top:0; left:0; right:0; z-index:1000; height:var(--nav-
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
-  <img class="hero-photo" alt="" src="https://images.unsplash.com/photo-1587174786520-89ef7a2adf88?auto=format&fit=crop&w=1600&q=80" onload="this.classList.add('loaded')" onerror="this.style.display='none'">
   <svg class="hero-bg" viewBox="0 0 1440 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="z-index:-2;opacity:0.5">
-    <defs><linearGradient id="hg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2dd4bf" stop-opacity="0.5"/><stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/></linearGradient></defs>
-    <g stroke="rgba(255,255,255,0.05)"><line x1="0" y1="150" x2="1440" y2="150"/><line x1="0" y1="300" x2="1440" y2="300"/><line x1="0" y1="450" x2="1440" y2="450"/><line x1="288" y1="0" x2="288" y2="600"/><line x1="576" y1="0" x2="576" y2="600"/><line x1="864" y1="0" x2="864" y2="600"/><line x1="1152" y1="0" x2="1152" y2="600"/></g>
-    <path d="M120 540Q620 60 1320 300" fill="none" stroke="url(#hg)" stroke-width="2" stroke-dasharray="9 7" opacity="0.7"/>
-    <circle cx="120" cy="540" r="8" fill="#fff" opacity="0.85"/>
-    <circle cx="1320" cy="300" r="26" fill="none" stroke="#2dd4bf" opacity="0.35"/><circle cx="1320" cy="300" r="14" fill="none" stroke="#2dd4bf" stroke-width="1.4" opacity="0.5"/><circle cx="1320" cy="300" r="4" fill="#2dd4bf"/>
+    <g stroke="rgba(255,255,255,0.04)" stroke-width="1">
+      <line x1="0" y1="150" x2="1440" y2="150"/><line x1="0" y1="300" x2="1440" y2="300"/><line x1="0" y1="450" x2="1440" y2="450"/>
+      <line x1="288" y1="0" x2="288" y2="600"/><line x1="576" y1="0" x2="576" y2="600"/><line x1="864" y1="0" x2="864" y2="600"/><line x1="1152" y1="0" x2="1152" y2="600"/>
+    </g>
   </svg>
   <div class="hero-scrim"></div>
   <div class="hero-content"><div class="wrap">
@@ -671,7 +668,7 @@ function configHTML(){
     +'<div class="plan-fields">'
       +'<div class="pf-field"><label class="pf-label">Nivel</label><select class="pf-select" id="pfNivel"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option><option value="expert">Expert</option></select></div>'
       +'<div class="pf-field"><label class="pf-label">Sesiones por semana</label><select class="pf-select" id="pfSesiones"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>'
-      +'<div class="pf-field"><label class="pf-label">Duración por sesión</label><select class="pf-select" id="pfDuracion"><option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option></select></div>'
+      +'<div class="pf-field"><label class="pf-label">Duración por sesión</label><select class="pf-select" id="pfDuracion"><option>30 min</option><option>45 min</option><option selected>60 min</option><option>90 min</option><option>120 min</option></select></div>'
       +'<button class="pf-btn" id="pfBtn" onclick="generatePlan()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v6M8 1L5 4M8 1l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9a6 6 0 1012 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Generar plan</button>'
     +'</div></div><div class="plan-output" id="planOutput"><div style="color:var(--text-muted);font-size:14px;font-weight:300;padding:8px 2px">Elige tus áreas, foco, sesiones y duración, y genera tu plan de rendimiento.</div></div>';
 }
@@ -814,14 +811,22 @@ async function downloadPDF(){
   if(!currentPlan)return;
   const btn=document.getElementById('pdfBtn'); if(btn){ btn.disabled=true; btn.textContent='Generando PDF…'; }
   try { if(document.fonts&&document.fonts.ready) await document.fonts.ready; } catch(e){}
+  const host=document.getElementById('planPrintHost');
   const node=buildPrintDOM();
-  document.getElementById('planPrintHost').appendChild(node);
+  host.innerHTML=''; host.appendChild(node);
+  await new Promise(r=>setTimeout(r,90)); // deja asentar layout + fuentes antes de capturar
   const m=currentPlan.meta;
   const fname='MyGolfLab-Plan-'+({dia:'dia',semanal:'semana',mensual:'mes'}[m.horizon]||'plan')+'.pdf';
-  const opt={ margin:0, filename:fname, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2, backgroundColor:'#08090a', useCORS:true, logging:false}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}, pagebreak:{mode:['css','legacy']} };
+  const opt={
+    margin:0, filename:fname, image:{type:'jpeg',quality:0.98},
+    html2canvas:{ scale:2, backgroundColor:'#08090a', useCORS:true, logging:false, width:794, windowWidth:900, scrollX:0, scrollY:0,
+      onclone:function(doc){ const h=doc.getElementById('planPrintHost'); if(h){ h.style.position='static'; h.style.left='0'; h.style.top='0'; h.style.width='794px'; h.style.height='auto'; h.style.overflow='visible'; h.style.zIndex='0'; } } },
+    jsPDF:{ unit:'mm', format:'a4', orientation:'portrait' },
+    pagebreak:{ mode:['css','legacy'] }
+  };
   try { await html2pdf().set(opt).from(node).save(); toast('PDF descargado','Guárdalo para volver a usarlo'); }
-  catch(e){ toast('No se pudo generar el PDF','Intenta de nuevo'); }
-  finally { node.remove(); if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v7M7 8L4.5 5.5M7 8l2.5-2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Descargar PDF'; } }
+  catch(e){ console.error('PDF error:',e); toast('No se pudo generar el PDF','Intenta de nuevo'); }
+  finally { host.innerHTML=''; if(btn){ btn.disabled=false; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v7M7 8L4.5 5.5M7 8l2.5-2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10v2h10v-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Descargar PDF'; } }
 }
 function buildPrintDOM(){
   const m=currentPlan.meta;
