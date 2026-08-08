@@ -98,9 +98,11 @@
       .nav-collapse { display: flex; flex-direction: column; position: fixed; top: var(--nav-height); left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid transparent; padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height 0.32s ease, padding 0.32s ease, border-color 0.32s ease; }
       header.menu-open .nav-collapse { max-height: 85vh; padding: 8px 24px 20px; border-bottom-color: rgba(255,255,255,0.07); }
       .nav-links { flex-direction: column; align-items: stretch; gap: 0; margin: 0; }
-      .nav-links a { padding: 14px 2px; }
-      .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 12px; }
-      .btn-outline, .btn-nav-primary { text-align: center; }
+      .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .nav-links li:last-child { border-bottom: none; }
+      .nav-links a { display: block; padding: 18px 2px; font-size: 20px; }
+      .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 16px; }
+      .btn-outline, .btn-nav-primary { text-align: center; padding: 14px 18px; font-size: 15px; }
     }
 
     /* ════════════ PAGE STYLES ════════════ */
