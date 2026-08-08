@@ -191,14 +191,16 @@
                 gap: 0;
                 margin: 0;
             }
-            .nav-links a { padding: 14px 2px; }
+            .nav-links li { border-bottom: 1px solid var(--border); }
+            .nav-links li:last-child { border-bottom: none; }
+            .nav-links a { display: block; padding: 18px 2px; font-size: 20px; }
             .nav-auth {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 10px;
-                padding-top: 12px;
+                padding-top: 16px;
             }
-            .btn-outline, .btn-primary { text-align: center; }
+            .btn-outline, .btn-primary { text-align: center; padding: 14px 18px; font-size: 15px; }
         }
 
         /* ==================== PAGE HEADER ==================== */
