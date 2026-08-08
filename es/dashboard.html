@@ -192,10 +192,12 @@
     }
     header.menu-open .nav-collapse { max-height: 85vh; padding: 8px 24px 20px; border-bottom-color: var(--border); }
     .nav-links { flex-direction: column; align-items: stretch; gap: 0; margin: 0; }
-    .nav-links a { padding: 14px 2px; }
-    .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 12px; position: static; }
+    .nav-links li { border-bottom: 1px solid var(--border); }
+    .nav-links li:last-child { border-bottom: none; }
+    .nav-links a { display: block; padding: 18px 2px; font-size: 20px; }
+    .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 16px; position: static; }
     .nav-auth .nav-avatar, .nav-auth .nav-bell { align-self: flex-start; }
-    .btn-outline, .btn-primary { text-align: center; }
+    .btn-outline, .btn-primary { text-align: center; padding: 14px 18px; font-size: 15px; }
     .pop { position: fixed; top: auto; left: 16px; right: 16px; width: auto; }
   }
 
