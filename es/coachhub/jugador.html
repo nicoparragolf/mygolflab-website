@@ -37,6 +37,12 @@
   .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer}
   .hamburger span{width:24px;height:2px;background:var(--text)}
 
+  /* ---------- BARRA DE ERROR PERSISTENTE ---------- */
+  .errbar{position:fixed;top:64px;left:0;right:0;z-index:180;background:#2a1414;border-bottom:1px solid var(--red);color:#ffc0c0;padding:11px 18px;font-size:13px;line-height:1.5;display:none;cursor:pointer}
+  .errbar.on{display:block}
+  .errbar b{font-family:'Barlow Condensed';font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--red);display:block;margin-bottom:2px}
+  .errbar small{display:block;margin-top:5px;color:#a97b7b}
+
   /* ---------- LAYOUT ---------- */
   .shell{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start}
 
@@ -118,21 +124,30 @@
   .ms-flag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);background:rgba(212,197,169,.12);padding:2px 8px;border-radius:10px}
   .tl-empty{text-align:center;color:var(--muted);padding:40px}
 
-  /* ---------- MEDIA EN EL TIMELINE ---------- */
-  .tl-media{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap;align-items:stretch}
-  .mthumb{position:relative;width:126px;height:71px;border-radius:9px;overflow:hidden;background:var(--card2);border:1px solid var(--border2);cursor:pointer;flex-shrink:0;transition:border-color .15s}
+  /* ---------- CARRUSEL DE MEDIA ---------- */
+  .tl-media{position:relative;margin-top:13px}
+  .mrail{display:flex;gap:11px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;padding:2px 1px;scrollbar-width:none;-ms-overflow-style:none}
+  .mrail::-webkit-scrollbar{display:none}
+  .mrail > *{flex:0 0 auto;scroll-snap-align:start}
+  .mthumb{position:relative;width:268px;height:151px;border-radius:11px;overflow:hidden;background:#000;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s,transform .15s}
   .mthumb:hover{border-color:var(--teal-dim)}
-  .mthumb img{width:100%;height:100%;object-fit:cover;display:block}
-  .mthumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)}
-  .mthumb .play svg{width:30px;height:30px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
-  .mthumb .tag{position:absolute;left:5px;bottom:5px;background:rgba(0,0,0,.72);color:#e8e8e8;font-family:'Barlow Condensed';font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:1px 6px;border-radius:5px}
-  .btn-upload{background:none;border:1.5px dashed var(--border2);color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.4px;padding:0 14px;height:71px;border-radius:9px;cursor:pointer;transition:all .15s}
+  .mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+  .mthumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
+  .mthumb .play svg{width:42px;height:42px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.7))}
+  .mthumb .tag{position:absolute;left:7px;bottom:7px;background:rgba(0,0,0,.72);color:#e8e8e8;font-family:'Barlow Condensed';font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:1px 7px;border-radius:5px}
+  .mthumb .nopreview{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.72);color:var(--muted);font-size:11px;text-align:center;padding:3px 6px}
+  .btn-upload{background:none;border:1.5px dashed var(--border2);color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;padding:0 22px;height:151px;border-radius:11px;cursor:pointer;transition:all .15s}
   .btn-upload:hover{color:var(--teal);border-color:var(--teal-dim);background:rgba(45,212,191,.05)}
+  .mnav{position:absolute;top:calc(50% - 17px);width:34px;height:34px;border-radius:50%;background:rgba(12,12,12,.92);border:1px solid var(--border2);color:var(--text);font-size:16px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:3}
+  .mnav:hover{border-color:var(--teal-dim);color:var(--teal)}
+  .tl-media.scrollable .mnav{display:flex}
+  .mnav.prev{left:-12px}
+  .mnav.next{right:-12px}
 
   /* lightbox */
-  .lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:150;display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px}
+  .lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:190;display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px}
   .lb.show{display:flex}
-  .lb video,.lb img{max-width:min(1000px,100%);max-height:76vh;border-radius:12px;background:#000;display:block}
+  .lb video,.lb img{max-width:min(1100px,100%);max-height:76vh;border-radius:12px;background:#000;display:block}
   .lb-bar{display:flex;align-items:center;gap:16px;margin-top:16px;flex-wrap:wrap;justify-content:center}
   .lb-title{color:var(--muted);font-size:14px}
   .lb-close{position:absolute;top:16px;right:22px;background:none;border:none;color:#fff;font-size:34px;line-height:1;cursor:pointer;opacity:.7}
@@ -148,8 +163,11 @@
   .fileitem{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:13px}
   .fileitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fileitem .sz{color:var(--muted2);font-size:12px;white-space:nowrap}
+  .fileitem .sz.big{color:var(--orange)}
   .upstate{margin-top:10px;font-size:13px;color:var(--teal);display:none}
   .upstate.on{display:block}
+  .upfail{margin-top:10px;font-size:13px;color:#ffc0c0;background:#2a1414;border:1px solid rgba(224,106,106,.4);border-radius:9px;padding:10px 12px;display:none;line-height:1.5}
+  .upfail.on{display:block}
 
   /* modal */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
@@ -193,8 +211,9 @@
     .roster{position:static}
     .nav-links{display:none}
     .hamburger{display:flex}
-    .mthumb{width:calc(50% - 4px);height:84px}
-    .btn-upload{width:100%;height:48px}
+    .mnav{display:none !important}
+    .mthumb{width:80vw;max-width:300px;height:169px}
+    .btn-upload{height:169px}
   }
 </style>
 </head>
@@ -215,6 +234,8 @@
     </div>
   </div>
 </header>
+
+<div class="errbar" id="errBar" onclick="this.classList.remove('on')"></div>
 
 <div class="shell">
 
@@ -304,16 +325,16 @@
     <div class="field"><label>Resumen / notas</label><textarea id="ne_summary" placeholder="Qué se trabajó, observaciones..."></textarea></div>
     <label class="check"><input type="checkbox" id="ne_milestone"><span>Marcar como hito (cambio técnico) — aparece en el gráfico de métricas</span></label>
 
-    <!-- VIDEOS / FOTOS -->
     <div class="field" style="margin-top:16px">
       <label>Videos y fotos</label>
       <div class="drop" id="ne_drop">
         Arrastra los archivos acá o toca para elegirlos
-        <small>MP4, MOV o WEBM · hasta 500 MB por archivo</small>
+        <small>MP4, MOV o WEBM</small>
       </div>
       <input type="file" id="ne_files" accept="video/*,image/*" multiple hidden>
       <div class="filelist" id="ne_fileList"></div>
       <div class="upstate" id="ne_upstate"></div>
+      <div class="upfail" id="ne_upfail"></div>
     </div>
 
     <div class="field" style="margin-top:16px">
@@ -339,7 +360,6 @@
   </div>
 </div>
 
-<!-- input global para subir a un evento ya existente -->
 <input type="file" id="quickFiles" accept="video/*,image/*" multiple hidden>
 
 <div class="toast" id="toast"></div>
@@ -358,13 +378,14 @@ var BUCKET = 'player-media';
 // ============================================================
 var USER = null;
 var PLAYERS = [];
-var SEL = null;              // jugador seleccionado
-var EVENTS = [];             // eventos del jugador seleccionado
-var MEDIA_BY_EVENT = {};     // event_id -> [media]
-var MEDIA_BY_ID = {};        // media_id -> media
-var URLCACHE = {};           // storage_path -> {url,exp}
-var PENDING = [];            // archivos elegidos en el modal de evento
-var QUICK_EVENT = null;      // evento al que se sube desde el timeline
+var SEL = null;
+var EVENTS = [];
+var MEDIA_BY_EVENT = {};
+var MEDIA_BY_ID = {};
+var URLCACHE = {};
+var THUMB_TRIED = {};   // ids a los que ya se les intentó generar portada en esta sesión
+var PENDING = [];
+var QUICK_EVENT = null;
 var METRIC_DEFS = [];
 var METRIC_BY_KEY = {};
 var VIEW = 'timeline';
@@ -414,10 +435,22 @@ function icon(path,color){
 function toast(msg,isErr){
   var t=document.getElementById('toast');
   t.textContent=msg; t.className='toast show'+(isErr?' err':'');
-  setTimeout(function(){ t.className='toast'+(isErr?' err':''); },3000);
+  setTimeout(function(){ t.className='toast'+(isErr?' err':''); },isErr?7000:3000);
 }
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function showError(titulo, detalle, pista){
+  console.error(titulo, detalle);
+  var b=document.getElementById('errBar');
+  b.innerHTML='<b>'+esc(titulo)+'</b>'+esc(detalle)+(pista?'<small>'+esc(pista)+'</small>':'')+'<small>Toca esta barra para cerrarla.</small>';
+  b.classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function errMsg(e){
+  if(!e) return 'error desconocido';
+  return (e.message||e.error||JSON.stringify(e)) + (e.statusCode?' (código '+e.statusCode+')':'');
+}
 
 // ============================================================
 // AUTH
@@ -495,12 +528,16 @@ async function loadEvents(playerId){
 }
 
 // ============================================================
-// MEDIA — carga, URLs firmadas, subida, borrado
+// MEDIA
 // ============================================================
 async function loadMedia(playerId){
   MEDIA_BY_EVENT={}; MEDIA_BY_ID={};
   var r = await sb.from('player_media').select('*').eq('player_id',playerId).order('created_at');
-  if(r.error){ console.error(r.error); return; }
+  if(r.error){
+    showError('No se pudo leer la tabla player_media', errMsg(r.error),
+      'Si menciona una columna o la tabla, falta correr la migración en Supabase.');
+    return;
+  }
   (r.data||[]).forEach(function(m){
     if(!MEDIA_BY_EVENT[m.event_id]) MEDIA_BY_EVENT[m.event_id]=[];
     MEDIA_BY_EVENT[m.event_id].push(m);
@@ -513,56 +550,114 @@ async function signUrl(path){
   var c=URLCACHE[path];
   if(c && c.exp>Date.now()) return c.url;
   var r = await sb.storage.from(BUCKET).createSignedUrl(path,3600);
-  if(r.error || !r.data){ console.error(r.error); return null; }
+  if(r.error || !r.data){ console.error('signUrl',path,r.error); return null; }
   URLCACHE[path]={url:r.data.signedUrl, exp:Date.now()+3300000};
   return r.data.signedUrl;
 }
 
-// captura un frame del video para usarlo como portada
-function makeThumb(file){
+// ¿el frame capturado es prácticamente negro?
+function frameIsDark(canvas){
+  try{
+    var d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    var sum=0,n=0;
+    for(var i=0;i<d.length;i+=4*37){ sum+=(d[i]+d[i+1]+d[i+2])/3; n++; }
+    return n>0 && (sum/n) < 16;
+  }catch(e){ return false; }
+}
+
+function grabFrame(video){
+  var w=640, h=Math.round(w*(video.videoHeight||720)/(video.videoWidth||1280));
+  var c=document.createElement('canvas'); c.width=w; c.height=h;
+  c.getContext('2d').drawImage(video,0,0,w,h);
+  return c;
+}
+function seekTo(video,t){
+  return new Promise(function(res){
+    var done=false;
+    function ok(){ if(done) return; done=true; res(); }
+    video.addEventListener('seeked',ok,{once:true});
+    try{ video.currentTime=t; }catch(e){ ok(); }
+    setTimeout(ok,4000);
+  });
+}
+
+// captura un frame que NO sea negro: prueba 1s, luego 35%, luego 60%
+async function captureFrame(video){
+  var dur = video.duration && isFinite(video.duration) ? video.duration : 0;
+  var intentos = [Math.min(1, dur?dur/4:1)];
+  if(dur){ intentos.push(dur*0.35, dur*0.6); }
+  for(var i=0;i<intentos.length;i++){
+    await seekTo(video, intentos[i]);
+    var c;
+    try{ c = grabFrame(video); }catch(e){ return null; }
+    if(!frameIsDark(c) || i===intentos.length-1) return c;
+  }
+  return null;
+}
+
+function canvasToBlob(c){
+  return new Promise(function(res){ c.toBlob(function(b){ res(b); },'image/jpeg',0.75); });
+}
+
+// portada al momento de subir (desde el archivo local)
+function makeThumbFromFile(file){
   return new Promise(function(resolve){
     var url=URL.createObjectURL(file);
     var v=document.createElement('video');
     var done=false;
     function finish(blob){ if(done) return; done=true; URL.revokeObjectURL(url); resolve(blob||null); }
     v.preload='metadata'; v.muted=true; v.playsInline=true; v.src=url;
-    v.addEventListener('loadeddata',function(){
-      try{ v.currentTime = Math.min(1, (v.duration||3)/3); }catch(e){ finish(null); }
-    });
-    v.addEventListener('seeked',function(){
+    v.addEventListener('loadeddata',async function(){
       try{
-        var w=480, h=Math.round(w*(v.videoHeight||720)/(v.videoWidth||1280));
-        var c=document.createElement('canvas'); c.width=w; c.height=h;
-        c.getContext('2d').drawImage(v,0,0,w,h);
-        c.toBlob(function(b){ finish(b); },'image/jpeg',0.72);
+        var c=await captureFrame(v);
+        if(!c){ finish(null); return; }
+        finish(await canvasToBlob(c));
       }catch(e){ finish(null); }
     });
     v.addEventListener('error',function(){ finish(null); });
-    setTimeout(function(){ finish(null); },10000);
+    setTimeout(function(){ finish(null); },20000);
   });
 }
 
+// portada generada después, desde el video ya subido (se auto-repara)
+async function backfillThumb(m, videoEl){
+  if(THUMB_TRIED[m.id] || m.thumb_path) return;
+  THUMB_TRIED[m.id]=true;
+  try{
+    var c = await captureFrame(videoEl);
+    if(!c) return;
+    var blob = await canvasToBlob(c);
+    if(!blob) return;
+    var tp = m.storage_path.replace(/\.[^.]+$/,'') + '-thumb.jpg';
+    var ut = await sb.storage.from(BUCKET).upload(tp, blob, {contentType:'image/jpeg', upsert:true});
+    if(ut.error){ console.warn('thumb upload',ut.error); return; }
+    var r = await sb.from('player_media').update({thumb_path:tp}).eq('id',m.id);
+    if(r.error){ console.warn('thumb update',r.error); return; }
+    m.thumb_path=tp;
+  }catch(e){ console.warn('backfillThumb',e); }
+}
+
+// devuelve {ok:n, fails:[textos]}
 async function uploadFiles(eventId, files, onStep){
-  var saved=0;
-  var rows=[];
+  var rows=[], fails=[];
   for(var i=0;i<files.length;i++){
     var f=files[i];
-    if(onStep) onStep((i+1)+' de '+files.length+' · '+f.name);
+    if(onStep) onStep((i+1)+' de '+files.length+' · '+f.name+' ('+fmtSize(f.size)+')');
     var isVideo = (f.type||'').indexOf('video')===0;
     var ext = (f.name.split('.').pop()||'bin').toLowerCase();
     var base = USER.id+'/'+SEL.id+'/'+eventId+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
     var path = base+'.'+ext;
 
     var up = await sb.storage.from(BUCKET).upload(path,f,{cacheControl:'3600',upsert:false,contentType:f.type||undefined});
-    if(up.error){ toast('No se pudo subir '+f.name+': '+up.error.message,true); continue; }
+    if(up.error){ fails.push(f.name+' → '+errMsg(up.error)); continue; }
 
     var thumb = isVideo ? null : path;
     if(isVideo){
       try{
-        var blob = await makeThumb(f);
+        var blob = await makeThumbFromFile(f);
         if(blob){
           var tp = base+'-thumb.jpg';
-          var ut = await sb.storage.from(BUCKET).upload(tp,blob,{contentType:'image/jpeg'});
+          var ut = await sb.storage.from(BUCKET).upload(tp,blob,{contentType:'image/jpeg',upsert:true});
           if(!ut.error) thumb = tp;
         }
       }catch(e){ console.warn('thumb',e); }
@@ -574,16 +669,26 @@ async function uploadFiles(eventId, files, onStep){
       media_type: isVideo?'video':'imagen',
       file_name:f.name, mime_type:f.type||null, size_bytes:f.size
     });
-    saved++;
   }
+
+  var ok=0;
   if(rows.length){
-    var r = await sb.from('player_media').insert(rows);
-    if(r.error){ toast('Los archivos subieron pero no quedaron registrados: '+r.error.message,true); }
+    var r = await sb.from('player_media').insert(rows).select();
+    if(r.error){ fails.push('Los archivos subieron al storage pero no se registraron en player_media → '+errMsg(r.error)); }
+    else { ok=(r.data||[]).length; }
   }
-  return saved;
+  return {ok:ok, fails:fails};
 }
 
-// subir a un evento que ya existe (botón en la tarjeta del timeline)
+function reportUpload(res, contexto){
+  if(res.fails.length){
+    showError('No se pudieron guardar '+res.fails.length+' archivo(s) — '+contexto,
+      res.fails.join('  ·  '),
+      'Si dice "exceeded the maximum allowed size", el archivo pasa el límite del proyecto (Storage → Settings). Si menciona una columna o RLS, falta correr la migración.');
+  }
+  if(res.ok>0) toast(res.ok+' archivo'+(res.ok>1?'s':'')+' agregado'+(res.ok>1?'s':''));
+}
+
 function quickUpload(eventId){
   QUICK_EVENT=eventId;
   document.getElementById('quickFiles').click();
@@ -593,25 +698,63 @@ document.getElementById('quickFiles').addEventListener('change',async function()
   var files=Array.prototype.slice.call(input.files||[]);
   input.value='';
   if(!files.length||!QUICK_EVENT) return;
+  var evId=QUICK_EVENT; QUICK_EVENT=null;
   toast('Subiendo '+files.length+' archivo'+(files.length>1?'s':'')+'...');
-  var n=await uploadFiles(QUICK_EVENT,files,function(step){ toast('Subiendo '+step); });
-  QUICK_EVENT=null;
-  if(n>0){ toast(n+' archivo'+(n>1?'s':'')+' agregado'+(n>1?'s':'')); }
+  var res=await uploadFiles(evId,files,function(step){ toast('Subiendo '+step); });
+  reportUpload(res,'subida desde el timeline');
   await loadMedia(SEL.id);
-  renderTimeline();
+  renderProfile();
 });
 
-async function hydrateThumbs(){
-  var els=document.querySelectorAll('.mthumb[data-thumb]');
-  Array.prototype.forEach.call(els,function(el){
-    var p=el.getAttribute('data-thumb');
-    el.removeAttribute('data-thumb');
-    if(!p) return;
-    signUrl(p).then(function(u){
-      if(u) el.insertAdjacentHTML('afterbegin','<img src="'+u+'" alt="">');
-    });
+// ---------- pintar las tarjetas ----------
+async function fillThumb(el, m){
+  // 1) ya tiene portada guardada
+  if(m.thumb_path){
+    var tu=await signUrl(m.thumb_path);
+    if(tu){ el.insertAdjacentHTML('afterbegin','<img src="'+tu+'" alt="">'); return; }
+  }
+  var su=await signUrl(m.storage_path);
+  if(!su) return;
+
+  // 2) es una foto
+  if(m.media_type!=='video'){
+    el.insertAdjacentHTML('afterbegin','<img src="'+su+'" alt="">');
+    return;
+  }
+
+  // 3) es video sin portada: se monta el video mismo en el segundo 1,
+  //    y de paso se genera y guarda la portada para la próxima vez
+  var v=document.createElement('video');
+  v.muted=true; v.playsInline=true; v.preload='metadata'; v.crossOrigin='anonymous';
+  v.src=su+'#t=1';
+  el.insertBefore(v, el.firstChild);
+  v.addEventListener('loadeddata',function(){ backfillThumb(m,v); },{once:true});
+  v.addEventListener('error',function(){
+    el.insertAdjacentHTML('beforeend','<div class="nopreview">Sin vista previa en este navegador</div>');
+  },{once:true});
+}
+
+function hydrateThumbs(){
+  Array.prototype.forEach.call(document.querySelectorAll('.mthumb[data-media]'),function(el){
+    var id=el.getAttribute('data-media');
+    el.removeAttribute('data-media');
+    var m=MEDIA_BY_ID[id];
+    if(m) fillThumb(el,m);
+  });
+  refreshRails();
+}
+function refreshRails(){
+  Array.prototype.forEach.call(document.querySelectorAll('.tl-media'),function(w){
+    var rail=w.querySelector('.mrail');
+    if(rail && rail.scrollWidth > rail.clientWidth+8) w.classList.add('scrollable');
+    else w.classList.remove('scrollable');
   });
 }
+function railScroll(btn,dir){
+  var rail=btn.parentNode.querySelector('.mrail');
+  rail.scrollBy({left:dir*(rail.clientWidth*0.8),behavior:'smooth'});
+}
+window.addEventListener('resize',refreshRails);
 
 async function openLightbox(id){
   var m=MEDIA_BY_ID[id]; if(!m) return;
@@ -620,9 +763,14 @@ async function openLightbox(id){
   document.getElementById('lightbox').classList.add('show');
   var u=await signUrl(m.storage_path);
   if(!u){ body.innerHTML='<div class="loading" style="color:#888">No se pudo abrir el archivo.</div>'; return; }
-  body.innerHTML = m.media_type==='video'
-    ? '<video src="'+u+'" controls autoplay playsinline preload="metadata"></video>'
-    : '<img src="'+u+'" alt="">';
+  if(m.media_type==='video'){
+    body.innerHTML='<video id="lbVideo" src="'+u+'" controls autoplay playsinline preload="metadata"></video>';
+    document.getElementById('lbVideo').addEventListener('error',function(){
+      document.getElementById('lbTitle').textContent='Este navegador no puede reproducir el formato (probablemente HEVC). Pruébalo en Safari.';
+    });
+  } else {
+    body.innerHTML='<img src="'+u+'" alt="">';
+  }
   document.getElementById('lbTitle').textContent = (m.file_name||'') + (m.size_bytes?' · '+fmtSize(m.size_bytes):'');
   document.getElementById('lbDel').onclick=function(){ deleteMedia(m); };
 }
@@ -639,11 +787,11 @@ async function deleteMedia(m){
   if(m.thumb_path && m.thumb_path!==m.storage_path) paths.push(m.thumb_path);
   await sb.storage.from(BUCKET).remove(paths);
   var r=await sb.from('player_media').delete().eq('id',m.id);
-  if(r.error){ toast('No se pudo eliminar: '+r.error.message,true); return; }
+  if(r.error){ showError('No se pudo eliminar el archivo',errMsg(r.error)); return; }
   closeLightbox();
   toast('Archivo eliminado');
   await loadMedia(SEL.id);
-  renderTimeline();
+  renderProfile();
 }
 
 // ============================================================
@@ -666,7 +814,7 @@ function renderProfile(){
     + '<div class="phero-stats">'
     +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
     +   '<div class="pstat"><div class="n">'+(p.total_eventos||0)+'</div><div class="l">eventos</div></div>'
-    +   '<div class="pstat"><div class="n">'+countMedia()+'</div><div class="l">videos y fotos</div></div>'
+    +   '<div class="pstat"><div class="n">'+Object.keys(MEDIA_BY_ID).length+'</div><div class="l">videos y fotos</div></div>'
     + '</div></div>';
 
   html+='<div class="subnav">'
@@ -678,24 +826,25 @@ function renderProfile(){
   document.getElementById('mainPanel').innerHTML=html;
   if(VIEW==='timeline') renderTimeline(); else renderMetrics();
 }
-function countMedia(){ return Object.keys(MEDIA_BY_ID).length; }
 function setView(v){ VIEW=v; renderProfile(); }
 
 // ============================================================
 // TIMELINE
 // ============================================================
-function mediaStrip(evId){
+function mediaCarousel(evId){
   var list=MEDIA_BY_EVENT[evId]||[];
-  var h='<div class="tl-media">';
+  var h='<div class="tl-media">'
+      + '<button class="mnav prev" onclick="railScroll(this,-1)">&#10094;</button>'
+      + '<div class="mrail">';
   list.forEach(function(m){
-    h+='<div class="mthumb" data-thumb="'+esc(m.thumb_path||'')+'" onclick="openLightbox(\''+m.id+'\')" title="'+esc(m.file_name||'')+'">'
+    h+='<div class="mthumb" data-media="'+esc(m.id)+'" onclick="openLightbox(\''+m.id+'\')" title="'+esc(m.file_name||'')+'">'
       + (m.media_type==='video'
           ? '<div class="play"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5l11 7-11 7z"/></svg></div>'
           : '<span class="tag">Foto</span>')
       + '</div>';
   });
   h+='<button class="btn-upload" onclick="quickUpload(\''+evId+'\')">+ Video</button>';
-  h+='</div>';
+  h+='</div><button class="mnav next" onclick="railScroll(this,1)">&#10095;</button></div>';
   return h;
 }
 
@@ -742,7 +891,7 @@ function renderTimeline(){
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
        +   '</div>'
-       +   mediaStrip(e.id)
+       +   mediaCarousel(e.id)
        + '</div></div>';
   });
   html+='</div>';
@@ -752,7 +901,7 @@ function renderTimeline(){
 function setFilterType(t){ FILTER_TYPE=t; renderTimeline(); }
 
 // ============================================================
-// MÉTRICAS — gráfico SVG con hitos superpuestos
+// MÉTRICAS
 // ============================================================
 async function renderMetrics(){
   var box=document.getElementById('viewBox');
@@ -880,7 +1029,7 @@ document.getElementById('np_save').addEventListener('click',async function(){
   if(hcp!=='') row.handicap_index=Number(hcp);
 
   var r=await sb.from('players').insert(row).select().single();
-  if(r.error){ toast('Error: '+r.error.message,true); return; }
+  if(r.error){ showError('No se pudo crear el jugador',errMsg(r.error)); return; }
   closeModal('ovPlayer');
   ['np_first','np_last','np_hcp','np_club'].forEach(function(id){document.getElementById(id).value='';});
   toast('Jugador creado');
@@ -903,10 +1052,10 @@ function openEventModal(){
   addMetricRow();
   PENDING=[]; renderPending();
   document.getElementById('ne_upstate').className='upstate';
+  document.getElementById('ne_upfail').className='upfail';
   openModal('ovEvent');
 }
 
-// --- dropzone del modal ---
 var neDrop=document.getElementById('ne_drop');
 var neFiles=document.getElementById('ne_files');
 neDrop.addEventListener('click',function(){ neFiles.click(); });
@@ -924,8 +1073,9 @@ function renderPending(){
   var box=document.getElementById('ne_fileList');
   var html='';
   PENDING.forEach(function(f,i){
+    var big = f.size > 45*1048576;
     html+='<div class="fileitem"><span class="nm">'+esc(f.name)+'</span>'
-        + '<span class="sz">'+fmtSize(f.size)+'</span>'
+        + '<span class="sz'+(big?' big':'')+'">'+fmtSize(f.size)+'</span>'
         + '<button class="btn-x" style="height:28px;width:28px" onclick="removePending('+i+')">×</button></div>';
   });
   box.innerHTML=html;
@@ -957,6 +1107,8 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   if(!title){ toast('Ponle un título al evento',true); return; }
 
   btn.disabled=true;
+  var fail=document.getElementById('ne_upfail'); fail.className='upfail';
+
   var ev={
     player_id:SEL.id, coach_id:USER.id, created_by:USER.id,
     event_type:type, title:title,
@@ -967,9 +1119,8 @@ document.getElementById('ne_save').addEventListener('click',async function(){
     source:'manual'
   };
   var r=await sb.from('player_events').insert(ev).select().single();
-  if(r.error){ toast('Error: '+r.error.message,true); btn.disabled=false; return; }
+  if(r.error){ showError('No se pudo guardar el evento',errMsg(r.error)); btn.disabled=false; return; }
 
-  // métricas asociadas
   var rows=document.querySelectorAll('#ne_metricRows .metric-input-row');
   var metrics=[];
   Array.prototype.forEach.call(rows,function(row){
@@ -981,16 +1132,30 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   });
   if(metrics.length){
     var rm=await sb.from('player_metrics').insert(metrics);
-    if(rm.error){ toast('Evento guardado, pero fallaron las métricas: '+rm.error.message,true); }
+    if(rm.error){ showError('El evento se guardó, pero fallaron las métricas',errMsg(rm.error)); }
   }
 
-  // archivos
+  var res={ok:0,fails:[]};
   if(PENDING.length){
     var st=document.getElementById('ne_upstate');
     st.className='upstate on';
     st.textContent='Subiendo archivos...';
-    await uploadFiles(r.data.id, PENDING, function(step){ st.textContent='Subiendo '+step; });
+    res = await uploadFiles(r.data.id, PENDING, function(step){ st.textContent='Subiendo '+step; });
     st.className='upstate';
+  }
+
+  await loadEvents(SEL.id);
+  await loadMedia(SEL.id);
+  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).single();
+  if(!sm.error){ SEL=sm.data; PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?sm.data:p;}); renderRoster(); }
+  renderProfile();
+  btn.disabled=false;
+
+  if(res.fails.length){
+    fail.className='upfail on';
+    fail.innerHTML='<b>No se guardaron '+res.fails.length+' archivo(s):</b><br>'+esc(res.fails.join(' · '));
+    reportUpload(res,'al guardar el evento');
+    return;
   }
 
   closeModal('ovEvent');
@@ -998,17 +1163,9 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   document.getElementById('ne_summary').value='';
   document.getElementById('ne_milestone').checked=false;
   PENDING=[]; renderPending();
-  btn.disabled=false;
-  toast('Evento guardado');
-
-  await loadEvents(SEL.id);
-  await loadMedia(SEL.id);
-  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).single();
-  if(!sm.error){ SEL=sm.data; PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?sm.data:p;}); renderRoster(); }
-  renderProfile();
+  toast(res.ok>0 ? 'Evento guardado con '+res.ok+' archivo'+(res.ok>1?'s':'') : 'Evento guardado');
 });
 
-// cerrar overlay al click fuera
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click',function(e){ if(e.target===o) o.classList.remove('show'); });
 });
