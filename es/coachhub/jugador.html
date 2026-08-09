@@ -20,7 +20,6 @@
   body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
   h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.3px}
-  .display{font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
 
   /* ---------- HEADER ---------- */
   #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -32,12 +31,13 @@
   .nav-links a:hover{color:var(--text)}
   .nav-links a.active{color:var(--teal)}
   .nav-auth{display:flex;align-items:center;gap:14px}
+  .rolechip{font-family:'Barlow Condensed';font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:3px 10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;color:#04211d;overflow:hidden}
   .avatar img{width:100%;height:100%;object-fit:cover}
   .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer}
   .hamburger span{width:24px;height:2px;background:var(--text)}
 
-  /* ---------- BARRA DE ERROR PERSISTENTE ---------- */
+  /* ---------- BARRA DE ERROR ---------- */
   .errbar{position:fixed;top:64px;left:0;right:0;z-index:180;background:#2a1414;border-bottom:1px solid var(--red);color:#ffc0c0;padding:11px 18px;font-size:13px;line-height:1.5;display:none;cursor:pointer}
   .errbar.on{display:block}
   .errbar b{font-family:'Barlow Condensed';font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--red);display:block;margin-bottom:2px}
@@ -45,8 +45,8 @@
 
   /* ---------- LAYOUT ---------- */
   .shell{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start}
+  .shell.solo{grid-template-columns:1fr;max-width:1000px}
 
-  /* roster */
   .roster{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;position:sticky;top:88px}
   .roster-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .roster-head h2{font-size:20px;text-transform:uppercase;color:var(--muted)}
@@ -57,41 +57,40 @@
   .player-row{display:flex;align-items:center;gap:11px;padding:10px;border-radius:11px;cursor:pointer;transition:background .15s;border:1px solid transparent}
   .player-row:hover{background:var(--card2)}
   .player-row.sel{background:var(--card2);border-color:var(--teal-dim)}
-  .pr-avatar{width:40px;height:40px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;font-size:15px;overflow:hidden;flex-shrink:0}
+  .pr-avatar{width:40px;height:40px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;font-size:15px;overflow:hidden;flex-shrink:0;position:relative}
   .pr-avatar img{width:100%;height:100%;object-fit:cover}
+  .linkdot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--teal);border:2px solid var(--card)}
   .pr-info{min-width:0}
   .pr-name{font-family:'Barlow Condensed';font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pr-meta{font-size:12px;color:var(--muted)}
   .roster-empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
 
-  /* main */
   .main{min-width:0}
   .empty-hero{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:64px 32px;text-align:center}
   .empty-hero h2{font-size:28px;margin-bottom:10px}
-  .empty-hero p{color:var(--muted);max-width:420px;margin:0 auto 22px}
+  .empty-hero p{color:var(--muted);max-width:460px;margin:0 auto 22px;line-height:1.6}
 
-  /* player hero card */
   .phero{background:linear-gradient(135deg,var(--card) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:16px;padding:22px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
   .phero-av{width:82px;height:82px;border-radius:16px;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:32px;color:#04211d;overflow:hidden;flex-shrink:0}
   .phero-av img{width:100%;height:100%;object-fit:cover}
   .phero-id{flex:1;min-width:200px}
   .phero-id h1{font-size:32px;line-height:1}
-  .phero-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .phero-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
   .badge{font-family:'Barlow Condensed';font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:4px 11px;border-radius:20px}
   .badge.cat{background:rgba(45,212,191,.14);color:var(--teal);border:1px solid var(--teal-dim)}
   .badge.tier{background:rgba(212,197,169,.14);color:var(--gold);border:1px solid rgba(212,197,169,.3)}
   .badge.hcp{background:var(--card2);color:var(--text);border:1px solid var(--border2)}
+  .badge.link-on{background:rgba(45,212,191,.1);color:var(--teal);border:1px solid var(--teal-dim);cursor:pointer}
+  .badge.link-off{background:var(--card2);color:var(--muted);border:1px dashed var(--border2);cursor:pointer}
   .phero-stats{display:flex;gap:26px}
   .pstat{text-align:center}
   .pstat .n{font-family:'Bebas Neue';font-size:30px;line-height:1;color:var(--teal)}
   .pstat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
 
-  /* subnav */
   .subnav{display:flex;gap:6px;margin:20px 0 16px;border-bottom:1px solid var(--border)}
   .subnav button{background:none;border:none;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:17px;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
   .subnav button.on{color:var(--teal);border-bottom-color:var(--teal)}
 
-  /* filters */
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
   .chip{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed';font-weight:500;font-size:14px;padding:6px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
   .chip:hover{border-color:var(--border2);color:var(--text)}
@@ -102,7 +101,6 @@
   .btn-primary:disabled{opacity:.55;cursor:default}
   .btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
 
-  /* timeline */
   .timeline{position:relative;padding-left:36px}
   .timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:var(--border2)}
   .tl-event{position:relative;margin-bottom:16px}
@@ -121,15 +119,16 @@
   .tl-pill{font-size:11px;padding:2px 9px;border-radius:12px;background:var(--card2);color:var(--muted);border:1px solid var(--border)}
   .tl-pill.pillar{color:var(--teal);border-color:var(--teal-dim)}
   .tl-pill.media{color:var(--blue)}
+  .tl-pill.byplayer{color:var(--gold)}
   .ms-flag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);background:rgba(212,197,169,.12);padding:2px 8px;border-radius:10px}
   .tl-empty{text-align:center;color:var(--muted);padding:40px}
 
-  /* ---------- CARRUSEL DE MEDIA ---------- */
+  /* carrusel */
   .tl-media{position:relative;margin-top:13px}
   .mrail{display:flex;gap:11px;overflow-x:auto;scroll-behavior:smooth;scroll-snap-type:x proximity;padding:2px 1px;scrollbar-width:none;-ms-overflow-style:none}
   .mrail::-webkit-scrollbar{display:none}
   .mrail > *{flex:0 0 auto;scroll-snap-align:start}
-  .mthumb{position:relative;width:268px;height:151px;border-radius:11px;overflow:hidden;background:#000;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s,transform .15s}
+  .mthumb{position:relative;width:268px;height:151px;border-radius:11px;overflow:hidden;background:#000;border:1px solid var(--border2);cursor:pointer;transition:border-color .15s}
   .mthumb:hover{border-color:var(--teal-dim)}
   .mthumb img,.mthumb video{width:100%;height:100%;object-fit:cover;display:block;background:#000}
   .mthumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25)}
@@ -144,7 +143,6 @@
   .mnav.prev{left:-12px}
   .mnav.next{right:-12px}
 
-  /* lightbox */
   .lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:190;display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px}
   .lb.show{display:flex}
   .lb video,.lb img{max-width:min(1100px,100%);max-height:76vh;border-radius:12px;background:#000;display:block}
@@ -154,8 +152,8 @@
   .lb-close:hover{opacity:1}
   .btn-danger{background:none;border:1px solid rgba(224,106,106,.45);color:var(--red);border-radius:8px;padding:6px 13px;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
   .btn-danger:hover{background:rgba(224,106,106,.12)}
+  .btn-danger.hide{display:none}
 
-  /* dropzone */
   .drop{border:1.5px dashed var(--border2);border-radius:11px;padding:18px;text-align:center;color:var(--muted);cursor:pointer;font-size:14px;transition:all .15s}
   .drop:hover,.drop.over{border-color:var(--teal-dim);color:var(--teal);background:rgba(45,212,191,.05)}
   .drop small{display:block;margin-top:4px;font-size:12px;color:var(--muted2)}
@@ -169,7 +167,6 @@
   .upfail{margin-top:10px;font-size:13px;color:#ffc0c0;background:#2a1414;border:1px solid rgba(224,106,106,.4);border-radius:9px;padding:10px 12px;display:none;line-height:1.5}
   .upfail.on{display:block}
 
-  /* modal */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
   .overlay.show{display:flex}
   .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:26px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
@@ -178,10 +175,12 @@
   .field label{display:block;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:5px}
   .field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:10px 12px;border-radius:9px}
   .field textarea{resize:vertical;min-height:70px}
+  .field .hint{font-size:12px;color:var(--muted2);margin-top:4px}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .check{display:flex;align-items:center;gap:9px;cursor:pointer;padding:10px;background:rgba(212,197,169,.06);border:1px solid rgba(212,197,169,.2);border-radius:9px}
   .check input{width:auto}
   .check span{font-family:'Barlow Condensed';font-weight:600;font-size:15px;color:var(--gold)}
+  .check.hide{display:none}
   .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
   .metric-rows{margin-top:6px}
   .metric-input-row{display:grid;grid-template-columns:1fr 90px 30px;gap:8px;margin-bottom:8px;align-items:center}
@@ -189,7 +188,6 @@
   .btn-x{background:var(--card2);border:1px solid var(--border2);color:var(--muted);border-radius:8px;height:36px;cursor:pointer}
   .link-add{color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:.4px}
 
-  /* métricas */
   .metric-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
   .metric-select-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
   .metric-select-row select{background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:9px 12px;border-radius:9px;min-width:220px}
@@ -229,6 +227,7 @@
       <a href="/es/coachhub/jugadores.html" class="active">Coach Hub</a>
     </nav>
     <div class="nav-auth">
+      <span class="rolechip" id="roleChip" style="display:none"></span>
       <div class="avatar" id="navAvatar">?</div>
       <div class="hamburger"><span></span><span></span><span></span></div>
     </div>
@@ -237,10 +236,9 @@
 
 <div class="errbar" id="errBar" onclick="this.classList.remove('on')"></div>
 
-<div class="shell">
+<div class="shell" id="shell">
 
-  <!-- ROSTER -->
-  <aside class="roster">
+  <aside class="roster" id="rosterAside">
     <div class="roster-head">
       <h2>Mis jugadores</h2>
       <button class="btn-add" id="btnNewPlayer" title="Agregar jugador">+</button>
@@ -249,23 +247,24 @@
     <div id="rosterList"><div class="loading">Cargando...</div></div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main" id="mainPanel">
-    <div class="empty-hero">
-      <h2>Selecciona un jugador</h2>
-      <p>Elige un jugador de la lista para ver su historial completo, o agrega uno nuevo para empezar a construir su perfil desde el primer día.</p>
-    </div>
+    <div class="loading">Cargando...</div>
   </main>
 
 </div>
 
-<!-- MODAL: NUEVO JUGADOR -->
+<!-- MODAL: NUEVO JUGADOR (solo coach) -->
 <div class="overlay" id="ovPlayer">
   <div class="modal">
     <h2>Nuevo jugador</h2>
     <div class="field-row">
       <div class="field"><label>Nombre</label><input id="np_first"></div>
       <div class="field"><label>Apellido</label><input id="np_last"></div>
+    </div>
+    <div class="field">
+      <label>Email del alumno</label>
+      <input id="np_email" type="email" placeholder="Opcional, pero recomendado">
+      <div class="hint">Cuando el alumno se registre con este email, su cuenta queda vinculada a esta ficha y podrá ver su propio timeline.</div>
     </div>
     <div class="field-row">
       <div class="field">
@@ -303,12 +302,12 @@
 <!-- MODAL: NUEVO EVENTO -->
 <div class="overlay" id="ovEvent">
   <div class="modal">
-    <h2>Registrar evento</h2>
+    <h2 id="ne_heading">Registrar evento</h2>
     <div class="field">
       <label>Tipo de evento</label>
       <select id="ne_type"></select>
     </div>
-    <div class="field"><label>Título</label><input id="ne_title" placeholder="Ej: Clase — trabajo de pivot"></div>
+    <div class="field"><label>Título</label><input id="ne_title" placeholder="Ej: Práctica de bunkers"></div>
     <div class="field-row">
       <div class="field"><label>Fecha</label><input id="ne_date" type="date"></div>
       <div class="field">
@@ -323,7 +322,7 @@
       </div>
     </div>
     <div class="field"><label>Resumen / notas</label><textarea id="ne_summary" placeholder="Qué se trabajó, observaciones..."></textarea></div>
-    <label class="check"><input type="checkbox" id="ne_milestone"><span>Marcar como hito (cambio técnico) — aparece en el gráfico de métricas</span></label>
+    <label class="check" id="ne_milestoneWrap"><input type="checkbox" id="ne_milestone"><span>Marcar como hito (cambio técnico) — aparece en el gráfico de métricas</span></label>
 
     <div class="field" style="margin-top:16px">
       <label>Videos y fotos</label>
@@ -377,13 +376,16 @@ var BUCKET = 'player-media';
 // STATE
 // ============================================================
 var USER = null;
+var ROLE = 'jugador';        // coach | jugador | ambos
+var IS_COACH = false;
+var COACH_ID = null;         // el coach dueño de la ficha abierta
 var PLAYERS = [];
 var SEL = null;
 var EVENTS = [];
 var MEDIA_BY_EVENT = {};
 var MEDIA_BY_ID = {};
 var URLCACHE = {};
-var THUMB_TRIED = {};   // ids a los que ya se les intentó generar portada en esta sesión
+var THUMB_TRIED = {};
 var PENDING = [];
 var QUICK_EVENT = null;
 var METRIC_DEFS = [];
@@ -393,12 +395,13 @@ var FILTER_TYPE = 'all';
 var FILTER_PILLAR = 'all';
 
 // ============================================================
-// CONFIG: tipos de evento
+// TIPOS DE EVENTO
+// coachOnly: solo el coach los registra (diagnóstico y decisiones técnicas)
 // ============================================================
 var EVENT_TYPES = {
-  clase:                {label:'Clase',                color:'var(--teal)',  icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
+  clase:                {label:'Clase',                color:'var(--teal)',  coachOnly:true,  icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
   video_swing:          {label:'Video de swing',       color:'var(--teal)',  icon:'M4 4h16v16H4z M10 9l5 3-5 3z'},
-  cambio_tecnico:       {label:'Cambio técnico',       color:'var(--gold)',  icon:'M12 2v20 M5 9l7-7 7 7'},
+  cambio_tecnico:       {label:'Cambio técnico',       color:'var(--gold)',  coachOnly:true,  icon:'M12 2v20 M5 9l7-7 7 7'},
   sesion_trackman:      {label:'Sesión Trackman',      color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
   sesion_sportsbox:     {label:'Sesión Sportsbox',     color:'var(--purple)',icon:'M12 2l9 5v10l-9 5-9-5V7z'},
   launch_monitor:       {label:'Launch monitor',       color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
@@ -407,7 +410,7 @@ var EVENT_TYPES = {
   sesion_entrenamiento: {label:'Entrenamiento',        color:'var(--teal)',  icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
   test_fisico:          {label:'Test físico',          color:'var(--orange)',icon:'M6 7v10 M18 7v10 M4 12h16'},
   analisis_ia:          {label:'Análisis IA',          color:'var(--teal)',  icon:'M12 2a5 5 0 015 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 015-5z M9 17h6 M10 20h4'},
-  plan_asignado:        {label:'Plan asignado',        color:'var(--teal)',  icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
+  plan_asignado:        {label:'Plan asignado',        color:'var(--teal)',  coachOnly:true,  icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
   objetivo_creado:      {label:'Objetivo creado',      color:'var(--gold)',  icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
   objetivo_logrado:     {label:'Objetivo logrado',     color:'var(--gold)',  icon:'M20 6L9 17l-5-5'},
   nota:                 {label:'Nota',                 color:'var(--muted)', icon:'M4 4h16v16H4z M8 9h8 M8 13h5'},
@@ -439,7 +442,6 @@ function toast(msg,isErr){
 }
 function openModal(id){ document.getElementById(id).classList.add('show'); }
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-
 function showError(titulo, detalle, pista){
   console.error(titulo, detalle);
   var b=document.getElementById('errBar');
@@ -453,20 +455,62 @@ function errMsg(e){
 }
 
 // ============================================================
-// AUTH
+// AUTH + ROL
 // ============================================================
 async function init(){
   var res = await sb.auth.getSession();
   var session = res.data.session;
   if(!session){ window.location.href='/es/login.html'; return; }
   USER = session.user;
+
   var av=document.getElementById('navAvatar');
   var meta=USER.user_metadata||{};
   if(meta.avatar_url){ av.innerHTML='<img src="'+esc(meta.avatar_url)+'">'; }
   else { av.textContent=(meta.full_name||USER.email||'?').charAt(0).toUpperCase(); }
 
+  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  ROLE = (pr.data && pr.data.role) || 'jugador';
+  IS_COACH = (ROLE==='coach' || ROLE==='ambos');
+
+  var chip=document.getElementById('roleChip');
+  chip.textContent = IS_COACH ? 'Coach' : 'Jugador';
+  chip.style.display='inline-block';
+
   await loadMetricDefs();
-  await loadPlayers();
+
+  if(IS_COACH){ await loadPlayers(); showEmptyCoachPanel(); }
+  else { await initModoJugador(); }
+}
+
+function showEmptyCoachPanel(){
+  document.getElementById('mainPanel').innerHTML=
+    '<div class="empty-hero"><h2>Selecciona un jugador</h2>'
+    +'<p>Elige un jugador de la lista para ver su historial completo, o agrega uno nuevo para empezar a construir su perfil desde el primer día.</p></div>';
+}
+
+// ---------- MODO JUGADOR ----------
+async function initModoJugador(){
+  document.getElementById('rosterAside').style.display='none';
+  document.getElementById('shell').classList.add('solo');
+
+  var r = await sb.from('players').select('*').eq('user_id',USER.id).maybeSingle();
+  if(r.error){ showError('No se pudo cargar tu perfil',errMsg(r.error)); return; }
+
+  if(!r.data){
+    document.getElementById('mainPanel').innerHTML=
+      '<div class="empty-hero"><h2>Tu perfil aún no está vinculado</h2>'
+      +'<p>Tu coach todavía no ha conectado tu cuenta con tu ficha de jugador. Pídele que agregue este email a tu perfil: <strong>'+esc(USER.email)+'</strong></p></div>';
+    return;
+  }
+
+  COACH_ID = r.data.coach_id;
+  var sm = await sb.from('v_player_summary').select('*').eq('id',r.data.id).maybeSingle();
+  SEL = (sm.data) ? sm.data : r.data;
+  SEL.email = r.data.email; SEL.user_id = r.data.user_id; SEL.coach_id = r.data.coach_id;
+
+  await loadEvents(SEL.id);
+  await loadMedia(SEL.id);
+  renderProfile();
 }
 
 async function loadMetricDefs(){
@@ -477,12 +521,19 @@ async function loadMetricDefs(){
 }
 
 // ============================================================
-// ROSTER
+// ROSTER (solo coach)
 // ============================================================
 async function loadPlayers(){
   var r = await sb.from('v_player_summary').select('*').order('first_name');
   if(r.error){ document.getElementById('rosterList').innerHTML='<div class="roster-empty">Error al cargar. Revisa tu conexión.</div>'; console.error(r.error); return; }
   PLAYERS = (r.data||[]).filter(function(p){ return p.status!=='archivado'; });
+
+  // estado de vinculación de cada ficha
+  var lk = await sb.from('players').select('id,email,user_id');
+  if(!lk.error){
+    var by={}; (lk.data||[]).forEach(function(x){ by[x.id]=x; });
+    PLAYERS.forEach(function(p){ if(by[p.id]){ p.email=by[p.id].email; p.user_id=by[p.id].user_id; } });
+  }
   renderRoster();
 }
 
@@ -498,8 +549,9 @@ function renderRoster(){
   list.forEach(function(p){
     var sel = SEL && SEL.id===p.id ? ' sel':'';
     var av = p.photo_url ? '<img src="'+esc(p.photo_url)+'">' : esc(initials(p.first_name,p.last_name));
+    var dot = p.user_id ? '<span class="linkdot" title="Cuenta vinculada"></span>' : '';
     html+='<div class="player-row'+sel+'" onclick="selectPlayer(\''+p.id+'\')">'
-        + '<div class="pr-avatar">'+av+'</div>'
+        + '<div class="pr-avatar">'+av+dot+'</div>'
         + '<div class="pr-info"><div class="pr-name">'+esc(p.first_name+' '+p.last_name)+'</div>'
         + '<div class="pr-meta">'+esc(CAT_LABEL[p.category]||p.category)+' · '+(p.total_eventos||0)+' eventos</div></div></div>';
   });
@@ -508,11 +560,12 @@ function renderRoster(){
 document.getElementById('rosterSearch').addEventListener('input',renderRoster);
 
 // ============================================================
-// SELECT + LOAD PROFILE
+// SELECT + LOAD
 // ============================================================
 async function selectPlayer(id){
   SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
   if(!SEL) return;
+  COACH_ID = USER.id;
   VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all';
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
@@ -528,16 +581,29 @@ async function loadEvents(playerId){
 }
 
 // ============================================================
+// VINCULAR CUENTA (solo coach)
+// ============================================================
+async function editarEmail(){
+  if(!IS_COACH) return;
+  var actual = SEL.email || '';
+  var nuevo = prompt('Email del alumno. Cuando se registre con este email, su cuenta queda vinculada a esta ficha.', actual);
+  if(nuevo===null) return;
+  nuevo = nuevo.trim();
+  var r = await sb.from('players').update({email: nuevo||null}).eq('id',SEL.id).select('email,user_id').single();
+  if(r.error){ showError('No se pudo guardar el email',errMsg(r.error)); return; }
+  SEL.email=r.data.email; SEL.user_id=r.data.user_id;
+  PLAYERS=PLAYERS.map(function(p){ if(p.id===SEL.id){ p.email=r.data.email; p.user_id=r.data.user_id; } return p; });
+  toast(r.data.user_id ? 'Cuenta vinculada' : 'Email guardado — se vinculará cuando se registre');
+  renderRoster(); renderProfile();
+}
+
+// ============================================================
 // MEDIA
 // ============================================================
 async function loadMedia(playerId){
   MEDIA_BY_EVENT={}; MEDIA_BY_ID={};
   var r = await sb.from('player_media').select('*').eq('player_id',playerId).order('created_at');
-  if(r.error){
-    showError('No se pudo leer la tabla player_media', errMsg(r.error),
-      'Si menciona una columna o la tabla, falta correr la migración en Supabase.');
-    return;
-  }
+  if(r.error){ showError('No se pudo leer player_media', errMsg(r.error)); return; }
   (r.data||[]).forEach(function(m){
     if(!MEDIA_BY_EVENT[m.event_id]) MEDIA_BY_EVENT[m.event_id]=[];
     MEDIA_BY_EVENT[m.event_id].push(m);
@@ -555,7 +621,6 @@ async function signUrl(path){
   return r.data.signedUrl;
 }
 
-// ¿el frame capturado es prácticamente negro?
 function frameIsDark(canvas){
   try{
     var d=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
@@ -564,7 +629,6 @@ function frameIsDark(canvas){
     return n>0 && (sum/n) < 16;
   }catch(e){ return false; }
 }
-
 function grabFrame(video){
   var w=640, h=Math.round(w*(video.videoHeight||720)/(video.videoWidth||1280));
   var c=document.createElement('canvas'); c.width=w; c.height=h;
@@ -580,8 +644,6 @@ function seekTo(video,t){
     setTimeout(ok,4000);
   });
 }
-
-// captura un frame que NO sea negro: prueba 1s, luego 35%, luego 60%
 async function captureFrame(video){
   var dur = video.duration && isFinite(video.duration) ? video.duration : 0;
   var intentos = [Math.min(1, dur?dur/4:1)];
@@ -594,12 +656,9 @@ async function captureFrame(video){
   }
   return null;
 }
-
 function canvasToBlob(c){
   return new Promise(function(res){ c.toBlob(function(b){ res(b); },'image/jpeg',0.75); });
 }
-
-// portada al momento de subir (desde el archivo local)
 function makeThumbFromFile(file){
   return new Promise(function(resolve){
     var url=URL.createObjectURL(file);
@@ -618,8 +677,6 @@ function makeThumbFromFile(file){
     setTimeout(function(){ finish(null); },20000);
   });
 }
-
-// portada generada después, desde el video ya subido (se auto-repara)
 async function backfillThumb(m, videoEl){
   if(THUMB_TRIED[m.id] || m.thumb_path) return;
   THUMB_TRIED[m.id]=true;
@@ -637,7 +694,6 @@ async function backfillThumb(m, videoEl){
   }catch(e){ console.warn('backfillThumb',e); }
 }
 
-// devuelve {ok:n, fails:[textos]}
 async function uploadFiles(eventId, files, onStep){
   var rows=[], fails=[];
   for(var i=0;i<files.length;i++){
@@ -645,6 +701,7 @@ async function uploadFiles(eventId, files, onStep){
     if(onStep) onStep((i+1)+' de '+files.length+' · '+f.name+' ('+fmtSize(f.size)+')');
     var isVideo = (f.type||'').indexOf('video')===0;
     var ext = (f.name.split('.').pop()||'bin').toLowerCase();
+    // la carpeta raíz es siempre quien sube (lo exige la política de storage)
     var base = USER.id+'/'+SEL.id+'/'+eventId+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
     var path = base+'.'+ext;
 
@@ -664,7 +721,7 @@ async function uploadFiles(eventId, files, onStep){
     }
 
     rows.push({
-      event_id:eventId, player_id:SEL.id, coach_id:USER.id, created_by:USER.id,
+      event_id:eventId, player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
       storage_path:path, thumb_path:thumb,
       media_type: isVideo?'video':'imagen',
       file_name:f.name, mime_type:f.type||null, size_bytes:f.size
@@ -674,7 +731,7 @@ async function uploadFiles(eventId, files, onStep){
   var ok=0;
   if(rows.length){
     var r = await sb.from('player_media').insert(rows).select();
-    if(r.error){ fails.push('Los archivos subieron al storage pero no se registraron en player_media → '+errMsg(r.error)); }
+    if(r.error){ fails.push('Los archivos subieron al storage pero no se registraron → '+errMsg(r.error)); }
     else { ok=(r.data||[]).length; }
   }
   return {ok:ok, fails:fails};
@@ -684,7 +741,7 @@ function reportUpload(res, contexto){
   if(res.fails.length){
     showError('No se pudieron guardar '+res.fails.length+' archivo(s) — '+contexto,
       res.fails.join('  ·  '),
-      'Si dice "exceeded the maximum allowed size", el archivo pasa el límite del proyecto (Storage → Settings). Si menciona una columna o RLS, falta correr la migración.');
+      'Si dice "exceeded the maximum allowed size", el archivo pasa el límite del proyecto (Storage → Settings). Si menciona RLS, faltan las políticas de la migración.');
   }
   if(res.ok>0) toast(res.ok+' archivo'+(res.ok>1?'s':'')+' agregado'+(res.ok>1?'s':''));
 }
@@ -706,24 +763,17 @@ document.getElementById('quickFiles').addEventListener('change',async function()
   renderProfile();
 });
 
-// ---------- pintar las tarjetas ----------
 async function fillThumb(el, m){
-  // 1) ya tiene portada guardada
   if(m.thumb_path){
     var tu=await signUrl(m.thumb_path);
     if(tu){ el.insertAdjacentHTML('afterbegin','<img src="'+tu+'" alt="">'); return; }
   }
   var su=await signUrl(m.storage_path);
   if(!su) return;
-
-  // 2) es una foto
   if(m.media_type!=='video'){
     el.insertAdjacentHTML('afterbegin','<img src="'+su+'" alt="">');
     return;
   }
-
-  // 3) es video sin portada: se monta el video mismo en el segundo 1,
-  //    y de paso se genera y guarda la portada para la próxima vez
   var v=document.createElement('video');
   v.muted=true; v.playsInline=true; v.preload='metadata'; v.crossOrigin='anonymous';
   v.src=su+'#t=1';
@@ -733,7 +783,6 @@ async function fillThumb(el, m){
     el.insertAdjacentHTML('beforeend','<div class="nopreview">Sin vista previa en este navegador</div>');
   },{once:true});
 }
-
 function hydrateThumbs(){
   Array.prototype.forEach.call(document.querySelectorAll('.mthumb[data-media]'),function(el){
     var id=el.getAttribute('data-media');
@@ -772,7 +821,11 @@ async function openLightbox(id){
     body.innerHTML='<img src="'+u+'" alt="">';
   }
   document.getElementById('lbTitle').textContent = (m.file_name||'') + (m.size_bytes?' · '+fmtSize(m.size_bytes):'');
-  document.getElementById('lbDel').onclick=function(){ deleteMedia(m); };
+  // el jugador solo puede borrar lo que subió él
+  var puedeBorrar = IS_COACH || m.created_by===USER.id;
+  var del=document.getElementById('lbDel');
+  del.className = 'btn-danger'+(puedeBorrar?'':' hide');
+  del.onclick=function(){ deleteMedia(m); };
 }
 function closeLightbox(){
   document.getElementById('lbBody').innerHTML='';
@@ -803,6 +856,15 @@ function renderProfile(){
   var dias = p.dias_entrenando!=null ? p.dias_entrenando : 0;
   var hcp = p.handicap_index!=null ? Number(p.handicap_index).toFixed(1) : '—';
 
+  var linkBadge='';
+  if(IS_COACH){
+    linkBadge = p.user_id
+      ? '<span class="badge link-on" onclick="editarEmail()" title="'+esc(p.email||'')+'">● Cuenta vinculada</span>'
+      : (p.email
+          ? '<span class="badge link-off" onclick="editarEmail()">Invitación pendiente</span>'
+          : '<span class="badge link-off" onclick="editarEmail()">+ Vincular cuenta</span>');
+  }
+
   var html='<div class="phero">'
     + '<div class="phero-av">'+av+'</div>'
     + '<div class="phero-id"><h1>'+esc(p.first_name+' '+p.last_name)+'</h1>'
@@ -810,6 +872,7 @@ function renderProfile(){
     +   '<span class="badge cat">'+esc(CAT_LABEL[p.category]||p.category)+'</span>'
     +   '<span class="badge tier">Stats: '+esc(TIER_LABEL[p.stats_tier]||p.stats_tier)+'</span>'
     +   '<span class="badge hcp">HCP '+hcp+'</span>'
+    +   linkBadge
     + '</div></div>'
     + '<div class="phero-stats">'
     +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
@@ -870,7 +933,10 @@ function renderTimeline(){
   });
 
   if(list.length===0){
-    html+='<div class="tl-empty">'+(EVENTS.length===0?'Este perfil aún no tiene eventos. Registra el primero — una clase, un video, una ronda — y empieza a construir su historial.':'Ningún evento con este filtro.')+'</div>';
+    html+='<div class="tl-empty">'+(EVENTS.length===0
+      ? (IS_COACH ? 'Este perfil aún no tiene eventos. Registra el primero — una clase, un video, una ronda — y empieza a construir su historial.'
+                  : 'Todavía no hay nada acá. Sube un video de tu swing o registra una práctica para empezar.')
+      : 'Ningún evento con este filtro.')+'</div>';
     box.innerHTML=html; return;
   }
 
@@ -879,6 +945,7 @@ function renderTimeline(){
     var cfg=EVENT_TYPES[e.event_type]||{label:e.event_type,color:'var(--muted)',icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'};
     var ms = e.is_milestone ? ' milestone':'';
     var nMedia=(MEDIA_BY_EVENT[e.id]||[]).length;
+    var delJugador = IS_COACH && e.created_by && e.created_by!==USER.id;
     html+='<div class="tl-event'+ms+'">'
        + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
        + '<div class="tl-card">'
@@ -887,6 +954,7 @@ function renderTimeline(){
        +   (e.summary?'<div class="tl-summary">'+esc(e.summary)+'</div>':'')
        +   '<div class="tl-tags">'
        +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
+       +     (delJugador?'<span class="tl-pill byplayer">Subido por el jugador</span>':'')
        +     (e.pillar?'<span class="tl-pill pillar">'+esc(PILLAR_LABEL[e.pillar]||e.pillar)+'</span>':'')
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
@@ -1008,7 +1076,7 @@ function buildChart(pts,milestones,def){
 }
 
 // ============================================================
-// MODAL: NUEVO JUGADOR
+// MODAL: NUEVO JUGADOR (coach)
 // ============================================================
 document.getElementById('btnNewPlayer').addEventListener('click',function(){
   document.getElementById('np_since').value=todayISO();
@@ -1022,6 +1090,7 @@ document.getElementById('np_save').addEventListener('click',async function(){
     coach_id:USER.id, first_name:first, last_name:last,
     category:document.getElementById('np_cat').value,
     stats_tier:document.getElementById('np_tier').value,
+    email:document.getElementById('np_email').value.trim()||null,
     home_club:document.getElementById('np_club').value.trim()||null,
     coaching_since:document.getElementById('np_since').value||todayISO()
   };
@@ -1029,10 +1098,10 @@ document.getElementById('np_save').addEventListener('click',async function(){
   if(hcp!=='') row.handicap_index=Number(hcp);
 
   var r=await sb.from('players').insert(row).select().single();
-  if(r.error){ showError('No se pudo crear el jugador',errMsg(r.error)); return; }
+  if(r.error){ showError('No se pudo crear el jugador',errMsg(r.error),'Si menciona row-level security, revisa que tu perfil tenga role = coach.'); return; }
   closeModal('ovPlayer');
-  ['np_first','np_last','np_hcp','np_club'].forEach(function(id){document.getElementById(id).value='';});
-  toast('Jugador creado');
+  ['np_first','np_last','np_hcp','np_club','np_email'].forEach(function(id){document.getElementById(id).value='';});
+  toast(r.data.user_id ? 'Jugador creado y cuenta vinculada' : 'Jugador creado');
   await loadPlayers();
   selectPlayer(r.data.id);
 });
@@ -1042,11 +1111,17 @@ document.getElementById('np_save').addEventListener('click',async function(){
 // ============================================================
 function openEventModal(){
   var sel=document.getElementById('ne_type');
-  if(!sel.options.length){
-    var html='';
-    Object.keys(EVENT_TYPES).forEach(function(t){ html+='<option value="'+t+'">'+EVENT_TYPES[t].label+'</option>'; });
-    sel.innerHTML=html;
-  }
+  var html='';
+  Object.keys(EVENT_TYPES).forEach(function(t){
+    if(!IS_COACH && EVENT_TYPES[t].coachOnly) return;
+    html+='<option value="'+t+'">'+EVENT_TYPES[t].label+'</option>';
+  });
+  sel.innerHTML=html;
+
+  document.getElementById('ne_heading').textContent = IS_COACH ? 'Registrar evento' : 'Agregar a mi timeline';
+  document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
+  document.getElementById('ne_milestone').checked=false;
+
   document.getElementById('ne_date').value=todayISO();
   document.getElementById('ne_metricRows').innerHTML='';
   addMetricRow();
@@ -1110,12 +1185,12 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   var fail=document.getElementById('ne_upfail'); fail.className='upfail';
 
   var ev={
-    player_id:SEL.id, coach_id:USER.id, created_by:USER.id,
+    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
     event_type:type, title:title,
     event_date:document.getElementById('ne_date').value||todayISO(),
     summary:document.getElementById('ne_summary').value.trim()||null,
     pillar:document.getElementById('ne_pillar').value||null,
-    is_milestone:document.getElementById('ne_milestone').checked,
+    is_milestone: IS_COACH ? document.getElementById('ne_milestone').checked : false,
     source:'manual'
   };
   var r=await sb.from('player_events').insert(ev).select().single();
@@ -1146,8 +1221,12 @@ document.getElementById('ne_save').addEventListener('click',async function(){
 
   await loadEvents(SEL.id);
   await loadMedia(SEL.id);
-  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).single();
-  if(!sm.error){ SEL=sm.data; PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?sm.data:p;}); renderRoster(); }
+  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).maybeSingle();
+  if(sm.data){
+    var email=SEL.email, uid=SEL.user_id, cid=SEL.coach_id;
+    SEL=sm.data; SEL.email=email; SEL.user_id=uid; SEL.coach_id=cid;
+    if(IS_COACH){ PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?SEL:p;}); renderRoster(); }
+  }
   renderProfile();
   btn.disabled=false;
 
@@ -1163,7 +1242,7 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   document.getElementById('ne_summary').value='';
   document.getElementById('ne_milestone').checked=false;
   PENDING=[]; renderPending();
-  toast(res.ok>0 ? 'Evento guardado con '+res.ok+' archivo'+(res.ok>1?'s':'') : 'Evento guardado');
+  toast(res.ok>0 ? 'Guardado con '+res.ok+' archivo'+(res.ok>1?'s':'') : 'Guardado');
 });
 
 document.querySelectorAll('.overlay').forEach(function(o){
