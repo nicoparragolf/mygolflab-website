@@ -119,12 +119,22 @@
     letter-spacing:1px; color:var(--text-muted); white-space:nowrap; }
 
   /* TARJETA DE ANÁLISIS */
-  .entrada { position:relative; padding-left:30px; padding-bottom:32px; }
+  .entrada { position:relative; padding-left:30px; padding-bottom:32px;
+    /* 6.2 · deja aire bajo la barra fija al saltar desde el dashboard */
+    scroll-margin-top: calc(var(--nav-height) + 24px); }
   .entrada::before { content:''; position:absolute; left:5px; top:22px; bottom:-10px; width:1px; background:var(--border); }
   .entrada:last-child::before { display:none; }
   .entrada::after { content:''; position:absolute; left:0; top:16px; width:11px; height:11px;
     border-radius:50%; background:var(--teal); border:2px solid var(--bg); }
   .entrada.chat::after { background:var(--gold); }
+
+  /* 6.2 · Resaltado temporal del análisis al que apunta el enlace */
+  .entrada .card { transition:border-color .35s ease, box-shadow .35s ease; }
+  .entrada.resaltado .card {
+    border-color:var(--teal);
+    box-shadow:0 0 0 2px rgba(45,212,191,0.30), 0 0 28px rgba(45,212,191,0.18);
+  }
+  .entrada.resaltado::after { box-shadow:0 0 0 4px rgba(45,212,191,0.25); }
 
   .card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
   .card-top { padding:22px 26px; }
@@ -246,9 +256,20 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Mi Logbook v1.0 · 2026-07-30
+   MyGolfLab · Mi Logbook v1.1 · 2026-08-11
    Página independiente. Solo lee datos, no escribe nada.
+
+   ── v1.1: ENLACE DIRECTO A UN ANÁLISIS (punto 6.2) ────────────────────────
+   Cada tarjeta de análisis tiene ahora id="analisis-{id}". Cuando llegas
+   desde el dashboard con una dirección que termina en #analisis-xxx, la
+   página baja sola hasta esa tarjeta y la resalta unos segundos con un
+   borde teal. Antes el jugador aterrizaba arriba y tenía que buscarla.
+
+   Si el análisis del enlace no existe (fue borrado, o es de otra cuenta),
+   no pasa nada: la página se muestra normal y queda un aviso en la consola.
+
    Para verla sin tocar tus datos:  ?demo=1
+   Para probar el salto:            ?demo=1#analisis-a2
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
 
@@ -256,6 +277,8 @@ var CONFIG = {
   SUPABASE_URL:'https://yulpqupmftdjbepqiscs.supabase.co',
   SUPABASE_ANON_KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
   BUCKET:'swing-frames',
+  /* Cuánto dura el resaltado del análisis al que apunta el enlace */
+  MS_RESALTADO: 4000,
   RUTAS:{ coach:'/es/coach-ai.html', biblioteca:'/es/library.html', training:'/es/training.html',
     dashboard:'/es/dashboard.html', logbook:'/es/logbook.html', planes:'/es/pricing.html', perfil:'/es/profile.html',
     login:'/es/login.html', inicio:'/es/index.html' }
@@ -317,7 +340,8 @@ var DRILLS = {
 
 var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
   analisis:[], findings:[], drills:[], firmadas:{}, chat:[], chatOK:false,
-  filtro:{ tipo:'todo', comp:'', texto:'' } };
+  filtro:{ tipo:'todo', comp:'', texto:'' },
+  anclaHecha:false, anclaFallida:null };
 
 function $(i){ return document.getElementById(i); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
@@ -334,6 +358,9 @@ function etiquetaPlan(p){ return p==='basico'?'Básico':p==='pro'?'Pro':'Elite';
 function drillNombre(id){ return DRILLS[id] || id; }
 function drillURL(id){ return CONFIG.RUTAS.biblioteca+'?drill='+encodeURIComponent(String(id).replace(/^drill-/,'')); }
 function sev(s){ return s==='alta'?'Prioridad alta':s==='baja'?'Prioridad baja':'Prioridad media'; }
+
+/* 6.2 · El id del ancla se arma igual acá y en el dashboard */
+function anclaDe(id){ return 'analisis-' + id; }
 
 /* ── Carga ── */
 async function cargar(){
@@ -457,6 +484,36 @@ function render(){
 
   $('app').innerHTML = h;
   enlazarFiltros();
+  irAlAncla();
+}
+
+/* ── 6.2 · Saltar al análisis que venía en la dirección ──
+   El dashboard arma enlaces del tipo logbook.html#analisis-{id}. Acá bajamos
+   hasta esa tarjeta y la resaltamos unos segundos. Se hace una sola vez por
+   visita: si no, cada vez que el jugador toca un filtro la página volvería
+   a saltar sola y sería molesto. */
+function irAlAncla(){
+  if(S.anclaHecha) return;
+
+  var h = String(window.location.hash || '');
+  if(h.indexOf('#analisis-') !== 0) return;
+
+  var el = document.getElementById(h.slice(1));
+  if(!el){
+    S.anclaFallida = h.slice(10);
+    console.warn('[MGL] El enlace apunta al análisis "' + S.anclaFallida +
+                 '", que no está en esta lista. Puede haber sido borrado.');
+    return;
+  }
+
+  S.anclaHecha = true;
+  /* Un respiro para que el navegador termine de dibujar antes de medir */
+  setTimeout(function(){
+    try { el.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    catch(e) { el.scrollIntoView(); }
+    el.classList.add('resaltado');
+    setTimeout(function(){ el.classList.remove('resaltado'); }, CONFIG.MS_RESALTADO);
+  }, 80);
 }
 
 function barraFiltros(n){
@@ -479,7 +536,8 @@ function tarjetaAnalisis(e){
   var a = e.a, dx = e.dx;
   var mig = String(a.prompt_version||'').toLowerCase().indexOf('migrado') > -1;
 
-  var h = '<div class="entrada"><div class="card"><div class="card-top">' +
+  /* 6.2 · el id que busca el enlace del dashboard */
+  var h = '<div class="entrada" id="' + esc(anclaDe(a.id)) + '"><div class="card"><div class="card-top">' +
     '<div class="card-fecha">' + fechaLarga(a.created_at) + '</div>' +
     '<div class="card-fila"><div class="card-txt">' +
     '<h3>Análisis de swing</h3>' +
@@ -687,7 +745,22 @@ function MGL_LOGBOOK_TEST(){
     document.querySelectorAll('.entrada').length + ' entradas');
   t('Filtros enlazados', !!$('fComp') || !S.analisis.length, '');
 
-  console.log('%c MGL LOGBOOK v1.0 — AUTOTEST ',
+  /* ── 6.2 ── */
+  var conAncla = document.querySelectorAll('.entrada[id^="analisis-"]').length;
+  var visibles = S.filtro.tipo === 'chat' ? 0 : entradas().filter(function(e){ return e.tipo==='analisis'; }).length;
+  t('6.2 · Cada análisis con su ancla', conAncla === visibles,
+    conAncla + ' anclas de ' + visibles + ' análisis en pantalla');
+
+  var hash = String(window.location.hash || '');
+  if(hash.indexOf('#analisis-') === 0){
+    t('6.2 · Salto al análisis del enlace', S.anclaHecha,
+      S.anclaHecha ? 'encontrado y resaltado: ' + hash.slice(10)
+                   : 'NO se encontró el análisis ' + hash.slice(10));
+  } else {
+    t('6.2 · Salto al análisis del enlace', true, 'sin ancla en la dirección');
+  }
+
+  console.log('%c MGL LOGBOOK v1.1 — AUTOTEST ',
     'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
   var malos = r.filter(function(x){ return x.resultado === 'REVISAR'; });
@@ -716,7 +789,7 @@ window.MGL = { estado:S, render:function(){ render(); }, test:MGL_LOGBOOK_TEST }
     var hay = await cargar();
     if(!hay){
       window.location.href = CONFIG.RUTAS.login + '?redirect=' +
-        encodeURIComponent(window.location.pathname);
+        encodeURIComponent(window.location.pathname + window.location.hash);
       return;
     }
     pintarBarra();
