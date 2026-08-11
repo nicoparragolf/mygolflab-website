@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planes para Coaches | Coach Hub — MyGolfLab</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2dd4bf;
+    --teal-dark: #14b8a6;
+    --teal-glow: rgba(45, 212, 191, 0.3);
+    --gold: #D4C5A9;
+    --bg-dark: #0a0a0a;
+    --bg-card: #111111;
+    --bg-elevated: #1a1a1a;
+    --text-primary: #ffffff;
+    --text-secondary: #a3a3a3;
+    --text-muted: #737373;
+    --border: #262626;
+    --border-mid: rgba(255,255,255,0.12);
+    --teal-dim: rgba(45,212,191,0.12);
+    --nav-height: 68px;
+    --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+    --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-heading: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--bg-dark); color: var(--text-primary); line-height: 1.6; overflow-x: hidden; }
+
+  /* ==================== HEADER ==================== */
+  header#siteHeader {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--nav-height);
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; column-gap: 24px; padding: 0 32px;
+    background: rgba(10,10,10,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-left { grid-column: 1; display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .logo { font-family: var(--font-display); font-size: 26px; letter-spacing: 0.06em; color: var(--text-primary); text-decoration: none; flex-shrink: 0; }
+  .logo span { color: var(--teal); }
+  .nav-cta{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-heading);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--teal);border:1.5px solid var(--teal);border-radius:20px;padding:5px 13px;white-space:nowrap;transition:background .2s,color .2s;text-decoration:none}
+  .nav-cta:hover{background:rgba(45,212,191,.12)}
+  .nav-cta.active{background:var(--teal);color:#04211d}
+  .nav-collapse { display: contents; }
+  .nav-links { grid-column: 2; justify-self: center; display: flex; align-items: center; gap: 30px; list-style: none; }
+  .nav-links a { font-family: var(--font-heading); font-size: 15px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-links a.active { color: var(--teal); }
+  .nav-auth { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .nav-avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border-mid); display: flex; align-items: center; justify-content: center; background: var(--teal-dim); transition: border-color 0.2s; }
+  .nav-avatar:hover { border-color: var(--teal); }
+  .nav-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .nav-avatar-initials { font-family: var(--font-heading); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; color: var(--teal); }
+  .btn-outline, .btn-primary { font-family: var(--font-heading); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; padding: 9px 18px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .btn-outline { color: var(--text-primary); border: 1px solid var(--border-mid); background: transparent; }
+  .btn-outline:hover { border-color: var(--text-secondary); }
+  .btn-primary { color: #0a0a0a; background: var(--teal); border: 1px solid var(--teal); }
+  .btn-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
+  .hamburger { grid-column: 3; justify-self: end; display: none; width: 40px; height: 40px; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; background: none; border: none; flex-shrink: 0; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--text-primary); border-radius: 2px; transition: all 0.3s; }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  @media (max-width: 880px) {
+    header#siteHeader { padding: 0 20px; grid-template-columns: 1fr auto; }
+    .hamburger { display: flex; }
+    .nav-collapse {
+      display: flex; flex-direction: column; position: fixed; top: var(--nav-height); left: 0; right: 0;
+      background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent; padding: 0 24px; max-height: 0; overflow: hidden;
+      transition: max-height 0.32s ease, padding 0.32s ease, border-color 0.32s ease;
+    }
+    header#siteHeader.menu-open .nav-collapse { max-height: 85vh; padding: 8px 24px 20px; border-bottom-color: var(--border); }
+    .nav-links { flex-direction: column; align-items: stretch; gap: 0; margin: 0; }
+    .nav-links li { border-bottom: 1px solid var(--border); }
+    .nav-links li:last-child { border-bottom: none; }
+    .nav-links a { display: block; padding: 18px 2px; font-size: 20px; }
+    .nav-auth { flex-direction: column; align-items: stretch; gap: 10px; padding-top: 16px; }
+    .btn-outline, .btn-primary { text-align: center; padding: 14px 18px; font-size: 15px; }
+  }
+
+  /* ==================== PAGE HEADER ==================== */
+  .page-header { padding: calc(var(--nav-height) + 3rem) 2rem 3rem; text-align: center; background: var(--gradient-subtle); }
+  .page-header .eyebrow { font-family: var(--font-heading); font-size: 12px; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--teal); margin-bottom: 14px; }
+  .page-header h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 8vw, 4.5rem); letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 1rem; }
+  .page-header p { font-family: var(--font-body); color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+  .content { max-width: 1140px; margin: 0 auto; padding: 2rem 2rem 6rem; }
+
+  /* ==================== BILLING TOGGLE ==================== */
+  .pricing-toggle { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-bottom: 2.5rem; }
+  .pricing-toggle span { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); transition: color 0.3s; }
+  .pricing-toggle span.active { color: var(--text-primary); }
+  .toggle-switch { width: 56px; height: 30px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 100px; position: relative; cursor: pointer; transition: all 0.3s ease; }
+  .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: var(--teal); border-radius: 50%; transition: transform 0.3s ease; }
+  .toggle-switch.yearly::after { transform: translateX(26px); }
+  .save-badge { background: rgba(45, 212, 191, 0.15); color: var(--teal); font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding: 0.25rem 0.75rem; border-radius: 100px; }
+
+  .pricing-disclaimer { text-align: center; font-size: 0.82rem; color: var(--text-muted); max-width: 560px; margin: 0 auto 3rem; line-height: 1.6; }
+
+  /* ==================== PRICING GRID ==================== */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem; align-items: start; }
+  @media (max-width: 860px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+  .pricing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; }
+  .pricing-card:hover { border-color: rgba(45, 212, 191, 0.3); transform: translateY(-4px); }
+  .pricing-card.featured { border-color: var(--teal); border-width: 2px; background: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, var(--bg-card) 30%); }
+
+  .popular-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--gradient-1); color: var(--bg-dark); font-family: var(--font-heading); font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 0.3rem 1rem; border-radius: 100px; white-space: nowrap; }
+
+  .plan-header { margin-bottom: 1.25rem; }
+  .plan-name { font-family: var(--font-display); font-size: 2rem; letter-spacing: 2px; margin-bottom: 0.2rem; }
+  .plan-tagline { font-family: var(--font-heading); font-size: 0.88rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .plan-price { margin-bottom: 0.5rem; }
+  .price-row { display: flex; align-items: baseline; gap: 2px; }
+  .price-currency { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
+  .price-amount { font-family: var(--font-display); font-size: 3.2rem; letter-spacing: 0.02em; color: var(--text-primary); line-height: 1; }
+  .price-period { font-family: var(--font-heading); font-size: 0.95rem; color: var(--text-muted); margin-left: 2px; }
+
+  .plan-capacity { font-family: var(--font-heading); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--teal); margin-bottom: 1.25rem; min-height: 20px; }
+
+  .plan-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 1.25rem; }
+  .featured .plan-divider { border-color: rgba(45, 212, 191, 0.2); }
+
+  .plan-features { list-style: none; margin-bottom: 2rem; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
+  .plan-features li { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.45; }
+  .plan-features li svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 2px; }
+  .feat-check { color: var(--teal); }
+
+  .plan-cta { display: block; text-align: center; padding: 1rem; border-radius: 12px; font-family: var(--font-heading); font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; text-decoration: none; transition: all 0.2s ease; cursor: pointer; border: none; }
+  .plan-cta.primary { background: var(--gradient-1); color: var(--bg-dark); }
+  .plan-cta.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--teal-glow); }
+  .plan-cta.secondary { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); }
+  .plan-cta.secondary:hover { border-color: var(--teal); }
+
+  /* ==================== BUNDLE CALLOUT ==================== */
+  .bundle-box { max-width: 900px; margin: 0 auto 5rem; background: linear-gradient(135deg, rgba(212,197,169,0.08), var(--bg-card) 60%); border: 1px solid rgba(212,197,169,0.25); border-radius: 20px; padding: 2.5rem 2.8rem; display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; }
+  .bundle-icon { width: 56px; height: 56px; border-radius: 14px; background: rgba(212,197,169,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bundle-copy { flex: 1; min-width: 240px; }
+  .bundle-copy h3 { font-family: var(--font-display); font-size: 1.7rem; letter-spacing: 1px; color: var(--gold); margin-bottom: 6px; }
+  .bundle-copy p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; max-width: 520px; }
+  .bundle-cta { flex-shrink: 0; }
+
+  /* ==================== FAQ ==================== */
+  .faq-section { max-width: 800px; margin: 0 auto; padding-top: 3rem; border-top: 1px solid var(--border); }
+  .faq-section h2 { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-bottom: 2rem; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-question { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; background: none; border: none; color: var(--text-primary); font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; text-align: left; cursor: pointer; }
+  .faq-question svg { width: 20px; height: 20px; color: var(--text-muted); transition: transform 0.3s ease; flex-shrink: 0; }
+  .faq-item.open .faq-question svg { transform: rotate(180deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .faq-item.open .faq-answer { max-height: 260px; }
+  .faq-answer p { padding-bottom: 1.25rem; color: var(--text-secondary); font-size: 0.95rem; }
+
+  /* ==================== FOOTER ==================== */
+  .footer-expanded { border-top: 1px solid var(--border); padding: 64px 32px 36px; max-width: 1100px; margin: 0 auto; }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+  .footer-logo { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 12px; }
+  .footer-logo span { color: var(--teal); }
+  .footer-brand p { font-size: 13px; color: var(--text-muted); line-height: 1.75; max-width: 260px; opacity: 0.7; }
+  .footer-col-title { font-family: var(--font-heading); font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
+  .footer-col a { display: block; font-size: 13px; color: var(--text-muted); text-decoration: none; padding: 5px 0; transition: color 0.2s; opacity: 0.55; }
+  .footer-col a:hover { color: var(--teal); opacity: 1; }
+  .footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .footer-copy { font-size: 12px; color: var(--text-muted); opacity: 0.4; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 12px; color: var(--text-muted); text-decoration: none; opacity: 0.4; transition: opacity 0.2s; }
+  .footer-links a:hover { opacity: 1; }
+
+  @media (max-width: 700px) {
+    .bundle-box { flex-direction: column; text-align: center; padding: 2rem; }
+    .bundle-cta { width: 100%; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 480px) { .footer-top { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="siteHeader">
+    <div class="nav-left">
+      <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
+      <a href="/es/coachhub/index.html" class="nav-cta active"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg>Coach Hub</a>
+    </div>
+    <div class="nav-collapse">
+      <ul class="nav-links">
+        <li><a href="/es/coachhub/index.html">Coach Hub</a></li>
+        <li><a href="/es/coachhub/pricing.html" class="active">Planes</a></li>
+        <li><a href="/es/index.html">Para jugadores</a></li>
+        <li><a href="/es/about.html">Quiénes Somos</a></li>
+      </ul>
+      <div class="nav-auth" id="header-auth">
+        <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
+        <a href="/es/login.html" class="btn-primary">Crear cuenta</a>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="eyebrow">Coach Hub</div>
+    <h1>Planes para coaches</h1>
+    <p>Elige el plan según el tamaño de tu cartera de alumnos. Storage de video incluido en todos — no cobramos por GB.</p>
+  </header>
+
+  <main class="content">
+
+    <!-- BILLING TOGGLE -->
+    <div class="pricing-toggle">
+      <span class="active" id="label-monthly">Mensual</span>
+      <div class="toggle-switch" id="toggleSwitch"></div>
+      <span id="label-yearly">Anual</span>
+      <span class="save-badge">Ahorra 20%</span>
+    </div>
+    <p class="pricing-disclaimer">Precios de lanzamiento en USD, sujetos a ajuste durante el piloto con coaches. Se cobran a través del mismo mecanismo que usamos hoy para los planes de jugador.</p>
+
+    <!-- PRICING CARDS -->
+    <div class="pricing-grid">
+
+      <!-- STARTER -->
+      <div class="pricing-card">
+        <div class="plan-header">
+          <h3 class="plan-name">Starter</h3>
+          <p class="plan-tagline">Para empezar a ordenar tu cartera</p>
+        </div>
+        <div class="plan-price">
+          <div class="price-row">
+            <span class="price-currency">USD</span>
+            <span class="price-amount" data-monthly="19" data-yearly="15">19</span>
+            <span class="price-period">/mes</span>
+          </div>
+        </div>
+        <div class="plan-capacity">Hasta 10 alumnos · 50GB incluidos</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Timeline completo por alumno</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Video en el timeline con reproducción directa</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Métricas superpuestas a hitos</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel básico</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
+        </ul>
+        <a href="/es/login.html" class="plan-cta secondary">Empezar con Starter</a>
+      </div>
+
+      <!-- GROWTH -->
+      <div class="pricing-card featured">
+        <span class="popular-badge">Más elegido</span>
+        <div class="plan-header">
+          <h3 class="plan-name">Growth</h3>
+          <p class="plan-tagline">Para el coach establecido</p>
+        </div>
+        <div class="plan-price">
+          <div class="price-row">
+            <span class="price-currency">USD</span>
+            <span class="price-amount" data-monthly="49" data-yearly="39">49</span>
+            <span class="price-period">/mes</span>
+          </div>
+        </div>
+        <div class="plan-capacity">Hasta 40 alumnos · 200GB incluidos</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Starter</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel intermedio</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-fuente: Trackman, Sportsbox, Upgame</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span><strong>30% de descuento</strong> en tu propia cuenta de jugador Elite</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
+        </ul>
+        <a href="/es/login.html" class="plan-cta primary">Suscribirse a Growth</a>
+      </div>
+
+      <!-- ACADEMY -->
+      <div class="pricing-card">
+        <div class="plan-header">
+          <h3 class="plan-name">Academy</h3>
+          <p class="plan-tagline">Para academias y programas</p>
+        </div>
+        <div class="plan-price">
+          <div class="price-row">
+            <span class="price-currency">USD</span>
+            <span class="price-amount" data-monthly="99" data-yearly="79">99</span>
+            <span class="price-period">/mes</span>
+          </div>
+        </div>
+        <div class="plan-capacity">Alumnos ilimitados · 750GB + overage</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Growth</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel avanzado (Strokes Gained)</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Múltiples coaches en la misma academia</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Overage de storage transparente, sin cortes de servicio</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Soporte prioritario</span></li>
+        </ul>
+        <a href="mailto:hola@mygolflab.golf?subject=Coach%20Hub%20Academy" class="plan-cta secondary">Hablar con nosotros</a>
+      </div>
+
+    </div>
+
+    <!-- BUNDLE CALLOUT -->
+    <div class="bundle-box">
+      <div class="bundle-icon">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="9" cy="13" r="6" stroke="#D4C5A9" stroke-width="1.5"/><circle cx="17" cy="13" r="6" stroke="#D4C5A9" stroke-width="1.5" opacity="0.6"/></svg>
+      </div>
+      <div class="bundle-copy">
+        <h3>¿Coach y jugador a la vez?</h3>
+        <p>Si ya pagas Coach Hub, tu propia cuenta de jugador Elite en MyGolfLab queda con 30% de descuento — para que sigas entrenando tu propio juego mientras coacheas al resto.</p>
+      </div>
+      <div class="bundle-cta">
+        <a href="/es/pricing.html" class="btn-outline" style="padding:12px 22px;">Ver planes de jugador</a>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+      <h2>Preguntas Frecuentes</h2>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Qué pasa si me quedo sin storage?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>No te cortamos el servicio. Si superas el storage incluido en tu plan, el excedente se factura de forma transparente en tu próximo ciclo — nunca te quedas sin poder subir un video a mitad de una clase.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Mis alumnos tienen que pagar algo?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>No. La suscripción de Coach Hub la paga el coach. Tus alumnos tienen acceso gratuito a su propia ficha dentro de tu espacio — ver su timeline, sus videos y su progreso no tiene costo para ellos.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Puedo cambiar de plan después?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>Sí, puedes subir o bajar de plan en cualquier momento. Los cambios se aplican al inicio de tu próximo ciclo de facturación.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Qué pasa con los videos de mis alumnos si cancelo?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>Tus datos quedan disponibles por un período de gracia tras la cancelación para que puedas exportarlos o reactivar el plan. No se borra nada de inmediato.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Cómo funciona el plan Academy para varios coaches?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>El plan Academy permite invitar a otros coaches a la misma cuenta, cada uno con su propia cartera de alumnos, compartiendo el pool de storage. Ideal para academias o programas universitarios.</p></div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer-expanded">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">MY<span>GOLF</span>LAB <span style="color:var(--text-muted)">· COACH HUB</span></div>
+        <p>El historial completo de tus alumnos, en un solo lugar. Producto B2B de MyGolfLab para coaches de golf.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Coach Hub</div>
+        <a href="/es/coachhub/index.html">Producto</a>
+        <a href="/es/coachhub/pricing.html">Planes y precios</a>
+        <a href="/es/login.html">Crear cuenta de coach</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">MyGolfLab</div>
+        <a href="/es/index.html">Para jugadores</a>
+        <a href="/es/about.html">Quiénes Somos</a>
+        <a href="mailto:hola@mygolflab.golf">Contacto</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Cuenta</div>
+        <a href="/es/login.html">Iniciar Sesión</a>
+        <a href="/es/login.html">Crear Cuenta</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Smooth Golf Co. SPA · Santiago, Chile</div>
+      <div class="footer-links">
+        <a href="/es/privacy.html">Privacidad</a>
+        <a href="/es/terms.html">Términos</a>
+        <a href="mailto:hola@mygolflab.golf">hola@mygolflab.golf</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      var header = document.getElementById('siteHeader');
+      var hamburger = document.getElementById('hamburger');
+      var isOpen = header.classList.toggle('menu-open');
+      hamburger.classList.toggle('active', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+    }
+
+    (async function initHeaderAuth() {
+      try {
+        var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+        var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+        var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        var res = await client.auth.getSession();
+        var session = res.data.session;
+        if (!session) return;
+
+        var name = (session.user.user_metadata && session.user.user_metadata.full_name) || session.user.email.split('@')[0];
+        var avatarUrl = (session.user.user_metadata && (session.user.user_metadata.avatar_url || session.user.user_metadata.picture)) || '';
+        var initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+        var avatarInner = avatarUrl
+          ? '<img src="' + avatarUrl + '" alt="' + name + '">'
+          : '<span class="nav-avatar-initials">' + initials + '</span>';
+
+        document.getElementById('header-auth').innerHTML =
+          '<a href="/es/coachhub/jugador.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
+          '<a href="/es/coachhub/jugador.html" class="btn-outline">Ir a mi Coach Hub</a>' +
+          '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>';
+
+        document.querySelectorAll('[data-logout]').forEach(function (btn) {
+          btn.addEventListener('click', async function (e) {
+            e.preventDefault();
+            await client.auth.signOut();
+            window.location.reload();
+          });
+        });
+      } catch (e) {
+        console.error('Header auth error:', e);
+      }
+    })();
+
+    var isYearly = false;
+    var toggleSwitch = document.getElementById('toggleSwitch');
+    var labelMonthly = document.getElementById('label-monthly');
+    var labelYearly = document.getElementById('label-yearly');
+
+    toggleSwitch.addEventListener('click', function() {
+      isYearly = !isYearly;
+      toggleSwitch.classList.toggle('yearly', isYearly);
+      labelMonthly.classList.toggle('active', !isYearly);
+      labelYearly.classList.toggle('active', isYearly);
+
+      document.querySelectorAll('.price-amount').forEach(function(el) {
+        el.textContent = isYearly ? el.getAttribute('data-yearly') : el.getAttribute('data-monthly');
+      });
+    });
+
+    document.querySelectorAll('.faq-question').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.parentElement;
+        var isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+  </script>
+</body>
+</html>
