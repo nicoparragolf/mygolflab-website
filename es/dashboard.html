@@ -499,6 +499,30 @@
   .area .val { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: var(--text-muted);
     min-width: 78px; text-align: right; flex-shrink: 0; }
 
+  /* ── 6.7 f · Calidad de la medición ── */
+  .sello { display:inline-flex; align-items:center; gap:6px;
+    font-family:'Barlow Condensed', sans-serif; font-size:11px; font-weight:700;
+    letter-spacing:1.5px; text-transform:uppercase; padding:3px 10px;
+    border-radius:100px; border:1px solid; white-space:nowrap; vertical-align:middle; }
+  .sello i { width:6px; height:6px; border-radius:50%; background:currentColor; display:block; }
+  .sello.completa    { color:var(--ok);      border-color:rgba(34,197,94,0.35);  background:rgba(34,197,94,0.08); }
+  .sello.parcial     { color:var(--leve);    border-color:rgba(234,179,8,0.35);  background:rgba(234,179,8,0.08); }
+  .sello.insuficiente{ color:var(--severo);  border-color:rgba(239,68,68,0.35);  background:rgba(239,68,68,0.08); }
+
+  .calidad { max-width:1100px; margin:0 auto 24px; background:var(--bg-card);
+    border:1px solid var(--border-mid); border-left:3px solid var(--severo);
+    border-radius:0 14px 14px 0; padding:22px 26px; }
+  .calidad .t { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; color:var(--severo); margin-bottom:8px; }
+  .calidad p { font-size:14.5px; font-weight:300; line-height:1.75; color:var(--text-muted); margin-bottom:16px; }
+  .calidad p b { color:var(--text); font-weight:500; }
+  .calidad ul { list-style:none; margin:0 0 18px; padding:0; }
+  .calidad li { position:relative; padding-left:20px; font-size:14px; font-weight:300;
+    line-height:1.7; color:var(--text-muted); margin-bottom:10px; }
+  .calidad li b { color:var(--text); font-weight:500; }
+  .calidad li::before { content:''; position:absolute; left:2px; top:11px; width:5px; height:5px;
+    border-radius:50%; background:var(--severo); }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -578,7 +602,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.1 · 2026-08-11
+   MyGolfLab · Dashboard v5.2 · 2026-08-11
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -604,6 +628,14 @@
 
    6.5  Márgenes simétricos: se quitaron los max-width que dejaban aire
         muerto a la derecha dentro de las celdas.
+
+   ── v5.2: CALIDAD DE LA MEDICIÓN (punto 6.7 f) ────────────────────────────
+   Cuántos de los 8 componentes quedaron en no_evaluable dice qué tan
+   utilizable fue el video: 0-1 completa, 2-3 parcial, 4 o más insuficiente.
+   Un análisis insuficiente queda fuera del índice técnico, igual que los
+   migrados, y el jugador recibe un diagnóstico de su grabación deducido de
+   QUÉ componentes fallaron, no un "no se pudo evaluar" genérico.
+   El índice vuelve a mostrarse con su valor exacto, sin redondear.
 
    Para ver la página sin tocar tus datos reales:
      ?demo=1            jugador con 7 análisis
@@ -760,7 +792,7 @@ var DRILLS = {
 var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
           perfil:{}, perfilOK:false, sesiones:[], sesionesOK:false,
           analisis:[], estados:[], findings:[], drills:[], firmadas:{},
-          comp:{}, tarjetas:[], hitos:[], indices:[] };
+          comp:{}, tarjetas:[], hitos:[], indices:[], calidad:{} };
 
 /* Áreas de Training Lab, en el orden en que se muestran */
 var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
@@ -814,12 +846,6 @@ function urlAnalisis(id){
   return id ? (CONFIG.RUTAS.logbook + '#analisis-' + id) : CONFIG.RUTAS.logbook;
 }
 
-/* ── 6.3 · Redondeo del índice a múltiplos de 5 ──
-   SOLO para imprimir. Nunca para comparar: si se redondea antes de restar,
-   un avance real de 4 puntos se muestra como 5 y uno de 1 punto como 0. */
-function redondear5(n){
-  return (n === null || n === undefined) ? null : Math.round(n / 5) * 5;
-}
 
 /* ═══════════════ Carga de datos ═══════════════ */
 async function cargar(){
@@ -998,12 +1024,90 @@ function indiceDe(mapaDelAnalisis){
   return { valor: Math.round(100 - (100 * suma) / (3 * ev.length)), evaluados: ev.length };
 }
 
+/* ── 6.7 f · CALIDAD DE LA MEDICIÓN ──────────────────────────────────────
+   Se deduce de los 8 estados, sin agregar nada a la base de datos: cuántos
+   componentes quedaron en no_evaluable dice qué tan utilizable fue el video.
+
+     0-1 en gris → completa      2-3 → parcial      4 o más → insuficiente
+
+   Un análisis insuficiente NO entra al índice técnico, igual que los
+   migrados. Si el video no se pudo leer, su número no significa nada y
+   ensucia la tendencia. Antes el jugador solo veía componentes en gris,
+   sin saber que el problema era su grabación. */
+function calcularCalidad(){
+  var m = mapaEstados();
+  S.calidad = {};
+  S.analisis.forEach(function(a){
+    var e = m[a.id] || {};
+    var grises = COMPONENTES.filter(function(c){ return !e[c] || e[c] === 'no_evaluable'; });
+    S.calidad[a.id] = {
+      grises: grises,
+      n: grises.length,
+      nivel: grises.length <= 1 ? 'completa'
+           : grises.length <= 3 ? 'parcial'
+           : 'insuficiente'
+    };
+  });
+}
+function calidadDe(id){
+  return S.calidad[id] || { grises:[], n:0, nivel:'completa' };
+}
+function etiquetaCalidad(nivel){
+  return nivel === 'completa' ? 'Medición completa'
+       : nivel === 'parcial'  ? 'Medición parcial'
+       : 'Medición insuficiente';
+}
+function selloCalidad(nivel){
+  return '<span class="sello ' + nivel + '"><i></i>' + etiquetaCalidad(nivel) + '</span>';
+}
+
+/* Qué salió mal en la grabación, deducido de QUÉ componentes quedaron grises.
+   Eso es lo que lo hace útil en vez de un "no se pudo evaluar" genérico. */
+function consejoGrabacion(cal, angulo){
+  var g = cal.grises;
+  function gris(){
+    for(var i=0;i<arguments.length;i++){ if(g.indexOf(arguments[i]) > -1) return true; }
+    return false;
+  }
+  var out = [];
+
+  if(gris('cara','distancia')){
+    out.push('No se alcanzan a ver <b>las manos ni la cara del palo</b>. Suele pasar cuando la ' +
+      'cámara quedó muy lejos o el palo se sale del cuadro. Acércate hasta que tu cuerpo entero ' +
+      'y el palo entren justos, con algo de aire arriba y abajo.');
+  }
+  if(gris('secuencia','path','conexion')){
+    out.push('No se distingue <b>el movimiento completo</b>. El clip quedó corto, borroso o le ' +
+      'falta parte del swing. Graba un solo swing entero, desde el setup hasta el finish, con ' +
+      'buena luz y fondo despejado.');
+  }
+  if(gris('lowpoint','postura','ground')){
+    out.push('No se leen bien <b>los ángulos del cuerpo ni el contacto con el suelo</b>. Apoya el ' +
+      'teléfono en algo firme, en horizontal y a la altura de tus manos. Grabado a pulso el ' +
+      'encuadre se mueve y el análisis pierde las referencias.');
+  }
+  if(!out.length){
+    out.push('Graba de nuevo con el teléfono horizontal, apoyado y a la altura de tus manos, ' +
+      'con un solo swing completo y buena luz.');
+  }
+
+  out.push(angulo === 'dtl'
+    ? 'Grabaste <b>desde la línea de tiro</b>. Ese ángulo sirve para el plano, el path y la ' +
+      'postura; para la transferencia de peso y el punto bajo conviene el de frente.'
+    : 'Grabaste <b>de frente</b>. Ese ángulo sirve para el punto bajo, los tilts y la ' +
+      'transferencia de peso; para el path del palo conviene el de la línea de tiro.');
+
+  return out;
+}
+
 function calcularIndices(){
   var m = mapaEstados();
-  S.indices = ordenAsc().map(function(a){
-    var i = indiceDe(m[a.id] || {});
-    return { fecha:a.created_at, valor: i ? i.valor : null, evaluados: i ? i.evaluados : 0 };
-  }).filter(function(x){ return x.valor !== null; });
+  S.indices = ordenAsc()
+    .filter(function(a){ return calidadDe(a.id).nivel !== 'insuficiente'; })
+    .map(function(a){
+      var i = indiceDe(m[a.id] || {});
+      return { fecha:a.created_at, valor: i ? i.valor : null, evaluados: i ? i.evaluados : 0 };
+    }).filter(function(x){ return x.valor !== null; });
 }
 
 function indiceActual(){ return S.indices.length ? S.indices[S.indices.length-1].valor : null; }
@@ -1216,10 +1320,12 @@ function render(){
   calcular(); calcularTarjetas(); calcularHitos();
   var n = validos().length;
 
+  calcularCalidad();
   calcularIndices();
   pintarEncabezado(n);
 
   var h = bloqueOnboarding() +
+          bloqueCalidad() +
           bloqueFoco(focoActual(), n) +
           bloqueNumeros(n) +
           bloqueIndice() +
@@ -1598,13 +1704,12 @@ function bloqueIndice(){
 
   var n = S.indices.length;
   var act = indiceActual(), pri = indicePrimero();
-  /* El delta se calcula con los valores EXACTOS, no con los redondeados */
+  /* El delta se calcula con los valores exactos */
   var delta = (n >= CONFIG.MIN_GRAFICO) ? (act - pri) : null;
   var mostrado = act;
 
   h += '<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin:18px 0 6px">' +
-    '<span title="Valor exacto: ' + (act === null ? '—' : act) + '" ' +
-    'style="font-family:\'Bebas Neue\',sans-serif;font-size:62px;line-height:1;' +
+    '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:62px;line-height:1;' +
     'letter-spacing:1px;color:var(--teal)">' + (mostrado !== null ? mostrado : '—') + '</span>';
 
   if(delta !== null){
@@ -1612,6 +1717,9 @@ function bloqueIndice(){
       'text-transform:uppercase;font-weight:600;color:' +
       (delta > 0 ? 'var(--ok)' : delta < 0 ? 'var(--severo)' : 'var(--text-muted)') + '">' +
       (delta > 0 ? '+' : '') + delta + ' desde tu primer análisis</span>';
+  } else if(n === 0){
+    h += '<span class="nota-corta">Ninguna de tus mediciones tuvo calidad suficiente para calcular ' +
+      'el índice. Graba un video nuevo siguiendo las indicaciones de arriba.</span>';
   } else if(n === 2){
     h += '<span class="nota-corta">Con un análisis más vas a ver la tendencia</span>';
   } else {
@@ -1635,14 +1743,24 @@ function bloqueIndice(){
     'según su gravedad. Es más estable que el puntaje del análisis porque no depende de la calidad ' +
     'del video, sino de la evaluación de los 8 componentes, que sí es consistente entre un análisis ' +
     'y el siguiente. Cuando tienes pocas mediciones, fíjate en la dirección de la línea antes que ' +
-    'de mediciones que tienes, una diferencia menor que esa no significa nada. La tendencia, en ' +
-    'cambio, se calcula siempre con el valor exacto.</p>';
+    'en el número exacto. Los análisis cuyo video no se pudo leer bien quedan fuera de este ' +
+    'cálculo, para que una mala grabación no se confunda con un retroceso técnico.</p>';
+
+  var calUlt = calidadDe(ult.id);
 
   h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);' +
-    'font-size:13px;color:var(--text-muted)">Último swing · ' +
+    'font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+    '<span>Último swing · ' +
     '<a href="' + url + '" style="color:var(--teal);text-decoration:none">' + fecha(ult.created_at) + '</a> · ' +
     (ult.camera_angle==='dtl'?'Down the line':'De frente') +
-    (ult.nivel ? ' · ' + esc(ult.nivel) : '') + '</div>';
+    (ult.nivel ? ' · ' + esc(ult.nivel) : '') + '</span>' +
+    selloCalidad(calUlt.nivel) + '</div>';
+
+  if(calUlt.nivel === 'insuficiente'){
+    h += '<p style="font-size:13px;font-weight:300;color:var(--text-muted);line-height:1.6;margin-top:10px">' +
+      'Ese análisis no entró en el índice: ' + calUlt.n + ' de 8 componentes quedaron sin evaluar. ' +
+      'El número de arriba es el de tu última medición utilizable.</p>';
+  }
 
   return h + '</div></div>';
 }
@@ -1697,6 +1815,26 @@ function bloqueTraining(){
   }
 
   return h + '</div></div>';
+}
+
+/* ── 6.7 f · Aviso cuando el último video no sirvió ──
+   Solo aparece si la medición fue insuficiente. Con "parcial" basta el sello:
+   una franja roja cada vez que falta un componente sería ruido. */
+function bloqueCalidad(){
+  var ult = ultimoAnalisis();
+  if(!ult) return '';
+
+  var cal = calidadDe(ult.id);
+  if(cal.nivel !== 'insuficiente') return '';
+
+  var nombres = cal.grises.map(function(c){ return NOMBRES[c].toLowerCase(); }).join(', ');
+
+  return '<div class="calidad reveal"><div class="t">Tu último video no se pudo leer bien</div>' +
+    '<p>De los 8 componentes del swing, <b>' + cal.n + ' quedaron sin evaluar</b>: ' +
+    esc(nombres) + '. No significa que tu swing esté mal en esos puntos, significa que el video ' +
+    'no permitió verlos. Por eso este análisis <b>no entra en tu índice técnico</b>.</p><ul>' +
+    consejoGrabacion(cal, ult.camera_angle).map(function(x){ return '<li>' + x + '</li>'; }).join('') +
+    '</ul><a class="cta-vacio" href="' + CONFIG.RUTAS.coach + '">Grabar de nuevo</a></div>';
 }
 
 /* ── Franja de onboarding ── */
@@ -1880,6 +2018,20 @@ function cargarDemo(q){
   });
 
   var ult = S.analisis[S.analisis.length-1].id;
+
+  /* ?calidad=insuficiente|parcial|completa fuerza la calidad del último
+     análisis, para poder ver el aviso sin tener que grabar un video malo. */
+  var forzar = q && q.get('calidad');
+  if(forzar === 'insuficiente' || forzar === 'parcial' || forzar === 'completa'){
+    var dejarGrises = forzar === 'insuficiente' ? 5 : forzar === 'parcial' ? 3 : 0;
+    var orden = ['distancia','conexion','ground','cara','lowpoint','postura','secuencia','path'];
+    S.estados.forEach(function(e){
+      if(e.analysis_id !== ult) return;
+      var pos = orden.indexOf(e.componente);
+      if(pos > -1 && pos < dejarGrises) e.estado = 'no_evaluable';
+      else if(e.estado === 'no_evaluable') e.estado = 'leve';
+    });
+  }
   S.findings.push({ id:'f1', analysis_id:ult, orden:0, componente:'path', pilar:'KS', severidad:'media',
     titulo:'Path hacia adentro en la bajada',
     que_pasa:'El palo entra por dentro del plano y obliga a las manos a corregir en el impacto, lo que abre la cara y manda la bola a la derecha.',
@@ -1972,9 +2124,6 @@ function MGL_DASHBOARD_TEST(){
   t('6.3 · Gráfico solo desde 3 análisis',
     (S.indices.length >= CONFIG.MIN_GRAFICO) === !!$('chIndice'),
     S.indices.length + ' puntos · canvas ' + ($('chIndice') ? 'presente' : 'ausente'));
-  t('6.3 · Redondeo solo al imprimir',
-    redondear5(63) === 65 && redondear5(67) === 65 && (67 - 63) === 4,
-    'muestra 65 y 65, compara 63 y 67');
   t('6.3 · Texto de ancho completo', !!document.querySelector('.nota-indice') || S.analisis.length === 0, '');
 
   /* ── 6.4 ── */
@@ -1983,6 +2132,27 @@ function MGL_DASHBOARD_TEST(){
     document.querySelectorAll('.comp-fila').length + ' filas');
   t('6.4 · Celda de pilares repartida',
     S.analisis.length === 0 || !!document.querySelector('.celda-pilares'), '');
+
+  /* ── 6.7 f ── */
+  var ultA = ultimoAnalisis();
+  var calU = ultA ? calidadDe(ultA.id) : null;
+  t('6.7f · Calidad calculada de los 8 estados',
+    S.analisis.length === 0 || Object.keys(S.calidad).length === S.analisis.length,
+    Object.keys(S.calidad).length + ' de ' + S.analisis.length + ' análisis clasificados');
+  t('6.7f · Umbrales correctos',
+    ['completa','parcial','insuficiente'].indexOf(calU ? calU.nivel : 'completa') > -1,
+    calU ? (calU.n + ' de 8 sin evaluar → ' + etiquetaCalidad(calU.nivel)) : 'sin análisis');
+  t('6.7f · Insuficientes fuera del índice',
+    S.indices.length === ordenAsc().filter(function(a){
+      return calidadDe(a.id).nivel !== 'insuficiente'; }).filter(function(a){
+      return indiceDe(mapaEstados()[a.id] || {}) !== null; }).length,
+    ordenAsc().filter(function(a){ return calidadDe(a.id).nivel === 'insuficiente'; }).length +
+    ' excluidos por calidad');
+  t('6.7f · Aviso solo si es insuficiente',
+    (calU && calU.nivel === 'insuficiente') === !!document.querySelector('.calidad'),
+    document.querySelector('.calidad') ? 'aviso en pantalla' : 'sin aviso');
+  t('6.7f · Sello visible', S.analisis.length === 0 || !!document.querySelector('.sello'),
+    document.querySelectorAll('.sello').length + ' sellos');
 
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
@@ -2004,13 +2174,15 @@ function MGL_DASHBOARD_TEST(){
     S.sesionesOK ? S.sesiones.length + ' sesiones' : 'falta correr mgl-setup.sql');
   var ci = estadoCiclo();
   t('Franja de ciclo', S.analisis.length === 0 || !!ci, ci ? ci.fase : 'sin análisis');
-  t('Índice técnico', S.analisis.length === 0 || S.indices.length > 0,
-    S.indices.length ? 'exacto ' + indiceActual() + ' · se muestra ' + redondear5(indiceActual())
-                     : 'sin componentes evaluados');
+  var todosMalos = ordenAsc().length > 0 && ordenAsc().every(function(a){
+    return calidadDe(a.id).nivel === 'insuficiente'; });
+  t('Índice técnico', S.analisis.length === 0 || S.indices.length > 0 || todosMalos,
+    S.indices.length ? 'valor ' + indiceActual() + ' · ' + S.indices.length + ' mediciones utilizables'
+                     : (todosMalos ? 'ninguna medición utilizable todavía' : 'sin componentes evaluados'));
   t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.1 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.2 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
