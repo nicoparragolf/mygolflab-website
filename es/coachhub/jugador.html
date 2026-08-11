@@ -112,7 +112,10 @@
   .tl-event.milestone .tl-card{border-color:rgba(212,197,169,.35)}
   .tl-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
   .tl-title{font-family:'Barlow Condensed';font-weight:600;font-size:18px}
+  .tl-top-right{display:flex;align-items:center;gap:9px;flex-shrink:0}
   .tl-date{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tl-del{background:none;border:none;color:var(--muted2);font-size:19px;line-height:1;cursor:pointer;padding:0 1px;transition:color .15s}
+  .tl-del:hover{color:var(--red)}
   .tl-type{font-family:'Barlow Condensed';font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
   .tl-summary{font-size:14px;color:#cfcfcf;line-height:1.5}
   .tl-tags{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
@@ -946,10 +949,15 @@ function renderTimeline(){
     var ms = e.is_milestone ? ' milestone':'';
     var nMedia=(MEDIA_BY_EVENT[e.id]||[]).length;
     var delJugador = IS_COACH && e.created_by && e.created_by!==USER.id;
+    // el jugador solo puede borrar los eventos que registró él mismo; el coach borra cualquiera
+    var puedeBorrarEvento = IS_COACH || e.created_by===USER.id;
     html+='<div class="tl-event'+ms+'">'
        + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
        + '<div class="tl-card">'
-       +   '<div class="tl-top"><div class="tl-title">'+esc(e.title)+'</div><div class="tl-date">'+fmtDate(e.event_date)+'</div></div>'
+       +   '<div class="tl-top"><div class="tl-title">'+esc(e.title)+'</div>'
+       +     '<div class="tl-top-right"><div class="tl-date">'+fmtDate(e.event_date)+'</div>'
+       +     (puedeBorrarEvento?'<button class="tl-del" title="Eliminar evento" onclick="deleteEvent(\''+e.id+'\')">&times;</button>':'')
+       +     '</div></div>'
        +   '<div class="tl-type">'+esc(cfg.label)+'</div>'
        +   (e.summary?'<div class="tl-summary">'+esc(e.summary)+'</div>':'')
        +   '<div class="tl-tags">'
@@ -967,6 +975,44 @@ function renderTimeline(){
   hydrateThumbs();
 }
 function setFilterType(t){ FILTER_TYPE=t; renderTimeline(); }
+
+async function deleteEvent(id){
+  var e = EVENTS.find(function(x){ return x.id===id; });
+  if(!e) return;
+  if(!confirm('¿Eliminar este evento del timeline? También se borran sus archivos y métricas asociadas. No se puede recuperar.')) return;
+
+  var medias = MEDIA_BY_EVENT[id]||[];
+  var paths=[];
+  medias.forEach(function(m){
+    paths.push(m.storage_path);
+    if(m.thumb_path && m.thumb_path!==m.storage_path) paths.push(m.thumb_path);
+  });
+  if(paths.length){
+    var rs = await sb.storage.from(BUCKET).remove(paths);
+    if(rs.error){ console.warn('storage remove', rs.error); }
+  }
+  if(medias.length){
+    var rmed=await sb.from('player_media').delete().eq('event_id',id);
+    if(rmed.error){ showError('No se pudo eliminar los archivos del evento',errMsg(rmed.error)); return; }
+  }
+
+  var rmet=await sb.from('player_metrics').delete().eq('event_id',id);
+  if(rmet.error){ showError('No se pudo eliminar las métricas del evento',errMsg(rmet.error)); return; }
+
+  var r=await sb.from('player_events').delete().eq('id',id);
+  if(r.error){ showError('No se pudo eliminar el evento',errMsg(r.error)); return; }
+
+  toast('Evento eliminado');
+  await loadEvents(SEL.id);
+  await loadMedia(SEL.id);
+  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).maybeSingle();
+  if(sm.data){
+    var email=SEL.email, uid=SEL.user_id, cid=SEL.coach_id;
+    SEL=sm.data; SEL.email=email; SEL.user_id=uid; SEL.coach_id=cid;
+    if(IS_COACH){ PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?SEL:p;}); renderRoster(); }
+  }
+  renderProfile();
+}
 
 // ============================================================
 // MÉTRICAS
