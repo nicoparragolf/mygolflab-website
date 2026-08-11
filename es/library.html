@@ -1604,8 +1604,7 @@ handleDeepLink();
 
     client.from('profiles').select('plan, pro_expires_at').eq('id', session.user.id).single().then(function(r) {
       var profile = r.data;
-      var isPro = profile && profile.plan === 'pro' && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date());
-      if (!isPro) applyPaywall(true);
+      var isPro = profile && (profile.plan === 'pro' || profile.plan === 'elite') && (!profile.pro_expires_at || new Date(profile.pro_expires_at) > new Date());
     });
   });
 
