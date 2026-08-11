@@ -1600,7 +1600,7 @@ function bloqueIndice(){
   var act = indiceActual(), pri = indicePrimero();
   /* El delta se calcula con los valores EXACTOS, no con los redondeados */
   var delta = (n >= CONFIG.MIN_GRAFICO) ? (act - pri) : null;
-  var mostrado = redondear5(act);
+  var mostrado = act;
 
   h += '<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin:18px 0 6px">' +
     '<span title="Valor exacto: ' + (act === null ? '—' : act) + '" ' +
@@ -1634,7 +1634,7 @@ function bloqueIndice(){
   h += '<p class="nota-indice">Resume los 8 componentes de tu swing en una cifra: cada falla resta ' +
     'según su gravedad. Es más estable que el puntaje del análisis porque no depende de la calidad ' +
     'del video, sino de la evaluación de los 8 componentes, que sí es consistente entre un análisis ' +
-    'y el siguiente. El número se muestra redondeado a múltiplos de 5 a propósito: con la cantidad ' +
+    'y el siguiente. Cuando tienes pocas mediciones, fíjate en la dirección de la línea antes que ' +
     'de mediciones que tienes, una diferencia menor que esa no significa nada. La tendencia, en ' +
     'cambio, se calcula siempre con el valor exacto.</p>';
 
