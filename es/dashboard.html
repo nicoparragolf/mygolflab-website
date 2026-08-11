@@ -221,9 +221,16 @@
     line-height: 0.95; letter-spacing: 1px; margin-bottom: 14px;
   }
   .page-title span { color: var(--teal); }
-  .page-sub { font-size: 15.5px; font-weight: 300; color: var(--text-muted); line-height: 1.9; max-width: 620px; }
+  .page-sub { font-size: 15.5px; font-weight: 300; color: var(--text-muted); line-height: 1.9; max-width: 860px; }
   .page-sub b { color: var(--text); font-weight: 500; }
   .page-sub .sep { margin: 0 10px; opacity: 0.4; }
+
+  /* 6.1 · Cada dato del encabezado queda entero en su línea.
+     La clase la escribe el JavaScript; antes no existía ninguna regla
+     para ella y por eso "hace 5 días" se partía a la mitad. */
+  .page-sub .meta-linea { white-space: nowrap; display: inline-block; }
+  .page-sub .sep { display: inline-block; }
+
   .acciones-hero { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
   .btn-hero { display: inline-flex; align-items: center; gap: 8px; padding: 14px 30px;
     border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-size: 15px;
@@ -257,7 +264,9 @@
 
   /* ── Foco del día ── */
   .foco-nombre { font-family: 'Bebas Neue', sans-serif; font-size: 54px; line-height: 1; letter-spacing: 1px; margin-bottom: 14px; }
-  .foco-frase { font-size: 16px; font-weight: 300; line-height: 1.75; color: var(--text-muted); max-width: 54ch; margin-bottom: 26px; }
+  /* 6.5 · sin max-width: el texto ocupa el ancho de su celda, con el mismo
+     margen a izquierda y derecha */
+  .foco-frase { font-size: 16px; font-weight: 300; line-height: 1.75; color: var(--text-muted); margin-bottom: 26px; }
 
   .escala { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px; }
   .escala i { height: 9px; border-radius: 4px; background: var(--bg-elevated); display: block; }
@@ -292,7 +301,23 @@
   .aro-int { width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 1px; }
   .anillo .nom { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-muted); line-height: 1.3; }
   .anillo .est { font-size: 11px; margin-top: 2px; }
-  .pilares-pie { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* 6.4 · La celda de los pilares reparte su alto: anillos arriba,
+     listado de los 8 componentes al medio, resumen abajo. */
+  .celda-pilares { display: flex; flex-direction: column; }
+  .comp-lista { margin-top: 24px; }
+  .comp-fila {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-top: 1px solid var(--border);
+    font-size: 13px; line-height: 1.4;
+  }
+  .comp-fila:first-child { border-top: 0; }
+  .comp-fila i { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: block; }
+  .comp-fila .cn { flex: 1; min-width: 0; color: var(--text-muted); }
+  .comp-fila .cp { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 1.5px; color: var(--text-muted); opacity: 0.55; flex-shrink: 0; }
+  .comp-fila .ce { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; min-width: 74px; text-align: right; }
+
+  .pilares-pie { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-muted); line-height: 1.6; }
   .pilares-pie b { color: var(--text); font-weight: 600; }
   .pilares-pie a { color: var(--teal); text-decoration: none; }
 
@@ -301,6 +326,27 @@
   .num-lab { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-muted); }
   .celda.centro { text-align: center; padding: 30px 20px; }
   .celda.centro:hover { background: var(--bg-elevated); }
+
+  /* ── Índice técnico ── */
+  /* 6.3 · El texto explicativo ocupa el ancho completo del recuadro y se
+     reparte en dos columnas balanceadas cuando hay espacio. */
+  .nota-indice {
+    font-size: 13.5px; font-weight: 300; color: var(--text-muted);
+    line-height: 1.7; margin-top: 18px; max-width: none;
+  }
+  @media (min-width: 780px) {
+    .nota-indice { column-count: 2; column-gap: 40px; }
+  }
+  .nota-corta {
+    font-size: 13px; font-weight: 300; color: var(--text-muted);
+    line-height: 1.6; display: block;
+  }
+  .nota-muestra {
+    margin-top: 14px; padding: 12px 16px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-left: 2px solid var(--gold); border-radius: 0 10px 10px 0;
+    font-size: 13px; font-weight: 300; color: var(--text-muted); line-height: 1.6;
+  }
 
   /* ── Tarjetas de progreso ── */
   .tarj { display: flex; gap: 16px; align-items: flex-start; padding: 16px 0; border-top: 1px solid var(--border); }
@@ -384,6 +430,7 @@
     .celda { padding: 24px 22px; }
     .foco-nombre { font-size: 42px; }
     .anillos { grid-template-columns: 1fr 1fr; }
+    .comp-fila .cp { display: none; }
     .footer-top { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -531,14 +578,37 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.0 · 2026-07-30
+   MyGolfLab · Dashboard v5.1 · 2026-08-11
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
 
+   ── v5.1: CAMBIOS ─────────────────────────────────────────────────────────
+   6.1  La línea de metadatos ya no se parte. La clase .meta-linea que escribe
+        el JavaScript NO tenía ninguna regla en el CSS: no le faltaba una
+        propiedad, faltaba la clase entera. Ahora existe, con white-space.
+
+   6.2  Los enlaces llevan al análisis exacto: logbook.html#analisis-{id}.
+        Funciona en cuanto se instale la versión nueva de logbook.html; hasta
+        entonces el navegador ignora el # y abre el logbook normal.
+
+   6.3  El gráfico del índice aparece recién con 3 análisis. Con 1 o 2 se
+        muestra el número y una nota. Entre 3 y 5 se avisa que la muestra es
+        corta. El número se imprime redondeado a múltiplos de 5, pero la
+        tendencia se calcula SIEMPRE con el valor exacto: redondear lo que se
+        compara convertiría un avance de 4 puntos en uno de 5.
+        El texto explicativo ocupa el ancho completo, en dos columnas.
+
+   6.4  La celda de los pilares reparte su alto: anillos arriba, los 8
+        componentes con su estado al medio, resumen abajo.
+
+   6.5  Márgenes simétricos: se quitaron los max-width que dejaban aire
+        muerto a la derecha dentro de las celdas.
+
    Para ver la página sin tocar tus datos reales:
      ?demo=1            jugador con 7 análisis
      ?demo=1&n=3        con 3 análisis
+     ?demo=1&n=2        con 2 análisis (sin gráfico)
      ?demo=1&n=1        con 1 análisis
    ═══════════════════════════════════════════════════════════════════════════ */
 'use strict';
@@ -548,6 +618,11 @@ var CONFIG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao',
   BUCKET: 'swing-frames',
   DIAS_DATO_VIEJO: 21,
+
+  /* Con menos de este número de análisis no se dibuja la tendencia */
+  MIN_GRAFICO: 3,
+  /* Hasta este número, se avisa que la muestra es corta */
+  MUESTRA_CORTA: 5,
 
   /* Cuota de análisis al mes por plan. Ajusta con tus números reales. */
   CUOTAS: { basico: 8, pro: 30, elite: 60 },
@@ -731,6 +806,21 @@ function drillURL(id){
   return CONFIG.RUTAS.biblioteca + '?drill=' + encodeURIComponent(String(id).replace(/^drill-/,''));
 }
 
+/* ── 6.2 · Enlace directo a un análisis dentro del Logbook ──
+   El Logbook le pone id="analisis-{id}" a cada tarjeta, lee este # al cargar,
+   hace scroll hasta ella y la resalta. Si todavía no instalaste la versión
+   nueva del Logbook, el navegador ignora el # y abre la página normal. */
+function urlAnalisis(id){
+  return id ? (CONFIG.RUTAS.logbook + '#analisis-' + id) : CONFIG.RUTAS.logbook;
+}
+
+/* ── 6.3 · Redondeo del índice a múltiplos de 5 ──
+   SOLO para imprimir. Nunca para comparar: si se redondea antes de restar,
+   un avance real de 4 puntos se muestra como 5 y uno de 1 punto como 0. */
+function redondear5(n){
+  return (n === null || n === undefined) ? null : Math.round(n / 5) * 5;
+}
+
 /* ═══════════════ Carga de datos ═══════════════ */
 async function cargar(){
   S.sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -891,6 +981,7 @@ function tendencia(c){
   return 'estable';
 }
 function ultimaFecha(){ var v = ordenAsc(); return v.length ? v[v.length-1].created_at : null; }
+function ultimoAnalisis(){ var v = ordenAsc(); return v.length ? v[v.length-1] : null; }
 
 /* ── Índice técnico ──
    Un solo número de 0 a 100 derivado de los 8 componentes: cada uno resta
@@ -1088,7 +1179,7 @@ function calcularHitos(){
 
   S.analisis.forEach(function(a){
     if(!ok[a.id]) return;
-    out.push({ fecha:a.created_at, color:'teal',
+    out.push({ fecha:a.created_at, color:'teal', id:a.id,
       tx:'Análisis subido · <b>' + (a.camera_angle==='dtl'?'down the line':'de frente') + '</b>' +
          (a.score!=null ? ' · puntaje ' + a.score : '') });
   });
@@ -1097,7 +1188,7 @@ function calcularHitos(){
     var a = S.analisis.filter(function(x){ return x.id===f.analysis_id; })[0];
     if(!a || !ok[a.id]) return;
     var nd = S.drills.filter(function(d){ return d.finding_id===f.id; }).length;
-    out.push({ fecha:a.created_at,
+    out.push({ fecha:a.created_at, id:a.id,
       color: f.severidad==='alta'?'severo':f.severidad==='baja'?'leve':'moderado',
       tx:'<b>' + esc(f.titulo || NOMBRES[f.componente] || 'Diagnóstico') + '</b>' +
          (nd ? ' · ' + nd + (nd===1?' drill recomendado':' drills recomendados') : '') });
@@ -1105,7 +1196,8 @@ function calcularHitos(){
 
   COMPONENTES.forEach(function(c){
     S.comp[c].ciclo.filter(function(e){ return e.fin; }).forEach(function(e){
-      out.push({ fecha:e.fin, color:'ok', tx:'<b>' + NOMBRES[c] + '</b> se dio por resuelta' });
+      out.push({ fecha:e.fin, color:'ok', id:null,
+        tx:'<b>' + NOMBRES[c] + '</b> se dio por resuelta' });
     });
   });
 
@@ -1151,10 +1243,12 @@ function render(){
   observarReveal();
 }
 
-/* ── Gráfico del índice técnico ── */
+/* ── Gráfico del índice técnico ──
+   6.3 · Solo desde el tercer análisis. Con menos, la línea sube y baja por
+   ruido y da una sensación de precisión que los datos no tienen. */
 function dibujarGrafico(){
   var c = $('chIndice');
-  if(!c || !window.Chart || S.indices.length < 2) return;
+  if(!c || !window.Chart || S.indices.length < CONFIG.MIN_GRAFICO) return;
   var etiquetas = S.indices.map(function(x){
     return new Date(x.fecha).toLocaleDateString('es-CL',{day:'2-digit',month:'short'});
   });
@@ -1254,8 +1348,12 @@ function pintarEncabezado(n){
 
 /* ── Convierte un diagnóstico en 2-3 viñetas cortas ──
    Si la IA ya escribió viñetas (campo puntos), las usa. Si no, parte el
-   párrafo en frases y muestra las dos primeras, con enlace al detalle. */
+   párrafo en frases y muestra las dos primeras, con enlace al detalle.
+   6.2 · El enlace lleva al análisis exacto dentro del Logbook. */
 function vinetasDe(fi){
+  var enlace = '<a class="ver-detalle" href="' + urlAnalisis(fi && fi.analysis_id) +
+    '" style="display:inline-block;margin:-10px 0 20px">Ver el análisis completo →</a>';
+
   if(!fi) return '<p class="foco-frase">Este componente aparece con falla en tu última medición.</p>';
 
   var puntos = [];
@@ -1267,12 +1365,11 @@ function vinetasDe(fi){
                 .filter(function(x){ return x.length > 12; }).slice(0,2);
     if(!puntos.length && txt) puntos = [txt];
   }
-  if(!puntos.length) return '<p class="foco-frase">Este componente aparece con falla en tu última medición.</p>';
+  if(!puntos.length) return '<p class="foco-frase">Este componente aparece con falla en tu última medición.</p>' + enlace;
 
   return '<ul class="vinetas">' +
     puntos.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') +
-    '</ul><a class="ver-detalle" href="' + CONFIG.RUTAS.logbook +
-    '" style="display:inline-block;margin:-10px 0 20px">Ver el análisis completo →</a>';
+    '</ul>' + enlace;
 }
 
 /* ── 1 · Foco del día + anillos de pilares ── */
@@ -1367,7 +1464,24 @@ function bloqueFoco(f, n){
   });
   der += '</div>';
 
+  /* 6.4 · Los 8 componentes con su estado, agrupados por pilar.
+     Llena el alto de la celda con un dato útil en vez de aire. */
+  der += '<div class="comp-lista">';
+  PILARES.forEach(function(p){
+    p.comps.forEach(function(c){
+      var e = S.comp[c] ? S.comp[c].actual : null;
+      der += '<div class="comp-fila">' +
+        '<i style="background:' + colorEstado(e) + '"></i>' +
+        '<span class="cn">' + esc(NOMBRES[c]) + '</span>' +
+        '<span class="cp">' + p.k + '</span>' +
+        '<span class="ce" style="color:' + (e ? colorEstado(e) : 'var(--text-muted)') + '">' +
+        nombreEstado(e) + '</span></div>';
+    });
+  });
+  der += '</div>';
+
   var act = activas(), cer = cerradas();
+  var ultA = ultimoAnalisis();
   var resumen = [];
   if(totalEv) resumen.push('<b>' + totalOk + ' de ' + totalEv + '</b> componentes evaluados están sólidos');
   else resumen.push('Todavía sin componentes evaluados');
@@ -1375,12 +1489,12 @@ function bloqueFoco(f, n){
   if(cer) resumen.push(cer + (cer===1?' cerrada':' cerradas'));
 
   der += '<div class="pilares-pie">' + resumen.join(' · ') + '. ' +
-    '<a href="' + CONFIG.RUTAS.logbook + '">Ver el detalle de los 8 componentes →</a></div>';
+    '<a href="' + urlAnalisis(ultA && ultA.id) + '">Ver el análisis completo →</a></div>';
 
   var rej = '<div class="rejilla r-foco reveal" style="margin-bottom:0;border-bottom-left-radius:0;' +
     'border-bottom-right-radius:0">' +
     '<div class="celda">' + izq + '</div>' +
-    '<div class="celda">' + der + '</div></div>';
+    '<div class="celda celda-pilares">' + der + '</div></div>';
 
   var c = estadoCiclo();
   if(!c) return rej.replace(';border-bottom-left-radius:0;border-bottom-right-radius:0','');
@@ -1447,8 +1561,12 @@ function bloqueProgreso(n){
   } else {
     b += '<div class="linea-t">';
     S.hitos.slice(0,4).forEach(function(x){
+      /* 6.2 · si el hito viene de un análisis, la fecha lleva a él */
+      var cuando = x.id
+        ? '<a href="' + urlAnalisis(x.id) + '" style="color:inherit;text-decoration:none">' + hace(x.fecha) + '</a>'
+        : hace(x.fecha);
       b += '<div class="hito c-' + x.color + '"><div class="qq">' + x.tx + '</div>' +
-           '<div class="cuando">' + hace(x.fecha) + '</div></div>';
+           '<div class="cuando">' + cuando + '</div></div>';
     });
     b += '</div>';
   }
@@ -1457,15 +1575,19 @@ function bloqueProgreso(n){
   return '<div class="rejilla r-dos reveal">' + a + b + '</div>';
 }
 
-/* ── 4 · Índice técnico: un solo gráfico ── */
+/* ── 4 · Índice técnico ──
+   6.3 · Honestidad estadística: el gráfico solo desde el tercer análisis,
+   aviso de muestra corta entre 3 y 5, número redondeado a múltiplos de 5
+   y texto explicativo de ancho completo en dos columnas. */
 function bloqueIndice(){
   var lista = ordenAsc();
   var ult = lista.length ? lista[lista.length-1] : null;
+  var url = urlAnalisis(ult && ult.id);
 
   var h = '<div class="rejilla reveal"><div class="celda">' +
     '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">' +
     '<span class="rotulo" style="margin:0">Tu índice técnico</span>' +
-    '<a class="ver-detalle" href="' + CONFIG.RUTAS.logbook + '">Ver mi Logbook →</a></div>';
+    '<a class="ver-detalle" href="' + url + '">Ver mi Logbook →</a></div>';
 
   if(!ult){
     return h + '<div class="vacio" style="margin-top:18px"><div class="t">Sin análisis todavía</div>' +
@@ -1474,33 +1596,51 @@ function bloqueIndice(){
       '<a class="cta-vacio" href="' + CONFIG.RUTAS.coach + '">Subir mi primer swing</a></div></div></div>';
   }
 
+  var n = S.indices.length;
   var act = indiceActual(), pri = indicePrimero();
-  var delta = (S.indices.length >= 2) ? act - pri : null;
+  /* El delta se calcula con los valores EXACTOS, no con los redondeados */
+  var delta = (n >= CONFIG.MIN_GRAFICO) ? (act - pri) : null;
+  var mostrado = redondear5(act);
 
   h += '<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin:18px 0 6px">' +
-    '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:62px;line-height:1;' +
-    'letter-spacing:1px;color:var(--teal)">' + (act !== null ? act : '—') + '</span>' +
-    (delta !== null
-      ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;letter-spacing:1px;' +
-        'text-transform:uppercase;font-weight:600;color:' +
-        (delta > 0 ? 'var(--ok)' : delta < 0 ? 'var(--severo)' : 'var(--text-muted)') + '">' +
-        (delta > 0 ? '+' : '') + delta + ' desde tu primer análisis</span>'
-      : '<span style="font-size:13.5px;color:var(--text-muted)">Con el segundo análisis vas a ver la tendencia</span>') +
-    '</div>';
+    '<span title="Valor exacto: ' + (act === null ? '—' : act) + '" ' +
+    'style="font-family:\'Bebas Neue\',sans-serif;font-size:62px;line-height:1;' +
+    'letter-spacing:1px;color:var(--teal)">' + (mostrado !== null ? mostrado : '—') + '</span>';
 
-  if(S.indices.length >= 2){
+  if(delta !== null){
+    h += '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:14px;letter-spacing:1px;' +
+      'text-transform:uppercase;font-weight:600;color:' +
+      (delta > 0 ? 'var(--ok)' : delta < 0 ? 'var(--severo)' : 'var(--text-muted)') + '">' +
+      (delta > 0 ? '+' : '') + delta + ' desde tu primer análisis</span>';
+  } else if(n === 2){
+    h += '<span class="nota-corta">Con un análisis más vas a ver la tendencia</span>';
+  } else {
+    h += '<span class="nota-corta">Primera medición. Con dos análisis más vas a ver la tendencia</span>';
+  }
+  h += '</div>';
+
+  if(n >= CONFIG.MIN_GRAFICO){
     h += '<div style="position:relative;width:100%;height:190px;margin-top:14px">' +
       '<canvas id="chIndice" role="img" aria-label="Evolución del índice técnico: ' +
       S.indices.map(function(x){ return x.valor; }).join(', ') + '">Índice técnico por análisis: ' +
       S.indices.map(function(x){ return x.valor; }).join(', ') + '.</canvas></div>';
+
+    if(n <= CONFIG.MUESTRA_CORTA){
+      h += '<div class="nota-muestra">Muestra corta: llevas ' + n + ' mediciones. ' +
+        'Fíjate en la dirección de la línea, no en el número exacto.</div>';
+    }
   }
 
-  h += '<p style="font-size:13.5px;font-weight:300;color:var(--text-muted);line-height:1.7;' +
-    'margin-top:16px;max-width:64ch">Resume los 8 componentes en una cifra: cada falla resta según ' +
-    'su gravedad. Es más estable que el puntaje del análisis porque no depende de la calidad del video.</p>';
+  h += '<p class="nota-indice">Resume los 8 componentes de tu swing en una cifra: cada falla resta ' +
+    'según su gravedad. Es más estable que el puntaje del análisis porque no depende de la calidad ' +
+    'del video, sino de la evaluación de los 8 componentes, que sí es consistente entre un análisis ' +
+    'y el siguiente. El número se muestra redondeado a múltiplos de 5 a propósito: con la cantidad ' +
+    'de mediciones que tienes, una diferencia menor que esa no significa nada. La tendencia, en ' +
+    'cambio, se calcula siempre con el valor exacto.</p>';
 
   h += '<div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);' +
-    'font-size:13px;color:var(--text-muted)">Último swing · ' + fecha(ult.created_at) + ' · ' +
+    'font-size:13px;color:var(--text-muted)">Último swing · ' +
+    '<a href="' + url + '" style="color:var(--teal);text-decoration:none">' + fecha(ult.created_at) + '</a> · ' +
     (ult.camera_angle==='dtl'?'Down the line':'De frente') +
     (ult.nivel ? ' · ' + esc(ult.nivel) : '') + '</div>';
 
@@ -1819,6 +1959,31 @@ function MGL_DASHBOARD_TEST(){
   t('Anillos de pilares', document.querySelectorAll('.aro-ext').length === 4,
     pil.map(function(p){ return p.k + ' ' + p.solidos + '/' + p.evaluados; }).join(' · '));
 
+  /* ── 6.1 ── */
+  t('6.1 · Metadatos con nowrap', document.querySelectorAll('.meta-linea').length > 0,
+    document.querySelectorAll('.meta-linea').length + ' datos en el encabezado');
+
+  /* ── 6.2 ── */
+  var enlaces = document.querySelectorAll('a[href*="#analisis-"]').length;
+  t('6.2 · Enlaces al análisis exacto', S.analisis.length === 0 || enlaces > 0,
+    enlaces + ' enlaces con ancla');
+
+  /* ── 6.3 ── */
+  t('6.3 · Gráfico solo desde 3 análisis',
+    (S.indices.length >= CONFIG.MIN_GRAFICO) === !!$('chIndice'),
+    S.indices.length + ' puntos · canvas ' + ($('chIndice') ? 'presente' : 'ausente'));
+  t('6.3 · Redondeo solo al imprimir',
+    redondear5(63) === 65 && redondear5(67) === 65 && (67 - 63) === 4,
+    'muestra 65 y 65, compara 63 y 67');
+  t('6.3 · Texto de ancho completo', !!document.querySelector('.nota-indice') || S.analisis.length === 0, '');
+
+  /* ── 6.4 ── */
+  t('6.4 · Los 8 componentes listados',
+    S.analisis.length === 0 || document.querySelectorAll('.comp-fila').length === 8,
+    document.querySelectorAll('.comp-fila').length + ' filas');
+  t('6.4 · Celda de pilares repartida',
+    S.analisis.length === 0 || !!document.querySelector('.celda-pilares'), '');
+
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
     document.querySelectorAll('.escala i').length + ' segmentos');
@@ -1840,14 +2005,12 @@ function MGL_DASHBOARD_TEST(){
   var ci = estadoCiclo();
   t('Franja de ciclo', S.analisis.length === 0 || !!ci, ci ? ci.fase : 'sin análisis');
   t('Índice técnico', S.analisis.length === 0 || S.indices.length > 0,
-    S.indices.length ? 'actual ' + indiceActual() + ' · ' + S.indices.length + ' puntos'
+    S.indices.length ? 'exacto ' + indiceActual() + ' · se muestra ' + redondear5(indiceActual())
                      : 'sin componentes evaluados');
-  t('Gráfico dibujado', S.indices.length < 2 || !!$('chIndice'),
-    S.indices.length < 2 ? 'necesita 2 análisis' : 'canvas presente');
-  t('Chart.js cargado', !!window.Chart || S.indices.length < 2,
+  t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.0 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.1 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
