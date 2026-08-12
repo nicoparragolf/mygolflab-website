@@ -610,6 +610,82 @@
   @media (max-width: 900px) { .badges { grid-template-columns:repeat(3, 1fr); } }
   @media (max-width: 560px) { .badges { grid-template-columns:repeat(2, 1fr); } }
 
+  /* ── 6.6 · Entrenamiento ── */
+  .desatendida { display:flex; align-items:center; justify-content:space-between; gap:16px;
+    flex-wrap:wrap; margin:18px 0 4px; padding:12px 16px;
+    background:var(--bg-elevated); border:1px solid var(--border);
+    border-left:2px solid var(--leve); border-radius:0 10px 10px 0;
+    font-size:13.5px; font-weight:300; color:var(--text-muted); }
+  .desatendida b { color:var(--text); font-weight:600; }
+  .desatendida a { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:1.5px; text-transform:uppercase; color:var(--teal);
+    text-decoration:none; white-space:nowrap; }
+
+  .cifras { display:flex; gap:34px; flex-wrap:wrap; margin:20px 0 4px; }
+  .cif-n { font-family:'Bebas Neue', sans-serif; font-size:42px; line-height:1; letter-spacing:1px; }
+  .cif-d { display:block; font-family:'Barlow Condensed', sans-serif; font-size:11px;
+    font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    color:var(--text-muted); margin-top:4px; }
+  .cif-d.sube { color:var(--ok); }
+  .cif-d.baja { color:var(--moderado); }
+
+  .reparto { display:flex; height:10px; border-radius:5px; overflow:hidden;
+    background:var(--bg-elevated); margin-bottom:14px; }
+  .reparto i { display:block; height:100%; }
+  .leyenda { display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; }
+  .ley { display:flex; align-items:center; gap:9px; font-size:13px; }
+  .ley i { width:8px; height:8px; border-radius:2px; flex-shrink:0; }
+  .ley-n { flex:1; min-width:0; color:var(--text); }
+  .ley-v { font-family:'Barlow Condensed', sans-serif; font-size:12.5px;
+    color:var(--text-muted); white-space:nowrap; }
+
+  .nota-chica { font-size:12.5px; font-weight:300; line-height:1.65;
+    color:var(--text-muted); margin-top:12px; }
+  .nota-chica b { color:var(--text-muted); font-weight:600; }
+
+  .rejilla-int { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:28px;
+    padding-top:22px; border-top:1px solid var(--border); }
+  .cob-t { font-size:13.5px; font-weight:300; color:var(--text-muted); margin-bottom:12px; }
+  .cob-t b { color:var(--text); font-weight:600; }
+  .cob { display:flex; flex-wrap:wrap; gap:7px; }
+  .cob-a { display:inline-flex; align-items:center; gap:7px; padding:5px 11px;
+    border-radius:100px; border:1px solid var(--border); background:var(--bg-elevated);
+    font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:.5px; color:var(--text-muted); text-decoration:none; opacity:.6; }
+  .cob-a i { width:6px; height:6px; border-radius:50%; background:currentColor; display:block; }
+  .cob-a.on { color:var(--teal); border-color:var(--teal-mid);
+    background:var(--teal-dim); opacity:1; }
+  a.cob-a:hover { opacity:1; border-color:var(--text-muted); color:var(--text); }
+
+  .extremo { display:flex; align-items:baseline; gap:10px; padding:9px 0;
+    border-top:1px solid var(--border); }
+  .extremo:first-of-type { border-top:0; padding-top:0; }
+  .ex-lab { font-family:'Barlow Condensed', sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; color:var(--text-muted);
+    opacity:.65; min-width:64px; }
+  .ex-a { flex:1; font-size:13.5px; color:var(--text); }
+  .ex-p { font-family:'Bebas Neue', sans-serif; font-size:24px; letter-spacing:1px; }
+
+  .favs-wrap { margin-top:28px; padding-top:22px; border-top:1px solid var(--border); }
+  .favs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+  .fav { display:flex; align-items:center; gap:11px; padding:12px 14px;
+    background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
+    text-decoration:none; transition:all .2s; }
+  .fav:hover { border-color:rgba(212,197,169,.35); background:rgba(212,197,169,.05); }
+  .fav-ic { width:26px; height:26px; flex-shrink:0; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(212,197,169,.10); color:var(--gold); }
+  .fav-ic svg { width:13px; height:13px; }
+  .fav-t { min-width:0; }
+  .fav-n { display:block; font-family:'Barlow Condensed', sans-serif; font-size:14px;
+    font-weight:600; color:var(--text); line-height:1.25; }
+  .fav-a { display:block; font-size:11.5px; color:var(--text-muted); margin-top:1px; }
+
+  @media (max-width: 700px) {
+    .rejilla-int { grid-template-columns:1fr; gap:26px; }
+    .leyenda, .favs { grid-template-columns:1fr; }
+  }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -689,7 +765,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.4 · 2026-08-11
+   MyGolfLab · Dashboard v5.5 · 2026-08-12
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -890,7 +966,8 @@ var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
           analisis:[], estados:[], findings:[], drills:[], firmadas:{},
           comp:{}, tarjetas:[], hitos:[], indices:[], calidad:{},
           serieUtil:{}, eje:'recorrido',
-          badgesOK:false, badgesFila:{}, badges:[], celebrar:[] };
+          badgesOK:false, badgesFila:{}, badges:[], celebrar:[],
+          favOK:false, favoritos:[], catalogo:{} };
 
 /* Áreas de Training Lab, en el orden en que se muestran */
 var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
@@ -980,6 +1057,25 @@ async function cargar(){
       .eq('user_id', uid).order('created_at',{ascending:false}).limit(200);
     if(!ts.error){ S.sesiones = ts.data || []; S.sesionesOK = true; }
   }catch(e){ S.sesionesOK = false; }
+
+  /* Drills favoritos + el tipo de puntuación de cada drill del catálogo.
+     El tipo hace falta para el % de rendimiento: de los 270, 237 son
+     'numerica' y sí se pueden promediar; los 21 'logrado' darían siempre
+     0% o 100% y los 12 'distancia' pueden ser al revés (menos es mejor).
+     Mezclarlos daría un porcentaje que no significa nada. */
+  try{
+    var fv = await S.sb.from('drill_favoritos')
+      .select('drill_id,created_at').eq('user_id', uid)
+      .order('created_at',{ascending:false});
+    if(!fv.error){ S.favOK = true; S.favoritos = fv.data || []; }
+  }catch(e){ S.favOK = false; }
+
+  try{
+    var dr2 = await S.sb.from('drills').select('id,name,category,tipo_puntuacion');
+    if(!dr2.error){
+      (dr2.data||[]).forEach(function(d){ S.catalogo[String(d.id)] = d; });
+    }
+  }catch(e){ /* sin catálogo el bloque cae a sesiones y minutos */ }
 
   var an = await S.sb.from('swing_analyses')
     .select('id,created_at,camera_angle,score,nivel,resumen,frame_paths,prompt_version,input_handicap')
@@ -1552,34 +1648,105 @@ function estadoCiclo(){
   return { fase:fase, texto:texto, dias:d, sesiones:n, cta:cta };
 }
 
-/* ── Resumen de Training Lab ── */
+/* ── 6.6 · Resumen de Training Lab ────────────────────────────────────────
+   Rendimiento puro: no se cruza con la técnica del swing.
+
+   El reparto se hace POR MINUTOS si todas las sesiones del período tienen
+   duración registrada, y POR SESIONES si falta alguna, avisándolo en
+   pantalla. Repartir por minutos rellenando los que faltan con un promedio
+   sería inventar datos.
+
+   El % de rendimiento se calcula SOLO con drills de puntuación numérica.
+   Los de tipo 'logrado' dan siempre 0 o 100 y los de 'distancia' pueden ser
+   al revés: promediarlos juntos produce una cifra sin sentido. */
 function resumenEntrenamiento(){
   var hoy = new Date();
   var hace7 = new Date(hoy); hace7.setDate(hoy.getDate()-7);
-  var hace30 = new Date(hoy); hace30.setDate(hoy.getDate()-30);
+
+  function mesDe(f){ return String(f).slice(0,7); }
+  var mesActual = mesDe(hoy.toISOString());
+  var ant = new Date(hoy.getFullYear(), hoy.getMonth()-1, 1);
+  var mesAnterior = mesDe(ant.toISOString());
 
   var semana = S.sesiones.filter(function(s){ return new Date(s.created_at) >= hace7; });
-  var mes    = S.sesiones.filter(function(s){ return new Date(s.created_at) >= hace30; });
+  var esteMes = S.sesiones.filter(function(s){ return mesDe(s.created_at) === mesActual; });
+  var mesAnt  = S.sesiones.filter(function(s){ return mesDe(s.created_at) === mesAnterior; });
 
-  /* Puntaje medio por área, solo donde el jugador anotó resultado */
-  var areas = {};
-  mes.forEach(function(s){
-    var a = s.categoria || 'Otros';
-    if(!areas[a]) areas[a] = { n:0, suma:0, conPuntaje:0 };
-    areas[a].n++;
-    if(s.puntaje != null && s.puntaje_max){
-      areas[a].suma += (s.puntaje / s.puntaje_max) * 100;
-      areas[a].conPuntaje++;
+  function comparable(s){
+    var d = S.catalogo[String(s.drill_id)];
+    /* Sin catálogo cargado no se arriesga: solo cuentan los que sabemos
+       que son numéricos. Si no hay catálogo, no hay porcentaje. */
+    return d && d.tipo_puntuacion === 'numerica';
+  }
+
+  function analizar(lista){
+    var minutos = 0, sinDur = 0, areas = {};
+    lista.forEach(function(s){
+      var a = s.categoria || 'Otros';
+      if(!areas[a]) areas[a] = { n:0, min:0, suma:0, conPct:0 };
+      areas[a].n++;
+      if(s.duracion_min > 0){ areas[a].min += s.duracion_min; minutos += s.duracion_min; }
+      else sinDur++;
+      if(comparable(s) && s.puntaje != null && s.puntaje_max > 0){
+        areas[a].suma += (s.puntaje / s.puntaje_max) * 100;
+        areas[a].conPct++;
+      }
+    });
+    var porMinutos = lista.length > 0 && sinDur === 0 && minutos > 0;
+    var total = porMinutos ? minutos : lista.length;
+    var lista2 = Object.keys(areas).map(function(a){
+      var x = areas[a];
+      return { area:a, sesiones:x.n, minutos:x.min,
+        valor: porMinutos ? x.min : x.n,
+        pct: x.conPct ? Math.round(x.suma / x.conPct) : null,
+        conPct: x.conPct };
+    }).sort(function(p,q){ return q.valor - p.valor; });
+
+    var rend = null, conPctTotal = lista2.reduce(function(t,x){ return t + x.conPct; }, 0);
+    if(conPctTotal){
+      var acum = lista2.reduce(function(t,x){ return t + (x.pct||0) * x.conPct; }, 0);
+      rend = Math.round(acum / conPctTotal);
     }
+
+    return { n:lista.length, minutos:minutos, sinDur:sinDur, porMinutos:porMinutos,
+             total:total, areas:lista2, rendimiento:rend, conPct:conPctTotal };
+  }
+
+  var A = analizar(esteMes), B = analizar(mesAnt);
+
+  /* Área desatendida: más de 21 días sin tocarla, contando solo áreas que
+     el jugador SÍ ha entrenado alguna vez. Un área que nunca tocó no es
+     abandono, es cobertura, y eso se muestra aparte. */
+  var ultimaPorArea = {};
+  S.sesiones.forEach(function(s){
+    var a = s.categoria; if(!a) return;
+    if(!ultimaPorArea[a] || new Date(s.created_at) > new Date(ultimaPorArea[a]))
+      ultimaPorArea[a] = s.created_at;
   });
-  var lista = Object.keys(areas).map(function(a){
-    return { area:a, sesiones:areas[a].n,
-      pct: areas[a].conPuntaje ? Math.round(areas[a].suma / areas[a].conPuntaje) : null };
-  }).sort(function(x,y){ return y.sesiones - x.sesiones; });
+  var desatendida = null;
+  if(S.sesiones.length >= 5){
+    Object.keys(ultimaPorArea).forEach(function(a){
+      var d = dias(ultimaPorArea[a], hoy);
+      if(d > CONFIG.DIAS_DATO_VIEJO && (!desatendida || d > desatendida.dias))
+        desatendida = { area:a, dias:d };
+    });
+  }
 
-  var minutos = mes.reduce(function(t,s){ return t + (s.duracion_min || 0); }, 0);
+  /* Cobertura del mes */
+  var tocadas = {}; esteMes.forEach(function(s){ if(s.categoria) tocadas[s.categoria] = true; });
+  var faltantes = AREAS.filter(function(a){ return !tocadas[a]; });
 
-  return { semana:semana.length, mes:mes.length, areas:lista, minutos:minutos, total:S.sesiones.length };
+  /* Extremos por rendimiento, con mínimo de 3 sesiones puntuadas.
+     Un 100% con una sola sesión no es una fortaleza. */
+  var conMuestra = A.areas.filter(function(x){ return x.pct !== null && x.conPct >= 3; })
+    .sort(function(p,q){ return q.pct - p.pct; });
+  var mejor = conMuestra.length ? conMuestra[0] : null;
+  var peor  = conMuestra.length > 1 ? conMuestra[conMuestra.length-1] : null;
+
+  return { semana:semana.length, total:S.sesiones.length,
+           mes:A, mesAnt:B, desatendida:desatendida,
+           tocadas:Object.keys(tocadas).length, faltantes:faltantes,
+           mejor:mejor, peor:peor };
 }
 
 /* ── ¿Falta completar el perfil? ── */
@@ -2343,6 +2510,10 @@ function bloqueIndice(){
 }
 
 /* ── 5 · Training Lab ── */
+/* ── 5 · Training Lab ──
+   6.6 · Cuatro filas: aviso de área desatendida, cifras del período,
+   reparto por área y cobertura + extremos. Todo rendimiento, sin cruzar
+   con la técnica del swing. */
 function bloqueTraining(){
   var h = '<div class="rejilla reveal"><div class="celda">' +
     '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">' +
@@ -2360,38 +2531,157 @@ function bloqueTraining(){
 
   if(!r.total){
     return h + '<div class="vacio" style="margin-top:18px"><div class="t">Sin sesiones todavía</div>' +
-      '<div class="d">Cuando termines un drill en Training Lab, queda registrado acá con su área y ' +
-      'su puntaje. Con eso el dashboard puede decirte si entrenar está moviendo tu técnica.</div>' +
+      '<div class="d">Cuando termines un drill en Training Lab, queda registrado acá con su área, ' +
+      'su tiempo y su puntaje.</div>' +
       '<a class="cta-vacio" href="' + CONFIG.RUTAS.training + '">Empezar a entrenar</a></div></div></div>';
   }
 
-  h += '<div style="display:flex;gap:34px;flex-wrap:wrap;margin:18px 0 24px">' +
-    '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1;color:var(--teal)">' +
-      r.semana + '</div><div class="num-lab">Esta semana</div></div>' +
-    '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1">' +
-      r.mes + '</div><div class="num-lab">Últimos 30 días</div></div>' +
-    (r.minutos ? '<div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:42px;line-height:1;' +
-      'color:var(--gold)">' + Math.round(r.minutos/60) + 'h</div><div class="num-lab">Tiempo entrenado</div></div>' : '') +
-    '</div>';
+  /* ── Fila 0 · Área desatendida ── */
+  if(r.desatendida){
+    h += '<div class="desatendida"><span>Llevas <b>' + r.desatendida.dias + ' días</b> sin entrenar <b>' +
+      esc(r.desatendida.area) + '</b>.</span>' +
+      '<a href="' + CONFIG.RUTAS.training + '">Ir a ' + esc(r.desatendida.area) + ' →</a></div>';
+  }
 
-  if(r.areas.length){
-    h += '<span class="rotulo">Por área · últimos 30 días</span><div class="areas">';
-    r.areas.slice(0,6).forEach(function(a){
-      var pct = a.pct !== null ? a.pct : 0;
-      h += '<div class="area"><span class="nom">' + esc(a.area) + '</span>' +
-        '<span class="barra"><i style="width:' + pct + '%"></i></span>' +
-        '<span class="val">' + (a.pct !== null ? a.pct + '% · ' : '') +
-        a.sesiones + (a.sesiones===1?' sesión':' sesiones') + '</span></div>';
+  /* ── Fila 1 · Cifras del mes, con comparación contra el anterior ── */
+  var A = r.mes, B = r.mesAnt;
+  function delta(a, b, unidad){
+    if(!B.n) return '';
+    var d = a - b;
+    if(d === 0) return '<span class="cif-d">igual que el mes pasado</span>';
+    return '<span class="cif-d ' + (d > 0 ? 'sube' : 'baja') + '">' +
+      (d > 0 ? '↑ ' : '↓ ') + Math.abs(d) + (unidad ? ' ' + unidad : '') + ' vs mes anterior</span>';
+  }
+
+  h += '<div class="cifras">';
+  if(A.porMinutos){
+    h += '<div class="cif"><div class="cif-n">' + A.minutos + '</div>' +
+      '<div class="num-lab">Minutos este mes</div>' + delta(A.minutos, B.minutos, 'min') + '</div>';
+  }
+  h += '<div class="cif"><div class="cif-n">' + A.n + '</div>' +
+    '<div class="num-lab">' + (A.n===1?'Sesión este mes':'Sesiones este mes') + '</div>' +
+    delta(A.n, B.n, '') + '</div>';
+  h += '<div class="cif"><div class="cif-n" style="color:var(--teal)">' + r.semana + '</div>' +
+    '<div class="num-lab">Esta semana</div></div>';
+  if(A.rendimiento !== null){
+    h += '<div class="cif"><div class="cif-n" style="color:var(--gold)">' + A.rendimiento + '%</div>' +
+      '<div class="num-lab">Rendimiento</div>' +
+      (B.rendimiento !== null ? delta(A.rendimiento, B.rendimiento, 'pts') : '') + '</div>';
+  }
+  h += '</div>';
+
+  /* ── Fila 2 · Reparto por área ── */
+  if(A.areas.length){
+    var unidad = A.porMinutos ? 'minutos' : 'sesiones';
+    h += '<span class="rotulo" style="margin-top:26px">Reparto del mes · por ' + unidad + '</span>';
+
+    h += '<div class="reparto">';
+    A.areas.forEach(function(x, i){
+      var pct = A.total ? (x.valor / A.total) * 100 : 0;
+      h += '<i style="width:' + pct.toFixed(2) + '%;background:' + colorArea(x.area, i) + '" ' +
+        'title="' + esc(x.area) + '"></i>';
+    });
+    h += '</div><div class="leyenda">';
+    A.areas.forEach(function(x, i){
+      h += '<div class="ley"><i style="background:' + colorArea(x.area, i) + '"></i>' +
+        '<span class="ley-n">' + esc(x.area) + '</span>' +
+        '<span class="ley-v">' + (A.porMinutos ? x.minutos + ' min' :
+          x.sesiones + (x.sesiones===1?' sesión':' sesiones')) +
+        (x.pct !== null ? ' · ' + x.pct + '%' : '') + '</span></div>';
     });
     h += '</div>';
-    var sinPuntaje = r.areas.filter(function(a){ return a.pct === null; }).length;
-    if(sinPuntaje){
-      h += '<p style="font-size:13px;color:var(--text-muted);margin-top:14px">' +
-        'Las áreas sin porcentaje son sesiones en las que no anotaste tu puntaje.</p>';
+
+    if(!A.porMinutos && A.sinDur){
+      h += '<p class="nota-chica">Reparto por sesiones: ' + A.sinDur + ' de ' + A.n +
+        ' no tienen duración registrada. Anota los minutos al terminar un drill y el reparto ' +
+        'pasa a mostrarse por tiempo.</p>';
+    }
+    if(!A.conPct){
+      h += '<p class="nota-chica">Todavía sin porcentaje de rendimiento: se calcula solo con los ' +
+        'drills de puntuación numérica en los que anotaste tu resultado.</p>';
     }
   }
 
+  /* ── Fila 3 · Cobertura y extremos ── */
+  h += '<div class="rejilla-int">';
+
+  h += '<div><span class="rotulo">Cobertura del mes</span>' +
+    '<p class="cob-t">Tocaste <b>' + r.tocadas + ' de ' + AREAS.length + '</b> áreas del juego.</p>' +
+    '<div class="cob">';
+  AREAS.forEach(function(a){
+    var on = r.faltantes.indexOf(a) === -1;
+    h += on
+      ? '<span class="cob-a on"><i></i>' + esc(a) + '</span>'
+      : '<a class="cob-a" href="' + CONFIG.RUTAS.training + '"><i></i>' + esc(a) + '</a>';
+  });
+  h += '</div></div>';
+
+  h += '<div><span class="rotulo">Rendimiento por área</span>';
+  if(r.mejor){
+    h += '<div class="extremo"><span class="ex-lab">Mejor</span>' +
+      '<span class="ex-a">' + esc(r.mejor.area) + '</span>' +
+      '<span class="ex-p" style="color:var(--ok)">' + r.mejor.pct + '%</span></div>';
+    if(r.peor){
+      h += '<div class="extremo"><span class="ex-lab">Más flojo</span>' +
+        '<span class="ex-a">' + esc(r.peor.area) + '</span>' +
+        '<span class="ex-p" style="color:var(--moderado)">' + r.peor.pct + '%</span></div>';
+    }
+    h += '<p class="nota-chica">Solo se comparan áreas con 3 o más sesiones puntuadas este mes. ' +
+      'Un 100% con una sola sesión no dice nada.</p>';
+  } else {
+    h += '<p class="nota-chica">Necesitas al menos 3 sesiones puntuadas en una misma área para ' +
+      'poder compararlas. Anota tu puntaje al terminar cada drill.</p>';
+  }
+  h += '</div></div>';
+
+  /* ── Favoritos ── */
+  h += bloqueFavoritos();
+
   return h + '</div></div>';
+}
+
+/* Color estable por área: siempre el mismo en cada visita */
+function colorArea(a, i){
+  var c = { 'Putting':'#2dd4bf', 'Approach':'#3b82f6', 'Short Game':'#10b981',
+            'Tee':'#f59e0b', 'Mental':'#8b5cf6', 'Desafíos de Campo':'#fb923c' };
+  return c[a] || ['#2dd4bf','#3b82f6','#10b981','#f59e0b','#8b5cf6','#fb923c'][i % 6];
+}
+
+/* ── 6.6 · Drills favoritos ── */
+function bloqueFavoritos(){
+  if(!S.favOK){
+    return '<div class="favs-wrap"><span class="rotulo">Tus favoritos</span>' +
+      '<p class="nota-chica">Para marcar drills con estrella falta correr ' +
+      '<b>02-drill-favoritos.sql</b> en Supabase y subir <b>mgl-training.js</b>.</p></div>';
+  }
+
+  var h = '<div class="favs-wrap"><div style="display:flex;justify-content:space-between;' +
+    'align-items:baseline;gap:16px;flex-wrap:wrap">' +
+    '<span class="rotulo" style="margin:0">Tus favoritos</span>' +
+    (S.favoritos.length > 4 ? '<span class="badges-cuenta">' + S.favoritos.length + ' guardados</span>' : '') +
+    '</div>';
+
+  if(!S.favoritos.length){
+    h += '<p class="nota-chica">Todavía no marcas ningún drill. En Training Lab, abre cualquier ' +
+      'drill y aprieta la estrella: los que guardes aparecen acá con acceso directo.</p>';
+    return h + '</div>';
+  }
+
+  h += '<div class="favs">';
+  S.favoritos.slice(0,4).forEach(function(f){
+    var d = S.catalogo[String(f.drill_id)];
+    var nombre = d ? d.name : String(f.drill_id);
+    var area = d ? d.category : '';
+    h += '<a class="fav" href="' + CONFIG.RUTAS.training + '">' +
+      '<span class="fav-ic"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" ' +
+      'stroke-width="1.4" stroke-linejoin="round">' +
+      '<path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/>' +
+      '</svg></span><span class="fav-t"><span class="fav-n">' + esc(nombre) + '</span>' +
+      (area ? '<span class="fav-a">' + esc(area) + '</span>' : '') + '</span></a>';
+  });
+  h += '</div>';
+
+  return h + '</div>';
 }
 
 /* ── 6.7 f · Aviso cuando el último video no sirvió ──
@@ -2648,12 +2938,42 @@ function cargarDemo(q){
       ['Tee','drill-tee3','3-Strike Rule',2,'advanced',15,18],
       ['Mental','drill-me','Breath Gate',1,'intermediate',null,null]
     ];
+    /* ?desatendida=1 aleja el putting para ver el aviso de área abandonada */
+    if(q && q.get('desatendida') === '1'){ plan[4][3] = 34; plan[5][3] = 41; }
     plan.forEach(function(x, k){
+      /* ?duracion=0 deja sesiones sin minutos, para ver el reparto por sesiones */
+      var sinDur = q && q.get('duracion') === '0' && k % 3 === 0;
       S.sesiones.push({ id:'s'+k, created_at:atrasSesion(x[3]), drill_id:x[1], drill_nombre:x[2],
-        categoria:x[0], variante:x[4], puntaje:x[5], puntaje_max:x[6], duracion_min:25,
+        categoria:x[0], variante:x[4], puntaje:x[5], puntaje_max:x[6],
+        duracion_min: sinDur ? null : (18 + k * 4),
         componente:'path' });
     });
+    /* Mes anterior, para poder comparar */
+    [['Putting',40,4,5],['Tee',44,10,18],['Approach',52,8,15]].forEach(function(x, k){
+      S.sesiones.push({ id:'p'+k, created_at:atrasSesion(x[1]), drill_id:'drill-ant'+k,
+        drill_nombre:'Sesión anterior', categoria:x[0], variante:'intermediate',
+        puntaje:x[2], puntaje_max:x[3], duracion_min:30, componente:'path' });
+    });
   }
+
+  /* Catálogo y favoritos de mentira */
+  S.catalogo = {};
+  [['drill-tee','3-Zone Control','Tee'],['drill-tee2','Angle Targets','Tee'],
+   ['drill-tee3','3-Strike Rule','Tee'],['drill-ap','3 Lives 100-150Y','Approach'],
+   ['drill-ap2','3 Window Approach','Approach'],['drill-pu','5 Putts (10-15 pies)','Putting'],
+   ['drill-pu2','30 Feet Game','Putting'],['drill-sg','7-7-4 Short Game Combine','Short Game'],
+   ['drill-me','Breath Gate','Mental']].forEach(function(x){
+    S.catalogo[x[0]] = { id:x[0], name:x[1], category:x[2], tipo_puntuacion:'numerica' };
+  });
+  S.catalogo['drill-pu2'].tipo_puntuacion = 'logrado';
+  S.catalogo['drill-me'].tipo_puntuacion  = 'logrado';
+
+  S.favOK = !(q && q.get('favoritos') === '0');
+  S.favoritos = S.favOK && !(q && q.get('favoritos') === 'vacio')
+    ? [{ drill_id:'drill-tee',  created_at:atrasSesion(2) },
+       { drill_id:'drill-ap',   created_at:atrasSesion(9) },
+       { drill_id:'drill-pu',   created_at:atrasSesion(14) }]
+    : [];
 }
 
 /* ═══════════════ Autotest ═══════════════ */
@@ -2775,6 +3095,25 @@ function MGL_DASHBOARD_TEST(){
     diasEntrenados().length <= S.sesiones.length,
     diasEntrenados().length + ' días distintos de ' + S.sesiones.length + ' sesiones');
 
+  /* ── 6.6 ── */
+  var rt = S.sesionesOK ? resumenEntrenamiento() : null;
+  t('6.6 · Reparto por minutos o por sesiones',
+    !rt || rt.mes.porMinutos === (rt.mes.n > 0 && rt.mes.sinDur === 0 && rt.mes.minutos > 0),
+    rt ? (rt.mes.porMinutos ? 'por minutos (' + rt.mes.minutos + ')'
+        : 'por sesiones · ' + rt.mes.sinDur + ' sin duración') : 'sin tabla');
+  t('6.6 · Porcentaje solo con puntuación numérica',
+    !rt || rt.mes.areas.every(function(x){ return x.pct === null || x.conPct > 0; }),
+    rt ? rt.mes.conPct + ' sesiones comparables' : '—');
+  t('6.6 · Extremos con mínimo de 3 sesiones',
+    !rt || !rt.mejor || rt.mejor.conPct >= 3,
+    rt && rt.mejor ? rt.mejor.area + ' ' + rt.mejor.pct + '%' : 'muestra insuficiente');
+  t('6.6 · Cobertura de las 6 áreas',
+    !rt || (rt.tocadas + rt.faltantes.length) === AREAS.length,
+    rt ? rt.tocadas + ' de ' + AREAS.length + ' tocadas' : '—');
+  t('6.6 · Tabla drill_favoritos', S.demo || S.favOK,
+    S.demo ? 'modo demo' : (S.favOK ? S.favoritos.length + ' favoritos'
+                                    : 'falta correr 02-drill-favoritos.sql'));
+
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
     document.querySelectorAll('.escala i').length + ' segmentos');
@@ -2803,7 +3142,7 @@ function MGL_DASHBOARD_TEST(){
   t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.4 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.5 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
