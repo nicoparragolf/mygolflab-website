@@ -523,6 +523,46 @@
   .calidad li::before { content:''; position:absolute; left:2px; top:11px; width:5px; height:5px;
     border-radius:50%; background:var(--severo); }
 
+  /* ── 6.7 a · Tu recorrido ── */
+  .ejes { display:flex; gap:8px; margin:0 0 16px; flex-wrap:wrap; }
+  .eje { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:1.5px; text-transform:uppercase; padding:7px 16px; border-radius:20px;
+    border:1px solid var(--border-mid); color:var(--text-muted); background:transparent;
+    cursor:pointer; transition:all .2s; white-space:nowrap; }
+  .eje:hover { border-color:var(--teal); color:var(--teal); }
+  .eje.on { background:var(--teal); color:#0a0a0a; border-color:var(--teal); font-weight:700; }
+
+  .rec-resumen { font-size:14px; font-weight:300; line-height:1.75; color:var(--text-muted);
+    margin-bottom:22px; }
+  .rec-resumen b { color:var(--text); font-weight:600; }
+
+  .rec-grupo { margin-bottom:18px; }
+  .rec-grupo:last-of-type { margin-bottom:0; }
+  .rec-lab { font-family:'Barlow Condensed', sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:2.5px; text-transform:uppercase; color:var(--text-muted);
+    opacity:.65; margin-bottom:4px; }
+  .rec-fila { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding:9px 0; border-top:1px solid var(--border); }
+  .rec-nom { flex:1; min-width:96px; font-size:13.5px; color:var(--text); }
+  .rec-paso { display:inline-flex; align-items:center; gap:8px;
+    font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:1px; text-transform:uppercase; }
+  .rec-flecha { font-style:normal; color:var(--text-muted); }
+  .rec-flecha.dud { opacity:.4; }
+  .rec-tag { font-family:'Barlow Condensed', sans-serif; font-size:10.5px; font-weight:700;
+    letter-spacing:1.5px; text-transform:uppercase; padding:3px 9px; border-radius:100px;
+    border:1px solid; white-space:nowrap; }
+  .rec-tag.mejoro     { color:var(--ok);         border-color:rgba(34,197,94,0.35);  background:rgba(34,197,94,0.08); }
+  .rec-tag.retrocedio { color:var(--severo);     border-color:rgba(239,68,68,0.35);  background:rgba(239,68,68,0.08); }
+  .rec-tag.igual      { color:var(--text-muted); border-color:var(--border-mid); }
+  .rec-tag.nuevo      { color:var(--teal);       border-color:var(--teal-mid);       background:var(--teal-dim); }
+  .rec-tag.sin        { color:var(--text-muted); border-color:var(--border); opacity:.6; }
+  .rec-dud { font-family:'Barlow Condensed', sans-serif; font-size:10.5px; letter-spacing:1px;
+    text-transform:uppercase; color:var(--text-muted); opacity:.7; }
+  .rec-pie { margin-top:20px; padding-top:16px; border-top:1px solid var(--border);
+    font-size:12.5px; font-weight:300; line-height:1.7; color:var(--text-muted); }
+  .rec-pie b { color:var(--text-muted); font-weight:600; }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -602,7 +642,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.2 · 2026-08-11
+   MyGolfLab · Dashboard v5.3 · 2026-08-11
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -636,6 +676,15 @@
    migrados, y el jugador recibe un diagnóstico de su grabación deducido de
    QUÉ componentes fallaron, no un "no se pudo evaluar" genérico.
    El índice vuelve a mostrarse con su valor exacto, sin redondear.
+
+   ── v5.3: TU RECORRIDO (puntos 6.7 a y 6.7 e) ─────────────────────────────
+   Comparador antes/después con dos ejes: "Recorrido" compara tu primer
+   análisis con hoy, "Último cambio" compara el anterior con hoy. Son dos
+   preguntas distintas y hasta ahora no había forma de responder ninguna.
+   Excluye migrados e insuficientes, respeta la regla de 2 de 3 y marca
+   "por confirmar" los cambios que aparecieron una sola vez.
+   El bloque sube al cuarto lugar, junto a Progreso inteligente, que estaba
+   enterrado al final. Actividad reciente queda sola al cierre.
 
    Para ver la página sin tocar tus datos reales:
      ?demo=1            jugador con 7 análisis
@@ -792,7 +841,8 @@ var DRILLS = {
 var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
           perfil:{}, perfilOK:false, sesiones:[], sesionesOK:false,
           analisis:[], estados:[], findings:[], drills:[], firmadas:{},
-          comp:{}, tarjetas:[], hitos:[], indices:[], calidad:{} };
+          comp:{}, tarjetas:[], hitos:[], indices:[], calidad:{},
+          serieUtil:{}, eje:'recorrido' };
 
 /* Áreas de Training Lab, en el orden en que se muestran */
 var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
@@ -1100,6 +1150,60 @@ function consejoGrabacion(cal, angulo){
   return out;
 }
 
+/* ── 6.7 a · TU RECORRIDO ─────────────────────────────────────────────────
+   El comparador responde dos preguntas distintas que hasta ahora se
+   confundían en una sola pantalla:
+
+     Recorrido      primer análisis → hoy   ¿mejoré desde que empecé?
+     Último cambio  anterior → hoy          ¿qué se movió esta vez?
+
+   Reglas que lo mantienen honesto:
+   · Solo entran mediciones utilizables: fuera los migrados y los de calidad
+     insuficiente. Una mala grabación no es un retroceso técnico.
+   · Solo cuentan las lecturas en que ese componente sí se pudo evaluar.
+   · Un cambio que aparece una sola vez sale "por confirmar" (regla de 2 de 3).
+   · Un componente que antes era no_evaluable y ahora tiene estado no mejoró:
+     es un dato nuevo, y se marca como tal. */
+function analisisUtiles(){
+  return ordenAsc().filter(function(a){ return calidadDe(a.id).nivel !== 'insuficiente'; });
+}
+
+function calcularSeriesUtiles(){
+  var m = mapaEstados(), lista = analisisUtiles();
+  S.serieUtil = {};
+  COMPONENTES.forEach(function(c){
+    S.serieUtil[c] = lista.map(function(a){
+      return { fecha:a.created_at, estado:(m[a.id]||{})[c] };
+    }).filter(function(x){ return x.estado && x.estado !== 'no_evaluable'; });
+  });
+}
+
+function filasRecorrido(eje){
+  return COMPONENTES.map(function(c){
+    var s = S.serieUtil[c] || [];
+    var f = { comp:c, pilar:PILAR_DE[c], base:null, actual:null,
+              tipo:'sin', delta:0, confirmado:true };
+    if(!s.length) return f;
+
+    f.actual = s[s.length-1].estado;
+    if(s.length === 1){ f.tipo = 'nuevo'; return f; }
+
+    f.base  = (eje === 'ultimo') ? s[s.length-2].estado : s[0].estado;
+    f.delta = PESO[f.base] - PESO[f.actual];     /* positivo = mejoró */
+    f.tipo  = f.delta > 0 ? 'mejoro' : (f.delta < 0 ? 'retrocedio' : 'igual');
+
+    /* Regla de 2 de 3 sobre el estado actual */
+    var u3 = s.slice(-3);
+    f.confirmado = u3.filter(function(x){ return x.estado === f.actual; }).length >= 2;
+    return f;
+  });
+}
+
+function etiquetaCambio(t){
+  return t === 'mejoro' ? 'Mejoró' : t === 'retrocedio' ? 'Retrocedió'
+       : t === 'igual'  ? 'Igual'  : t === 'nuevo' ? 'Primera lectura' : 'Sin datos';
+}
+
 function calcularIndices(){
   var m = mapaEstados();
   S.indices = ordenAsc()
@@ -1321,19 +1425,29 @@ function render(){
   var n = validos().length;
 
   calcularCalidad();
+  calcularSeriesUtiles();
   calcularIndices();
   pintarEncabezado(n);
 
   var h = bloqueOnboarding() +
           bloqueCalidad() +
           bloqueFoco(focoActual(), n) +
+          bloqueRecorrido(n) +
           bloqueNumeros(n) +
           bloqueIndice() +
           bloqueTraining() +
-          bloqueProgreso(n);
+          bloqueActividad(n);
   $('app').innerHTML = h;
 
   pintarBarra();
+
+  /* Selector de ejes del comparador */
+  document.querySelectorAll('[data-eje]').forEach(function(b){
+    b.addEventListener('click', function(){
+      S.eje = this.getAttribute('data-eje');
+      render();
+    });
+  });
 
   var b = $('bReceta');
   if(b) b.addEventListener('click', function(){
@@ -1642,23 +1756,109 @@ function bloqueNumeros(n){
     '</div>';
 }
 
-/* ── 3 · Progreso inteligente + Actividad reciente ── */
-function bloqueProgreso(n){
+/* ── 3 · Tu recorrido: comparador + progreso inteligente ──
+   6.7 e · Sube al cuarto lugar. Es lo más interesante que produce la
+   plataforma y estaba enterrado bajo el scroll, después del entrenamiento. */
+function bloqueRecorrido(n){
   if(n === 0) return '';
 
-  var a = '<div class="celda"><span class="rotulo">Progreso inteligente</span>';
+  var utiles = analisisUtiles();
+  var izq = '<div class="celda"><span class="rotulo teal">Tu recorrido</span>';
+
+  if(utiles.length < 2){
+    izq += '<div class="vacio"><div class="t">Falta una medición</div><div class="d">' +
+      'Con dos análisis utilizables acá vas a ver, componente por componente, qué mejoró, ' +
+      'qué sigue igual y qué retrocedió. Hoy tienes ' + utiles.length + '.</div>' +
+      '<a class="cta-vacio" href="' + CONFIG.RUTAS.coach + '">Analizar otro swing</a></div>';
+  } else {
+    var eje = S.eje === 'ultimo' ? 'ultimo' : 'recorrido';
+    var filas = filasRecorrido(eje);
+
+    izq += '<div class="ejes">' +
+      '<button class="eje' + (eje==='recorrido'?' on':'') + '" data-eje="recorrido">Recorrido</button>' +
+      '<button class="eje' + (eje==='ultimo'?' on':'') + '" data-eje="ultimo">Último cambio</button>' +
+      '</div>';
+
+    /* Encabezado armado con los datos, no escrito a mano */
+    var mej = filas.filter(function(f){ return f.tipo==='mejoro'; }).length;
+    var ret = filas.filter(function(f){ return f.tipo==='retrocedio'; }).length;
+    var ig  = filas.filter(function(f){ return f.tipo==='igual'; }).length;
+    var cuenta = [];
+    if(mej) cuenta.push('<b>' + mej + '</b> ' + (mej===1?'mejoró':'mejoraron'));
+    if(ig)  cuenta.push('<b>' + ig + '</b> ' + (ig===1?'sigue igual':'siguen igual'));
+    if(ret) cuenta.push('<b>' + ret + '</b> ' + (ret===1?'retrocedió':'retrocedieron'));
+    if(!cuenta.length) cuenta.push('todavía no hay componentes con dos lecturas');
+
+    var cab;
+    if(eje === 'recorrido'){
+      var pri = utiles[0], d = dias(pri.created_at, utiles[utiles.length-1].created_at);
+      cab = 'Desde tu primer análisis (' + fecha(pri.created_at) + ' · ' + d +
+            (d===1?' día':' días') + ' · ' + utiles.length + ' mediciones): ' + cuenta.join(', ') + '.';
+    } else {
+      var a1 = utiles[utiles.length-2], a2 = utiles[utiles.length-1];
+      var dd = dias(a1.created_at, a2.created_at);
+      cab = 'Entre tus dos últimas mediciones (' + fecha(a1.created_at) + ' → ' +
+            fecha(a2.created_at) + ', ' + dd + (dd===1?' día':' días') + '): ' + cuenta.join(', ') + '.';
+    }
+    izq += '<p class="rec-resumen">' + cab + '</p>';
+
+    /* Agrupado por pilar; dentro de cada pilar, primero lo que más se movió */
+    PILARES.forEach(function(p){
+      var delGrupo = filas.filter(function(f){ return p.comps.indexOf(f.comp) > -1; })
+        .sort(function(a,b){ return Math.abs(b.delta) - Math.abs(a.delta); });
+
+      izq += '<div class="rec-grupo"><div class="rec-lab">' + p.k + ' · ' + esc(p.nombre) + '</div>';
+      delGrupo.forEach(function(f){
+        izq += '<div class="rec-fila"><span class="rec-nom">' + esc(NOMBRES[f.comp]) + '</span>';
+
+        if(f.tipo === 'sin'){
+          izq += '<span class="rec-paso" style="color:var(--text-muted)">Nunca evaluado</span>';
+        } else if(f.tipo === 'nuevo'){
+          izq += '<span class="rec-paso" style="color:' + colorEstado(f.actual) + '">' +
+                 nombreEstado(f.actual) + '</span>';
+        } else {
+          izq += '<span class="rec-paso">' +
+            '<b style="color:' + colorEstado(f.base) + '">' + nombreEstado(f.base) + '</b>' +
+            '<i class="rec-flecha' + (f.confirmado || f.tipo==='igual' ? '' : ' dud') + '">→</i>' +
+            '<b style="color:' + colorEstado(f.actual) + '">' + nombreEstado(f.actual) + '</b></span>';
+        }
+
+        izq += '<span class="rec-tag ' + f.tipo + '">' + etiquetaCambio(f.tipo) + '</span>';
+        if(f.tipo !== 'igual' && f.tipo !== 'sin' && f.tipo !== 'nuevo' && !f.confirmado){
+          izq += '<span class="rec-dud">por confirmar</span>';
+        }
+        izq += '</div>';
+      });
+      izq += '</div>';
+    });
+
+    izq += '<p class="rec-pie">Solo se comparan las mediciones en que ese componente sí se pudo ' +
+      'evaluar. Los análisis migrados y los de calidad insuficiente quedan fuera. ' +
+      '<b>Por confirmar</b> significa que el cambio apareció una sola vez: con una medición más ' +
+      'sabremos si es real.</p>';
+  }
+  izq += '</div>';
+
+  var der = '<div class="celda"><span class="rotulo">Progreso inteligente</span>';
   if(!S.tarjetas.length){
-    a += '<div class="vacio"><div class="t">Sin conclusiones todavía</div><div class="d">' +
+    der += '<div class="vacio"><div class="t">Sin conclusiones todavía</div><div class="d">' +
          'Aparecen a partir del segundo análisis: fallas que cerraste, las que reaparecieron ' +
          'y las que se están deteriorando.</div></div>';
   } else {
     S.tarjetas.forEach(function(t){
-      a += '<div class="tarj"><div class="cifra">' + t.cifra +
+      der += '<div class="tarj"><div class="cifra">' + t.cifra +
            '<small>' + esc(t.unidad) + '</small></div>' +
            '<div class="txt">' + t.tx + '</div></div>';
     });
   }
-  a += '</div>';
+  der += '</div>';
+
+  return '<div class="rejilla r-foco reveal">' + izq + der + '</div>';
+}
+
+/* ── Actividad reciente ── */
+function bloqueActividad(n){
+  if(n === 0) return '';
 
   var b = '<div class="celda"><span class="rotulo">Actividad reciente</span>';
   if(!S.hitos.length){
@@ -1666,7 +1866,7 @@ function bloqueProgreso(n){
          'Cada análisis, diagnóstico y falla resuelta queda registrado acá.</div></div>';
   } else {
     b += '<div class="linea-t">';
-    S.hitos.slice(0,4).forEach(function(x){
+    S.hitos.slice(0,6).forEach(function(x){
       /* 6.2 · si el hito viene de un análisis, la fecha lleva a él */
       var cuando = x.id
         ? '<a href="' + urlAnalisis(x.id) + '" style="color:inherit;text-decoration:none">' + hace(x.fecha) + '</a>'
@@ -1678,7 +1878,7 @@ function bloqueProgreso(n){
   }
   b += '</div>';
 
-  return '<div class="rejilla r-dos reveal">' + a + b + '</div>';
+  return '<div class="rejilla reveal">' + b + '</div>';
 }
 
 /* ── 4 · Índice técnico ──
@@ -2154,6 +2354,29 @@ function MGL_DASHBOARD_TEST(){
   t('6.7f · Sello visible', S.analisis.length === 0 || !!document.querySelector('.sello'),
     document.querySelectorAll('.sello').length + ' sellos');
 
+  /* ── 6.7 a ── */
+  var utilesN = analisisUtiles().length;
+  var filasR = filasRecorrido(S.eje);
+  t('6.7a · Comparador en pantalla',
+    (utilesN >= 2) === (document.querySelectorAll('.rec-fila').length === 8),
+    document.querySelectorAll('.rec-fila').length + ' filas · ' + utilesN + ' mediciones utilizables');
+  t('6.7a · Selector de dos ejes',
+    utilesN < 2 || document.querySelectorAll('[data-eje]').length === 2,
+    'eje actual: ' + S.eje);
+  t('6.7a · Insuficientes fuera del recorrido',
+    utilesN === ordenAsc().filter(function(a){
+      return calidadDe(a.id).nivel !== 'insuficiente'; }).length,
+    (ordenAsc().length - utilesN) + ' excluidos');
+  t('6.7a · Sin lecturas previas no inventa cambios',
+    filasR.filter(function(x){ return x.tipo==='mejoro' || x.tipo==='retrocedio'; })
+          .every(function(x){ return x.base !== null; }),
+    filasR.filter(function(x){ return x.tipo==='nuevo'; }).length + ' marcados primera lectura');
+  t('6.7e · Recorrido antes que los números',
+    S.analisis.length === 0 || !document.querySelector('.rec-fila') ||
+    document.querySelector('.rec-fila').compareDocumentPosition(
+      document.querySelector('.num')) === 4,
+    'orden de bloques');
+
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
     document.querySelectorAll('.escala i').length + ' segmentos');
@@ -2182,7 +2405,7 @@ function MGL_DASHBOARD_TEST(){
   t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.2 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.3 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
