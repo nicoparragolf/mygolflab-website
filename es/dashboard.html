@@ -563,6 +563,53 @@
     font-size:12.5px; font-weight:300; line-height:1.7; color:var(--text-muted); }
   .rec-pie b { color:var(--text-muted); font-weight:600; }
 
+  /* ── 6.7 b · Logros ── */
+  .celebra { max-width:1100px; margin:0 auto 24px; background:var(--bg-card);
+    border:1px solid var(--border-mid); border-left:3px solid var(--gold);
+    border-radius:0 14px 14px 0; padding:22px 26px;
+    display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
+  .celebra-ic { width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    background:rgba(212,197,169,0.10); border:1px solid rgba(212,197,169,0.30);
+    display:flex; align-items:center; justify-content:center; color:var(--gold); }
+  .celebra-ic svg { width:26px; height:26px; }
+  .celebra-txt { flex:1; min-width:240px; }
+  .celebra-txt .t { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+  .celebra-nom { font-family:'Bebas Neue', sans-serif; font-size:32px; line-height:1;
+    letter-spacing:1px; margin-bottom:10px; }
+  .celebra-txt p { font-size:14.5px; font-weight:300; line-height:1.75;
+    color:var(--text-muted); margin-bottom:8px; }
+  .celebra-txt p b { color:var(--text); font-weight:500; }
+
+  .badges-cuenta { font-family:'Barlow Condensed', sans-serif; font-size:13px;
+    font-weight:600; letter-spacing:1.5px; color:var(--teal); }
+  .badges { display:grid; grid-template-columns:repeat(4, 1fr); gap:1px;
+    background:var(--border); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden; margin-top:18px; }
+  .badge { background:var(--bg-card); padding:16px 14px; text-align:center; }
+  .badge-ic { width:34px; height:34px; border-radius:10px; margin:0 auto 10px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg-elevated); border:1px solid var(--border);
+    color:var(--text-muted); opacity:.5; }
+  .badge-ic svg { width:17px; height:17px; }
+  .badge.on .badge-ic { background:var(--teal-dim); border-color:var(--teal-mid);
+    color:var(--teal); opacity:1; }
+  .badge.nuevo .badge-ic { background:rgba(212,197,169,0.12);
+    border-color:rgba(212,197,169,0.35); color:var(--gold); }
+  .badge-fam { font-family:'Barlow Condensed', sans-serif; font-size:9.5px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; color:var(--text-muted);
+    opacity:.55; margin-bottom:3px; }
+  .badge-nom { font-family:'Barlow Condensed', sans-serif; font-size:14px; font-weight:600;
+    line-height:1.2; color:var(--text-muted); margin-bottom:5px; }
+  .badge.on .badge-nom { color:var(--text); }
+  .badge-pie { font-size:11.5px; font-weight:300; line-height:1.45;
+    color:var(--text-muted); opacity:.7; }
+  .badge.on .badge-pie { color:var(--teal); opacity:.85; }
+  .badges-pie { margin-top:18px; font-size:12.5px; font-weight:300;
+    line-height:1.7; color:var(--text-muted); }
+  @media (max-width: 900px) { .badges { grid-template-columns:repeat(3, 1fr); } }
+  @media (max-width: 560px) { .badges { grid-template-columns:repeat(2, 1fr); } }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -642,7 +689,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.3 · 2026-08-11
+   MyGolfLab · Dashboard v5.4 · 2026-08-11
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -842,7 +889,8 @@ var S = { sb:null, demo:false, sesion:null, plan:'basico', nombre:'', avatar:'',
           perfil:{}, perfilOK:false, sesiones:[], sesionesOK:false,
           analisis:[], estados:[], findings:[], drills:[], firmadas:{},
           comp:{}, tarjetas:[], hitos:[], indices:[], calidad:{},
-          serieUtil:{}, eje:'recorrido' };
+          serieUtil:{}, eje:'recorrido',
+          badgesOK:false, badgesFila:{}, badges:[], celebrar:[] };
 
 /* Áreas de Training Lab, en el orden en que se muestran */
 var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
@@ -965,6 +1013,17 @@ async function cargar(){
       (r.data||[]).forEach(function(x){ if(x.signedUrl) S.firmadas[x.path] = x.signedUrl; });
     }catch(e){ console.warn('[MGL] frames sin firmar:', e.message); }
   }
+  /* Logros ya ganados. Si la tabla no existe todavía, el bloque avisa
+     qué falta y el resto del dashboard sigue funcionando igual. */
+  try{
+    var bg = await S.sb.from('user_badges')
+      .select('badge_id,earned_at,seen_at').eq('user_id', uid);
+    if(!bg.error){
+      S.badgesOK = true;
+      (bg.data||[]).forEach(function(f){ S.badgesFila[f.badge_id] = f; });
+    }
+  }catch(e){ S.badgesOK = false; }
+
   return true;
 }
 
@@ -1204,6 +1263,245 @@ function etiquetaCambio(t){
        : t === 'igual'  ? 'Igual'  : t === 'nuevo' ? 'Primera lectura' : 'Sin datos';
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   6.7 b · LOGROS
+   ───────────────────────────────────────────────────────────────────────────
+   Los 12 badges se CALCULAN al vuelo de los datos que ya existen. La tabla
+   user_badges solo registra cuándo se ganó cada uno y si el jugador ya vio
+   la celebración; no guarda condiciones ni progreso. Eso significa que no
+   hay que instrumentar nada en Training Lab ni en el análisis.
+
+   Cuatro decisiones que sostienen el sistema:
+
+   1. Ningún badge premia gastar cuota. Nada de "sube 20 videos": sería un
+      incentivo contra tu propio negocio y contra la honestidad del análisis.
+   2. Los bloqueados se muestran, en gris y con su condición escrita. La
+      motivación está en el que falta, no en el que ya tienes.
+   3. Un badge no se pierde. Si cierras postura y reaparece, el badge queda
+      pero el foco del día vuelve a mostrarla activa. Uno registra historia,
+      el otro estado presente, y no se contradicen.
+   4. Retroactividad agrupada: un jugador con historial gana varios de golpe
+      y se celebra UNA vez. Doce celebraciones seguidas no valen nada.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+var BADGES = [
+  /* ── Medición ── */
+  { id:'primera_medicion', fam:'Medición', nombre:'Primera medición',
+    cond:'Sube tu primer swing',
+    logro:'Mediste tu swing por primera vez. Todo lo que viene se compara con esto.' },
+  { id:'linea_base', fam:'Medición', nombre:'Línea base',
+    cond:'3 análisis utilizables',
+    logro:'Tres mediciones: ya se puede hablar de tendencia y no de casualidad.' },
+  { id:'diez_lecturas', fam:'Medición', nombre:'Diez lecturas',
+    cond:'10 análisis utilizables',
+    logro:'Diez mediciones. Tu historial ya distingue un cambio real de un mal día.' },
+
+  /* ── Constancia ── */
+  { id:'semana_activa', fam:'Constancia', nombre:'Semana activa',
+    cond:'Entrena 3 días distintos en una semana',
+    logro:'Tres días de entrenamiento en una misma semana.' },
+  { id:'mes_constante', fam:'Constancia', nombre:'Mes constante',
+    cond:'Entrena al menos un día, 4 semanas seguidas',
+    logro:'Cuatro semanas seguidas entrenando. Eso es lo que mueve la aguja.' },
+  { id:'medio_centenar', fam:'Constancia', nombre:'Medio centenar',
+    cond:'50 sesiones acumuladas',
+    logro:'Cincuenta sesiones registradas.' },
+
+  /* ── Técnica ── */
+  { id:'primera_falla_cerrada', fam:'Técnica', nombre:'Primera falla cerrada',
+    cond:'Lleva un componente de moderado o severo a sólido',
+    logro:'Cerraste tu primera falla: pasó de tener problemas a estar sólida.' },
+  { id:'tres_cerradas', fam:'Técnica', nombre:'Tres cerradas',
+    cond:'Cierra tres componentes distintos',
+    logro:'Tres fallas resueltas. Eso ya no es suerte, es método.' },
+  { id:'pilar_limpio', fam:'Técnica', nombre:'Pilar limpio',
+    cond:'Deja todos los componentes de un pilar en sólido',
+    logro:'Un pilar completo sin observaciones.' },
+
+  /* ── Rendimiento ── */
+  { id:'puntaje_perfecto', fam:'Rendimiento', nombre:'Puntaje perfecto',
+    cond:'Consigue el puntaje máximo en un drill',
+    logro:'Puntaje perfecto en un drill de Training Lab.' },
+  { id:'drill_dominado', fam:'Rendimiento', nombre:'Drill dominado',
+    cond:'Completa las 4 variantes de un mismo drill',
+    logro:'Un drill completo en sus cuatro niveles de dificultad.' },
+  { id:'mapa_completo', fam:'Rendimiento', nombre:'Mapa completo',
+    cond:'Entrena las 6 áreas dentro de un mismo mes',
+    logro:'Las seis áreas del juego entrenadas en un mismo mes.' }
+];
+
+/* Días distintos con entrenamiento, como texto AAAA-MM-DD */
+function diasEntrenados(){
+  var set = {};
+  S.sesiones.forEach(function(s){ set[String(s.created_at).slice(0,10)] = true; });
+  return Object.keys(set).sort();
+}
+
+/* 3 días distintos dentro de una ventana de 7 días corridos.
+   Se pide días y no sesiones: tres drills la misma tarde no son constancia. */
+function tuvoSemanaActiva(){
+  var d = diasEntrenados();
+  for(var i=0;i+2<d.length;i++){
+    if(dias(d[i], d[i+2]) <= 6) return true;
+  }
+  return false;
+}
+
+/* 4 semanas calendario consecutivas con al menos un día entrenado */
+function tuvoMesConstante(){
+  var d = diasEntrenados();
+  if(!d.length) return false;
+  var semanas = {};
+  d.forEach(function(x){
+    var f = new Date(x + 'T12:00:00');
+    /* lunes de esa semana como clave */
+    var dow = (f.getDay() + 6) % 7;
+    f.setDate(f.getDate() - dow);
+    semanas[f.toISOString().slice(0,10)] = true;
+  });
+  var ks = Object.keys(semanas).sort(), racha = 1;
+  for(var i=1;i<ks.length;i++){
+    racha = (dias(ks[i-1], ks[i]) === 7) ? racha + 1 : 1;
+    if(racha >= 4) return true;
+  }
+  return ks.length === 1 ? false : racha >= 4;
+}
+
+function tuvoMapaCompleto(){
+  var meses = {};
+  S.sesiones.forEach(function(s){
+    if(!s.categoria) return;
+    var k = String(s.created_at).slice(0,7);
+    if(!meses[k]) meses[k] = {};
+    meses[k][s.categoria] = true;
+  });
+  return Object.keys(meses).some(function(k){ return Object.keys(meses[k]).length >= 6; });
+}
+
+function tuvoDrillDominado(){
+  var porDrill = {};
+  S.sesiones.forEach(function(s){
+    if(!s.drill_id || !s.variante) return;
+    if(!porDrill[s.drill_id]) porDrill[s.drill_id] = {};
+    porDrill[s.drill_id][s.variante] = true;
+  });
+  return Object.keys(porDrill).some(function(k){ return Object.keys(porDrill[k]).length >= 4; });
+}
+
+/* Puntaje máximo. Se exige puntaje_max > 1 para que un drill de tipo
+   "logrado" (1 de 1) no regale el badge en la primera sesión. */
+function tuvoPuntajePerfecto(){
+  return S.sesiones.some(function(s){
+    return s.puntaje != null && s.puntaje_max > 1 && s.puntaje === s.puntaje_max;
+  });
+}
+
+function pilarLimpio(){
+  return estadoPilares().some(function(p){
+    return p.evaluados === p.comps.length && p.solidos === p.comps.length;
+  });
+}
+
+/* Componentes distintos que llegaron a cerrarse alguna vez */
+function componentesCerrados(){
+  return COMPONENTES.filter(function(c){
+    return S.comp[c].ciclo.some(function(e){ return e.fin; });
+  }).length;
+}
+
+function evaluarBadges(){
+  var util = analisisUtiles().length;
+  var cerr = componentesCerrados();
+  var ses  = S.sesiones.length;
+
+  var cumple = {
+    primera_medicion:     util >= 1,
+    linea_base:           util >= 3,
+    diez_lecturas:        util >= 10,
+    semana_activa:        tuvoSemanaActiva(),
+    mes_constante:        tuvoMesConstante(),
+    medio_centenar:       ses >= 50,
+    primera_falla_cerrada: cerr >= 1,
+    tres_cerradas:        cerr >= 3,
+    pilar_limpio:         pilarLimpio(),
+    puntaje_perfecto:     tuvoPuntajePerfecto(),
+    drill_dominado:       tuvoDrillDominado(),
+    mapa_completo:        tuvoMapaCompleto()
+  };
+
+  S.badges = BADGES.map(function(b){
+    var fila = S.badgesFila[b.id];
+    return {
+      id:b.id, fam:b.fam, nombre:b.nombre, cond:b.cond, logro:b.logro,
+      cumple: !!cumple[b.id],
+      ganado: !!fila,
+      fecha: fila ? fila.earned_at : null,
+      visto: !!(fila && fila.seen_at)
+    };
+  });
+  return cumple;
+}
+
+/* Orden de celebración cuando se gana más de uno de una vez */
+var PRIORIDAD_FAM = { 'Técnica':4, 'Rendimiento':3, 'Constancia':2, 'Medición':1 };
+
+/* Registra en Supabase los que se cumplieron y todavía no estaban, y deja
+   en S.celebrar los que el jugador aún no ha visto. Si la tabla no existe
+   (falta correr el SQL), no rompe nada: solo no se guarda. */
+async function sincronizarBadges(){
+  var cumple = evaluarBadges();
+
+  if(S.demo){
+    /* En demo se simulan las filas de la tabla, sin escribir nada. Se
+       poblan en S.badgesFila para que el render las conserve, igual que
+       haría con las que vienen de Supabase. */
+    var ahora = new Date();
+    S.badges.forEach(function(b, i){
+      if(!b.cumple || S.badgesFila[b.id]) return;
+      var f = new Date(ahora); f.setDate(ahora.getDate() - (S.badges.length - i));
+      S.badgesFila[b.id] = { badge_id:b.id, earned_at:f.toISOString(), seen_at:null };
+    });
+    evaluarBadges();
+    S.celebrar = S.badges.filter(function(b){ return b.ganado && !b.visto; })
+      .sort(function(a,b){ return PRIORIDAD_FAM[b.fam] - PRIORIDAD_FAM[a.fam]; });
+    return;
+  }
+
+  if(!S.badgesOK || !S.sb || !S.sesion) return;
+
+  var nuevos = S.badges.filter(function(b){ return b.cumple && !b.ganado; });
+  if(nuevos.length){
+    var filas = nuevos.map(function(b){
+      return { user_id:S.sesion.user.id, badge_id:b.id };
+    });
+    try{
+      var r = await S.sb.from('user_badges').insert(filas).select('badge_id,earned_at,seen_at');
+      if(r.error) throw r.error;
+      (r.data||[]).forEach(function(f){ S.badgesFila[f.badge_id] = f; });
+      evaluarBadges();
+      console.log('%c[MGL] 🏅 ' + nuevos.length + ' logro' + (nuevos.length===1?'':'s') +
+                  ' desbloqueado' + (nuevos.length===1?'':'s'), 'color:#D4C5A9;font-weight:bold');
+    }catch(e){
+      console.warn('[MGL] No se pudieron guardar los logros:', e.message || e);
+    }
+  }
+
+  S.celebrar = S.badges.filter(function(b){ return b.ganado && !b.visto; })
+    .sort(function(a,b){ return PRIORIDAD_FAM[b.fam] - PRIORIDAD_FAM[a.fam]; });
+}
+
+/* Se marcan como vistos al dibujar la celebración: aparece una sola vez */
+async function marcarVistos(){
+  if(S.demo || !S.badgesOK || !S.celebrar.length || !S.sb || !S.sesion) return;
+  var ids = S.celebrar.map(function(b){ return b.id; });
+  try{
+    await S.sb.from('user_badges')
+      .update({ seen_at:new Date().toISOString() })
+      .eq('user_id', S.sesion.user.id).in('badge_id', ids);
+    ids.forEach(function(i){ if(S.badgesFila[i]) S.badgesFila[i].seen_at = new Date().toISOString(); });
+  }catch(e){ console.warn('[MGL] No se pudo marcar los logros como vistos:', e.message || e); }
+}
+
 function calcularIndices(){
   var m = mapaEstados();
   S.indices = ordenAsc()
@@ -1426,18 +1724,28 @@ function render(){
 
   calcularCalidad();
   calcularSeriesUtiles();
+  evaluarBadges();
   calcularIndices();
   pintarEncabezado(n);
 
   var h = bloqueOnboarding() +
+          bloqueCelebracion() +
           bloqueCalidad() +
           bloqueFoco(focoActual(), n) +
           bloqueRecorrido(n) +
           bloqueNumeros(n) +
           bloqueIndice() +
           bloqueTraining() +
+          bloqueBadges() +
           bloqueActividad(n);
   $('app').innerHTML = h;
+
+  /* La celebración se muestra una sola vez: al dibujarla queda vista */
+  if(S.celebrar.length){
+    var ya = S.celebrar;
+    marcarVistos().then(function(){ S.celebrar = []; });
+    ya.forEach(function(b){ b.visto = true; });
+  }
 
   pintarBarra();
 
@@ -1854,6 +2162,75 @@ function bloqueRecorrido(n){
   der += '</div>';
 
   return '<div class="rejilla r-foco reveal">' + izq + der + '</div>';
+}
+
+/* ── 6.7 b · Tarjeta de celebración ──
+   Solo en la visita en que se detecta algo nuevo. Si se ganaron varios de
+   una vez (típico al instalar esto con historial), se celebra UNA vez y se
+   nombra el más importante. Sin sonidos, sin confeti: el sistema visual del
+   sitio es sobrio y esto tiene que caber dentro de él. */
+function bloqueCelebracion(){
+  if(!S.celebrar.length) return '';
+
+  var top = S.celebrar[0], n = S.celebrar.length;
+  var cuerpo = n === 1
+    ? '<p>' + esc(top.logro) + '</p>'
+    : '<p>Entre ellos, <b>' + esc(top.nombre) + '</b>: ' + esc(top.logro) + '</p>' +
+      '<p style="margin-bottom:0">Los otros ' + (n-1) + ' están marcados abajo, en tus logros.</p>';
+
+  return '<div class="celebra reveal"><div class="celebra-ic">' +
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+    'stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/>' +
+    '<path d="M9 14.5L8 22l4-2 4 2-1-7.5"/></svg></div>' +
+    '<div class="celebra-txt"><div class="t">' +
+    (n === 1 ? 'Logro desbloqueado' : 'Desbloqueaste ' + n + ' logros') + '</div>' +
+    '<div class="celebra-nom">' + esc(n === 1 ? top.nombre : 'Buen recorrido') + '</div>' +
+    cuerpo + '</div></div>';
+}
+
+/* ── 6.7 b · Tira permanente de los 12 logros ──
+   Los bloqueados se ven, en gris y con su condición. Eso es lo que motiva:
+   una vitrina con solo lo ganado no le dice a nadie qué hacer después. */
+function bloqueBadges(){
+  if(!S.badgesOK && !S.demo){
+    return '<div class="rejilla reveal"><div class="celda">' +
+      '<span class="rotulo">Tus logros</span>' +
+      '<div class="vacio"><div class="t">Falta un paso</div><div class="d">' +
+      'La tabla de logros todavía no existe. Corre el archivo <b>01-user-badges.sql</b> ' +
+      'en Supabase y acá van a aparecer los 12 logros, con los que ya tienes ganados.' +
+      '</div></div></div></div>';
+  }
+
+  var ganados = S.badges.filter(function(b){ return b.ganado; }).length;
+
+  var h = '<div class="rejilla reveal"><div class="celda">' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">' +
+    '<span class="rotulo" style="margin:0">Tus logros</span>' +
+    '<span class="badges-cuenta">' + ganados + ' de ' + S.badges.length + '</span></div>' +
+    '<div class="badges">';
+
+  S.badges.forEach(function(b){
+    var nuevo = b.ganado && !b.visto;
+    h += '<div class="badge' + (b.ganado ? ' on' : '') + (nuevo ? ' nuevo' : '') + '">' +
+      '<div class="badge-ic">' +
+        (b.ganado
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+            'stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">' +
+            '<rect x="5" y="11" width="14" height="9" rx="2"/>' +
+            '<path d="M8 11V8a4 4 0 018 0v3"/></svg>') +
+      '</div>' +
+      '<div class="badge-fam">' + esc(b.fam) + '</div>' +
+      '<div class="badge-nom">' + esc(b.nombre) + '</div>' +
+      '<div class="badge-pie">' + esc(b.ganado ? hace(b.fecha) : b.cond) + '</div>' +
+      '</div>';
+  });
+
+  h += '</div><p class="badges-pie">Los logros no se pierden: si cierras una falla y más adelante ' +
+    'reaparece, el logro queda igual y el foco del día vuelve a mostrarla. Uno registra tu ' +
+    'historia, el otro tu estado de hoy.</p></div></div>';
+
+  return h;
 }
 
 /* ── Actividad reciente ── */
@@ -2377,6 +2754,27 @@ function MGL_DASHBOARD_TEST(){
       document.querySelector('.num')) === 4,
     'orden de bloques');
 
+  /* ── 6.7 b ── */
+  t('6.7b · Tabla user_badges', S.demo || S.badgesOK,
+    S.demo ? 'modo demo' : (S.badgesOK ? Object.keys(S.badgesFila).length + ' logros guardados'
+                                       : 'falta correr 01-user-badges.sql'));
+  t('6.7b · Catálogo de 12 logros', S.badges.length === 12, S.badges.length + ' logros');
+  t('6.7b · Tira en pantalla',
+    (!S.badgesOK && !S.demo) || document.querySelectorAll('.badge').length === 12,
+    document.querySelectorAll('.badge').length + ' casillas · ' +
+    S.badges.filter(function(b){ return b.ganado; }).length + ' ganadas');
+  t('6.7b · Bloqueados visibles con su condición',
+    S.badges.filter(function(b){ return !b.ganado; }).every(function(b){ return !!b.cond; }),
+    S.badges.filter(function(b){ return !b.ganado; }).length + ' por ganar');
+  t('6.7b · Ninguno premia gastar cuota',
+    !BADGES.some(function(b){ return /cuota|videos|swings/i.test(b.cond); }), 'catálogo limpio');
+  t('6.7b · Celebración agrupada',
+    document.querySelectorAll('.celebra').length <= 1,
+    document.querySelectorAll('.celebra').length + ' tarjeta');
+  t('6.7b · Constancia por días, no por sesiones',
+    diasEntrenados().length <= S.sesiones.length,
+    diasEntrenados().length + ' días distintos de ' + S.sesiones.length + ' sesiones');
+
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
     document.querySelectorAll('.escala i').length + ' segmentos');
@@ -2405,7 +2803,7 @@ function MGL_DASHBOARD_TEST(){
   t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.3 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.4 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
@@ -2427,12 +2825,23 @@ function MGL_DASHBOARD_TEST(){
 window.MGL_DASHBOARD_TEST = MGL_DASHBOARD_TEST;
 window.MGL = { estado:S, render:function(){ render(); }, test:MGL_DASHBOARD_TEST };
 
+/* Los badges se resuelven ANTES del primer dibujo: así la tira aparece
+   completa de una vez y no parpadea al terminar de guardarse. */
+async function prepararBadges(){
+  calcular();
+  calcularCalidad();
+  calcularSeriesUtiles();
+  try{ await sincronizarBadges(); }
+  catch(e){ console.warn('[MGL] Logros omitidos:', e.message || e); }
+}
+
 /* ═══════════════ Arranque ═══════════════ */
 (async function(){
   var q = new URLSearchParams(window.location.search);
 
   if(q.get('demo') === '1'){
     cargarDemo(q);
+    await prepararBadges();
     render();
     $('cargando').classList.add('off');
     MGL_DASHBOARD_TEST();
@@ -2454,6 +2863,7 @@ window.MGL = { estado:S, render:function(){ render(); }, test:MGL_DASHBOARD_TEST
         encodeURIComponent(window.location.pathname);
       return;
     }
+    await prepararBadges();
     render();
   }catch(e){
     $('titulo').textContent = 'Algo falló';
