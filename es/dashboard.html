@@ -686,6 +686,21 @@
     .leyenda, .favs { grid-template-columns:1fr; }
   }
 
+  /* ── 6.7 c · Cuota ── */
+  .cuota { max-width:1100px; margin:0 auto 24px; background:var(--bg-card);
+    border:1px solid var(--border-mid); border-left:3px solid var(--text-muted);
+    border-radius:0 14px 14px 0; padding:22px 26px; }
+  .cuota.vende { border-left-color:var(--gold); }
+  .cuota-t { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
+  .cuota.vende .cuota-t { color:var(--gold); }
+  .cuota p { font-size:14.5px; font-weight:300; line-height:1.75;
+    color:var(--text-muted); margin-bottom:10px; max-width:70ch; }
+  .cuota p b { color:var(--text); font-weight:500; }
+  .cuota-links { display:flex; gap:20px; flex-wrap:wrap; margin-top:4px; }
+  .cuota-links a { font-family:'Barlow Condensed', sans-serif; font-size:12px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; color:var(--teal); text-decoration:none; }
+
   :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 </style>
 </head>
@@ -765,7 +780,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Dashboard v5.5 · 2026-08-12
+   MyGolfLab · Dashboard v5.6 · 2026-08-12
 
    Todo lo que aparece en pantalla sale de la base de datos.
    No hay ningún número escrito a mano.
@@ -1769,6 +1784,45 @@ function usadosEsteMes(){
   }).length;
 }
 
+/* ── 6.7 c · LA CUOTA ─────────────────────────────────────────────────────
+   Antes decía "30 de 30 disponibles" y nada más. Faltaba lo más importante,
+   que es información y no venta: CUÁNDO se renueva. Un jugador sin análisis
+   y sin saber cuándo vuelve a tener, se va.
+
+   No existe tabla de cuota: se cuentan los análisis del mes calendario. Por
+   lo tanto la renovación es siempre el día 1 del mes siguiente, y se puede
+   mostrar sin agregar nada a la base de datos.
+
+   Tres estados, y solo uno vende:
+     Con cuota          → el número, nada más. No molestar.
+     Agotada, Básico    → qué gana subiendo, con SUS datos, no una lista
+                          genérica de características.
+     Agotada, Pro/Elite → solo la fecha de renovación. */
+function estadoCuota(){
+  var cuota  = CONFIG.CUOTAS[S.plan] || CONFIG.CUOTAS.basico;
+  var usados = usadosEsteMes();
+  var restan = Math.max(0, cuota - usados);
+
+  var hoy = new Date();
+  var renueva = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
+  var faltan = dias(hoy, renueva);
+
+  return {
+    cuota: cuota, usados: usados, restan: restan,
+    renueva: renueva.toISOString(),
+    faltanDias: faltan,
+    /* "Baja" es el último análisis o ninguno: es cuando conviene avisar */
+    baja: restan <= 1,
+    agotada: restan === 0
+  };
+}
+
+function textoRenovacion(c){
+  var f = new Date(c.renueva).toLocaleDateString('es-CL',{ day:'numeric', month:'long' });
+  return 'Tu cuota se renueva el ' + f +
+    (c.faltanDias <= 1 ? ', mañana' : ', en ' + c.faltanDias + ' días');
+}
+
 function focoActual(){
   var a = activas();
   if(!a.length) return null;
@@ -1897,6 +1951,7 @@ function render(){
 
   var h = bloqueOnboarding() +
           bloqueCelebracion() +
+          bloqueCuota() +
           bloqueCalidad() +
           bloqueFoco(focoActual(), n) +
           bloqueRecorrido(n) +
@@ -2020,14 +2075,15 @@ function pintarEncabezado(n){
   var nom = String(S.nombre).split(' ')[0];
   $('titulo').innerHTML = 'Hola,<br><span>' + esc(nom) + '</span>';
 
-  var usados = usadosEsteMes();
-  var cuota = CONFIG.CUOTAS[S.plan] || CONFIG.CUOTAS.basico;
-  var restan = Math.max(0, cuota - usados);
+  var c = estadoCuota();
 
   var partes = [
     '<b>Plan ' + etiquetaPlan(S.plan) + '</b>',
-    '<b>' + restan + '</b> de ' + cuota + ' análisis disponibles este mes'
+    (c.agotada
+      ? 'sin análisis disponibles este mes'
+      : '<b>' + c.restan + '</b> de ' + c.cuota + ' análisis disponibles este mes')
   ];
+  if(c.baja) partes.push(textoRenovacion(c).toLowerCase().replace('tu cuota se renueva el ','renueva el '));
   if(hcp != null) partes.push('hándicap <b>' + esc(hcp) + '</b>');
   if(u) partes.push('última medición ' + hace(u));
   else partes.push('sin análisis todavía');
@@ -2035,9 +2091,9 @@ function pintarEncabezado(n){
   $('subtitulo').innerHTML = '<span class="meta-linea">' + partes.join('</span><span class="sep">·</span><span class="meta-linea">') + '</span>';
 
   $('acciones').innerHTML =
-    (restan > 0
+    (c.restan > 0
       ? '<a class="btn-hero teal" href="' + CONFIG.RUTAS.coach + '">Analizar un swing</a>'
-      : '<a class="btn-hero teal" href="' + CONFIG.RUTAS.planes + '">Ampliar mi plan</a>') +
+      : '<a class="btn-hero teal" href="' + CONFIG.RUTAS.planes + '">Ver los planes</a>') +
     '<a class="btn-hero ghost" href="' + CONFIG.RUTAS.logbook + '">Mi Logbook</a>';
 }
 
@@ -2684,6 +2740,44 @@ function bloqueFavoritos(){
   return h + '</div>';
 }
 
+/* ── 6.7 c · Franja de cuota ──
+   Solo cuando queda 1 análisis o ninguno. Con cuota disponible no se muestra
+   nada: recordarle su límite a alguien que tiene 28 disponibles es ruido. */
+function bloqueCuota(){
+  var c = estadoCuota();
+  if(!c.baja) return '';
+
+  var esBasico = S.plan === 'basico';
+
+  /* El argumento se arma con lo que este jugador tiene, no con una lista
+     genérica de características del plan. */
+  var h = '<div class="cuota' + (esBasico ? ' vende' : '') + ' reveal">' +
+    '<div class="cuota-t">' +
+    (c.agotada ? 'Sin análisis disponibles' : 'Te queda un análisis') + '</div>';
+
+  h += '<p><b>' + textoRenovacion(c) + '.</b> ';
+
+  if(esBasico){
+    var n = validos().length;
+    var ses = S.sesiones.length;
+    h += 'Llevas <b>' + n + (n===1?' análisis':' análisis') + '</b>' +
+      (S.sesionesOK ? ' y <b>' + ses + (ses===1?' sesión':' sesiones') + '</b> de entrenamiento' : '') +
+      ' con el plan Básico.</p>' +
+      '<p>Con <b>Pro</b> se abren los 270 drills de Training Lab con su puntuación, el Coach IA ' +
+      'para preguntarle lo que quieras, y ' + (CONFIG.CUOTAS.pro - CONFIG.CUOTAS.basico) +
+      ' análisis más al mes.</p>' +
+      '<a class="cta-vacio" href="' + CONFIG.RUTAS.planes + '">Ver los planes</a>';
+  } else {
+    h += 'Mientras tanto puedes seguir entrenando en Training Lab y revisar tus análisis ' +
+      'anteriores en el Logbook.</p>' +
+      '<div class="cuota-links">' +
+      '<a href="' + CONFIG.RUTAS.training + '">Ir a Training Lab →</a>' +
+      '<a href="' + CONFIG.RUTAS.logbook + '">Ver mi Logbook →</a></div>';
+  }
+
+  return h + '</div>';
+}
+
 /* ── 6.7 f · Aviso cuando el último video no sirvió ──
    Solo aparece si la medición fue insuficiente. Con "parcial" basta el sello:
    una franja roja cada vez que falta un componente sería ruido. */
@@ -2836,6 +2930,7 @@ function cargarDemo(q){
   S.demo = true;
   S.nombre = 'Gabriel Morgan';
   S.plan = normPlan((q && q.get('plan')) || 'pro');
+
   var lim = (q && q.get('n')) ? parseInt(q.get('n'),10) : null;
 
   /* ?ciclo=entrenando o ?ciclo=remedir desplaza las fechas para poder ver
@@ -2974,6 +3069,15 @@ function cargarDemo(q){
        { drill_id:'drill-ap',   created_at:atrasSesion(9) },
        { drill_id:'drill-pu',   created_at:atrasSesion(14) }]
     : [];
+
+  /* ?cuota=baja|agotada fuerza el estado sin tener que gastar análisis.
+     Se hace al final, cuando S.analisis ya está poblado: la cuota se
+     calcula contando los análisis de este mes. */
+  var fc = q && q.get('cuota');
+  if(fc === 'baja' || fc === 'agotada'){
+    CONFIG.CUOTAS[S.plan] = usadosEsteMes() + (fc === 'baja' ? 1 : 0);
+    if(CONFIG.CUOTAS[S.plan] < 1) CONFIG.CUOTAS[S.plan] = 1;
+  }
 }
 
 /* ═══════════════ Autotest ═══════════════ */
@@ -3114,6 +3218,18 @@ function MGL_DASHBOARD_TEST(){
     S.demo ? 'modo demo' : (S.favOK ? S.favoritos.length + ' favoritos'
                                     : 'falta correr 02-drill-favoritos.sql'));
 
+  /* ── 6.7 c ── */
+  var cq = estadoCuota();
+  t('6.7c · Fecha de renovación calculada',
+    new Date(cq.renueva).getDate() === 1 && cq.faltanDias > 0,
+    textoRenovacion(cq));
+  t('6.7c · Franja solo con la cuota baja',
+    cq.baja === !!document.querySelector('.cuota'),
+    cq.restan + ' de ' + cq.cuota + ' disponibles');
+  t('6.7c · Argumento de venta solo al Básico',
+    !document.querySelector('.cuota.vende') || S.plan === 'basico',
+    'plan ' + S.plan);
+
   t('Barra de severidad', S.analisis.length === 0 || !f ||
     document.querySelectorAll('.escala i').length === 4,
     document.querySelectorAll('.escala i').length + ' segmentos');
@@ -3142,7 +3258,7 @@ function MGL_DASHBOARD_TEST(){
   t('Chart.js cargado', !!window.Chart || S.indices.length < CONFIG.MIN_GRAFICO,
     window.Chart ? 'sí' : 'no cargó');
 
-  console.log('%c MGL DASHBOARD v5.5 — AUTOTEST ',
+  console.log('%c MGL DASHBOARD v5.6 — AUTOTEST ',
               'background:#2dd4bf;color:#0a0a0a;font-weight:bold;font-size:12px');
   console.table(r);
 
