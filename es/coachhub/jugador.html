@@ -21,6 +21,14 @@
   a{color:inherit;text-decoration:none}
   h1,h2,h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.3px}
 
+  /* ---------- BARRA DE SCROLL OSCURA (igual que Training Lab) ---------- */
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.10) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.17)}
+  ::-webkit-scrollbar-corner{background:#0a0a0a}
+
   /* ---------- HEADER ---------- */
   #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
   .nav-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
@@ -2402,7 +2410,16 @@ document.getElementById('pl_save').addEventListener('click',async function(){
     };
   });
   var ri=await sb.from('player_plan_items').insert(items);
-  if(ri.error){ showError('El plan se creó pero fallaron las tareas',errMsg(ri.error)); }
+  if(ri.error){
+    // si las tareas no entran, deshacemos el plan para no dejar uno vacío colgando
+    await sb.from('player_plans').delete().eq('id',rp.data.id);
+    showError('No se pudo asignar el plan',errMsg(ri.error),
+      'El plan se deshizo, no quedó nada a medias. Si el mensaje habla de "type uuid", falta correr coach_hub_v2_fix_drill_id.sql en Supabase.');
+    btn.disabled=false;
+    await loadPlans(SEL.id);
+    renderProfile();
+    return;
+  }
 
   // queda anotado en el timeline
   var resumen=(notas?notas+'\n\n':'')+PLAN_DRAFT.length+' tareas'
