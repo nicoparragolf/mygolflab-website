@@ -207,6 +207,114 @@
 
   .loading{text-align:center;color:var(--muted);padding:60px}
 
+  /* ---------- TEXTO ENRIQUECIDO (respeta bullets y saltos de línea) ---------- */
+  .rt{word-break:break-word}
+  .rt p{margin:0 0 9px;white-space:pre-wrap}
+  .rt p:last-child{margin-bottom:0}
+  .rt ul,.rt ol{margin:2px 0 9px;padding-left:21px}
+  .rt ul:last-child,.rt ol:last-child{margin-bottom:0}
+  .rt li{margin-bottom:4px}
+  .rt li::marker{color:var(--teal)}
+
+  /* ---------- ROSTER: FILTRO POR CATEGORÍA ---------- */
+  .gfilters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+  .gchip{background:var(--bg2);border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:13px;letter-spacing:.3px;padding:4px 10px;border-radius:16px;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .gchip b{font-weight:700;opacity:.65;margin-left:2px}
+  .gchip:hover{border-color:var(--border2);color:var(--text)}
+  .gchip.on{background:var(--teal);color:#04211d;border-color:var(--teal)}
+  .gchip.on b{opacity:.8}
+  .gchip.zero{opacity:.42}
+  .rgroup{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin:14px 0 5px;padding-left:4px;display:flex;align-items:center;gap:7px}
+  .rgroup::after{content:'';flex:1;height:1px;background:var(--border)}
+  .rgroup:first-of-type{margin-top:4px}
+
+  /* ---------- BOTONES DE TARJETA ---------- */
+  .tl-edit{background:none;border:none;color:var(--muted2);cursor:pointer;padding:0 1px;line-height:1;transition:color .15s;display:flex;align-items:center}
+  .tl-edit svg{width:14px;height:14px}
+  .tl-edit:hover{color:var(--teal)}
+  .tl-link{display:inline-flex;align-items:center;gap:5px;margin-top:11px;background:var(--card2);border:1px solid var(--border2);color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.4px;padding:5px 12px;border-radius:8px;cursor:pointer}
+  .tl-link:hover{border-color:var(--teal-dim)}
+
+  /* descarga sobre la miniatura */
+  .mdl{position:absolute;right:6px;top:6px;width:28px;height:28px;border-radius:8px;background:rgba(10,10,10,.78);border:1px solid var(--border2);color:#e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;opacity:0;transition:opacity .15s,color .15s}
+  .mthumb:hover .mdl{opacity:1}
+  .mdl:hover{color:var(--teal);border-color:var(--teal-dim)}
+  .mdl svg{width:14px;height:14px}
+  @media(hover:none){ .mdl{opacity:1} }
+  .btn-dl{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
+  .btn-dl:hover{border-color:var(--teal-dim);color:var(--teal)}
+
+  /* archivos ya subidos, dentro del modal de edición */
+  .exlist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .exitem{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:13px}
+  .exitem .ic{color:var(--blue);flex-shrink:0;display:flex}
+  .exitem .ic svg{width:14px;height:14px}
+  .exitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .exitem .sz{color:var(--muted2);font-size:12px;white-space:nowrap}
+  .exitem.rm{opacity:.5}
+  .exitem.rm .nm{text-decoration:line-through}
+
+  /* ---------- METAS ---------- */
+  .sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .sec-head h3{font-size:21px;text-transform:uppercase;color:var(--muted)}
+  .goal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:13px}
+  .goal.done{border-color:rgba(212,197,169,.4);background:linear-gradient(135deg,rgba(212,197,169,.06),var(--card))}
+  .goal.late{border-color:rgba(224,106,106,.35)}
+  .goal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .goal-t{font-family:'Barlow Condensed';font-weight:600;font-size:19px;line-height:1.2}
+  .goal-acts{display:flex;gap:7px;flex-shrink:0}
+  .mini{background:var(--card2);border:1px solid var(--border2);color:var(--muted);border-radius:7px;padding:4px 9px;font-family:'Barlow Condensed';font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;white-space:nowrap}
+  .mini:hover{color:var(--text);border-color:var(--muted2)}
+  .mini.gold{color:var(--gold);border-color:rgba(212,197,169,.35)}
+  .mini.gold:hover{background:rgba(212,197,169,.1)}
+  .mini.red:hover{color:var(--red);border-color:rgba(224,106,106,.5)}
+  .goal-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .goal-desc{font-size:14px;color:#cfcfcf;line-height:1.5;margin-top:9px}
+  .bar{height:7px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:12px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal-dim),var(--teal))}
+  .bar.gold i{background:linear-gradient(90deg,#8d7c58,var(--gold))}
+  .barinfo{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+  .goal-empty,.plan-empty{text-align:center;color:var(--muted);padding:46px 20px;line-height:1.6}
+
+  /* ---------- PLANES ---------- */
+  .plan{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:15px;overflow:hidden}
+  .plan.done{border-color:var(--teal-dim)}
+  .plan-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .plan-t{font-family:'Barlow Condensed';font-weight:600;font-size:20px;line-height:1.2}
+  .plan-sub{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .plan-ring{display:flex;align-items:center;gap:11px}
+  .plan-pct{font-family:'Bebas Neue';font-size:26px;line-height:1;color:var(--teal)}
+  .plan-body{padding:6px 18px 16px}
+  .ses-head{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin:14px 0 6px}
+  .task{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .task:last-child{border-bottom:none}
+  .task-ck{width:24px;height:24px;flex-shrink:0;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-top:1px;transition:all .15s}
+  .task-ck svg{width:13px;height:13px;opacity:0}
+  .task-ck:hover{border-color:var(--teal-dim)}
+  .task.ok .task-ck{background:var(--teal);border-color:var(--teal)}
+  .task.ok .task-ck svg{opacity:1}
+  .task-main{flex:1;min-width:0}
+  .task-t{font-family:'Barlow Condensed';font-weight:600;font-size:16.5px}
+  .task.ok .task-t{color:var(--muted)}
+  .task-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px}
+  .task-d{font-size:13.5px;color:#bdbdbd;line-height:1.5;margin-top:6px}
+  .task-goal{font-size:13px;color:var(--gold);line-height:1.5;margin-top:6px}
+  .task-res{margin-top:9px;background:rgba(45,212,191,.07);border:1px solid var(--teal-dim);border-radius:9px;padding:8px 11px;font-size:13px;color:#d6f5f0;line-height:1.5}
+  .task-res b{font-family:'Barlow Condensed';text-transform:uppercase;letter-spacing:.4px;color:var(--teal);font-size:12.5px}
+  .task-del{background:none;border:none;color:var(--muted2);font-size:18px;line-height:1;cursor:pointer;padding:0 2px;height:20px}
+  .task-del:hover{color:var(--red)}
+
+  /* generador de planes */
+  .cfg-lbl{display:block;font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:16px 0 7px}
+  .pick{display:flex;flex-wrap:wrap;gap:7px}
+  .pick .gchip{font-size:13.5px}
+  .draft{margin-top:8px;display:flex;flex-direction:column;gap:7px;max-height:280px;overflow-y:auto;padding-right:2px}
+  .drow{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:9px 11px;display:flex;gap:9px;align-items:flex-start}
+  .drow .dm{flex:1;min-width:0}
+  .drow .dt{font-family:'Barlow Condensed';font-weight:600;font-size:15px}
+  .drow .dd{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .drow input{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:14px;padding:7px 9px;border-radius:7px}
+
   @media(max-width:900px){
     .shell{grid-template-columns:1fr}
     .roster{position:static}
@@ -279,6 +387,7 @@
           <option value="college">College</option>
           <option value="elite_amateur">Elite amateur</option>
           <option value="profesional">Profesional</option>
+          <option value="senior">Senior</option>
         </select>
       </div>
       <div class="field">
@@ -324,7 +433,11 @@
         </select>
       </div>
     </div>
-    <div class="field"><label>Resumen / notas</label><textarea id="ne_summary" placeholder="Qué se trabajó, observaciones..."></textarea></div>
+    <div class="field">
+      <label>Resumen / notas</label>
+      <textarea id="ne_summary" rows="6" placeholder="Qué se trabajó, observaciones...&#10;&#10;- Puedes usar bullets con un guión&#10;- Se ven tal cual en el historial&#10;&#10;También respeta párrafos y saltos de línea."></textarea>
+      <div class="hint">El texto se guarda tal como lo escribes: los guiones se muestran como bullets, los números como lista, y los saltos de línea se respetan.</div>
+    </div>
     <label class="check" id="ne_milestoneWrap"><input type="checkbox" id="ne_milestone"><span>Marcar como hito (cambio técnico) — aparece en el gráfico de métricas</span></label>
 
     <div class="field" style="margin-top:16px">
@@ -337,6 +450,11 @@
       <div class="filelist" id="ne_fileList"></div>
       <div class="upstate" id="ne_upstate"></div>
       <div class="upfail" id="ne_upfail"></div>
+      <div id="ne_existingWrap" style="display:none">
+        <label style="display:block;font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:14px">Archivos ya subidos</label>
+        <div class="exlist" id="ne_existing"></div>
+        <div class="hint">Los archivos marcados se eliminan al guardar los cambios.</div>
+      </div>
     </div>
 
     <div class="field" style="margin-top:16px">
@@ -352,12 +470,111 @@
   </div>
 </div>
 
+<!-- MODAL: META / OBJETIVO -->
+<div class="overlay" id="ovGoal">
+  <div class="modal">
+    <h2 id="mg_heading">Nueva meta</h2>
+    <div class="field"><label>Meta</label><input id="mg_title" placeholder="Ej: Bajar el handicap a 5"></div>
+    <div class="field">
+      <label>Descripción / cómo la vamos a lograr</label>
+      <textarea id="mg_desc" rows="4" placeholder="Opcional. Acepta bullets y saltos de línea."></textarea>
+    </div>
+    <div class="field">
+      <label>Métrica a seguir (opcional)</label>
+      <select id="mg_metric"></select>
+      <div class="hint">Si eliges una métrica, el progreso se calcula solo con las mediciones que vayas registrando en los eventos.</div>
+    </div>
+    <div class="field-row" id="mg_valuesRow">
+      <div class="field"><label>Punto de partida</label><input id="mg_base" type="number" step="any" placeholder="Valor actual"></div>
+      <div class="field"><label>Objetivo</label><input id="mg_target" type="number" step="any" placeholder="Valor a alcanzar"></div>
+    </div>
+    <div class="field" id="mg_textRow"><label>Objetivo (en palabras)</label><input id="mg_targetText" placeholder="Ej: jugar 3 torneos bajo par"></div>
+    <div class="field"><label>Fecha límite</label><input id="mg_due" type="date"></div>
+    <label class="check" id="mg_pubWrap"><input type="checkbox" id="mg_publish" checked><span>Publicar la meta en el timeline</span></label>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('ovGoal')">Cancelar</button>
+      <button class="btn-primary" id="mg_save">Guardar meta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PLAN DE ENTRENAMIENTO -->
+<div class="overlay" id="ovPlan">
+  <div class="modal" style="max-width:640px">
+    <h2>Plan de entrenamiento</h2>
+    <div class="field"><label>Título del plan</label><input id="pl_title" placeholder="Ej: Bloque de putting bajo presión"></div>
+    <div class="field-row">
+      <div class="field"><label>Desde</label><input id="pl_start" type="date"></div>
+      <div class="field"><label>Fecha límite</label><input id="pl_due" type="date"></div>
+    </div>
+    <div class="field">
+      <label>Indicaciones para el alumno</label>
+      <textarea id="pl_notes" rows="3" placeholder="Opcional. Acepta bullets y saltos de línea."></textarea>
+    </div>
+
+    <label class="cfg-lbl">Áreas a trabajar</label>
+    <div class="pick" id="pl_areas"></div>
+
+    <label class="cfg-lbl">Foco de competencia</label>
+    <div class="pick" id="pl_focos"></div>
+
+    <div class="field-row" style="margin-top:16px">
+      <div class="field"><label>Nivel</label>
+        <select id="pl_level">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate" selected>Intermediate</option>
+          <option value="advanced">Advanced</option>
+          <option value="expert">Expert</option>
+        </select>
+      </div>
+      <div class="field"><label>Minutos por sesión</label>
+        <select id="pl_min"><option>30</option><option>45</option><option selected>60</option><option>90</option><option>120</option></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Sesiones</label>
+        <select id="pl_ses"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end">
+        <button class="btn-primary" id="pl_gen" style="width:100%;height:42px">Generar tareas</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:6px">
+      <label>Tareas del plan <span id="pl_count" style="color:var(--teal)"></span></label>
+      <div class="draft" id="pl_draft"></div>
+      <span class="link-add" id="pl_addManual">+ agregar tarea manual</span>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('ovPlan')">Cancelar</button>
+      <button class="btn-primary" id="pl_save">Asignar plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESULTADO DE UNA TAREA -->
+<div class="overlay" id="ovTask">
+  <div class="modal" style="max-width:460px">
+    <h2>Completar tarea</h2>
+    <div id="tk_name" style="font-size:15px;color:var(--muted);margin-bottom:16px;line-height:1.5"></div>
+    <div class="field"><label>Resultado</label><input id="tk_result" placeholder="Ej: 7 de 10 · 148 m promedio"></div>
+    <div class="field"><label>Valor numérico (opcional)</label><input id="tk_value" type="number" step="any" placeholder="Para poder graficarlo después"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="tk_undo" style="margin-right:auto">Marcar como pendiente</button>
+      <button class="btn-ghost" onclick="closeModal('ovTask')">Cancelar</button>
+      <button class="btn-primary" id="tk_save">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- LIGHTBOX -->
 <div class="lb" id="lightbox">
   <button class="lb-close" onclick="closeLightbox()">&times;</button>
   <div id="lbBody"></div>
   <div class="lb-bar">
     <span class="lb-title" id="lbTitle"></span>
+    <button class="btn-dl" id="lbDl">Descargar</button>
     <button class="btn-danger" id="lbDel">Eliminar archivo</button>
   </div>
 </div>
@@ -396,6 +613,18 @@ var METRIC_BY_KEY = {};
 var VIEW = 'timeline';
 var FILTER_TYPE = 'all';
 var FILTER_PILLAR = 'all';
+var FILTER_GROUP = 'all';    // juniors | amateurs | profesionales | seniors
+var EDIT_ID = null;          // evento en edición
+var REMOVE_MEDIA = [];       // ids de media marcados para borrar al guardar
+var GOALS = [];
+var EDIT_GOAL = null;
+var MET_FIRST = {};          // primera medición por métrica
+var MET_LAST = {};           // última medición por métrica
+var PLANS = [];
+var PLAN_ITEMS = {};
+var DRILLS = [];
+var PLAN_DRAFT = [];
+var TASK_CUR = null;
 
 // ============================================================
 // TIPOS DE EVENTO
@@ -403,6 +632,8 @@ var FILTER_PILLAR = 'all';
 // ============================================================
 var EVENT_TYPES = {
   clase:                {label:'Clase',                color:'var(--teal)',  coachOnly:true,  icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
+  // objetivo_creado y plan_asignado se registran desde su propio módulo:
+  // al elegirlos en el selector, el modal salta al de Metas o al de Planes.
   video_swing:          {label:'Video de swing',       color:'var(--teal)',  icon:'M4 4h16v16H4z M10 9l5 3-5 3z'},
   cambio_tecnico:       {label:'Cambio técnico',       color:'var(--gold)',  coachOnly:true,  icon:'M12 2v20 M5 9l7-7 7 7'},
   sesion_trackman:      {label:'Sesión Trackman',      color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
@@ -413,8 +644,8 @@ var EVENT_TYPES = {
   sesion_entrenamiento: {label:'Entrenamiento',        color:'var(--teal)',  icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
   test_fisico:          {label:'Test físico',          color:'var(--orange)',icon:'M6 7v10 M18 7v10 M4 12h16'},
   analisis_ia:          {label:'Análisis IA',          color:'var(--teal)',  icon:'M12 2a5 5 0 015 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 015-5z M9 17h6 M10 20h4'},
-  plan_asignado:        {label:'Plan asignado',        color:'var(--teal)',  coachOnly:true,  icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
-  objetivo_creado:      {label:'Objetivo creado',      color:'var(--gold)',  icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
+  plan_asignado:        {label:'Plan de entrenamiento',color:'var(--teal)',  coachOnly:true, special:'plan', icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
+  objetivo_creado:      {label:'Meta / Objetivo',      color:'var(--gold)',  special:'meta', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
   objetivo_logrado:     {label:'Objetivo logrado',     color:'var(--gold)',  icon:'M20 6L9 17l-5-5'},
   nota:                 {label:'Nota',                 color:'var(--muted)', icon:'M4 4h16v16H4z M8 9h8 M8 13h5'},
   lesion:               {label:'Lesión',               color:'var(--red)',   icon:'M12 5v14 M5 12h14'},
@@ -422,8 +653,47 @@ var EVENT_TYPES = {
   otro:                 {label:'Otro',                 color:'var(--muted)', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'}
 };
 var PILLAR_LABEL = {ground_forces:'Ground Forces',kinematic_sequence:'Kinematic Sequence',body_tilts:'Body Tilts',wrist_conditions:'Wrist Conditions'};
-var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional'};
+var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional',senior:'Senior'};
 var TIER_LABEL = {basico:'Básico',intermedio:'Intermedio',avanzado:'Avanzado'};
+
+// Agrupación del portafolio: las categorías finas se mantienen en la ficha,
+// pero el roster se filtra por estos cuatro grupos.
+var GROUPS = [
+  {k:'juniors',       label:'Juniors'},
+  {k:'amateurs',      label:'Amateurs'},
+  {k:'profesionales', label:'Profesionales'},
+  {k:'seniors',       label:'Seniors'}
+];
+var CAT_GROUP = {
+  junior:'juniors',
+  iniciacion:'amateurs', amateur:'amateurs', college:'amateurs', elite_amateur:'amateurs',
+  profesional:'profesionales',
+  senior:'seniors'
+};
+function groupOf(p){ return CAT_GROUP[p.category] || 'amateurs'; }
+
+// Catálogo para el generador de planes (mismo criterio que Training Lab)
+var AREAS = ['Putting','Approach','Short Game','Tee','Mental','Desafíos de Campo'];
+var FOCOS = ['Control de distancia','Línea de salida','Línea de término','Trayectorias','Control de dispersión','Proximidad a bandera','Lectura de green','Juego bajo presión','Toma de decisiones','Rutina y foco mental'];
+var FOCO_KW = {
+  'Control de distancia':['distancia','velocidad','carry','lag','profundidad'],
+  'Línea de salida':['salida','línea','linea','start','dirección','direccion','apuntar'],
+  'Línea de término':['término','termino','velocidad','rodado','distancia','pace'],
+  'Trayectorias':['trayectoria','vuelo','ventana','altura','adaptabilidad','spin'],
+  'Control de dispersión':['dispersión','dispersion','precisión','precision','control','patrón','patron'],
+  'Proximidad a bandera':['proximidad','precisión','precision','approach','bandera','diana'],
+  'Lectura de green':['lectura','green','quiebre','break','caída','caida'],
+  'Juego bajo presión':['presión','presion','competencia','consecuencia','torneo'],
+  'Toma de decisiones':['estrategia','decisión','decision','decisiones','ruta','gestión','gestion','curso'],
+  'Rutina y foco mental':['rutina','mental','foco','respiración','respiracion','concentración','concentracion']
+};
+var PLAN_SEL = {areas:['Putting','Approach','Short Game'], focos:['Juego bajo presión']};
+
+var SVG_DL   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>';
+var SVG_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10-10-4-4L4 16z"/><path d="M14 6l4 4"/></svg>';
+var SVG_CK   = '<svg viewBox="0 0 24 24" fill="none" stroke="#04211d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>';
+var SVG_VID  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg>';
+var SVG_IMG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4 4 3 3-2 4 3"/></svg>';
 
 // ============================================================
 // HELPERS
@@ -455,6 +725,49 @@ function showError(titulo, detalle, pista){
 function errMsg(e){
   if(!e) return 'error desconocido';
   return (e.message||e.error||JSON.stringify(e)) + (e.statusCode?' (código '+e.statusCode+')':'');
+}
+function daysBetween(a,b){
+  var x=new Date(a+'T00:00:00').getTime(), y=new Date(b+'T00:00:00').getTime();
+  return Math.round((y-x)/86400000);
+}
+function addDays(iso,n){
+  var d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n);
+  return d.toISOString().slice(0,10);
+}
+
+// ------------------------------------------------------------
+// TEXTO: se muestra tal como se escribió.
+//   · guiones / viñetas  → lista con bullets
+//   · 1. 2. 3.           → lista numerada
+//   · saltos de línea y espacios → se respetan (white-space: pre-wrap)
+// ------------------------------------------------------------
+function fmtRich(txt){
+  if(txt==null || String(txt).trim()==='') return '';
+  var lines = String(txt).replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  var out='', list=null, para=[];
+  function closePara(){ if(para.length){ out+='<p>'+para.join('\n')+'</p>'; para=[]; } }
+  function closeList(){ if(list){ out+='</'+list+'>'; list=null; } }
+  for(var i=0;i<lines.length;i++){
+    var ln=lines[i];
+    var mb=ln.match(/^[ \t]*[-*•·–—][ \t]+(.*)$/);
+    var mn=ln.match(/^[ \t]*(\d+)[.)][ \t]+(.*)$/);
+    if(mb){
+      closePara();
+      if(list!=='ul'){ closeList(); out+='<ul>'; list='ul'; }
+      out+='<li>'+esc(mb[1])+'</li>';
+    } else if(mn){
+      closePara();
+      if(list!=='ol'){ closeList(); out+='<ol>'; list='ol'; }
+      out+='<li>'+esc(mn[2])+'</li>';
+    } else if(ln.trim()===''){
+      closePara(); closeList();
+    } else {
+      closeList();
+      para.push(esc(ln));
+    }
+  }
+  closePara(); closeList();
+  return '<div class="rt">'+out+'</div>';
 }
 
 // ============================================================
@@ -511,8 +824,7 @@ async function initModoJugador(){
   SEL = (sm.data) ? sm.data : r.data;
   SEL.email = r.data.email; SEL.user_id = r.data.user_id; SEL.coach_id = r.data.coach_id;
 
-  await loadEvents(SEL.id);
-  await loadMedia(SEL.id);
+  await loadAll(SEL.id);
   renderProfile();
 }
 
@@ -527,36 +839,75 @@ async function loadMetricDefs(){
 // ROSTER (solo coach)
 // ============================================================
 async function loadPlayers(){
+  // 1) Las fichas que son MÍAS, leídas de la tabla base (protegida por RLS).
+  //    Esta es la lista de verdad: define qué jugadores puede ver este coach.
+  var lk = await sb.from('players').select('id,email,user_id,coach_id,category').eq('coach_id',USER.id);
+  if(lk.error){
+    document.getElementById('rosterList').innerHTML='<div class="roster-empty">Error al cargar tus jugadores.</div>';
+    showError('No se pudo cargar tu portafolio',errMsg(lk.error));
+    return;
+  }
+  var mine={}; (lk.data||[]).forEach(function(x){ mine[x.id]=x; });
+
+  // 2) El resumen (días entrenando, totales) viene de la vista, pero SOLO
+  //    para las fichas propias — así ningún otro coach aparece acá aunque la
+  //    vista devuelva de más.
   var r = await sb.from('v_player_summary').select('*').order('first_name');
   if(r.error){ document.getElementById('rosterList').innerHTML='<div class="roster-empty">Error al cargar. Revisa tu conexión.</div>'; console.error(r.error); return; }
-  PLAYERS = (r.data||[]).filter(function(p){ return p.status!=='archivado'; });
 
-  // estado de vinculación de cada ficha
-  var lk = await sb.from('players').select('id,email,user_id');
-  if(!lk.error){
-    var by={}; (lk.data||[]).forEach(function(x){ by[x.id]=x; });
-    PLAYERS.forEach(function(p){ if(by[p.id]){ p.email=by[p.id].email; p.user_id=by[p.id].user_id; } });
-  }
+  PLAYERS = (r.data||[]).filter(function(p){ return mine[p.id] && p.status!=='archivado'; });
+  PLAYERS.forEach(function(p){
+    p.email   = mine[p.id].email;
+    p.user_id = mine[p.id].user_id;
+    p.coach_id= mine[p.id].coach_id;
+  });
   renderRoster();
+}
+
+function setGroup(g){ FILTER_GROUP=g; renderRoster(); }
+
+function playerRowHTML(p){
+  var sel = SEL && SEL.id===p.id ? ' sel':'';
+  var av = p.photo_url ? '<img src="'+esc(p.photo_url)+'">' : esc(initials(p.first_name,p.last_name));
+  var dot = p.user_id ? '<span class="linkdot" title="Cuenta vinculada"></span>' : '';
+  return '<div class="player-row'+sel+'" onclick="selectPlayer(\''+p.id+'\')">'
+       + '<div class="pr-avatar">'+av+dot+'</div>'
+       + '<div class="pr-info"><div class="pr-name">'+esc(p.first_name+' '+p.last_name)+'</div>'
+       + '<div class="pr-meta">'+esc(CAT_LABEL[p.category]||p.category)+' · '+(p.total_eventos||0)+' eventos</div></div></div>';
 }
 
 function renderRoster(){
   var box=document.getElementById('rosterList');
   var q=(document.getElementById('rosterSearch').value||'').toLowerCase();
-  var list=PLAYERS.filter(function(p){ return (p.first_name+' '+p.last_name).toLowerCase().indexOf(q)>=0; });
+  var base=PLAYERS.filter(function(p){ return (p.first_name+' '+p.last_name).toLowerCase().indexOf(q)>=0; });
+
+  var counts={}; GROUPS.forEach(function(g){ counts[g.k]=0; });
+  base.forEach(function(p){ var g=groupOf(p); if(counts[g]!=null) counts[g]++; });
+
+  var chips='<div class="gfilters">'
+    + '<div class="gchip'+(FILTER_GROUP==='all'?' on':'')+'" onclick="setGroup(\'all\')">Todos <b>'+base.length+'</b></div>';
+  GROUPS.forEach(function(g){
+    chips+='<div class="gchip'+(FILTER_GROUP===g.k?' on':'')+(counts[g.k]===0?' zero':'')+'" onclick="setGroup(\''+g.k+'\')">'
+         + g.label+' <b>'+counts[g.k]+'</b></div>';
+  });
+  chips+='</div>';
+
+  var list=base.filter(function(p){ return FILTER_GROUP==='all' || groupOf(p)===FILTER_GROUP; });
+
   if(list.length===0){
-    box.innerHTML='<div class="roster-empty">'+(PLAYERS.length===0?'Aún no tienes jugadores.<br>Toca + para agregar el primero.':'Sin resultados.')+'</div>';
+    box.innerHTML=chips+'<div class="roster-empty">'
+      + (PLAYERS.length===0 ? 'Aún no tienes jugadores.<br>Toca + para agregar el primero.'
+         : (q ? 'Sin resultados.' : 'Ningún jugador en esta categoría.'))
+      + '</div>';
     return;
   }
-  var html='';
-  list.forEach(function(p){
-    var sel = SEL && SEL.id===p.id ? ' sel':'';
-    var av = p.photo_url ? '<img src="'+esc(p.photo_url)+'">' : esc(initials(p.first_name,p.last_name));
-    var dot = p.user_id ? '<span class="linkdot" title="Cuenta vinculada"></span>' : '';
-    html+='<div class="player-row'+sel+'" onclick="selectPlayer(\''+p.id+'\')">'
-        + '<div class="pr-avatar">'+av+dot+'</div>'
-        + '<div class="pr-info"><div class="pr-name">'+esc(p.first_name+' '+p.last_name)+'</div>'
-        + '<div class="pr-meta">'+esc(CAT_LABEL[p.category]||p.category)+' · '+(p.total_eventos||0)+' eventos</div></div></div>';
+
+  var html=chips;
+  GROUPS.forEach(function(g){
+    var sub=list.filter(function(p){ return groupOf(p)===g.k; });
+    if(!sub.length) return;
+    html+='<div class="rgroup">'+g.label+'</div>';
+    sub.forEach(function(p){ html+=playerRowHTML(p); });
   });
   box.innerHTML=html;
 }
@@ -572,15 +923,43 @@ async function selectPlayer(id){
   VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all';
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
-  await loadEvents(id);
-  await loadMedia(id);
+  await loadAll(id);
   renderProfile();
+}
+
+async function loadAll(playerId){
+  await loadEvents(playerId);
+  await loadMedia(playerId);
+  await loadMetricHistory(playerId);
+  await loadGoals(playerId);
+  await loadPlans(playerId);
 }
 
 async function loadEvents(playerId){
   var r = await sb.from('v_player_timeline').select('*').eq('player_id',playerId).order('event_date',{ascending:false}).order('created_at',{ascending:false});
   if(r.error){ console.error(r.error); EVENTS=[]; return; }
   EVENTS = r.data||[];
+}
+
+// primera y última medición de cada métrica → progreso de las metas
+async function loadMetricHistory(playerId){
+  MET_FIRST={}; MET_LAST={};
+  var r = await sb.from('player_metrics').select('metric_key,value,measured_at').eq('player_id',playerId).order('measured_at');
+  if(r.error){ console.error(r.error); return; }
+  (r.data||[]).forEach(function(m){
+    var o={v:Number(m.value), d:m.measured_at};
+    if(!MET_FIRST[m.metric_key]) MET_FIRST[m.metric_key]=o;
+    MET_LAST[m.metric_key]=o;
+  });
+}
+
+async function refreshPlayerHeader(){
+  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).maybeSingle();
+  if(sm.data){
+    var email=SEL.email, uid=SEL.user_id, cid=SEL.coach_id;
+    SEL=sm.data; SEL.email=email; SEL.user_id=uid; SEL.coach_id=cid;
+    if(IS_COACH){ PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?SEL:p;}); renderRoster(); }
+  }
 }
 
 // ============================================================
@@ -824,11 +1203,31 @@ async function openLightbox(id){
     body.innerHTML='<img src="'+u+'" alt="">';
   }
   document.getElementById('lbTitle').textContent = (m.file_name||'') + (m.size_bytes?' · '+fmtSize(m.size_bytes):'');
+  // descargar: disponible para el coach y para el alumno
+  document.getElementById('lbDl').onclick=function(){ downloadMedia(m.id); };
   // el jugador solo puede borrar lo que subió él
   var puedeBorrar = IS_COACH || m.created_by===USER.id;
   var del=document.getElementById('lbDel');
   del.className = 'btn-danger'+(puedeBorrar?'':' hide');
   del.onclick=function(){ deleteMedia(m); };
+}
+
+// ------------------------------------------------------------
+// DESCARGA — URL firmada con cabecera de descarga, para que el
+// archivo se guarde en el dispositivo en vez de abrirse en el navegador.
+// ------------------------------------------------------------
+async function downloadMedia(id,ev){
+  if(ev){ ev.stopPropagation(); }
+  var m=MEDIA_BY_ID[id]; if(!m) return;
+  var ext=(m.storage_path.split('.').pop()||'bin');
+  var name=m.file_name||((m.media_type==='video'?'video-':'foto-')+String(id).slice(0,8)+'.'+ext);
+  var r=await sb.storage.from(BUCKET).createSignedUrl(m.storage_path,600,{download:name});
+  if(r.error||!r.data){ showError('No se pudo preparar la descarga',errMsg(r.error)); return; }
+  var a=document.createElement('a');
+  a.href=r.data.signedUrl; a.download=name; a.rel='noopener';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ a.remove(); },2000);
+  toast('Descargando '+name);
 }
 function closeLightbox(){
   document.getElementById('lbBody').innerHTML='';
@@ -883,14 +1282,22 @@ function renderProfile(){
     +   '<div class="pstat"><div class="n">'+Object.keys(MEDIA_BY_ID).length+'</div><div class="l">videos y fotos</div></div>'
     + '</div></div>';
 
+  var metasAbiertas = GOALS.filter(function(g){ return g.status==='activa'; }).length;
+  var planesAbiertos = PLANS.filter(function(p){ return p.status!=='completado' && p.status!=='cancelado'; }).length;
+
   html+='<div class="subnav">'
     + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
+    + '<button class="'+(VIEW==='metas'?'on':'')+'" onclick="setView(\'metas\')">Metas'+(metasAbiertas?' ('+metasAbiertas+')':'')+'</button>'
+    + '<button class="'+(VIEW==='planes'?'on':'')+'" onclick="setView(\'planes\')">Planes'+(planesAbiertos?' ('+planesAbiertos+')':'')+'</button>'
     + '<button class="'+(VIEW==='metricas'?'on':'')+'" onclick="setView(\'metricas\')">Métricas</button>'
     + '</div>';
 
   html+='<div id="viewBox"></div>';
   document.getElementById('mainPanel').innerHTML=html;
-  if(VIEW==='timeline') renderTimeline(); else renderMetrics();
+  if(VIEW==='timeline')      renderTimeline();
+  else if(VIEW==='metas')    renderGoals();
+  else if(VIEW==='planes')   renderPlans();
+  else                       renderMetrics();
 }
 function setView(v){ VIEW=v; renderProfile(); }
 
@@ -907,6 +1314,7 @@ function mediaCarousel(evId){
       + (m.media_type==='video'
           ? '<div class="play"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5l11 7-11 7z"/></svg></div>'
           : '<span class="tag">Foto</span>')
+      + '<button class="mdl" title="Descargar" onclick="downloadMedia(\''+m.id+'\',event)">'+SVG_DL+'</button>'
       + '</div>';
   });
   h+='<button class="btn-upload" onclick="quickUpload(\''+evId+'\')">+ Video</button>';
@@ -927,7 +1335,11 @@ function renderTimeline(){
   });
 
   var html='<div class="filters">'+typeChips
-    + '<div class="filters-right"><button class="btn-primary" onclick="openEventModal()">+ Evento</button></div></div>';
+    + '<div class="filters-right">'
+    +   '<button class="btn-ghost" onclick="openGoalModal()">+ Meta</button>'
+    +   (IS_COACH?'<button class="btn-ghost" onclick="openPlanModal()">+ Plan</button>':'')
+    +   '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
+    + '</div></div>';
 
   var list=EVENTS.filter(function(e){
     if(FILTER_TYPE!=='all' && e.event_type!==FILTER_TYPE) return false;
@@ -949,17 +1361,22 @@ function renderTimeline(){
     var ms = e.is_milestone ? ' milestone':'';
     var nMedia=(MEDIA_BY_EVENT[e.id]||[]).length;
     var delJugador = IS_COACH && e.created_by && e.created_by!==USER.id;
-    // el jugador solo puede borrar los eventos que registró él mismo; el coach borra cualquiera
-    var puedeBorrarEvento = IS_COACH || e.created_by===USER.id;
+    // el jugador solo edita/borra los eventos que registró él mismo; el coach, cualquiera
+    var puedeEditarEvento = IS_COACH || e.created_by===USER.id;
+    var puedeBorrarEvento = puedeEditarEvento;
+    var atajo='';
+    if(e.event_type==='plan_asignado')  atajo='<button class="tl-link" onclick="setView(\'planes\')">Ver el plan y su avance</button>';
+    if(e.event_type==='objetivo_creado'||e.event_type==='objetivo_logrado') atajo='<button class="tl-link" onclick="setView(\'metas\')">Ver metas</button>';
     html+='<div class="tl-event'+ms+'">'
        + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
        + '<div class="tl-card">'
        +   '<div class="tl-top"><div class="tl-title">'+esc(e.title)+'</div>'
        +     '<div class="tl-top-right"><div class="tl-date">'+fmtDate(e.event_date)+'</div>'
+       +     (puedeEditarEvento?'<button class="tl-edit" title="Editar evento" onclick="openEditEvent(\''+e.id+'\')">'+SVG_EDIT+'</button>':'')
        +     (puedeBorrarEvento?'<button class="tl-del" title="Eliminar evento" onclick="deleteEvent(\''+e.id+'\')">&times;</button>':'')
        +     '</div></div>'
        +   '<div class="tl-type">'+esc(cfg.label)+'</div>'
-       +   (e.summary?'<div class="tl-summary">'+esc(e.summary)+'</div>':'')
+       +   (e.summary?'<div class="tl-summary">'+fmtRich(e.summary)+'</div>':'')
        +   '<div class="tl-tags">'
        +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
        +     (delJugador?'<span class="tl-pill byplayer">Subido por el jugador</span>':'')
@@ -967,6 +1384,7 @@ function renderTimeline(){
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
        +   '</div>'
+       +   atajo
        +   mediaCarousel(e.id)
        + '</div></div>';
   });
@@ -1003,14 +1421,8 @@ async function deleteEvent(id){
   if(r.error){ showError('No se pudo eliminar el evento',errMsg(r.error)); return; }
 
   toast('Evento eliminado');
-  await loadEvents(SEL.id);
-  await loadMedia(SEL.id);
-  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).maybeSingle();
-  if(sm.data){
-    var email=SEL.email, uid=SEL.user_id, cid=SEL.coach_id;
-    SEL=sm.data; SEL.email=email; SEL.user_id=uid; SEL.coach_id=cid;
-    if(IS_COACH){ PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?SEL:p;}); renderRoster(); }
-  }
+  await loadAll(SEL.id);
+  await refreshPlayerHeader();
   renderProfile();
 }
 
@@ -1155,26 +1567,119 @@ document.getElementById('np_save').addEventListener('click',async function(){
 // ============================================================
 // MODAL: NUEVO EVENTO
 // ============================================================
-function openEventModal(){
-  var sel=document.getElementById('ne_type');
+function typeOptions(selected){
   var html='';
   Object.keys(EVENT_TYPES).forEach(function(t){
-    if(!IS_COACH && EVENT_TYPES[t].coachOnly) return;
-    html+='<option value="'+t+'">'+EVENT_TYPES[t].label+'</option>';
+    var cfg=EVENT_TYPES[t];
+    if(!IS_COACH && cfg.coachOnly && t!==selected) return;
+    html+='<option value="'+t+'"'+(t===selected?' selected':'')+'>'+cfg.label+'</option>';
   });
-  sel.innerHTML=html;
+  return html;
+}
 
-  document.getElementById('ne_heading').textContent = IS_COACH ? 'Registrar evento' : 'Agregar a mi timeline';
-  document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
+function resetEventModal(){
+  EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[];
+  document.getElementById('ne_title').value='';
+  document.getElementById('ne_summary').value='';
+  document.getElementById('ne_pillar').value='';
   document.getElementById('ne_milestone').checked=false;
-
-  document.getElementById('ne_date').value=todayISO();
   document.getElementById('ne_metricRows').innerHTML='';
-  addMetricRow();
-  PENDING=[]; renderPending();
   document.getElementById('ne_upstate').className='upstate';
   document.getElementById('ne_upfail').className='upfail';
+  renderPending();
+  renderExistingMedia();
+}
+
+function openEventModal(){
+  resetEventModal();
+  document.getElementById('ne_type').innerHTML=typeOptions(null);
+  document.getElementById('ne_heading').textContent = IS_COACH ? 'Registrar evento' : 'Agregar a mi timeline';
+  document.getElementById('ne_save').textContent='Guardar evento';
+  document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
+  document.getElementById('ne_date').value=todayISO();
+  addMetricRow();
   openModal('ovEvent');
+}
+
+// ------------------------------------------------------------
+// EDITAR UN EVENTO YA PUBLICADO
+// ------------------------------------------------------------
+async function openEditEvent(id){
+  var e=null;
+  EVENTS.forEach(function(x){ if(x.id===id) e=x; });
+  if(!e) return;
+  if(!(IS_COACH || e.created_by===USER.id)){ toast('Solo puedes editar lo que registraste tú',true); return; }
+
+  resetEventModal();
+  EDIT_ID=id;
+
+  document.getElementById('ne_type').innerHTML=typeOptions(e.event_type);
+  document.getElementById('ne_type').value=e.event_type;
+  document.getElementById('ne_heading').textContent='Editar evento';
+  document.getElementById('ne_save').textContent='Guardar cambios';
+  document.getElementById('ne_title').value=e.title||'';
+  document.getElementById('ne_date').value=e.event_date||todayISO();
+  document.getElementById('ne_pillar').value=e.pillar||'';
+  document.getElementById('ne_summary').value=e.summary||'';
+  document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
+  document.getElementById('ne_milestone').checked = !!e.is_milestone;
+
+  renderExistingMedia();
+  openModal('ovEvent');
+
+  // métricas existentes del evento, precargadas para poder corregirlas
+  var rm=await sb.from('player_metrics').select('*').eq('event_id',id);
+  var box=document.getElementById('ne_metricRows');
+  box.innerHTML='';
+  (rm.data||[]).forEach(function(m){ addMetricRow(m.metric_key, m.value); });
+  addMetricRow();
+}
+
+function renderExistingMedia(){
+  var wrap=document.getElementById('ne_existingWrap');
+  var box=document.getElementById('ne_existing');
+  var list = EDIT_ID ? (MEDIA_BY_EVENT[EDIT_ID]||[]) : [];
+  if(!list.length){ wrap.style.display='none'; box.innerHTML=''; return; }
+  wrap.style.display='block';
+  var html='';
+  list.forEach(function(m){
+    var marked = REMOVE_MEDIA.indexOf(m.id)>=0;
+    var puede = IS_COACH || m.created_by===USER.id;
+    html+='<div class="exitem'+(marked?' rm':'')+'">'
+      + '<span class="ic">'+(m.media_type==='video'?SVG_VID:SVG_IMG)+'</span>'
+      + '<span class="nm">'+esc(m.file_name||'archivo')+'</span>'
+      + '<span class="sz">'+fmtSize(m.size_bytes)+'</span>'
+      + '<button class="btn-x" style="height:28px;width:28px" title="Descargar" onclick="downloadMedia(\''+m.id+'\',event)">↓</button>'
+      + (puede?'<button class="btn-x" style="height:28px;width:28px" title="'+(marked?'Conservar':'Quitar del evento')+'" onclick="toggleRemoveMedia(\''+m.id+'\')">'+(marked?'↺':'×')+'</button>':'')
+      + '</div>';
+  });
+  box.innerHTML=html;
+}
+
+function toggleRemoveMedia(id){
+  var i=REMOVE_MEDIA.indexOf(id);
+  if(i>=0) REMOVE_MEDIA.splice(i,1); else REMOVE_MEDIA.push(id);
+  renderExistingMedia();
+}
+
+async function applyMediaRemovals(){
+  if(!REMOVE_MEDIA.length) return {ok:0,fails:[]};
+  var paths=[], ids=[], fails=[];
+  REMOVE_MEDIA.forEach(function(id){
+    var m=MEDIA_BY_ID[id]; if(!m) return;
+    ids.push(id);
+    paths.push(m.storage_path);
+    if(m.thumb_path && m.thumb_path!==m.storage_path) paths.push(m.thumb_path);
+  });
+  if(paths.length){
+    var rs=await sb.storage.from(BUCKET).remove(paths);
+    if(rs.error) console.warn('storage remove',rs.error);
+  }
+  if(ids.length){
+    var r=await sb.from('player_media').delete().in('id',ids);
+    if(r.error) fails.push('No se pudieron quitar los archivos → '+errMsg(r.error));
+  }
+  return {ok:ids.length, fails:fails};
 }
 
 var neDrop=document.getElementById('ne_drop');
@@ -1212,14 +1717,25 @@ function metricOptions(){
   });
   return html;
 }
-function addMetricRow(){
+function addMetricRow(key,value){
   var row=document.createElement('div');
   row.className='metric-input-row';
   row.innerHTML='<select>'+metricOptions()+'</select><input type="number" step="any" placeholder="valor"><button class="btn-x" type="button">×</button>';
   row.querySelector('.btn-x').addEventListener('click',function(){ row.remove(); });
   document.getElementById('ne_metricRows').appendChild(row);
+  if(key){ row.querySelector('select').value=key; }
+  if(value!=null && value!==''){ row.querySelector('input').value=value; }
 }
-document.getElementById('ne_addMetric').addEventListener('click',addMetricRow);
+document.getElementById('ne_addMetric').addEventListener('click',function(){ addMetricRow(); });
+
+// Metas y Planes son opciones del selector de eventos, pero tienen su propio
+// modal (con métrica objetivo / tareas). Al elegirlas, saltamos ahí.
+document.getElementById('ne_type').addEventListener('change',function(){
+  if(EDIT_ID) return;
+  var cfg=EVENT_TYPES[this.value]||{};
+  if(cfg.special==='meta'){ closeModal('ovEvent'); openGoalModal(); }
+  if(cfg.special==='plan'){ closeModal('ovEvent'); openPlanModal(); }
+});
 
 document.getElementById('ne_save').addEventListener('click',async function(){
   var btn=this;
@@ -1230,65 +1746,683 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   btn.disabled=true;
   var fail=document.getElementById('ne_upfail'); fail.className='upfail';
 
-  var ev={
-    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
-    event_type:type, title:title,
-    event_date:document.getElementById('ne_date').value||todayISO(),
-    summary:document.getElementById('ne_summary').value.trim()||null,
-    pillar:document.getElementById('ne_pillar').value||null,
-    is_milestone: IS_COACH ? document.getElementById('ne_milestone').checked : false,
-    source:'manual'
+  var fecha=document.getElementById('ne_date').value||todayISO();
+  var campos={
+    event_type:type, title:title, event_date:fecha,
+    summary:document.getElementById('ne_summary').value.replace(/\s+$/,'')||null,
+    pillar:document.getElementById('ne_pillar').value||null
   };
-  var r=await sb.from('player_events').insert(ev).select().single();
-  if(r.error){ showError('No se pudo guardar el evento',errMsg(r.error)); btn.disabled=false; return; }
+  if(IS_COACH) campos.is_milestone=document.getElementById('ne_milestone').checked;
 
+  var eventId=EDIT_ID;
+  var editando=!!EDIT_ID;
+
+  if(editando){
+    var ru=await sb.from('player_events').update(campos).eq('id',EDIT_ID).select().single();
+    if(ru.error){ showError('No se pudieron guardar los cambios',errMsg(ru.error)); btn.disabled=false; return; }
+  } else {
+    var ev={player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id, source:'manual'};
+    Object.keys(campos).forEach(function(k){ ev[k]=campos[k]; });
+    if(!IS_COACH) ev.is_milestone=false;
+    var r=await sb.from('player_events').insert(ev).select().single();
+    if(r.error){ showError('No se pudo guardar el evento',errMsg(r.error)); btn.disabled=false; return; }
+    eventId=r.data.id;
+  }
+
+  // métricas: al editar se reemplazan por lo que quede en el formulario
   var rows=document.querySelectorAll('#ne_metricRows .metric-input-row');
   var metrics=[];
   Array.prototype.forEach.call(rows,function(row){
     var k=row.querySelector('select').value;
     var v=row.querySelector('input').value;
     if(k&&v!==''){
-      metrics.push({player_id:SEL.id,event_id:r.data.id,metric_key:k,value:Number(v),measured_at:ev.event_date,source:'manual'});
+      metrics.push({player_id:SEL.id,event_id:eventId,metric_key:k,value:Number(v),measured_at:fecha,source:'manual'});
     }
   });
+  if(editando){
+    var rdel=await sb.from('player_metrics').delete().eq('event_id',eventId);
+    if(rdel.error) console.warn('metrics delete',rdel.error);
+  }
   if(metrics.length){
     var rm=await sb.from('player_metrics').insert(metrics);
     if(rm.error){ showError('El evento se guardó, pero fallaron las métricas',errMsg(rm.error)); }
   }
 
+  // archivos marcados para quitar
+  var rem=await applyMediaRemovals();
+
+  // archivos nuevos
   var res={ok:0,fails:[]};
   if(PENDING.length){
     var st=document.getElementById('ne_upstate');
     st.className='upstate on';
     st.textContent='Subiendo archivos...';
-    res = await uploadFiles(r.data.id, PENDING, function(step){ st.textContent='Subiendo '+step; });
+    res = await uploadFiles(eventId, PENDING, function(step){ st.textContent='Subiendo '+step; });
     st.className='upstate';
   }
+  if(rem.fails.length) res.fails=res.fails.concat(rem.fails);
 
-  await loadEvents(SEL.id);
-  await loadMedia(SEL.id);
-  var sm=await sb.from('v_player_summary').select('*').eq('id',SEL.id).maybeSingle();
-  if(sm.data){
-    var email=SEL.email, uid=SEL.user_id, cid=SEL.coach_id;
-    SEL=sm.data; SEL.email=email; SEL.user_id=uid; SEL.coach_id=cid;
-    if(IS_COACH){ PLAYERS=PLAYERS.map(function(p){return p.id===SEL.id?SEL:p;}); renderRoster(); }
-  }
+  await loadAll(SEL.id);
+  await refreshPlayerHeader();
   renderProfile();
   btn.disabled=false;
 
   if(res.fails.length){
     fail.className='upfail on';
-    fail.innerHTML='<b>No se guardaron '+res.fails.length+' archivo(s):</b><br>'+esc(res.fails.join(' · '));
-    reportUpload(res,'al guardar el evento');
+    fail.innerHTML='<b>Hubo '+res.fails.length+' problema(s):</b><br>'+esc(res.fails.join(' · '));
+    reportUpload(res, editando?'al editar el evento':'al guardar el evento');
     return;
   }
 
   closeModal('ovEvent');
-  document.getElementById('ne_title').value='';
-  document.getElementById('ne_summary').value='';
-  document.getElementById('ne_milestone').checked=false;
-  PENDING=[]; renderPending();
-  toast(res.ok>0 ? 'Guardado con '+res.ok+' archivo'+(res.ok>1?'s':'') : 'Guardado');
+  var partes=[];
+  if(res.ok>0)  partes.push(res.ok+' archivo'+(res.ok>1?'s':'')+' agregado'+(res.ok>1?'s':''));
+  if(rem.ok>0)  partes.push(rem.ok+' quitado'+(rem.ok>1?'s':''));
+  toast((editando?'Evento actualizado':'Guardado')+(partes.length?' · '+partes.join(' · '):''));
+  resetEventModal();
+});
+
+// ============================================================
+// METAS / OBJETIVOS
+// El progreso se calcula contra las mediciones reales del jugador:
+//   punto de partida → medición más reciente → objetivo
+// ============================================================
+async function loadGoals(playerId){
+  var r = await sb.from('player_goals').select('*').eq('player_id',playerId).order('created_at',{ascending:false});
+  if(r.error){ GOALS=[]; console.error('player_goals',r.error); return; }
+  GOALS = r.data||[];
+}
+
+function goalProgress(g){
+  if(!g.metric_key || g.target_value==null) return null;
+  var cur = MET_LAST[g.metric_key] ? MET_LAST[g.metric_key].v : null;
+  if(cur==null) return null;
+  var base = g.baseline_value!=null ? Number(g.baseline_value)
+           : (MET_FIRST[g.metric_key] ? MET_FIRST[g.metric_key].v : cur);
+  var tgt = Number(g.target_value);
+  var pct;
+  if(tgt===base) pct = (cur===tgt?100:0);
+  else pct = ((cur-base)/(tgt-base))*100;
+  if(pct<0) pct=0; if(pct>100) pct=100;
+  return {base:base, cur:cur, tgt:tgt, pct:Math.round(pct), fecha:MET_LAST[g.metric_key].d};
+}
+
+function metricLabel(key){
+  var d=METRIC_BY_KEY[key];
+  if(!d) return key;
+  return d.label_es + (d.unit?' ('+d.unit+')':'');
+}
+
+function renderGoals(){
+  var box=document.getElementById('viewBox');
+  if(!box) return;
+
+  var activas=GOALS.filter(function(g){ return g.status==='activa'; });
+  var cerradas=GOALS.filter(function(g){ return g.status!=='activa'; });
+
+  var html='<div class="sec-head"><h3>Metas y objetivos</h3>'
+    + '<button class="btn-primary" onclick="openGoalModal()">+ Nueva meta</button></div>';
+
+  if(GOALS.length===0){
+    html+='<div class="metric-panel"><div class="goal-empty">'
+      + (IS_COACH
+          ? 'Todavía no hay metas registradas.<br>Anota desde el primer día a dónde quieren llegar — bajar el handicap, subir la velocidad de bola, ganar un torneo — y el avance queda registrado solo.'
+          : 'Tu coach todavía no registró metas.<br>También puedes crear las tuyas y hacerles seguimiento acá.')
+      + '</div></div>';
+    box.innerHTML=html; return;
+  }
+
+  activas.forEach(function(g){ html+=goalCard(g); });
+  if(cerradas.length){
+    html+='<div class="ses-head" style="margin-top:24px">Cerradas</div>';
+    cerradas.forEach(function(g){ html+=goalCard(g); });
+  }
+  box.innerHTML=html;
+}
+
+function goalCard(g){
+  var puede = IS_COACH || g.created_by===USER.id;
+  var pr = goalProgress(g);
+  var hoy = todayISO();
+  var vencida = g.status==='activa' && g.due_date && daysBetween(hoy,g.due_date)<0;
+  var cls = 'goal' + (g.status==='lograda'?' done':'') + (vencida?' late':'');
+
+  var chips='';
+  if(g.metric_key) chips+='<span class="badge tier">'+esc(metricLabel(g.metric_key))+'</span>';
+  if(g.due_date){
+    var d=daysBetween(hoy,g.due_date);
+    var txt = g.status!=='activa' ? fmtDate(g.due_date)
+            : (d<0 ? 'Venció hace '+Math.abs(d)+' días'
+            : (d===0 ? 'Vence hoy' : 'Faltan '+d+' días'));
+    chips+='<span class="badge hcp">'+esc(txt)+'</span>';
+  }
+  if(g.status==='lograda')     chips+='<span class="ms-flag">◆ Lograda'+(g.achieved_at?' · '+fmtDate(g.achieved_at):'')+'</span>';
+  if(g.status==='no_lograda')  chips+='<span class="badge hcp" style="color:var(--red)">No lograda</span>';
+  if(g.target_text && !g.metric_key) chips+='<span class="badge cat">'+esc(g.target_text)+'</span>';
+
+  var acts='';
+  if(puede){
+    if(g.status==='activa'){
+      acts+='<button class="mini gold" onclick="achieveGoal(\''+g.id+'\')">Lograda</button>';
+      acts+='<button class="mini" onclick="openGoalModal(\''+g.id+'\')">Editar</button>';
+    } else {
+      acts+='<button class="mini" onclick="reopenGoal(\''+g.id+'\')">Reabrir</button>';
+    }
+    acts+='<button class="mini red" onclick="deleteGoal(\''+g.id+'\')">Eliminar</button>';
+  }
+
+  var bar='';
+  if(pr){
+    var dec = (METRIC_BY_KEY[g.metric_key] && METRIC_BY_KEY[g.metric_key].decimals!=null) ? METRIC_BY_KEY[g.metric_key].decimals : 1;
+    bar='<div class="bar'+(g.status==='lograda'?' gold':'')+'"><i style="width:'+pr.pct+'%"></i></div>'
+      + '<div class="barinfo"><span>Inicio '+pr.base.toFixed(dec)+'</span>'
+      + '<span style="color:var(--teal)">Hoy '+pr.cur.toFixed(dec)+' · '+pr.pct+'%</span>'
+      + '<span>Meta '+pr.tgt.toFixed(dec)+'</span></div>';
+  } else if(g.metric_key){
+    bar='<div class="barinfo" style="justify-content:flex-start;color:var(--muted2)">Sin mediciones todavía de esta métrica — regístrala en un evento y el avance aparece acá.</div>';
+  }
+
+  return '<div class="'+cls+'">'
+    + '<div class="goal-top"><div class="goal-t">'+esc(g.title)+'</div><div class="goal-acts">'+acts+'</div></div>'
+    + (chips?'<div class="goal-meta">'+chips+'</div>':'')
+    + (g.description?'<div class="goal-desc">'+fmtRich(g.description)+'</div>':'')
+    + bar
+    + '</div>';
+}
+
+function openGoalModal(id){
+  EDIT_GOAL = id||null;
+  var g=null;
+  if(id) GOALS.forEach(function(x){ if(x.id===id) g=x; });
+  if(id && !g) return;
+  if(g && !(IS_COACH || g.created_by===USER.id)){ toast('Solo puedes editar las metas que creaste tú',true); return; }
+
+  document.getElementById('mg_metric').innerHTML=metricOptions();
+  document.getElementById('mg_heading').textContent = g ? 'Editar meta' : 'Nueva meta';
+  document.getElementById('mg_title').value      = g ? (g.title||'') : '';
+  document.getElementById('mg_desc').value       = g ? (g.description||'') : '';
+  document.getElementById('mg_metric').value     = g ? (g.metric_key||'') : '';
+  document.getElementById('mg_base').value       = (g && g.baseline_value!=null) ? g.baseline_value : '';
+  document.getElementById('mg_target').value     = (g && g.target_value!=null) ? g.target_value : '';
+  document.getElementById('mg_targetText').value = g ? (g.target_text||'') : '';
+  document.getElementById('mg_due').value        = g ? (g.due_date||'') : addDays(todayISO(),90);
+  document.getElementById('mg_pubWrap').className = g ? 'check hide' : 'check';
+  document.getElementById('mg_publish').checked = true;
+  syncGoalFields();
+  openModal('ovGoal');
+}
+
+function syncGoalFields(){
+  var conMetrica = !!document.getElementById('mg_metric').value;
+  document.getElementById('mg_valuesRow').style.display = conMetrica ? 'grid' : 'none';
+  document.getElementById('mg_textRow').style.display   = conMetrica ? 'none' : 'block';
+  // sugerimos el punto de partida con la última medición conocida
+  var k=document.getElementById('mg_metric').value;
+  var base=document.getElementById('mg_base');
+  if(conMetrica && base.value==='' && MET_LAST[k]) base.value=MET_LAST[k].v;
+}
+document.getElementById('mg_metric').addEventListener('change',syncGoalFields);
+
+document.getElementById('mg_save').addEventListener('click',async function(){
+  var btn=this;
+  var title=document.getElementById('mg_title').value.trim();
+  if(!title){ toast('Ponle un título a la meta',true); return; }
+  var key=document.getElementById('mg_metric').value||null;
+  var base=document.getElementById('mg_base').value;
+  var tgt=document.getElementById('mg_target').value;
+  if(key && tgt===''){ toast('Indica el valor objetivo de la métrica',true); return; }
+
+  btn.disabled=true;
+  var row={
+    title:title,
+    description:document.getElementById('mg_desc').value.replace(/\s+$/,'')||null,
+    metric_key:key,
+    baseline_value: (key && base!=='') ? Number(base) : null,
+    target_value:   (key && tgt!=='')  ? Number(tgt)  : null,
+    target_text:    key ? null : (document.getElementById('mg_targetText').value.trim()||null),
+    due_date:document.getElementById('mg_due').value||null
+  };
+
+  if(EDIT_GOAL){
+    var ru=await sb.from('player_goals').update(row).eq('id',EDIT_GOAL);
+    if(ru.error){ showError('No se pudo guardar la meta',errMsg(ru.error)); btn.disabled=false; return; }
+    toast('Meta actualizada');
+  } else {
+    row.player_id=SEL.id; row.coach_id=COACH_ID; row.created_by=USER.id; row.status='activa';
+    var ri=await sb.from('player_goals').insert(row).select().single();
+    if(ri.error){ showError('No se pudo crear la meta',errMsg(ri.error),'Si menciona player_goals, falta correr la migración coach_hub_v2.sql en Supabase.'); btn.disabled=false; return; }
+
+    if(document.getElementById('mg_publish').checked){
+      var resumen = row.description || '';
+      if(key && row.target_value!=null) resumen = (resumen?resumen+'\n\n':'') + 'Objetivo: '+metricLabel(key)+' → '+row.target_value;
+      else if(row.target_text) resumen = (resumen?resumen+'\n\n':'') + 'Objetivo: '+row.target_text;
+      var rev=await sb.from('player_events').insert({
+        player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
+        event_type:'objetivo_creado', title:'Meta: '+title,
+        event_date:todayISO(), summary:resumen||null,
+        is_milestone:false, source:'manual'
+      }).select().single();
+      if(!rev.error) await sb.from('player_goals').update({event_id:rev.data.id}).eq('id',ri.data.id);
+    }
+    toast('Meta creada');
+  }
+
+  closeModal('ovGoal');
+  btn.disabled=false;
+  await loadAll(SEL.id);
+  await refreshPlayerHeader();
+  VIEW='metas';
+  renderProfile();
+});
+
+async function achieveGoal(id){
+  var g=null; GOALS.forEach(function(x){ if(x.id===id) g=x; });
+  if(!g) return;
+  var r=await sb.from('player_goals').update({status:'lograda',achieved_at:todayISO()}).eq('id',id);
+  if(r.error){ showError('No se pudo marcar la meta',errMsg(r.error)); return; }
+  await sb.from('player_events').insert({
+    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
+    event_type:'objetivo_logrado', title:'Logrado: '+g.title,
+    event_date:todayISO(), summary:g.description||null,
+    is_milestone: IS_COACH, source:'manual'
+  });
+  toast('¡Meta lograda!');
+  await loadAll(SEL.id);
+  renderProfile();
+}
+
+async function reopenGoal(id){
+  var r=await sb.from('player_goals').update({status:'activa',achieved_at:null}).eq('id',id);
+  if(r.error){ showError('No se pudo reabrir la meta',errMsg(r.error)); return; }
+  await loadGoals(SEL.id); renderProfile();
+}
+
+async function deleteGoal(id){
+  if(!confirm('¿Eliminar esta meta? El evento del timeline se mantiene.')) return;
+  var r=await sb.from('player_goals').delete().eq('id',id);
+  if(r.error){ showError('No se pudo eliminar la meta',errMsg(r.error)); return; }
+  toast('Meta eliminada');
+  await loadGoals(SEL.id); renderProfile();
+}
+
+// ============================================================
+// PLANIFICACIÓN DE ENTRENAMIENTOS
+// Mismo motor que Training Lab (drills reales de la biblioteca),
+// pero asignado a un alumno y con resultados que el coach revisa.
+// ============================================================
+async function loadPlans(playerId){
+  PLANS=[]; PLAN_ITEMS={};
+  var r = await sb.from('player_plans').select('*').eq('player_id',playerId).order('created_at',{ascending:false});
+  if(r.error){ console.error('player_plans',r.error); return; }
+  PLANS = r.data||[];
+  if(!PLANS.length) return;
+  var ids=PLANS.map(function(p){ return p.id; });
+  var ri = await sb.from('player_plan_items').select('*').in('plan_id',ids).order('session_no').order('sort_order');
+  if(ri.error){ console.error('player_plan_items',ri.error); return; }
+  (ri.data||[]).forEach(function(it){
+    if(!PLAN_ITEMS[it.plan_id]) PLAN_ITEMS[it.plan_id]=[];
+    PLAN_ITEMS[it.plan_id].push(it);
+  });
+}
+
+function renderPlans(){
+  var box=document.getElementById('viewBox');
+  if(!box) return;
+
+  var html='<div class="sec-head"><h3>Planes de entrenamiento</h3>'
+    + (IS_COACH?'<button class="btn-primary" onclick="openPlanModal()">+ Asignar plan</button>':'')
+    + '</div>';
+
+  if(PLANS.length===0){
+    html+='<div class="metric-panel"><div class="plan-empty">'
+      + (IS_COACH
+          ? 'Todavía no le asignaste ningún plan.<br>Arma uno con los drills de la biblioteca y el alumno va marcando cada tarea con su resultado.'
+          : 'Tu coach todavía no te asignó un plan de entrenamiento.')
+      + '</div></div>';
+    box.innerHTML=html; return;
+  }
+
+  PLANS.forEach(function(p){ html+=planCard(p); });
+  box.innerHTML=html;
+}
+
+function planCard(p){
+  var items=PLAN_ITEMS[p.id]||[];
+  var done=items.filter(function(i){ return !!i.completed_at; }).length;
+  var pct = items.length ? Math.round(done*100/items.length) : 0;
+  var completo = items.length>0 && done===items.length;
+
+  var sub=[];
+  if(p.due_date) sub.push('Entrega '+fmtDate(p.due_date));
+  if(p.meta && p.meta.nivel) sub.push('Nivel '+p.meta.nivel);
+  if(p.meta && p.meta.minutos) sub.push(p.meta.minutos+' min por sesión');
+
+  var head='<div class="plan-head">'
+    + '<div style="min-width:0"><div class="plan-t">'+esc(p.title)+'</div>'
+    +   '<div class="plan-sub">'+esc(sub.join(' · '))+'</div></div>'
+    + '<div class="plan-ring"><span class="plan-pct">'+pct+'%</span>'
+    +   '<span style="font-size:12.5px;color:var(--muted)">'+done+' de '+items.length+'<br>tareas</span>'
+    +   (IS_COACH?'<button class="mini red" onclick="deletePlan(\''+p.id+'\')">Eliminar</button>':'')
+    + '</div></div>';
+
+  var body='<div class="plan-body">';
+  if(p.notes) body+='<div class="task-d" style="margin:12px 0 4px">'+fmtRich(p.notes)+'</div>';
+  body+='<div class="bar"><i style="width:'+pct+'%"></i></div>';
+
+  var sesiones=[];
+  items.forEach(function(i){ if(sesiones.indexOf(i.session_no)<0) sesiones.push(i.session_no); });
+  sesiones.sort(function(a,b){ return a-b; });
+
+  sesiones.forEach(function(s){
+    if(sesiones.length>1) body+='<div class="ses-head">Sesión '+s+'</div>';
+    items.filter(function(i){ return i.session_no===s; }).forEach(function(i){ body+=taskRow(i); });
+  });
+  body+='</div>';
+
+  return '<div class="plan'+(completo?' done':'')+'">'+head+body+'</div>';
+}
+
+function taskRow(i){
+  var ok=!!i.completed_at;
+  var chips='';
+  if(i.category)    chips+='<span class="tl-pill">'+esc(i.category)+'</span>';
+  if(i.level)       chips+='<span class="tl-pill">'+esc(i.level)+'</span>';
+  if(i.est_minutes) chips+='<span class="tl-pill">'+i.est_minutes+' min</span>';
+  if(i.balls)       chips+='<span class="tl-pill">'+i.balls+' bolas</span>';
+
+  var res='';
+  if(ok){
+    var quien = (i.completed_by===USER.id) ? 'ti' : (IS_COACH?'el alumno':'tu coach');
+    var det=[];
+    if(i.result_text)      det.push(esc(i.result_text));
+    if(i.result_value!=null) det.push('valor: '+i.result_value);
+    res='<div class="task-res"><b>Resultado</b> · marcada por '+quien+' el '+fmtDate(String(i.completed_at).slice(0,10))+'<br>'
+      + (det.length?det.join(' · '):'Sin detalle')+'</div>';
+  }
+
+  return '<div class="task'+(ok?' ok':'')+'">'
+    + '<button class="task-ck" onclick="openTaskModal(\''+i.id+'\')" title="'+(ok?'Editar resultado':'Marcar completada')+'">'+SVG_CK+'</button>'
+    + '<div class="task-main">'
+    +   '<div class="task-t">'+esc(i.title)+'</div>'
+    +   (chips?'<div class="task-chips">'+chips+'</div>':'')
+    +   (i.detail?'<div class="task-d">'+fmtRich(i.detail)+'</div>':'')
+    +   (i.target_text?'<div class="task-goal">◆ Reto: '+esc(i.target_text)+'</div>':'')
+    +   res
+    + '</div>'
+    + (IS_COACH?'<button class="task-del" title="Quitar tarea" onclick="deleteTask(\''+i.id+'\')">&times;</button>':'')
+    + '</div>';
+}
+
+// ---------- marcar tarea + resultado ----------
+function findTask(id){
+  var found=null;
+  Object.keys(PLAN_ITEMS).forEach(function(pid){
+    PLAN_ITEMS[pid].forEach(function(i){ if(i.id===id) found=i; });
+  });
+  return found;
+}
+function openTaskModal(id){
+  var i=findTask(id); if(!i) return;
+  TASK_CUR=i;
+  document.getElementById('tk_name').textContent=i.title + (i.target_text?' — '+i.target_text:'');
+  document.getElementById('tk_result').value=i.result_text||'';
+  document.getElementById('tk_value').value=(i.result_value!=null?i.result_value:'');
+  document.getElementById('tk_undo').style.display = i.completed_at ? 'inline-block' : 'none';
+  openModal('ovTask');
+}
+document.getElementById('tk_save').addEventListener('click',async function(){
+  if(!TASK_CUR) return;
+  var btn=this; btn.disabled=true;
+  var val=document.getElementById('tk_value').value;
+  var upd={
+    completed_at: TASK_CUR.completed_at || new Date().toISOString(),
+    completed_by: USER.id,
+    result_text: document.getElementById('tk_result').value.trim()||null,
+    result_value: val===''?null:Number(val)
+  };
+  var r=await sb.from('player_plan_items').update(upd).eq('id',TASK_CUR.id);
+  btn.disabled=false;
+  if(r.error){ showError('No se pudo guardar el resultado',errMsg(r.error)); return; }
+  closeModal('ovTask');
+  toast('Tarea completada');
+  await loadPlans(SEL.id);
+  await syncPlanStatus();
+  renderProfile();
+});
+document.getElementById('tk_undo').addEventListener('click',async function(){
+  if(!TASK_CUR) return;
+  var r=await sb.from('player_plan_items').update({completed_at:null,completed_by:null,result_text:null,result_value:null}).eq('id',TASK_CUR.id);
+  if(r.error){ showError('No se pudo actualizar la tarea',errMsg(r.error)); return; }
+  closeModal('ovTask');
+  await loadPlans(SEL.id);
+  await syncPlanStatus();
+  renderProfile();
+});
+
+// marca el plan como completado cuando todas sus tareas lo están
+async function syncPlanStatus(){
+  for(var i=0;i<PLANS.length;i++){
+    var p=PLANS[i];
+    var items=PLAN_ITEMS[p.id]||[];
+    if(!items.length) continue;
+    var todas = items.every(function(x){ return !!x.completed_at; });
+    var nuevo = todas ? 'completado' : 'asignado';
+    if(p.status!==nuevo && p.status!=='cancelado'){
+      await sb.from('player_plans').update({status:nuevo}).eq('id',p.id);
+      p.status=nuevo;
+    }
+  }
+}
+
+async function deleteTask(id){
+  if(!confirm('¿Quitar esta tarea del plan?')) return;
+  var r=await sb.from('player_plan_items').delete().eq('id',id);
+  if(r.error){ showError('No se pudo quitar la tarea',errMsg(r.error)); return; }
+  await loadPlans(SEL.id); renderProfile();
+}
+async function deletePlan(id){
+  if(!confirm('¿Eliminar el plan completo con todas sus tareas y resultados?')) return;
+  var r=await sb.from('player_plans').delete().eq('id',id);
+  if(r.error){ showError('No se pudo eliminar el plan',errMsg(r.error)); return; }
+  toast('Plan eliminado');
+  await loadPlans(SEL.id); renderProfile();
+}
+
+// ---------- generador ----------
+async function loadDrills(){
+  if(DRILLS.length) return;
+  var r=await sb.from('drills').select('id,name,category,tipologia,objetivo,tipo_puntuacion,nota,variaciones').limit(1000);
+  if(r.error){ showError('No se pudieron cargar los drills',errMsg(r.error),'El plan igual se puede armar a mano con "+ agregar tarea manual".'); return; }
+  DRILLS=r.data||[];
+}
+function parseMin(s){ var m=String(s||'').match(/\d+/); return m?parseInt(m[0],10):15; }
+function levelVariant(d,nivel){
+  var v=d.variaciones||{};
+  var keys=Object.keys(v);
+  return v[nivel]||v.intermediate||v.beginner||v.advanced||v.expert||(keys.length?v[keys[0]]:{})||{};
+}
+function focoScore(d,focos){
+  if(!focos.length) return 0;
+  var tip=((d.tipologia||'')+' '+(d.objetivo||'')).toLowerCase();
+  var s=0;
+  focos.forEach(function(f){ (FOCO_KW[f]||[]).forEach(function(k){ if(tip.indexOf(k)>=0) s++; }); });
+  return s;
+}
+function buildSession(areas,focos,nivel,targetMin,idx,usadas){
+  var ex=[], mins=0, guard=0;
+  var rot=areas.map(function(_,i){ return areas[(i+idx)%areas.length]; });
+  while(mins<targetMin && guard<50){
+    var added=false;
+    for(var c=0;c<rot.length;c++){
+      if(mins>=targetMin) break;
+      var cat=rot[c];
+      var pool=DRILLS.filter(function(d){ return d.category===cat && !usadas[d.id]; });
+      if(!pool.length){ pool=DRILLS.filter(function(d){ return d.category===cat; }); }
+      if(!pool.length) continue;
+      pool.sort(function(a,b){ return focoScore(b,focos)-focoScore(a,focos); });
+      var top=pool.slice(0,Math.max(1,Math.min(4,pool.length)));
+      var d=top[Math.floor(Math.random()*top.length)];
+      usadas[d.id]=true;
+      var v=levelVariant(d,nivel);
+      var dur=parseMin(v.duracion);
+      var elementos=(v.elementos||[]).slice(0,4);
+      var detalle=[];
+      if(d.objetivo) detalle.push(d.objetivo);
+      if(elementos.length) detalle.push('Necesitas: '+elementos.join(', '));
+      ex.push({
+        drill_id:d.id, title:d.name||'Drill', category:d.category,
+        level:(v.nivel||nivel), balls:(v.num_pelotas||null), est_minutes:dur,
+        detail:detalle.join('\n'),
+        target_text:(v.puntuacion&&v.puntuacion.sistema)||d.tipo_puntuacion||d.tipologia||'Ejecuta bajo condiciones de competencia.'
+      });
+      mins+=dur; added=true;
+      if(mins>=targetMin) break;
+    }
+    guard++;
+    if(!added) break;
+  }
+  return ex;
+}
+
+function renderPlanPicks(){
+  var a='';
+  AREAS.forEach(function(x){
+    a+='<div class="gchip'+(PLAN_SEL.areas.indexOf(x)>=0?' on':'')+'" onclick="togglePick(\'areas\',\''+x.replace(/'/g,"\\'")+'\',this)">'+esc(x)+'</div>';
+  });
+  document.getElementById('pl_areas').innerHTML=a;
+  var f='';
+  FOCOS.forEach(function(x){
+    f+='<div class="gchip'+(PLAN_SEL.focos.indexOf(x)>=0?' on':'')+'" onclick="togglePick(\'focos\',\''+x.replace(/'/g,"\\'")+'\',this)">'+esc(x)+'</div>';
+  });
+  document.getElementById('pl_focos').innerHTML=f;
+}
+function togglePick(grupo,val,el){
+  var arr=PLAN_SEL[grupo];
+  var i=arr.indexOf(val);
+  if(i>=0){ if(grupo==='areas' && arr.length===1) return; arr.splice(i,1); }
+  else arr.push(val);
+  el.classList.toggle('on', arr.indexOf(val)>=0);
+}
+
+async function openPlanModal(){
+  if(!IS_COACH){ toast('Solo el coach asigna planes',true); return; }
+  PLAN_DRAFT=[];
+  document.getElementById('pl_title').value='Plan de entrenamiento';
+  document.getElementById('pl_start').value=todayISO();
+  document.getElementById('pl_due').value=addDays(todayISO(),7);
+  document.getElementById('pl_notes').value='';
+  renderPlanPicks();
+  renderDraft();
+  openModal('ovPlan');
+  await loadDrills();
+}
+
+document.getElementById('pl_gen').addEventListener('click',async function(){
+  var btn=this;
+  await loadDrills();
+  if(!DRILLS.length){ toast('No hay drills cargados — agrega las tareas a mano',true); return; }
+  btn.disabled=true;
+  var nivel=document.getElementById('pl_level').value;
+  var targetMin=parseInt(document.getElementById('pl_min').value,10)||60;
+  var nSes=parseInt(document.getElementById('pl_ses').value,10)||1;
+  var usadas={};
+  PLAN_DRAFT=[];
+  for(var s=1;s<=nSes;s++){
+    var ex=buildSession(PLAN_SEL.areas,PLAN_SEL.focos,nivel,targetMin,s-1,usadas);
+    ex.forEach(function(t){ t.session_no=s; PLAN_DRAFT.push(t); });
+  }
+  renderDraft();
+  btn.disabled=false;
+  if(!PLAN_DRAFT.length) toast('No se encontraron drills para esas áreas',true);
+  else toast(PLAN_DRAFT.length+' tareas generadas — puedes editarlas antes de asignar');
+});
+
+function renderDraft(){
+  var box=document.getElementById('pl_draft');
+  document.getElementById('pl_count').textContent = PLAN_DRAFT.length ? '· '+PLAN_DRAFT.length : '';
+  if(!PLAN_DRAFT.length){
+    box.innerHTML='<div style="color:var(--muted2);font-size:13px;padding:10px 2px">Genera las tareas con los drills de la biblioteca, o agrégalas a mano.</div>';
+    return;
+  }
+  var html='';
+  PLAN_DRAFT.forEach(function(t,i){
+    var meta=[];
+    if(t.session_no) meta.push('Sesión '+t.session_no);
+    if(t.category) meta.push(t.category);
+    if(t.est_minutes) meta.push(t.est_minutes+' min');
+    if(t.balls) meta.push(t.balls+' bolas');
+    html+='<div class="drow"><div class="dm">'
+      + '<div class="dt">'+esc(t.title)+'</div>'
+      + '<div class="dd">'+esc(meta.join(' · '))+(t.target_text?' — '+esc(t.target_text):'')+'</div>'
+      + '</div><button class="btn-x" style="height:28px;width:28px" onclick="removeDraft('+i+')">×</button></div>';
+  });
+  box.innerHTML=html;
+}
+function removeDraft(i){ PLAN_DRAFT.splice(i,1); renderDraft(); }
+
+document.getElementById('pl_addManual').addEventListener('click',function(){
+  var t=prompt('Nombre de la tarea (ej: 50 putts de 1,5 m seguidos)');
+  if(!t) return;
+  var reto=prompt('Reto o condición de éxito (opcional)')||null;
+  var nSes=parseInt(document.getElementById('pl_ses').value,10)||1;
+  PLAN_DRAFT.push({title:t.trim(), target_text:reto, session_no:nSes>1?nSes:1, detail:null});
+  renderDraft();
+});
+
+document.getElementById('pl_save').addEventListener('click',async function(){
+  var btn=this;
+  var title=document.getElementById('pl_title').value.trim();
+  if(!title){ toast('Ponle un título al plan',true); return; }
+  if(!PLAN_DRAFT.length){ toast('El plan no tiene tareas',true); return; }
+
+  btn.disabled=true;
+  var notas=document.getElementById('pl_notes').value.replace(/\s+$/,'')||null;
+  var plan={
+    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
+    title:title, notes:notas,
+    start_date:document.getElementById('pl_start').value||todayISO(),
+    due_date:document.getElementById('pl_due').value||null,
+    status:'asignado',
+    meta:{
+      areas:PLAN_SEL.areas, focos:PLAN_SEL.focos,
+      nivel:document.getElementById('pl_level').value,
+      minutos:parseInt(document.getElementById('pl_min').value,10),
+      sesiones:parseInt(document.getElementById('pl_ses').value,10)
+    }
+  };
+  var rp=await sb.from('player_plans').insert(plan).select().single();
+  if(rp.error){ showError('No se pudo crear el plan',errMsg(rp.error),'Si menciona player_plans, falta correr la migración coach_hub_v2.sql en Supabase.'); btn.disabled=false; return; }
+
+  var items=PLAN_DRAFT.map(function(t,i){
+    return {
+      plan_id:rp.data.id, player_id:SEL.id, sort_order:i, session_no:t.session_no||1,
+      drill_id:t.drill_id||null, title:t.title, detail:t.detail||null,
+      target_text:t.target_text||null, est_minutes:t.est_minutes||null,
+      balls:t.balls||null, level:t.level||null, category:t.category||null
+    };
+  });
+  var ri=await sb.from('player_plan_items').insert(items);
+  if(ri.error){ showError('El plan se creó pero fallaron las tareas',errMsg(ri.error)); }
+
+  // queda anotado en el timeline
+  var resumen=(notas?notas+'\n\n':'')+PLAN_DRAFT.length+' tareas'
+    + (plan.due_date?' · entrega '+fmtDate(plan.due_date):'');
+  var rev=await sb.from('player_events').insert({
+    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id,
+    event_type:'plan_asignado', title:'Plan: '+title,
+    event_date:plan.start_date, summary:resumen,
+    is_milestone:false, source:'manual'
+  }).select().single();
+  if(!rev.error) await sb.from('player_plans').update({event_id:rev.data.id}).eq('id',rp.data.id);
+
+  closeModal('ovPlan');
+  btn.disabled=false;
+  toast('Plan asignado con '+PLAN_DRAFT.length+' tareas');
+  PLAN_DRAFT=[];
+  await loadAll(SEL.id);
+  await refreshPlayerHeader();
+  VIEW='planes';
+  renderProfile();
 });
 
 document.querySelectorAll('.overlay').forEach(function(o){
