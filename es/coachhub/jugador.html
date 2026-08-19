@@ -1312,8 +1312,11 @@ function setView(v){ VIEW=v; renderProfile(); }
 // ============================================================
 // TIMELINE
 // ============================================================
-function mediaCarousel(evId){
+// sinSubida: los planes de entrenamiento no llevan cajita de "+ Video" en el
+// timeline — sus archivos, si los hubiera, sí se siguen mostrando.
+function mediaCarousel(evId, sinSubida){
   var list=MEDIA_BY_EVENT[evId]||[];
+  if(sinSubida && !list.length) return '';
   var h='<div class="tl-media">'
       + '<button class="mnav prev" onclick="railScroll(this,-1)">&#10094;</button>'
       + '<div class="mrail">';
@@ -1325,7 +1328,7 @@ function mediaCarousel(evId){
       + '<button class="mdl" title="Descargar" onclick="downloadMedia(\''+m.id+'\',event)">'+SVG_DL+'</button>'
       + '</div>';
   });
-  h+='<button class="btn-upload" onclick="quickUpload(\''+evId+'\')">+ Video</button>';
+  if(!sinSubida) h+='<button class="btn-upload" onclick="quickUpload(\''+evId+'\')">+ Video</button>';
   h+='</div><button class="mnav next" onclick="railScroll(this,1)">&#10095;</button></div>';
   return h;
 }
@@ -1393,7 +1396,7 @@ function renderTimeline(){
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
        +   '</div>'
        +   atajo
-       +   mediaCarousel(e.id)
+       +   mediaCarousel(e.id, e.event_type==='plan_asignado')
        + '</div></div>';
   });
   html+='</div>';
