@@ -103,11 +103,17 @@
   .chip{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed';font-weight:500;font-size:14px;padding:6px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
   .chip:hover{border-color:var(--border2);color:var(--text)}
   .chip.on{background:var(--teal);color:#04211d;border-color:var(--teal)}
+  .chip b{font-weight:700;opacity:.6;margin-left:2px}
   .filters-right{margin-left:auto;display:flex;gap:8px}
   .btn-primary{background:var(--teal);color:#04211d;border:none;border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
   .btn-primary:hover{filter:brightness(1.1)}
   .btn-primary:disabled{opacity:.55;cursor:default}
   .btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border2);border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+  .btn-ghost:disabled{opacity:.5;cursor:default}
+
+  /* fila de filtros secundaria (área del juego) */
+  .subfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:-6px 0 18px;padding-bottom:2px}
+  .flabel{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);margin-right:2px}
 
   .timeline{position:relative;padding-left:36px}
   .timeline::before{content:'';position:absolute;left:13px;top:6px;bottom:6px;width:2px;background:var(--border2)}
@@ -131,6 +137,7 @@
   .tl-pill.pillar{color:var(--teal);border-color:var(--teal-dim)}
   .tl-pill.media{color:var(--blue)}
   .tl-pill.byplayer{color:var(--gold)}
+  .tl-pill.area{color:var(--orange);border-color:rgba(224,161,91,.38)}
   .ms-flag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);background:rgba(212,197,169,.12);padding:2px 8px;border-radius:10px}
   .tl-empty{text-align:center;color:var(--muted);padding:40px}
 
@@ -173,6 +180,7 @@
   .fileitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fileitem .sz{color:var(--muted2);font-size:12px;white-space:nowrap}
   .fileitem .sz.big{color:var(--orange)}
+  .fileitem .cut{color:var(--teal);font-size:11px;white-space:nowrap;font-family:'Barlow Condensed';font-weight:600;letter-spacing:.4px;text-transform:uppercase}
   .upstate{margin-top:10px;font-size:13px;color:var(--teal);display:none}
   .upstate.on{display:block}
   .upfail{margin-top:10px;font-size:13px;color:#ffc0c0;background:#2a1414;border:1px solid rgba(224,106,106,.4);border-radius:9px;padding:10px 12px;display:none;line-height:1.5}
@@ -323,6 +331,46 @@
   .drow .dd{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
   .drow input{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:14px;padding:7px 9px;border-radius:7px}
 
+  /* ---------- PROGRESO DE SUBIDA ---------- */
+  .upprog{position:fixed;right:20px;bottom:20px;z-index:210;width:330px;max-width:calc(100vw - 32px);background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;box-shadow:0 14px 44px rgba(0,0,0,.6);display:none}
+  .upprog.on{display:block}
+  .upprog-head{display:flex;align-items:center;gap:9px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px}
+  .upprog-head .cnt{margin-left:auto;font-size:13px;color:var(--muted);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+  .spin{width:15px;height:15px;border-radius:50%;border:2px solid rgba(45,212,191,.25);border-top-color:var(--teal);animation:mglspin .7s linear infinite;flex-shrink:0}
+  @keyframes mglspin{to{transform:rotate(360deg)}}
+  .upprog-name{font-size:12.5px;color:var(--muted);margin-top:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .upbar{height:7px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:8px}
+  .upbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal-dim),var(--teal));transition:width .12s linear}
+  .upbar.indet i{animation:mglslide 1.15s ease-in-out infinite;transition:none}
+  @keyframes mglslide{0%{margin-left:-36%}100%{margin-left:100%}}
+  .upprog-phase{font-size:12px;color:var(--teal);margin-top:7px;font-variant-numeric:tabular-nums;line-height:1.4}
+
+  /* ---------- RECORTE DE VIDEO ---------- */
+  #ovTrim{z-index:160}
+  .trimvid{width:100%;max-height:44vh;background:#000;border-radius:11px;display:block}
+  .trimname{font-size:12.5px;color:var(--muted);margin:-10px 0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .trimtrack{position:relative;height:40px;margin-top:12px}
+  .trimtrack .rail{position:absolute;top:17px;left:0;right:0;height:6px;background:var(--bg2);border:1px solid var(--border);border-radius:5px}
+  .trimtrack .sel{position:absolute;top:17px;height:6px;background:var(--teal);border-radius:5px}
+  .trimtrack input[type=range]{position:absolute;top:0;left:0;width:100%;height:40px;margin:0;background:none;-webkit-appearance:none;appearance:none;pointer-events:none}
+  .trimtrack input[type=range]:focus{outline:none}
+  .trimtrack input[type=range]::-webkit-slider-runnable-track{height:40px;background:none;border:none}
+  .trimtrack input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:16px;height:28px;border-radius:6px;background:var(--teal);border:2px solid #04211d;cursor:ew-resize;margin-top:6px}
+  .trimtrack input[type=range]::-moz-range-track{height:40px;background:none;border:none}
+  .trimtrack input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:28px;border-radius:6px;background:var(--teal);border:2px solid #04211d;cursor:ew-resize}
+  .trimtimes{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .trimtimes b{color:var(--teal);font-family:'Barlow Condensed';font-size:16px;letter-spacing:.3px}
+  .trimest{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.55}
+  .trimest b{color:var(--text)}
+  .trimest.warn b{color:var(--orange)}
+  .trimerr{display:none;font-size:13px;color:#ffc0c0;background:#2a1414;border:1px solid rgba(224,106,106,.4);border-radius:9px;padding:10px 12px;margin-top:12px;line-height:1.5}
+  .trimerr.on{display:block}
+  .check2{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14px;color:var(--muted);margin-top:2px}
+  .check2 input{width:auto}
+  .trimwork{display:none;margin-top:14px}
+  .trimwork.on{display:block}
+  .trimwork .lbl{font-size:12.5px;color:var(--teal);margin-top:7px;font-variant-numeric:tabular-nums}
+
   @media(max-width:900px){
     .shell{grid-template-columns:1fr}
     .roster{position:static}
@@ -331,6 +379,7 @@
     .mnav{display:none !important}
     .mthumb{width:80vw;max-width:300px;height:169px}
     .btn-upload{height:169px}
+    .upprog{right:12px;left:12px;bottom:12px;width:auto}
   }
 </style>
 </head>
@@ -441,6 +490,14 @@
         </select>
       </div>
     </div>
+
+    <!-- Área del juego: solo para las clases -->
+    <div class="field" id="ne_areaWrap" style="display:none">
+      <label>Área del juego trabajada</label>
+      <div class="pick" id="ne_areaPick"></div>
+      <div class="hint">Permite filtrar el historial y ver todas las clases de cada área por separado. Toca de nuevo para quitar la selección.</div>
+    </div>
+
     <div class="field">
       <label>Resumen / notas</label>
       <textarea id="ne_summary" rows="6" placeholder="Qué se trabajó, observaciones...&#10;&#10;- Puedes usar bullets con un guión&#10;- Se ven tal cual en el historial&#10;&#10;También respeta párrafos y saltos de línea."></textarea>
@@ -452,7 +509,7 @@
       <label>Videos y fotos</label>
       <div class="drop" id="ne_drop">
         Arrastra los archivos acá o toca para elegirlos
-        <small>MP4, MOV o WEBM</small>
+        <small>MP4, MOV o WEBM · los videos se pueden recortar antes de subirlos</small>
       </div>
       <input type="file" id="ne_files" accept="video/*,image/*" multiple hidden>
       <div class="filelist" id="ne_fileList"></div>
@@ -474,6 +531,61 @@
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('ovEvent')">Cancelar</button>
       <button class="btn-primary" id="ne_save">Guardar evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RECORTAR VIDEO -->
+<div class="overlay" id="ovTrim">
+  <div class="modal" style="max-width:620px">
+    <h2>Recortar video</h2>
+    <div class="trimname" id="tr_name"></div>
+    <video class="trimvid" id="tr_video" playsinline muted preload="metadata"></video>
+
+    <div class="trimtrack">
+      <div class="rail"></div>
+      <div class="sel" id="tr_sel"></div>
+      <input type="range" id="tr_start" min="0" max="1000" step="1" value="0">
+      <input type="range" id="tr_end" min="0" max="1000" step="1" value="1000">
+    </div>
+    <div class="trimtimes">
+      <span id="tr_a">0:00.0</span>
+      <span>Selección: <b id="tr_len">0:00.0</b> <button class="mini" id="tr_play" style="margin-left:8px">Ver selección</button></span>
+      <span id="tr_b">0:00.0</span>
+    </div>
+
+    <div class="field-row" style="margin-top:16px">
+      <div class="field">
+        <label>Calidad</label>
+        <select id="tr_q">
+          <option value="alta">Alta — análisis técnico</option>
+          <option value="media" selected>Media — recomendada</option>
+          <option value="ligera">Ligera — para compartir</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Resolución</label>
+        <select id="tr_r">
+          <option value="0">Original</option>
+          <option value="1920" selected>Hasta 1080p</option>
+          <option value="1280">Hasta 720p</option>
+        </select>
+      </div>
+    </div>
+    <label class="check2"><input type="checkbox" id="tr_audio"><span>Incluir audio (se escuchará el video mientras se procesa)</span></label>
+
+    <div class="trimest" id="tr_est"></div>
+    <div class="trimerr" id="tr_err"></div>
+
+    <div class="trimwork" id="tr_work">
+      <div class="upbar"><i id="tr_bar"></i></div>
+      <div class="lbl" id="tr_ptxt">Procesando...</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="tr_cancel">Cancelar</button>
+      <button class="btn-ghost" id="tr_full">Subir completo</button>
+      <button class="btn-primary" id="tr_apply">Aplicar recorte</button>
     </div>
   </div>
 </div>
@@ -589,6 +701,14 @@
 
 <input type="file" id="quickFiles" accept="video/*,image/*" multiple hidden>
 
+<!-- PANEL DE PROGRESO DE SUBIDA -->
+<div class="upprog" id="upProg">
+  <div class="upprog-head"><span class="spin"></span><span id="upProgTitle">Subiendo</span><span class="cnt" id="upProgCount"></span></div>
+  <div class="upprog-name" id="upProgName"></div>
+  <div class="upbar" id="upProgBarWrap"><i id="upProgBar"></i></div>
+  <div class="upprog-phase" id="upProgPhase"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -621,6 +741,7 @@ var METRIC_BY_KEY = {};
 var VIEW = 'timeline';
 var FILTER_TYPE = 'all';
 var FILTER_PILLAR = 'all';
+var FILTER_AREA = 'all';     // full_swing | short_game | putting
 var FILTER_GROUP = 'all';    // juniors | amateurs | profesionales | seniors
 var EDIT_ID = null;          // evento en edición
 var REMOVE_MEDIA = [];       // ids de media marcados para borrar al guardar
@@ -633,6 +754,8 @@ var PLAN_ITEMS = {};
 var DRILLS = [];
 var PLAN_DRAFT = [];
 var TASK_CUR = null;
+var NE_AREA = null;          // área elegida en el modal de evento
+var HAS_AREA = true;         // se apaga solo si la columna "area" no existe todavía
 
 // ============================================================
 // TIPOS DE EVENTO
@@ -663,6 +786,16 @@ var EVENT_TYPES = {
 var PILLAR_LABEL = {ground_forces:'Ground Forces',kinematic_sequence:'Kinematic Sequence',body_tilts:'Body Tilts',wrist_conditions:'Wrist Conditions'};
 var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional',senior:'Senior'};
 var TIER_LABEL = {basico:'Básico',intermedio:'Intermedio',avanzado:'Avanzado'};
+
+// Áreas del juego — hoy se usan en las clases; el filtro del timeline las lee de acá.
+var GAME_AREAS = [
+  {k:'full_swing', label:'Full Swing'},
+  {k:'short_game', label:'Short Game'},
+  {k:'putting',    label:'Putting'}
+];
+var AREA_LABEL = {full_swing:'Full Swing', short_game:'Short Game', putting:'Putting'};
+// tipos de evento que llevan área del juego
+var AREA_TYPES = {clase:true};
 
 // Agrupación del portafolio: las categorías finas se mantienen en la ficha,
 // pero el roster se filtra por estos cuatro grupos.
@@ -711,6 +844,11 @@ function initials(a,b){ return ((a||'?').charAt(0)+(b||'').charAt(0)).toUpperCas
 function fmtDate(d){ if(!d) return ''; var p=String(d).split('-'); if(p.length<3) return d; return p[2]+'/'+p[1]+'/'+p[0].slice(2); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function fmtSize(b){ if(!b) return ''; if(b<1048576) return Math.round(b/1024)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+function fmtClock(t){
+  if(!isFinite(t)||t<0) t=0;
+  var m=Math.floor(t/60), s=t-m*60;
+  return m+':'+(s<10?'0':'')+s.toFixed(1);
+}
 function icon(path,color){
   var parts=path.split(' M');
   var d = parts.map(function(p,i){ return i===0?p:'M'+p; }).join(' ');
@@ -928,7 +1066,7 @@ async function selectPlayer(id){
   SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
   if(!SEL) return;
   COACH_ID = USER.id;
-  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all';
+  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all';
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
   await loadAll(id);
@@ -947,6 +1085,18 @@ async function loadEvents(playerId){
   var r = await sb.from('v_player_timeline').select('*').eq('player_id',playerId).order('event_date',{ascending:false}).order('created_at',{ascending:false});
   if(r.error){ console.error(r.error); EVENTS=[]; return; }
   EVENTS = r.data||[];
+
+  // El área del juego vive en la tabla base. La leemos aparte porque la vista
+  // v_player_timeline puede no exponer la columna; así no hay que recrearla.
+  var ra = await sb.from('player_events').select('id,area').eq('player_id',playerId);
+  if(ra.error){
+    HAS_AREA=false;
+    console.warn('columna "area" no disponible todavía — falta correr coach_hub_area_clases.sql', ra.error);
+    return;
+  }
+  HAS_AREA=true;
+  var map={}; (ra.data||[]).forEach(function(x){ map[x.id]=x.area||null; });
+  EVENTS.forEach(function(e){ if(e.area==null) e.area=map[e.id]||null; });
 }
 
 // primera y última medición de cada métrica → progreso de las metas
@@ -1084,22 +1234,379 @@ async function backfillThumb(m, videoEl){
   }catch(e){ console.warn('backfillThumb',e); }
 }
 
+// ============================================================
+// PANEL DE PROGRESO
+// El cliente de Supabase no expone el avance de la subida, así que el
+// archivo se manda por XHR contra el endpoint REST del storage: eso sí
+// entrega evento de progreso y podemos mostrar el porcentaje real.
+// ============================================================
+var PROG_PHASE='';
+function progShow(){
+  document.getElementById('upProg').classList.add('on');
+  document.getElementById('upProgCount').textContent='';
+  document.getElementById('upProgName').textContent='';
+  PROG_PHASE='Preparando';
+  progIndet(true);
+}
+function progFile(n,total,name,size){
+  document.getElementById('upProgCount').textContent=n+' de '+total;
+  document.getElementById('upProgName').textContent=name+(size?' · '+fmtSize(size):'');
+}
+function progPhase(t){
+  PROG_PHASE=t;
+  document.getElementById('upProgPhase').textContent=t;
+}
+function progPct(p){
+  progIndet(false);
+  var v=Math.max(0,Math.min(1,p||0));
+  document.getElementById('upProgBar').style.width=Math.round(v*100)+'%';
+  document.getElementById('upProgPhase').textContent=PROG_PHASE+' · '+Math.round(v*100)+'%';
+}
+function progIndet(on){
+  var w=document.getElementById('upProgBarWrap');
+  var bar=document.getElementById('upProgBar');
+  if(on){ w.classList.add('indet'); bar.style.width='36%'; document.getElementById('upProgPhase').textContent=PROG_PHASE; }
+  else { w.classList.remove('indet'); bar.style.marginLeft='0'; }
+}
+function progHide(){
+  document.getElementById('upProg').classList.remove('on');
+  progIndet(false);
+  document.getElementById('upProgBar').style.width='0';
+}
+
+// Sube un archivo al storage con progreso real.
+async function uploadWithProgress(path, file, contentType, onProgress){
+  var s = await sb.auth.getSession();
+  var token = (s.data && s.data.session && s.data.session.access_token) || SUPABASE_ANON_KEY;
+  return new Promise(function(resolve){
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST', SUPABASE_URL+'/storage/v1/object/'+BUCKET+'/'+path, true);
+    xhr.setRequestHeader('Authorization','Bearer '+token);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('x-upsert','false');
+    xhr.setRequestHeader('cache-control','3600');
+    if(contentType) xhr.setRequestHeader('Content-Type', contentType);
+    xhr.upload.onprogress=function(e){
+      if(e.lengthComputable && onProgress) onProgress(e.loaded/e.total);
+    };
+    xhr.onload=function(){
+      if(xhr.status>=200 && xhr.status<300){ resolve({error:null}); return; }
+      var msg=xhr.responseText||('HTTP '+xhr.status);
+      try{ var j=JSON.parse(xhr.responseText); msg=j.message||j.error||msg; }catch(e){}
+      resolve({error:{message:msg, statusCode:xhr.status}});
+    };
+    xhr.onerror=function(){ resolve({error:{message:'Error de red al subir el archivo'}}); };
+    xhr.onabort=function(){ resolve({error:{message:'Subida cancelada'}}); };
+    xhr.send(file);
+  });
+}
+
+// ============================================================
+// RECORTE DE VIDEO
+// El navegador vuelve a codificar solo el tramo elegido: además de cortar,
+// baja el bitrate y la resolución, así que el archivo pesa mucho menos.
+// El procesado corre en tiempo real porque el video tiene que reproducirse
+// para poder capturarlo cuadro a cuadro.
+// ============================================================
+var TRIM_QUAL = {
+  alta:   {bps:4000000, fps:60},
+  media:  {bps:2000000, fps:30},
+  ligera: {bps:900000,  fps:30}
+};
+var TRIM_RESOLVE=null, TRIM_FILE=null, TRIM_DUR=0, TRIM_URL=null, TRIM_BUSY=false, TRIM_WATCH=null;
+
+function isVideoFile(f){
+  return (f.type||'').indexOf('video')===0 || /\.(mp4|mov|m4v|webm|avi|mkv)$/i.test(f.name||'');
+}
+function pickRecMime(){
+  if(!window.MediaRecorder || !MediaRecorder.isTypeSupported) return null;
+  var c=['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  for(var i=0;i<c.length;i++){ if(MediaRecorder.isTypeSupported(c[i])) return c[i]; }
+  return null;
+}
+function trimAvailable(){
+  try{
+    return !!(window.MediaRecorder && pickRecMime() && document.createElement('canvas').captureStream);
+  }catch(e){ return false; }
+}
+
+function askTrim(file){
+  return new Promise(function(resolve){
+    TRIM_RESOLVE=resolve;
+    openTrimmer(file);
+  });
+}
+function finishTrim(val){
+  var r=TRIM_RESOLVE; TRIM_RESOLVE=null;
+  if(TRIM_WATCH){ clearInterval(TRIM_WATCH); TRIM_WATCH=null; }
+  var v=document.getElementById('tr_video');
+  try{ v.pause(); }catch(e){}
+  v.removeAttribute('src');
+  try{ v.load(); }catch(e){}
+  if(TRIM_URL){ URL.revokeObjectURL(TRIM_URL); TRIM_URL=null; }
+  closeModal('ovTrim');
+  if(r) r(val);
+}
+function setTrimBusy(on){
+  TRIM_BUSY=on;
+  ['tr_cancel','tr_full','tr_apply','tr_start','tr_end','tr_q','tr_r','tr_audio','tr_play'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.disabled=on;
+  });
+}
+
+function openTrimmer(file){
+  TRIM_FILE=file; TRIM_DUR=0;
+  setTrimBusy(false);
+  document.getElementById('tr_name').textContent=(file.name||'video')+' · '+fmtSize(file.size);
+  document.getElementById('tr_err').className='trimerr';
+  document.getElementById('tr_work').className='trimwork';
+  document.getElementById('tr_bar').style.width='0';
+  document.getElementById('tr_start').value=0;
+  document.getElementById('tr_end').value=1000;
+  document.getElementById('tr_sel').style.left='0%';
+  document.getElementById('tr_sel').style.width='100%';
+  document.getElementById('tr_est').textContent='Leyendo el video...';
+
+  var v=document.getElementById('tr_video');
+  if(TRIM_URL){ URL.revokeObjectURL(TRIM_URL); }
+  TRIM_URL=URL.createObjectURL(file);
+  v.src=TRIM_URL;
+  v.onloadedmetadata=function(){
+    TRIM_DUR = (isFinite(v.duration) && v.duration>0) ? v.duration : 0;
+    if(!TRIM_DUR){
+      trimError('No se pudo leer la duración del video. Puedes subirlo completo igual.');
+      return;
+    }
+    syncTrim();
+  };
+  v.onerror=function(){
+    trimError('Este navegador no puede leer el video — suele pasar con los .mov en HEVC del iPhone. Súbelo completo, o grábalo en Ajustes → Cámara → Formatos → "Más compatible".');
+  };
+  openModal('ovTrim');
+}
+function trimError(msg){
+  var e=document.getElementById('tr_err');
+  e.textContent=msg; e.className='trimerr on';
+  document.getElementById('tr_est').textContent='';
+  document.getElementById('tr_apply').disabled=true;
+}
+
+function trimRange(){
+  var pa=Number(document.getElementById('tr_start').value)/1000;
+  var pb=Number(document.getElementById('tr_end').value)/1000;
+  return {pa:pa, pb:pb, a:pa*TRIM_DUR, b:pb*TRIM_DUR};
+}
+function syncTrim(){
+  var r=trimRange();
+  document.getElementById('tr_sel').style.left=(r.pa*100)+'%';
+  document.getElementById('tr_sel').style.width=Math.max(0,(r.pb-r.pa)*100)+'%';
+  document.getElementById('tr_a').textContent=fmtClock(r.a);
+  document.getElementById('tr_b').textContent=fmtClock(r.b);
+  document.getElementById('tr_len').textContent=fmtClock(Math.max(0,r.b-r.a));
+  estTrim(Math.max(0,r.b-r.a));
+}
+function estTrim(len){
+  var q=TRIM_QUAL[document.getElementById('tr_q').value]||TRIM_QUAL.media;
+  var bytes=len*q.bps/8;
+  var el=document.getElementById('tr_est');
+  var orig=TRIM_FILE?fmtSize(TRIM_FILE.size):'—';
+  var txt='Quedará en aproximadamente <b>'+fmtSize(bytes)+'</b> — el original pesa '+orig+'. '
+        + 'El procesado demora más o menos <b>'+Math.ceil(len)+' s</b>, porque el video se vuelve a codificar en tiempo real.';
+  if(len>90) txt+=' Un recorte tan largo se va a demorar bastante; si puedes, acórtalo.';
+  el.className='trimest'+(len>90?' warn':'');
+  el.innerHTML=txt;
+}
+function seekTrim(t){
+  var v=document.getElementById('tr_video');
+  try{ v.pause(); v.currentTime=t; }catch(e){}
+}
+function onTrimStart(){
+  var s=document.getElementById('tr_start'), e=document.getElementById('tr_end');
+  var gap = TRIM_DUR>0 ? Math.max(4, Math.round(1000*0.4/TRIM_DUR)) : 4;
+  if(Number(s.value) > Number(e.value)-gap) s.value = Math.max(0, Number(e.value)-gap);
+  seekTrim(trimRange().a);
+  syncTrim();
+}
+function onTrimEnd(){
+  var s=document.getElementById('tr_start'), e=document.getElementById('tr_end');
+  var gap = TRIM_DUR>0 ? Math.max(4, Math.round(1000*0.4/TRIM_DUR)) : 4;
+  if(Number(e.value) < Number(s.value)+gap) e.value = Math.min(1000, Number(s.value)+gap);
+  seekTrim(trimRange().b);
+  syncTrim();
+}
+document.getElementById('tr_start').addEventListener('input',onTrimStart);
+document.getElementById('tr_end').addEventListener('input',onTrimEnd);
+document.getElementById('tr_q').addEventListener('change',function(){ syncTrim(); });
+document.getElementById('tr_play').addEventListener('click',function(){
+  var v=document.getElementById('tr_video');
+  var r=trimRange();
+  try{ v.currentTime=r.a; }catch(e){}
+  v.play();
+  if(TRIM_WATCH) clearInterval(TRIM_WATCH);
+  TRIM_WATCH=setInterval(function(){
+    if(v.paused || v.currentTime>=trimRange().b){ v.pause(); clearInterval(TRIM_WATCH); TRIM_WATCH=null; }
+  },80);
+});
+document.getElementById('tr_cancel').addEventListener('click',function(){ if(!TRIM_BUSY) finishTrim(null); });
+document.getElementById('tr_full').addEventListener('click',function(){ if(!TRIM_BUSY) finishTrim(TRIM_FILE); });
+document.getElementById('tr_apply').addEventListener('click',async function(){
+  if(TRIM_BUSY) return;
+  var r=trimRange();
+  if(!TRIM_DUR || (r.b-r.a)<0.3){ toast('La selección es muy corta',true); return; }
+  var q=TRIM_QUAL[document.getElementById('tr_q').value]||TRIM_QUAL.media;
+  var maxSide=parseInt(document.getElementById('tr_r').value,10)||0;
+  var conAudio=document.getElementById('tr_audio').checked;
+
+  setTrimBusy(true);
+  document.getElementById('tr_work').className='trimwork on';
+  document.getElementById('tr_ptxt').textContent='Procesando... 0%';
+
+  var out = await trimVideoFile(TRIM_FILE, r.a, r.b, {bps:q.bps, fps:q.fps, maxSide:maxSide, audio:conAudio}, function(p){
+    document.getElementById('tr_bar').style.width=Math.round(p*100)+'%';
+    document.getElementById('tr_ptxt').textContent='Procesando... '+Math.round(p*100)+'%';
+  });
+
+  setTrimBusy(false);
+  document.getElementById('tr_work').className='trimwork';
+
+  if(!out || out.error || !out.file){
+    trimError('No se pudo recortar: '+((out&&out.error)||'error desconocido')+'. Puedes subirlo completo con el botón de al lado.');
+    document.getElementById('tr_apply').disabled=false;
+    return;
+  }
+  toast('Recorte listo · '+fmtSize(out.file.size)+' (antes '+fmtSize(TRIM_FILE.size)+')');
+  finishTrim(out.file);
+});
+
+function trimVideoFile(file, startT, endT, opts, onProg){
+  return new Promise(function(resolve){
+    var mt=pickRecMime();
+    if(!mt){ resolve({error:'este navegador no permite recortar videos'}); return; }
+
+    var url=URL.createObjectURL(file);
+    var v=document.createElement('video');
+    v.src=url; v.playsInline=true; v.preload='auto';
+    v.muted = !opts.audio;
+    var limpio=false;
+    function cleanup(){ if(limpio) return; limpio=true; try{v.pause();}catch(e){} URL.revokeObjectURL(url); }
+
+    v.onerror=function(){ cleanup(); resolve({error:'no se pudo leer el archivo'}); };
+    v.onloadedmetadata=function(){
+      var vw=v.videoWidth||1280, vh=v.videoHeight||720;
+      var k = opts.maxSide ? Math.min(1, opts.maxSide/Math.max(vw,vh)) : 1;
+      var cw=Math.max(2, Math.round(vw*k/2)*2), ch=Math.max(2, Math.round(vh*k/2)*2);
+
+      var canvas=document.createElement('canvas');
+      canvas.width=cw; canvas.height=ch;
+      var ctx=canvas.getContext('2d');
+
+      var stream;
+      try{ stream=canvas.captureStream(opts.fps||30); }
+      catch(e){ cleanup(); resolve({error:'este navegador no permite capturar el canvas'}); return; }
+
+      if(opts.audio){
+        try{
+          var vs = v.captureStream ? v.captureStream() : (v.mozCaptureStream ? v.mozCaptureStream() : null);
+          if(vs){ vs.getAudioTracks().forEach(function(t){ stream.addTrack(t); }); }
+        }catch(e){ console.warn('audio',e); }
+      }
+
+      var rec;
+      try{ rec=new MediaRecorder(stream,{mimeType:mt, videoBitsPerSecond:opts.bps||2000000}); }
+      catch(e){
+        try{ rec=new MediaRecorder(stream); }
+        catch(e2){ cleanup(); resolve({error:'este navegador no permite grabar el recorte'}); return; }
+      }
+
+      var chunks=[];
+      rec.ondataavailable=function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop=function(){
+        cleanup();
+        var tipo = mt.split(';')[0];
+        var blob = new Blob(chunks,{type:tipo});
+        if(!blob.size){ resolve({error:'el recorte quedó vacío'}); return; }
+        var ext = tipo.indexOf('mp4')>=0 ? 'mp4' : 'webm';
+        var base = (file.name||'video').replace(/\.[^.]+$/,'');
+        var out;
+        try{ out=new File([blob], base+'-recorte.'+ext, {type:tipo, lastModified:Date.now()}); }
+        catch(e){ out=blob; out.name=base+'-recorte.'+ext; }
+        out.__orig = file.__orig || file;
+        out.__trim = {a:startT, b:endT};
+        resolve({file:out});
+      };
+
+      var raf=null, arrancado=false;
+      function draw(){
+        if(v.currentTime>=endT-0.02 || v.ended){
+          if(raf) cancelAnimationFrame(raf);
+          try{ rec.stop(); }catch(e){}
+          return;
+        }
+        try{ ctx.drawImage(v,0,0,cw,ch); }catch(e){}
+        if(onProg) onProg(Math.min(1,(v.currentTime-startT)/Math.max(0.1,endT-startT)));
+        raf=requestAnimationFrame(draw);
+      }
+      function arrancar(){
+        if(arrancado) return;
+        arrancado=true;
+        try{ rec.start(300); }catch(e){ cleanup(); resolve({error:'no se pudo iniciar la grabación'}); return; }
+        var pr=v.play();
+        if(pr && pr.then){
+          pr.then(function(){ raf=requestAnimationFrame(draw); })
+            .catch(function(){ try{rec.stop();}catch(e){} cleanup(); resolve({error:'el navegador bloqueó la reproducción necesaria para procesar'}); });
+        } else {
+          raf=requestAnimationFrame(draw);
+        }
+      }
+
+      v.addEventListener('seeked',function(){ arrancar(); },{once:true});
+      try{ v.currentTime=startT; }catch(e){ arrancar(); }
+      setTimeout(function(){ arrancar(); },1500);
+    };
+  });
+}
+
+// Pasa cada archivo por el recortador antes de sumarlo a la cola.
+async function prepararArchivos(fl){
+  var list=Array.prototype.slice.call(fl||[]);
+  var out=[];
+  for(var i=0;i<list.length;i++){
+    var f=list[i];
+    if(isVideoFile(f) && trimAvailable()){
+      var r=await askTrim(f);
+      if(r) out.push(r);
+    } else {
+      out.push(f);
+    }
+  }
+  return out;
+}
+
+// ============================================================
+// SUBIDA
+// ============================================================
 async function uploadFiles(eventId, files, onStep){
   var rows=[], fails=[];
+  progShow();
   for(var i=0;i<files.length;i++){
     var f=files[i];
-    if(onStep) onStep((i+1)+' de '+files.length+' · '+f.name+' ('+fmtSize(f.size)+')');
+    progFile(i+1, files.length, f.name||'archivo', f.size);
+    if(onStep) onStep((i+1)+' de '+files.length+' · '+(f.name||'archivo')+' ('+fmtSize(f.size)+')');
+
     var isVideo = (f.type||'').indexOf('video')===0;
-    var ext = (f.name.split('.').pop()||'bin').toLowerCase();
+    var ext = ((f.name||'').split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5) || 'bin';
     // la carpeta raíz es siempre quien sube (lo exige la política de storage)
     var base = USER.id+'/'+SEL.id+'/'+eventId+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
     var path = base+'.'+ext;
 
-    var up = await sb.storage.from(BUCKET).upload(path,f,{cacheControl:'3600',upsert:false,contentType:f.type||undefined});
-    if(up.error){ fails.push(f.name+' → '+errMsg(up.error)); continue; }
+    progPhase('Subiendo'); progPct(0);
+    var up = await uploadWithProgress(path, f, f.type||'application/octet-stream', function(p){ progPct(p); });
+    if(up.error){ fails.push((f.name||'archivo')+' → '+errMsg(up.error)); continue; }
+    progPct(1);
 
     var thumb = isVideo ? null : path;
     if(isVideo){
+      progPhase('Generando portada'); progIndet(true);
       try{
         var blob = await makeThumbFromFile(f);
         if(blob){
@@ -1120,10 +1627,12 @@ async function uploadFiles(eventId, files, onStep){
 
   var ok=0;
   if(rows.length){
+    progPhase('Registrando en el perfil'); progIndet(true);
     var r = await sb.from('player_media').insert(rows).select();
     if(r.error){ fails.push('Los archivos subieron al storage pero no se registraron → '+errMsg(r.error)); }
     else { ok=(r.data||[]).length; }
   }
+  progHide();
   return {ok:ok, fails:fails};
 }
 
@@ -1142,12 +1651,15 @@ function quickUpload(eventId){
 }
 document.getElementById('quickFiles').addEventListener('change',async function(){
   var input=this;
-  var files=Array.prototype.slice.call(input.files||[]);
+  var elegidos=Array.prototype.slice.call(input.files||[]);
   input.value='';
-  if(!files.length||!QUICK_EVENT) return;
+  if(!elegidos.length||!QUICK_EVENT) return;
   var evId=QUICK_EVENT; QUICK_EVENT=null;
-  toast('Subiendo '+files.length+' archivo'+(files.length>1?'s':'')+'...');
-  var res=await uploadFiles(evId,files,function(step){ toast('Subiendo '+step); });
+
+  var files=await prepararArchivos(elegidos);
+  if(!files.length) return;
+
+  var res=await uploadFiles(evId,files);
   reportUpload(res,'subida desde el timeline');
   await loadMedia(SEL.id);
   renderProfile();
@@ -1352,9 +1864,27 @@ function renderTimeline(){
     +   '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
     + '</div></div>';
 
+  // ---- filtro por área del juego (hoy solo lo llevan las clases) ----
+  var areaCount={}; var hayArea=false;
+  GAME_AREAS.forEach(function(a){ areaCount[a.k]=0; });
+  EVENTS.forEach(function(e){
+    if(e.area && areaCount[e.area]!=null){ areaCount[e.area]++; hayArea=true; }
+  });
+  var verAreas = HAS_AREA && hayArea && (FILTER_TYPE==='all' || AREA_TYPES[FILTER_TYPE]);
+  if(verAreas){
+    html+='<div class="subfilters"><span class="flabel">Área del juego</span>'
+       + '<div class="chip'+(FILTER_AREA==='all'?' on':'')+'" onclick="setFilterArea(\'all\')">Todas</div>';
+    GAME_AREAS.forEach(function(a){
+      html+='<div class="chip'+(FILTER_AREA===a.k?' on':'')+'" onclick="setFilterArea(\''+a.k+'\')">'
+          + a.label+' <b>'+areaCount[a.k]+'</b></div>';
+    });
+    html+='</div>';
+  }
+
   var list=EVENTS.filter(function(e){
     if(FILTER_TYPE!=='all' && e.event_type!==FILTER_TYPE) return false;
     if(FILTER_PILLAR!=='all' && e.pillar!==FILTER_PILLAR) return false;
+    if(FILTER_AREA!=='all' && e.area!==FILTER_AREA) return false;
     return true;
   });
 
@@ -1391,6 +1921,7 @@ function renderTimeline(){
        +   '<div class="tl-tags">'
        +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
        +     (delJugador?'<span class="tl-pill byplayer">Subido por el jugador</span>':'')
+       +     (e.area&&AREA_LABEL[e.area]?'<span class="tl-pill area">'+esc(AREA_LABEL[e.area])+'</span>':'')
        +     (e.pillar?'<span class="tl-pill pillar">'+esc(PILLAR_LABEL[e.pillar]||e.pillar)+'</span>':'')
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
@@ -1403,7 +1934,16 @@ function renderTimeline(){
   box.innerHTML=html;
   hydrateThumbs();
 }
-function setFilterType(t){ FILTER_TYPE=t; renderTimeline(); }
+function setFilterType(t){
+  FILTER_TYPE=t;
+  // el área solo aplica a los tipos que la llevan; al salir de ahí se limpia
+  if(!(t==='all' || AREA_TYPES[t])) FILTER_AREA='all';
+  renderTimeline();
+}
+function setFilterArea(a){
+  FILTER_AREA=a;
+  renderTimeline();
+}
 
 async function deleteEvent(id){
   var e = EVENTS.find(function(x){ return x.id===id; });
@@ -1588,8 +2128,29 @@ function typeOptions(selected){
   return html;
 }
 
+// ---------- área del juego ----------
+function renderAreaPick(){
+  var box=document.getElementById('ne_areaPick');
+  if(!box) return;
+  var h='';
+  GAME_AREAS.forEach(function(a){
+    h+='<div class="gchip'+(NE_AREA===a.k?' on':'')+'" onclick="setNeArea(\''+a.k+'\')">'+esc(a.label)+'</div>';
+  });
+  box.innerHTML=h;
+}
+function setNeArea(k){
+  NE_AREA = (NE_AREA===k) ? null : k;
+  renderAreaPick();
+}
+function syncAreaField(){
+  var t=document.getElementById('ne_type').value;
+  var mostrar = HAS_AREA && !!AREA_TYPES[t];
+  document.getElementById('ne_areaWrap').style.display = mostrar ? 'block' : 'none';
+  if(mostrar) renderAreaPick();
+}
+
 function resetEventModal(){
-  EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[];
+  EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[]; NE_AREA=null;
   document.getElementById('ne_title').value='';
   document.getElementById('ne_summary').value='';
   document.getElementById('ne_pillar').value='';
@@ -1597,6 +2158,7 @@ function resetEventModal(){
   document.getElementById('ne_metricRows').innerHTML='';
   document.getElementById('ne_upstate').className='upstate';
   document.getElementById('ne_upfail').className='upfail';
+  renderAreaPick();
   renderPending();
   renderExistingMedia();
 }
@@ -1608,6 +2170,7 @@ function openEventModal(){
   document.getElementById('ne_save').textContent='Guardar evento';
   document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
   document.getElementById('ne_date').value=todayISO();
+  syncAreaField();
   addMetricRow();
   openModal('ovEvent');
 }
@@ -1634,6 +2197,8 @@ async function openEditEvent(id){
   document.getElementById('ne_summary').value=e.summary||'';
   document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
   document.getElementById('ne_milestone').checked = !!e.is_milestone;
+  NE_AREA = e.area||null;
+  syncAreaField();
 
   renderExistingMedia();
   openModal('ovEvent');
@@ -1699,21 +2264,44 @@ neDrop.addEventListener('click',function(){ neFiles.click(); });
 neDrop.addEventListener('dragover',function(e){ e.preventDefault(); neDrop.classList.add('over'); });
 neDrop.addEventListener('dragleave',function(){ neDrop.classList.remove('over'); });
 neDrop.addEventListener('drop',function(e){ e.preventDefault(); neDrop.classList.remove('over'); addPending(e.dataTransfer.files); });
-neFiles.addEventListener('change',function(){ addPending(neFiles.files); neFiles.value=''; });
+neFiles.addEventListener('change',function(){
+  var f=Array.prototype.slice.call(neFiles.files||[]);
+  neFiles.value='';
+  addPending(f);
+});
 
-function addPending(fl){
-  for(var i=0;i<fl.length;i++) PENDING.push(fl[i]);
-  renderPending();
+// Cada video pasa primero por el recortador; las fotos entran directo.
+// Se van agregando de a uno para que la lista se actualice mientras se recorta.
+async function addPending(fl){
+  var list=Array.prototype.slice.call(fl||[]);
+  for(var i=0;i<list.length;i++){
+    var f=list[i];
+    if(isVideoFile(f) && trimAvailable()){
+      var r=await askTrim(f);
+      if(r) PENDING.push(r);
+    } else {
+      PENDING.push(f);
+    }
+    renderPending();
+  }
 }
 function removePending(i){ PENDING.splice(i,1); renderPending(); }
+async function retrim(i){
+  var f=PENDING[i]; if(!f) return;
+  var r=await askTrim(f.__orig||f);
+  if(r){ PENDING[i]=r; renderPending(); }
+}
 function renderPending(){
   var box=document.getElementById('ne_fileList');
   var html='';
   PENDING.forEach(function(f,i){
     var big = f.size > 45*1048576;
+    var cut = f.__trim ? '<span class="cut">Recortado '+fmtClock(f.__trim.a)+' → '+fmtClock(f.__trim.b)+'</span>' : '';
     html+='<div class="fileitem"><span class="nm">'+esc(f.name)+'</span>'
+        + cut
         + '<span class="sz'+(big?' big':'')+'">'+fmtSize(f.size)+'</span>'
-        + '<button class="btn-x" style="height:28px;width:28px" onclick="removePending('+i+')">×</button></div>';
+        + (isVideoFile(f)&&trimAvailable()?'<button class="btn-x" style="height:28px;width:28px" title="Recortar" onclick="retrim('+i+')">✂</button>':'')
+        + '<button class="btn-x" style="height:28px;width:28px" title="Quitar" onclick="removePending('+i+')">×</button></div>';
   });
   box.innerHTML=html;
 }
@@ -1742,6 +2330,7 @@ document.getElementById('ne_addMetric').addEventListener('click',function(){ add
 // Metas y Planes son opciones del selector de eventos, pero tienen su propio
 // modal (con métrica objetivo / tareas). Al elegirlas, saltamos ahí.
 document.getElementById('ne_type').addEventListener('change',function(){
+  syncAreaField();
   if(EDIT_ID) return;
   var cfg=EVENT_TYPES[this.value]||{};
   if(cfg.special==='meta'){ closeModal('ovEvent'); openGoalModal(); }
@@ -1763,6 +2352,7 @@ document.getElementById('ne_save').addEventListener('click',async function(){
     summary:document.getElementById('ne_summary').value.replace(/\s+$/,'')||null,
     pillar:document.getElementById('ne_pillar').value||null
   };
+  if(HAS_AREA) campos.area = (AREA_TYPES[type] && NE_AREA) ? NE_AREA : null;
   if(IS_COACH) campos.is_milestone=document.getElementById('ne_milestone').checked;
 
   var eventId=EDIT_ID;
@@ -2445,7 +3035,10 @@ document.getElementById('pl_save').addEventListener('click',async function(){
   renderProfile();
 });
 
+// Cerrar los modales al tocar fuera. El recortador queda excluido: se cierra
+// solo por sus botones, para no dejar colgada la promesa que espera el archivo.
 document.querySelectorAll('.overlay').forEach(function(o){
+  if(o.id==='ovTrim') return;
   o.addEventListener('click',function(e){ if(e.target===o) o.classList.remove('show'); });
 });
 
