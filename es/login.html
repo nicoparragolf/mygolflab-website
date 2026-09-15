@@ -630,11 +630,33 @@
         let selectedRole = 'jugador';
         let routing = false;
 
+        // ── ¿venimos de la puerta de entrada de Coach Hub? ──
+        // Si es así, el login/registro debe volver siempre a Coach Hub,
+        // sin importar el rol — no queremos pasar por el dashboard de MyGolfLab.
+        // Se guarda en localStorage porque el link de confirmación de email o el
+        // regreso de Google OAuth pueden llegar sin el query param original.
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('next') === 'coachhub') {
+            localStorage.setItem('mgl_next_coachhub', '1');
+        }
+        function wantsCoachHub() {
+            return localStorage.getItem('mgl_next_coachhub') === '1';
+        }
+
         // ── RUTEO SEGÚN ROL ──
-        // Un coach entra a su hub; un alumno entra al dashboard normal.
+        // Un coach entra a su hub; un alumno entra al dashboard normal —
+        // salvo que haya llegado desde la puerta de Coach Hub, en cuyo caso
+        // siempre va para allá (jugador.html distingue coach vs jugador solo).
         async function routeByRole(userId) {
             if (routing) return;
             routing = true;
+
+            if (wantsCoachHub()) {
+                localStorage.removeItem('mgl_next_coachhub');
+                window.location.href = DEST_COACH;
+                return;
+            }
+
             let dest = DEST_PLAYER;
             try {
                 const { data } = await sb.from('profiles').select('role').eq('id', userId).maybeSingle();
@@ -778,7 +800,9 @@
                         plan: 'Starter'
                     },
                     // vuelve al login para que el ruteo por rol decida el destino
-                    emailRedirectTo: 'https://mygolflab.golf/es/login.html'
+                    // (si vinimos de Coach Hub, mgl_next_coachhub ya quedó guardado
+                    // y el link de confirmación cae bien igual aunque no lleve el query param)
+                    emailRedirectTo: 'https://mygolflab.golf/es/login.html' + (wantsCoachHub() ? '?next=coachhub' : '')
                 }
             });
             setLoading('registerBtn', false);
@@ -805,7 +829,7 @@
             const { error } = await sb.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://mygolflab.golf/es/login.html'
+                    redirectTo: 'https://mygolflab.golf/es/login.html' + (wantsCoachHub() ? '?next=coachhub' : '')
                 }
             });
             if (error) alert('Error con Google: ' + error.message);
