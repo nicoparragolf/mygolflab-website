@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coach Hub | MyGolfLab</title>
+
+<!-- ── PWA: permite "Agregar a pantalla de inicio" y abrir a pantalla completa ── -->
+<link rel="manifest" href="/es/coachhub/manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#2dd4bf; --teal-dark:#14b8a6; --gold:#D4C5A9;
+    --bg:#0a0a0a; --card:#111111; --elevated:#1a1a1a;
+    --border:#262626; --text:#ffffff; --muted:#a3a3a3; --muted2:#737373;
+    --red-bg:rgba(239,68,68,.1); --red:#fca5a5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:1.5rem;position:relative;overflow-x:hidden;
+  }
+  .bg-decoration{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .bg-decoration::before{content:'';position:absolute;top:-15%;right:-10%;width:520px;height:520px;background:radial-gradient(circle,rgba(45,212,191,.08) 0%,transparent 70%);border-radius:50%}
+
+  .wrap{position:relative;z-index:1;width:100%;max-width:400px;animation:fadeIn .5s ease both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  .logo{text-align:center;margin-bottom:2rem}
+  .logo-icon{width:60px;height:60px;margin:0 auto .9rem;position:relative}
+  .logo-icon svg{width:100%;height:100%}
+  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.06em}
+  .logo-text span{color:var(--teal)}
+  .logo-tag{font-size:.82rem;color:var(--muted2);margin-top:.3rem}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:1.8rem}
+
+  .msg{padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin-bottom:1.1rem;display:none;gap:.5rem}
+  .msg.show{display:flex}
+  .msg.error{background:var(--red-bg);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+
+  .field{margin-bottom:1.1rem}
+  .field label{display:block;font-family:'Barlow Condensed';font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.4rem}
+  .field input{width:100%;padding:.8rem 1rem;background:var(--elevated);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'Barlow';font-size:.95rem;outline:none;transition:border-color .2s}
+  .field input:focus{border-color:var(--teal)}
+
+  .btn{width:100%;padding:.9rem;border:none;border-radius:11px;font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .15s}
+  .btn-primary{background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#04211d}
+  .btn-primary:hover{opacity:.92}
+  .btn-primary:disabled{opacity:.5;cursor:default}
+  .btn-google{background:var(--elevated);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.9rem}
+  .btn-google:hover{border-color:var(--teal);color:var(--teal)}
+  .btn-google svg{width:17px;height:17px}
+
+  .divider{display:flex;align-items:center;gap:.9rem;margin:1.2rem 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+  .divider span{font-size:.72rem;color:var(--muted2);font-family:'Barlow Condensed';text-transform:uppercase;letter-spacing:.07em}
+
+  .switch{text-align:center;margin-top:1.3rem;font-size:.82rem;color:var(--muted2)}
+  .switch a{color:var(--teal);text-decoration:none;cursor:pointer}
+  .switch a:hover{text-decoration:underline}
+
+  .gate{text-align:center;padding:2.4rem 1rem}
+  .gate .spinner{width:30px;height:30px;border:3px solid rgba(45,212,191,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gate p{color:var(--muted);font-size:.9rem}
+
+  .footer{text-align:center;margin-top:1.3rem;font-size:.75rem;color:var(--muted2)}
+</style>
+</head>
+<body>
+
+<div class="bg-decoration"></div>
+
+<div class="wrap">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="48" fill="#132a27"/>
+        <line x1="42" y1="18" x2="42" y2="80" stroke="#2dd4bf" stroke-width="4"/>
+        <ellipse cx="42" cy="80" rx="14" ry="3.2" fill="#14b8a6"/>
+        <polygon points="42,18 76,32 42,44" fill="#D4C5A9"/>
+        <circle cx="42" cy="55" r="4.5" fill="#132a27" stroke="#2dd4bf" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <div class="logo-text">COACH<span>HUB</span></div>
+    <p class="logo-tag">by MyGolfLab</p>
+  </div>
+
+  <div class="card">
+
+    <!-- Se muestra mientras se revisa si ya hay sesión activa -->
+    <div class="gate" id="gate">
+      <div class="spinner"></div>
+      <p>Entrando a tu Coach Hub...</p>
+    </div>
+
+    <!-- Login / registro, solo si no hay sesión -->
+    <div id="authBox" style="display:none">
+
+      <div class="msg error" id="err"><span id="errText"></span></div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginBtn">Entrar a mi Coach Hub</button>
+      </form>
+
+      <div class="divider"><span>o</span></div>
+
+      <button type="button" class="btn btn-google" id="googleBtn">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuar con Google
+      </button>
+
+      <p class="switch">¿No tienes cuenta todavía? Pídele a tu coach que agregue tu email a tu ficha, o <a id="goRegister">créala aquí</a>.</p>
+    </div>
+
+  </div>
+
+  <p class="footer">Coach Hub y MyGolfLab comparten tu cuenta — son productos distintos, un solo login.</p>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Puerta de entrada de Coach Hub: siempre termina en jugador.html
+  // (ese archivo ya distingue coach vs jugador solo, así que no hace falta
+  // decidir el rol acá — solo confirmar que hay sesión y mandar para allá).
+  const DEST = '/es/coachhub/jugador.html';
+
+  function goToHub(){ window.location.href = DEST; }
+
+  function showAuth(){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('authBox').style.display='block';
+  }
+
+  // ── ¿ya hay sesión? ──
+  sb.auth.getSession().then(({data}) => {
+    if(data.session) goToHub();
+    else showAuth();
+  });
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if(event === 'SIGNED_IN' && session) goToHub();
+  });
+
+  function showError(msg){
+    document.getElementById('errText').textContent = msg;
+    document.getElementById('err').classList.add('show');
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('err').classList.remove('show');
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    if(!email || !password){ showError('Completa tu email y contraseña.'); return; }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    btn.disabled = false; btn.textContent = 'Entrar a mi Coach Hub';
+
+    if(error){
+      const msg = error.message.includes('Invalid login') || error.message.includes('invalid_credentials')
+        ? 'Email o contraseña incorrectos.'
+        : error.message.includes('Email not confirmed')
+        ? 'Confirma tu email antes de entrar. Revisa tu bandeja.'
+        : 'No se pudo iniciar sesión. Inténtalo de nuevo.';
+      showError(msg);
+    }
+    // si no hay error, onAuthStateChange se encarga del redirect
+  });
+
+  document.getElementById('googleBtn').addEventListener('click', async () => {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html' }
+    });
+    if(error) showError('Error con Google: ' + error.message);
+  });
+
+  // Registro rápido: usa el mismo formulario de MyGolfLab (ya crea el rol
+  // "jugador" por defecto) y vuelve derecho a Coach Hub en vez del dashboard.
+  document.getElementById('goRegister').addEventListener('click', () => {
+    window.location.href = '/es/login.html?next=coachhub';
+  });
+</script>
+</body>
+</html>
