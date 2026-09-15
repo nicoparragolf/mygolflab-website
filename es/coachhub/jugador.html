@@ -167,6 +167,13 @@
   .tl-pill.media{color:var(--blue)}
   .tl-pill.byplayer{color:var(--gold)}
   .tl-pill.area{color:var(--orange);border-color:rgba(224,161,91,.38)}
+
+  /* ---------- TARJETA: RUTINA DE CALENTAMIENTO ---------- */
+  .warmup-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:9px 0 2px}
+  .warmup-duration{display:inline-flex;align-items:center;gap:6px;background:rgba(224,161,91,.12);border:1px solid rgba(224,161,91,.4);color:var(--orange);font-family:'Barlow Condensed';font-weight:700;font-size:14px;letter-spacing:.3px;padding:5px 12px;border-radius:20px}
+  .warmup-duration svg{width:14px;height:14px}
+  .warmup-areas{display:flex;gap:6px;flex-wrap:wrap}
+  .warmup-area-chip{font-family:'Barlow Condensed';font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;padding:5px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--border2);color:var(--muted)}
   .ms-flag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gold);background:rgba(212,197,169,.12);padding:2px 8px;border-radius:10px}
   .tl-empty{text-align:center;color:var(--muted);padding:40px}
 
@@ -548,6 +555,18 @@
       <input id="ne_device" placeholder="Trackman, GCQuad, Mevo, Sportsbox...">
     </div>
 
+    <!-- Rutina de Calentamiento: duración + áreas que cubre -->
+    <div class="field" id="ne_warmupWrap" style="display:none">
+      <label>Duración de la rutina (minutos)</label>
+      <input id="ne_warmupMin" type="number" min="0" step="1" placeholder="Ej: 35">
+      <div class="hint">Así el jugador sabe cuánto tiempo antes de su tee time debe llegar a calentar.</div>
+    </div>
+    <div class="field" id="ne_warmupAreasWrap" style="display:none">
+      <label>Áreas que cubre la rutina</label>
+      <div class="pick" id="ne_warmupAreasPick"></div>
+      <div class="hint">Puedes elegir más de una. Toca de nuevo para quitar la selección.</div>
+    </div>
+
     <div class="field">
       <label>Resumen / notas</label>
       <textarea id="ne_summary" rows="6" placeholder="Qué se trabajó, observaciones...&#10;&#10;- Puedes usar bullets con un guión&#10;- Se ven tal cual en el historial&#10;&#10;También respeta párrafos y saltos de línea."></textarea>
@@ -807,6 +826,8 @@ var PLAN_DRAFT = [];
 var TASK_CUR = null;
 var NE_AREA = null;          // área elegida en el modal de evento
 var HAS_AREA = true;         // se apaga solo si la columna "area" no existe todavía
+var HAS_DETAILS = true;      // se apaga solo si la columna "details" no existe todavía
+var NE_WARMUP_AREAS = [];    // áreas elegidas para una Rutina de Calentamiento
 
 // ============================================================
 // TIPOS DE EVENTO
@@ -1184,9 +1205,16 @@ async function loadEvents(playerId){
   if(r.error){ console.error(r.error); EVENTS=[]; return; }
   EVENTS = r.data||[];
 
-  // El área del juego vive en la tabla base. La leemos aparte porque la vista
-  // v_player_timeline puede no exponer la columna; así no hay que recrearla.
-  var ra = await sb.from('player_events').select('id,area,device').eq('player_id',playerId);
+  // El área del juego y los datos específicos de cada tipo (details) viven
+  // en la tabla base. Se leen aparte porque la vista v_player_timeline puede
+  // no exponerlos; así no hay que recrearla. Se intenta con "details" primero
+  // y si la columna todavía no existe (migración no corrida), se cae a la
+  // versión sin ella para no romper area/device.
+  var ra = await sb.from('player_events').select('id,area,device,details').eq('player_id',playerId);
+  if(ra.error){
+    HAS_DETAILS=false;
+    ra = await sb.from('player_events').select('id,area,device').eq('player_id',playerId);
+  }
   if(ra.error){
     HAS_AREA=false;
     console.warn('columna "area" no disponible todavía — falta correr coach_hub_area_clases.sql', ra.error);
@@ -1199,6 +1227,7 @@ async function loadEvents(playerId){
     if(!x) return;
     if(e.area==null)   e.area   = x.area||null;
     if(e.device==null) e.device = x.device||null;
+    if(HAS_DETAILS && e.details==null) e.details = x.details||null;
   });
 }
 
@@ -1947,6 +1976,32 @@ function mediaCarousel(evId, sinSubida){
   return h;
 }
 
+var SVG_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
+
+// Bloque de detalle propio de cada tipo de evento, para que la tarjeta del
+// timeline no sea siempre el mismo formato genérico. Hoy solo Rutina de
+// Calentamiento tiene el suyo (duración + áreas); se agregan más acá cuando
+// se definan las preguntas específicas de cada tipo.
+function eventDetailHTML(e){
+  if(e.event_type==='rutina_calentamiento' && e.details){
+    var d=e.details;
+    var h='<div class="warmup-meta">';
+    if(d.duration_minutes!=null && d.duration_minutes!==''){
+      h+='<span class="warmup-duration">'+SVG_CLOCK+d.duration_minutes+' min antes del tee time</span>';
+    }
+    if(d.areas && d.areas.length){
+      h+='<span class="warmup-areas">';
+      d.areas.forEach(function(k){
+        h+='<span class="warmup-area-chip">'+esc(AREA_LABEL[k]||k)+'</span>';
+      });
+      h+='</span>';
+    }
+    h+='</div>';
+    return h;
+  }
+  return '';
+}
+
 function renderTimeline(){
   var box=document.getElementById('viewBox');
   if(!box) return;
@@ -2018,6 +2073,7 @@ function renderTimeline(){
        +     (puedeBorrarEvento?'<button class="tl-del" title="Eliminar evento" onclick="deleteEvent(\''+e.id+'\')">&times;</button>':'')
        +     '</div></div>'
        +   '<div class="tl-type">'+esc(cfg.label)+'</div>'
+       +   eventDetailHTML(e)
        +   (e.summary?'<div class="tl-summary">'+fmtRich(e.summary)+'</div>':'')
        +   '<div class="tl-tags">'
        +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
@@ -2249,6 +2305,24 @@ function setNeArea(k){
   NE_AREA = (NE_AREA===k) ? null : k;
   renderAreaPick();
 }
+
+// ---------- áreas de la Rutina de Calentamiento (selección múltiple) ----------
+function renderWarmupAreasPick(){
+  var box=document.getElementById('ne_warmupAreasPick');
+  if(!box) return;
+  var h='';
+  GAME_AREAS.forEach(function(a){
+    var on = NE_WARMUP_AREAS.indexOf(a.k)>=0;
+    h+='<div class="gchip'+(on?' on':'')+'" onclick="toggleWarmupArea(\''+a.k+'\')">'+esc(a.label)+'</div>';
+  });
+  box.innerHTML=h;
+}
+function toggleWarmupArea(k){
+  var i=NE_WARMUP_AREAS.indexOf(k);
+  if(i>=0) NE_WARMUP_AREAS.splice(i,1); else NE_WARMUP_AREAS.push(k);
+  renderWarmupAreasPick();
+}
+
 function syncAreaField(){
   var t=document.getElementById('ne_type').value;
   var cfg=tipoCfg(t);
@@ -2256,14 +2330,20 @@ function syncAreaField(){
   document.getElementById('ne_areaWrap').style.display = mostrar ? 'block' : 'none';
   if(mostrar) renderAreaPick();
   document.getElementById('ne_deviceWrap').style.display = cfg.device ? 'block' : 'none';
+
+  var esRutina = HAS_DETAILS && t==='rutina_calentamiento';
+  document.getElementById('ne_warmupWrap').style.display = esRutina ? 'block' : 'none';
+  document.getElementById('ne_warmupAreasWrap').style.display = esRutina ? 'block' : 'none';
+  if(esRutina) renderWarmupAreasPick();
 }
 
 function resetEventModal(){
-  EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[]; NE_AREA=null;
+  EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[]; NE_AREA=null; NE_WARMUP_AREAS=[];
   document.getElementById('ne_title').value='';
   document.getElementById('ne_summary').value='';
   document.getElementById('ne_pillar').value='';
   document.getElementById('ne_device').value='';
+  document.getElementById('ne_warmupMin').value='';
   document.getElementById('ne_milestone').checked=false;
   document.getElementById('ne_metricRows').innerHTML='';
   document.getElementById('ne_upstate').className='upstate';
@@ -2309,6 +2389,8 @@ async function openEditEvent(id){
   document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
   document.getElementById('ne_milestone').checked = !!e.is_milestone;
   NE_AREA = e.area||null;
+  NE_WARMUP_AREAS = (e.details && e.details.areas) ? e.details.areas.slice() : [];
+  document.getElementById('ne_warmupMin').value = (e.details && e.details.duration_minutes!=null) ? e.details.duration_minutes : '';
   syncAreaField();
 
   renderExistingMedia();
@@ -2465,6 +2547,15 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   };
   if(HAS_AREA) campos.area = (AREA_TYPES[type] && NE_AREA) ? NE_AREA : null;
   campos.device = tipoCfg(type).device ? (document.getElementById('ne_device').value.trim()||null) : null;
+  if(HAS_DETAILS){
+    if(type==='rutina_calentamiento'){
+      var minsRaw=document.getElementById('ne_warmupMin').value;
+      var mins=minsRaw!==''?parseInt(minsRaw,10):null;
+      campos.details = { duration_minutes:(mins!=null&&!isNaN(mins))?mins:null, areas:NE_WARMUP_AREAS.slice() };
+    } else {
+      campos.details = null;
+    }
+  }
   if(IS_COACH) campos.is_milestone=document.getElementById('ne_milestone').checked;
 
   var eventId=EDIT_ID;
