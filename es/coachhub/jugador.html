@@ -498,6 +498,12 @@
       <div class="hint">Permite filtrar el historial y ver todas las clases de cada área por separado. Toca de nuevo para quitar la selección.</div>
     </div>
 
+    <!-- Dispositivo: solo para las sesiones de launch monitor -->
+    <div class="field" id="ne_deviceWrap" style="display:none">
+      <label>Dispositivo</label>
+      <input id="ne_device" placeholder="Trackman, GCQuad, Mevo, Sportsbox...">
+    </div>
+
     <div class="field">
       <label>Resumen / notas</label>
       <textarea id="ne_summary" rows="6" placeholder="Qué se trabajó, observaciones...&#10;&#10;- Puedes usar bullets con un guión&#10;- Se ven tal cual en el historial&#10;&#10;También respeta párrafos y saltos de línea."></textarea>
@@ -759,30 +765,45 @@ var HAS_AREA = true;         // se apaga solo si la columna "area" no existe tod
 
 // ============================================================
 // TIPOS DE EVENTO
-// coachOnly: solo el coach los registra (diagnóstico y decisiones técnicas)
+// Lista corta y deliberada. coachOnly: solo el coach los registra.
 // ============================================================
 var EVENT_TYPES = {
-  clase:                {label:'Clase',                color:'var(--teal)',  coachOnly:true,  icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
-  // objetivo_creado y plan_asignado se registran desde su propio módulo:
-  // al elegirlos en el selector, el modal salta al de Metas o al de Planes.
-  video_swing:          {label:'Video de swing',       color:'var(--teal)',  icon:'M4 4h16v16H4z M10 9l5 3-5 3z'},
-  cambio_tecnico:       {label:'Cambio técnico',       color:'var(--gold)',  coachOnly:true,  icon:'M12 2v20 M5 9l7-7 7 7'},
-  sesion_trackman:      {label:'Sesión Trackman',      color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
-  sesion_sportsbox:     {label:'Sesión Sportsbox',     color:'var(--purple)',icon:'M12 2l9 5v10l-9 5-9-5V7z'},
-  launch_monitor:       {label:'Launch monitor',       color:'var(--blue)',  icon:'M3 12h4l3-8 4 16 3-8h4'},
-  ronda_torneo:         {label:'Ronda de torneo',      color:'var(--gold)',  icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
-  ronda_practica:       {label:'Ronda de práctica',    color:'var(--teal)',  icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
-  sesion_entrenamiento: {label:'Entrenamiento',        color:'var(--teal)',  icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
-  test_fisico:          {label:'Test físico',          color:'var(--orange)',icon:'M6 7v10 M18 7v10 M4 12h16'},
-  analisis_ia:          {label:'Análisis IA',          color:'var(--teal)',  icon:'M12 2a5 5 0 015 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 015-5z M9 17h6 M10 20h4'},
-  plan_asignado:        {label:'Plan de entrenamiento',color:'var(--teal)',  coachOnly:true, special:'plan', icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'},
-  objetivo_creado:      {label:'Meta / Objetivo',      color:'var(--gold)',  special:'meta', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
-  objetivo_logrado:     {label:'Objetivo logrado',     color:'var(--gold)',  icon:'M20 6L9 17l-5-5'},
-  nota:                 {label:'Nota',                 color:'var(--muted)', icon:'M4 4h16v16H4z M8 9h8 M8 13h5'},
-  lesion:               {label:'Lesión',               color:'var(--red)',   icon:'M12 5v14 M5 12h14'},
-  cambio_equipo:        {label:'Cambio de equipo',     color:'var(--muted)', icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
-  otro:                 {label:'Otro',                 color:'var(--muted)', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'}
+  clase:                {label:'Clase',                         color:'var(--teal)',   coachOnly:true, icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
+  video_analisis:       {label:'Video Análisis',                color:'var(--purple)', coachOnly:true, icon:'M3 5h18v14H3z M10 9l5 3-5 3z'},
+  launch_monitor:       {label:'Sesión de Launch Monitor',      color:'var(--blue)',   device:true,    icon:'M3 12h4l3-8 4 16 3-8h4'},
+  ronda_torneo:         {label:'Ronda de Torneo',               color:'var(--gold)',   ronda:true,     icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  rutina_calentamiento: {label:'Rutina de Calentamiento',       color:'var(--orange)', icon:'M12 3a9 9 0 100 18 9 9 0 000-18 M12 7v5l4 2'},
+  preparacion_fisica:   {label:'Preparación Física',            color:'var(--teal)',   icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
+  plan_asignado:        {label:'Plan de Entrenamiento',         color:'var(--teal)',   coachOnly:true, special:'plan', icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'}
 };
+
+// Tipos retirados del selector. NO se borran: los eventos viejos que los
+// usan siguen mostrando su etiqueta y su ícono correctos, y los filtros del
+// timeline los siguen reconociendo. objetivo_creado y objetivo_logrado están
+// acá porque los genera solo el módulo de Metas, no se eligen a mano.
+var RETIRED_TYPES = {
+  objetivo_creado:      {label:'Meta / Objetivo',        color:'var(--gold)',   icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
+  objetivo_logrado:     {label:'Objetivo logrado',       color:'var(--gold)',   icon:'M20 6L9 17l-5-5'},
+  video_swing:          {label:'Video de swing',         color:'var(--teal)',   icon:'M4 4h16v16H4z M10 9l5 3-5 3z'},
+  cambio_tecnico:       {label:'Cambio técnico',         color:'var(--gold)',   icon:'M12 2v20 M5 9l7-7 7 7'},
+  sesion_trackman:      {label:'Sesión Trackman',        color:'var(--blue)',   icon:'M3 12h4l3-8 4 16 3-8h4'},
+  sesion_sportsbox:     {label:'Sesión Sportsbox',       color:'var(--purple)', icon:'M12 2l9 5v10l-9 5-9-5V7z'},
+  ronda_practica:       {label:'Ronda de práctica',      color:'var(--teal)',   icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  sesion_entrenamiento: {label:'Entrenamiento',          color:'var(--teal)',   icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
+  test_fisico:          {label:'Test físico',            color:'var(--orange)', icon:'M6 7v10 M18 7v10 M4 12h16'},
+  analisis_ia:          {label:'Análisis IA',            color:'var(--teal)',   icon:'M12 2a5 5 0 015 5c0 2-1 3-1 5H8c0-2-1-3-1-5a5 5 0 015-5z M9 17h6 M10 20h4'},
+  nota:                 {label:'Nota',                   color:'var(--muted)',  icon:'M4 4h16v16H4z M8 9h8 M8 13h5'},
+  lesion:               {label:'Lesión',                 color:'var(--red)',    icon:'M12 5v14 M5 12h14'},
+  cambio_equipo:        {label:'Cambio de equipo',       color:'var(--muted)',  icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  otro:                 {label:'Otro',                   color:'var(--muted)',  icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'}
+};
+
+// Configuración de cualquier tipo, activo o retirado.
+function tipoCfg(t){
+  return EVENT_TYPES[t] || RETIRED_TYPES[t]
+      || {label:t, color:'var(--muted)', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'};
+}
+
 var PILLAR_LABEL = {ground_forces:'Ground Forces',kinematic_sequence:'Kinematic Sequence',body_tilts:'Body Tilts',wrist_conditions:'Wrist Conditions'};
 var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional',senior:'Senior'};
 var TIER_LABEL = {basico:'Básico',intermedio:'Intermedio',avanzado:'Avanzado'};
@@ -1079,6 +1100,7 @@ async function loadAll(playerId){
   await loadMetricHistory(playerId);
   await loadGoals(playerId);
   await loadPlans(playerId);
+  if(window.MGLRondas) await MGLRondas.load(playerId);
 }
 
 async function loadEvents(playerId){
@@ -1088,15 +1110,20 @@ async function loadEvents(playerId){
 
   // El área del juego vive en la tabla base. La leemos aparte porque la vista
   // v_player_timeline puede no exponer la columna; así no hay que recrearla.
-  var ra = await sb.from('player_events').select('id,area').eq('player_id',playerId);
+  var ra = await sb.from('player_events').select('id,area,device').eq('player_id',playerId);
   if(ra.error){
     HAS_AREA=false;
     console.warn('columna "area" no disponible todavía — falta correr coach_hub_area_clases.sql', ra.error);
     return;
   }
   HAS_AREA=true;
-  var map={}; (ra.data||[]).forEach(function(x){ map[x.id]=x.area||null; });
-  EVENTS.forEach(function(e){ if(e.area==null) e.area=map[e.id]||null; });
+  var map={}; (ra.data||[]).forEach(function(x){ map[x.id]=x; });
+  EVENTS.forEach(function(e){
+    var x=map[e.id];
+    if(!x) return;
+    if(e.area==null)   e.area   = x.area||null;
+    if(e.device==null) e.device = x.device||null;
+  });
 }
 
 // primera y última medición de cada métrica → progreso de las metas
@@ -1853,7 +1880,7 @@ function renderTimeline(){
   EVENTS.forEach(function(e){ typesPresent[e.event_type]=true; });
   var typeChips='<div class="chip'+(FILTER_TYPE==='all'?' on':'')+'" onclick="setFilterType(\'all\')">Todos</div>';
   Object.keys(typesPresent).forEach(function(t){
-    var cfg=EVENT_TYPES[t]||{label:t};
+    var cfg=tipoCfg(t);
     typeChips+='<div class="chip'+(FILTER_TYPE===t?' on':'')+'" onclick="setFilterType(\''+t+'\')">'+esc(cfg.label)+'</div>';
   });
 
@@ -1898,7 +1925,7 @@ function renderTimeline(){
 
   html+='<div class="timeline">';
   list.forEach(function(e){
-    var cfg=EVENT_TYPES[e.event_type]||{label:e.event_type,color:'var(--muted)',icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0'};
+    var cfg=tipoCfg(e.event_type);
     var ms = e.is_milestone ? ' milestone':'';
     var nMedia=(MEDIA_BY_EVENT[e.id]||[]).length;
     var delJugador = IS_COACH && e.created_by && e.created_by!==USER.id;
@@ -1908,6 +1935,7 @@ function renderTimeline(){
     var atajo='';
     if(e.event_type==='plan_asignado')  atajo='<button class="tl-link" onclick="setView(\'planes\')">Ver el plan y su avance</button>';
     if(e.event_type==='objetivo_creado'||e.event_type==='objetivo_logrado') atajo='<button class="tl-link" onclick="setView(\'metas\')">Ver metas</button>';
+    if(e.event_type==='ronda_torneo' && window.MGLRondas) atajo=MGLRondas.summaryHTML(e.id);
     html+='<div class="tl-event'+ms+'">'
        + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
        + '<div class="tl-card">'
@@ -1922,6 +1950,7 @@ function renderTimeline(){
        +     (e.is_milestone?'<span class="ms-flag">◆ Hito</span>':'')
        +     (delJugador?'<span class="tl-pill byplayer">Subido por el jugador</span>':'')
        +     (e.area&&AREA_LABEL[e.area]?'<span class="tl-pill area">'+esc(AREA_LABEL[e.area])+'</span>':'')
+       +     (e.device?'<span class="tl-pill">'+esc(e.device)+'</span>':'')
        +     (e.pillar?'<span class="tl-pill pillar">'+esc(PILLAR_LABEL[e.pillar]||e.pillar)+'</span>':'')
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
@@ -2125,6 +2154,11 @@ function typeOptions(selected){
     if(!IS_COACH && cfg.coachOnly && t!==selected) return;
     html+='<option value="'+t+'"'+(t===selected?' selected':'')+'>'+cfg.label+'</option>';
   });
+  // si estamos editando un evento de un tipo ya retirado, lo dejamos
+  // visible para no cambiárselo sin querer al guardar
+  if(selected && !EVENT_TYPES[selected]){
+    html+='<option value="'+selected+'" selected>'+esc(tipoCfg(selected).label)+' (tipo retirado)</option>';
+  }
   return html;
 }
 
@@ -2144,9 +2178,11 @@ function setNeArea(k){
 }
 function syncAreaField(){
   var t=document.getElementById('ne_type').value;
+  var cfg=tipoCfg(t);
   var mostrar = HAS_AREA && !!AREA_TYPES[t];
   document.getElementById('ne_areaWrap').style.display = mostrar ? 'block' : 'none';
   if(mostrar) renderAreaPick();
+  document.getElementById('ne_deviceWrap').style.display = cfg.device ? 'block' : 'none';
 }
 
 function resetEventModal(){
@@ -2154,6 +2190,7 @@ function resetEventModal(){
   document.getElementById('ne_title').value='';
   document.getElementById('ne_summary').value='';
   document.getElementById('ne_pillar').value='';
+  document.getElementById('ne_device').value='';
   document.getElementById('ne_milestone').checked=false;
   document.getElementById('ne_metricRows').innerHTML='';
   document.getElementById('ne_upstate').className='upstate';
@@ -2195,6 +2232,7 @@ async function openEditEvent(id){
   document.getElementById('ne_date').value=e.event_date||todayISO();
   document.getElementById('ne_pillar').value=e.pillar||'';
   document.getElementById('ne_summary').value=e.summary||'';
+  document.getElementById('ne_device').value=e.device||'';
   document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
   document.getElementById('ne_milestone').checked = !!e.is_milestone;
   NE_AREA = e.area||null;
@@ -2353,6 +2391,7 @@ document.getElementById('ne_save').addEventListener('click',async function(){
     pillar:document.getElementById('ne_pillar').value||null
   };
   if(HAS_AREA) campos.area = (AREA_TYPES[type] && NE_AREA) ? NE_AREA : null;
+  campos.device = tipoCfg(type).device ? (document.getElementById('ne_device').value.trim()||null) : null;
   if(IS_COACH) campos.is_milestone=document.getElementById('ne_milestone').checked;
 
   var eventId=EDIT_ID;
@@ -3041,6 +3080,15 @@ document.querySelectorAll('.overlay').forEach(function(o){
   if(o.id==='ovTrim') return;
   o.addEventListener('click',function(e){ if(e.target===o) o.classList.remove('show'); });
 });
+
+// rondas.js avisa por acá cuando se guardan o borran las estadísticas
+// de una ronda, para refrescar el timeline.
+window.onRondaGuardada = async function(){
+  if(!SEL) return;
+  await loadAll(SEL.id);
+  await refreshPlayerHeader();
+  renderProfile();
+};
 
 init();
 </script>
