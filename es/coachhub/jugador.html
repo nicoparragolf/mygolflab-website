@@ -819,6 +819,7 @@ var EVENT_TYPES = {
   ronda_torneo:         {label:'Ronda de Torneo',               color:'var(--gold)',   ronda:true,     icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
   rutina_calentamiento: {label:'Rutina de Calentamiento',       color:'var(--orange)', icon:'M12 3a9 9 0 100 18 9 9 0 000-18 M12 7v5l4 2'},
   preparacion_fisica:   {label:'Preparación Física',            color:'var(--teal)',   icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
+  meta_objetivo:        {label:'Meta / Objetivo',               color:'var(--gold)',   special:'meta', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
   plan_asignado:        {label:'Plan de Entrenamiento',         color:'var(--teal)',   coachOnly:true, special:'plan', icon:'M4 4h16v16H4z M8 9h8 M8 13h8 M8 17h5'}
 };
 
@@ -1904,13 +1905,8 @@ function renderProfile(){
     +   '<div class="pstat"><div class="n">'+Object.keys(MEDIA_BY_ID).length+'</div><div class="l">videos y fotos</div></div>'
     + '</div></div>';
 
-  var metasAbiertas = GOALS.filter(function(g){ return g.status==='activa'; }).length;
-  var planesAbiertos = PLANS.filter(function(p){ return p.status!=='completado' && p.status!=='cancelado'; }).length;
-
   html+='<div class="subnav">'
     + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
-    + '<button class="'+(VIEW==='metas'?'on':'')+'" onclick="setView(\'metas\')">Metas'+(metasAbiertas?' ('+metasAbiertas+')':'')+'</button>'
-    + '<button class="'+(VIEW==='planes'?'on':'')+'" onclick="setView(\'planes\')">Planes'+(planesAbiertos?' ('+planesAbiertos+')':'')+'</button>'
     + '<button class="'+(VIEW==='notas'?'on':'')+'" onclick="setView(\'notas\')">Notas'+(NOTES.length?' ('+NOTES.length+')':'')+'</button>'
     + '</div>';
 
@@ -1920,8 +1916,10 @@ function renderProfile(){
   else if(VIEW==='metas')    renderGoals();
   else if(VIEW==='planes')   renderPlans();
   else                       renderNotes();
-  // Métricas queda fuera del subnav por ahora (se retoma más adelante);
-  // renderMetrics() y su gráfico SVG siguen en el código, solo desconectados.
+  // Metas y Planes ya no tienen pestaña propia — se crean desde "+ Evento"
+  // y se ven a través del atajo que aparece en su tarjeta del timeline
+  // ("Ver el plan y su avance" / "Ver metas"), que sigue llamando a estas
+  // mismas vistas. Métricas también queda fuera del subnav por ahora.
 }
 function setView(v){ VIEW=v; renderProfile(); }
 
@@ -1963,8 +1961,6 @@ function renderTimeline(){
 
   var html='<div class="filters">'+typeChips
     + '<div class="filters-right">'
-    +   '<button class="btn-ghost" onclick="openGoalModal()">+ Meta</button>'
-    +   (IS_COACH?'<button class="btn-ghost" onclick="openPlanModal()">+ Plan</button>':'')
     +   '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
     + '</div></div>';
 
