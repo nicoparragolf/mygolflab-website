@@ -329,10 +329,6 @@
   .goal-empty,.plan-empty{text-align:center;color:var(--muted);padding:46px 20px;line-height:1.6}
 
   /* ---------- NOTAS RÁPIDAS ---------- */
-  .notes-compose{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:18px}
-  .notes-compose textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:11px 13px;border-radius:10px;resize:vertical;min-height:60px}
-  .notes-compose-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px}
-  .notes-hint{font-size:12px;color:var(--muted2);margin-right:auto}
   .note{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:11px}
   .note-top{display:flex;align-items:center;gap:9px;margin-bottom:6px}
   .note-author{font-family:'Barlow Condensed';font-weight:600;font-size:13.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--teal)}
@@ -743,6 +739,21 @@
 </div>
 
 <!-- MODAL: RESULTADO DE UNA TAREA -->
+<!-- MODAL: NOTA RÁPIDA -->
+<div class="overlay" id="ovNote">
+  <div class="modal" style="max-width:460px">
+    <h2>Nueva nota</h2>
+    <div class="field">
+      <textarea id="nt_text" rows="4" placeholder="Un ajuste, una frase de la clase, un recordatorio..."></textarea>
+      <div class="hint">Queda visible para el coach y el jugador. Acepta bullets con guión y saltos de línea.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('ovNote')">Cancelar</button>
+      <button class="btn-primary" id="nt_save" onclick="saveNote()">Guardar nota</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="ovTask">
   <div class="modal" style="max-width:460px">
     <h2>Completar tarea</h2>
@@ -2907,12 +2918,8 @@ function renderNotes(){
   var box=document.getElementById('viewBox');
   if(!box) return;
 
-  var html='<div class="notes-compose">'
-    + '<textarea id="nt_text" rows="2" placeholder="Anota algo de la clase — un ajuste, una frase, un recordatorio..."></textarea>'
-    + '<div class="notes-compose-bar">'
-    +   '<span class="notes-hint">Queda visible para el coach y el jugador</span>'
-    +   '<button class="btn-primary" id="nt_save">Agregar nota</button>'
-    + '</div></div>';
+  var html='<div class="sec-head"><h3>Notas</h3>'
+    + '<button class="btn-primary" onclick="openNoteModal()">+ Nota</button></div>';
 
   if(NOTES.length===0){
     html+='<div class="notes-empty">'
@@ -2921,7 +2928,6 @@ function renderNotes(){
           : 'Todavía no hay notas. Anota algo que quieras recordar de tu práctica o pregúntale a tu coach que deje una acá.')
       + '</div>';
     box.innerHTML=html;
-    bindNoteCompose();
     return;
   }
 
@@ -2940,19 +2946,12 @@ function renderNotes(){
   });
 
   box.innerHTML=html;
-  bindNoteCompose();
 }
 
-function bindNoteCompose(){
-  var ta=document.getElementById('nt_text');
-  var btn=document.getElementById('nt_save');
-  if(!ta||!btn) return;
-  btn.addEventListener('click',saveNote);
-  // Enter envía, Shift+Enter hace salto de línea — como un chat
-  ta.addEventListener('keydown',function(e){
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); saveNote(); }
-  });
-  ta.focus();
+function openNoteModal(){
+  document.getElementById('nt_text').value='';
+  openModal('ovNote');
+  setTimeout(function(){ document.getElementById('nt_text').focus(); },60);
 }
 
 async function saveNote(){
@@ -2973,14 +2972,17 @@ async function saveNote(){
     return;
   }
   NOTES.unshift(r.data);
-  renderNotes();
+  closeModal('ovNote');
+  ta.value='';
+  // el contador del subnav ("Notas (n)") vive en renderProfile
+  renderProfile();
 }
 
 async function deleteNote(id){
   var r=await sb.from('player_notes').delete().eq('id',id);
   if(r.error){ showError('No se pudo eliminar la nota',errMsg(r.error)); return; }
   NOTES=NOTES.filter(function(n){ return n.id!==id; });
-  renderNotes();
+  renderProfile();
 }
 
 // ============================================================
