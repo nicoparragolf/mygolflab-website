@@ -321,6 +321,21 @@
   .barinfo{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
   .goal-empty,.plan-empty{text-align:center;color:var(--muted);padding:46px 20px;line-height:1.6}
 
+  /* ---------- NOTAS RÁPIDAS ---------- */
+  .notes-compose{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:18px}
+  .notes-compose textarea{width:100%;background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-family:'Barlow';font-size:15px;padding:11px 13px;border-radius:10px;resize:vertical;min-height:60px}
+  .notes-compose-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px}
+  .notes-hint{font-size:12px;color:var(--muted2);margin-right:auto}
+  .note{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:11px}
+  .note-top{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .note-author{font-family:'Barlow Condensed';font-weight:600;font-size:13.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--teal)}
+  .note-author.bycoach{color:var(--gold)}
+  .note-date{font-size:12px;color:var(--muted2);margin-left:auto;white-space:nowrap}
+  .note-del{background:none;border:none;color:var(--muted2);font-size:17px;line-height:1;cursor:pointer;padding:0 1px}
+  .note-del:hover{color:var(--red)}
+  .note-body{font-size:14.5px;color:#e6e6e6;line-height:1.55}
+  .notes-empty{text-align:center;color:var(--muted);padding:46px 20px;line-height:1.6}
+
   /* ---------- PLANES ---------- */
   .plan{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:15px;overflow:hidden}
   .plan.done{border-color:var(--teal-dim)}
@@ -782,6 +797,7 @@ var EDIT_ID = null;          // evento en edición
 var REMOVE_MEDIA = [];       // ids de media marcados para borrar al guardar
 var GOALS = [];
 var EDIT_GOAL = null;
+var NOTES = [];              // notas rápidas del jugador (pestaña "Notas")
 var MET_FIRST = {};          // primera medición por métrica
 var MET_LAST = {};           // última medición por métrica
 var PLANS = [];
@@ -1158,6 +1174,7 @@ async function loadAll(playerId){
   await loadMetricHistory(playerId);
   await loadGoals(playerId);
   await loadPlans(playerId);
+  await loadNotes(playerId);
   if(window.MGLRondas) await MGLRondas.load(playerId);
 }
 
@@ -1894,7 +1911,7 @@ function renderProfile(){
     + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
     + '<button class="'+(VIEW==='metas'?'on':'')+'" onclick="setView(\'metas\')">Metas'+(metasAbiertas?' ('+metasAbiertas+')':'')+'</button>'
     + '<button class="'+(VIEW==='planes'?'on':'')+'" onclick="setView(\'planes\')">Planes'+(planesAbiertos?' ('+planesAbiertos+')':'')+'</button>'
-    + '<button class="'+(VIEW==='metricas'?'on':'')+'" onclick="setView(\'metricas\')">Métricas</button>'
+    + '<button class="'+(VIEW==='notas'?'on':'')+'" onclick="setView(\'notas\')">Notas'+(NOTES.length?' ('+NOTES.length+')':'')+'</button>'
     + '</div>';
 
   html+='<div id="viewBox"></div>';
@@ -1902,7 +1919,9 @@ function renderProfile(){
   if(VIEW==='timeline')      renderTimeline();
   else if(VIEW==='metas')    renderGoals();
   else if(VIEW==='planes')   renderPlans();
-  else                       renderMetrics();
+  else                       renderNotes();
+  // Métricas queda fuera del subnav por ahora (se retoma más adelante);
+  // renderMetrics() y su gráfico SVG siguen en el código, solo desconectados.
 }
 function setView(v){ VIEW=v; renderProfile(); }
 
@@ -2744,8 +2763,111 @@ async function deleteGoal(id){
 }
 
 // ============================================================
+// NOTAS RÁPIDAS
+// Notas cortas y quotes de la clase, sin modal — se escriben y se mandan.
+// Tanto el coach como el jugador pueden agregar; cada uno borra las suyas,
+// el coach puede borrar cualquiera.
+// ============================================================
+async function loadNotes(playerId){
+  var r = await sb.from('player_notes').select('*').eq('player_id',playerId).order('created_at',{ascending:false});
+  if(r.error){ NOTES=[]; console.error('player_notes',r.error); return; }
+  NOTES = r.data||[];
+}
+
+function fmtNoteDate(iso){
+  if(!iso) return '';
+  var d=new Date(iso);
+  var hoy=new Date();
+  var mismoDia = d.toDateString()===hoy.toDateString();
+  var hora=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+  if(mismoDia) return 'Hoy · '+hora;
+  return fmtDate(d.toISOString().slice(0,10))+' · '+hora;
+}
+
+function renderNotes(){
+  var box=document.getElementById('viewBox');
+  if(!box) return;
+
+  var html='<div class="notes-compose">'
+    + '<textarea id="nt_text" rows="2" placeholder="Anota algo de la clase — un ajuste, una frase, un recordatorio..."></textarea>'
+    + '<div class="notes-compose-bar">'
+    +   '<span class="notes-hint">Queda visible para el coach y el jugador</span>'
+    +   '<button class="btn-primary" id="nt_save">Agregar nota</button>'
+    + '</div></div>';
+
+  if(NOTES.length===0){
+    html+='<div class="notes-empty">'
+      + (IS_COACH
+          ? 'Todavía no hay notas. Anota acá una frase clave de la clase o algo puntual que quieras que el jugador tenga a mano.'
+          : 'Todavía no hay notas. Anota algo que quieras recordar de tu práctica o pregúntale a tu coach que deje una acá.')
+      + '</div>';
+    box.innerHTML=html;
+    bindNoteCompose();
+    return;
+  }
+
+  NOTES.forEach(function(n){
+    var deCoach = n.created_by===COACH_ID;
+    var autor = n.created_by===USER.id ? 'Tú' : (deCoach ? 'Coach' : esc(SEL.first_name));
+    var puedeBorrar = IS_COACH || n.created_by===USER.id;
+    html+='<div class="note">'
+      + '<div class="note-top">'
+      +   '<span class="note-author'+(deCoach?' bycoach':'')+'">'+autor+'</span>'
+      +   '<span class="note-date">'+fmtNoteDate(n.created_at)+'</span>'
+      +   (puedeBorrar?'<button class="note-del" title="Eliminar nota" onclick="deleteNote(\''+n.id+'\')">&times;</button>':'')
+      + '</div>'
+      + '<div class="note-body">'+fmtRich(n.content)+'</div>'
+      + '</div>';
+  });
+
+  box.innerHTML=html;
+  bindNoteCompose();
+}
+
+function bindNoteCompose(){
+  var ta=document.getElementById('nt_text');
+  var btn=document.getElementById('nt_save');
+  if(!ta||!btn) return;
+  btn.addEventListener('click',saveNote);
+  // Enter envía, Shift+Enter hace salto de línea — como un chat
+  ta.addEventListener('keydown',function(e){
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); saveNote(); }
+  });
+  ta.focus();
+}
+
+async function saveNote(){
+  var ta=document.getElementById('nt_text');
+  var btn=document.getElementById('nt_save');
+  var content=ta.value.replace(/\s+$/,'');
+  if(!content.trim()) return;
+
+  btn.disabled=true;
+  var row={
+    player_id:SEL.id, coach_id:COACH_ID, created_by:USER.id, content:content
+  };
+  var r=await sb.from('player_notes').insert(row).select().single();
+  btn.disabled=false;
+
+  if(r.error){
+    showError('No se pudo guardar la nota',errMsg(r.error),'Si menciona player_notes, falta correr la migración coach_hub_notes_v1.sql en Supabase.');
+    return;
+  }
+  NOTES.unshift(r.data);
+  renderNotes();
+}
+
+async function deleteNote(id){
+  var r=await sb.from('player_notes').delete().eq('id',id);
+  if(r.error){ showError('No se pudo eliminar la nota',errMsg(r.error)); return; }
+  NOTES=NOTES.filter(function(n){ return n.id!==id; });
+  renderNotes();
+}
+
+// ============================================================
 // PLANIFICACIÓN DE ENTRENAMIENTOS
 // Mismo motor que Training Lab (drills reales de la biblioteca),
+
 // pero asignado a un alumno y con resultados que el coach revisa.
 // ============================================================
 async function loadPlans(playerId){
