@@ -45,6 +45,9 @@
   .nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;transition:color .2s}
   .nav-links a:hover{color:var(--text)}
   .nav-links a.active{color:var(--teal)}
+  .nav-links.coach{gap:22px}
+  .nav-links a{white-space:nowrap}
+  .nav-links.coach a{font-size:16px}
   .nav-auth{display:flex;align-items:center;gap:14px}
   .rolechip{font-family:'Barlow Condensed';font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:3px 10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;color:#04211d;overflow:hidden}
@@ -457,7 +460,9 @@
       <a href="/es/index.html">Inicio</a>
       <a href="/es/biblioteca.html">Biblioteca</a>
       <a href="/es/training.html">Training Lab</a>
-      <a href="/es/coachhub/dashboard.html" class="active">Coach Hub</a>
+      <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
+      <a href="/es/coachhub/jugador.html" id="navHub" class="active">Coach Hub</a>
+      <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
     </nav>
     <div class="nav-auth">
       <span class="rolechip" id="roleChip" style="display:none"></span>
@@ -1085,6 +1090,14 @@ async function init(){
   var chip=document.getElementById('roleChip');
   chip.textContent = IS_COACH ? 'Coach' : 'Jugador';
   chip.style.display='inline-block';
+
+  // menú del coach: Dashboard, Mis jugadores y Analizar swing
+  if(IS_COACH){
+    document.getElementById('navDash').style.display='';
+    document.getElementById('navAna').style.display='';
+    document.getElementById('navHub').textContent='Mis jugadores';
+    document.getElementById('navLinks').classList.add('coach');
+  }
 
   await loadMetricDefs();
 
