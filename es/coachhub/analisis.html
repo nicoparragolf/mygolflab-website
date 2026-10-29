@@ -133,6 +133,15 @@
   .pthumb .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px}
   .pcap{font-size:12px;margin-top:5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pcap small{display:block;color:var(--muted);font-size:11px}
+  .pmenu{display:flex;flex-direction:column;gap:10px}
+  .popt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card2);border:1px solid var(--border2);border-radius:14px;padding:15px 16px;cursor:pointer;transition:border-color .15s}
+  .popt:hover{border-color:var(--teal)}
+  .popt .pic{width:46px;height:46px;border-radius:12px;background:rgba(45,212,191,.12);border:1px solid var(--teal-dim);color:var(--teal);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .popt .pic svg{width:24px;height:24px}
+  .popt .ptx b{display:block;font-family:'Barlow Condensed';font-weight:700;font-size:19px;letter-spacing:.2px}
+  .popt .ptx small{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+  .popt:disabled{opacity:.45;cursor:default}
+  .lnk{background:none;border:none;color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:15px;cursor:pointer;padding:0}
   .upbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--card2);border:1px dashed var(--border2);border-radius:12px;padding:14px;font-family:'Barlow Condensed';font-weight:600;font-size:16px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;color:var(--teal)}
   .upbtn:hover{border-color:var(--teal)}
   .field{margin-bottom:13px}
@@ -242,17 +251,36 @@
 
 <div class="hidden-videos"><video id="vidA" playsinline muted preload="auto"></video><video id="vidB" playsinline muted preload="auto"></video></div>
 <input type="file" id="fileIn" accept="video/*" hidden>
+<input type="file" id="camIn" accept="video/*" capture="environment" hidden>
 
 <!-- Elegir video -->
 <div class="ov" id="ovPick">
   <div class="sheet">
     <h3 id="pickTitle">Elegir video</h3>
-    <div class="sub" id="pickSub">Videos que ya están en el perfil del alumno.</div>
-    <div class="pgrid" id="pickGrid"></div>
-    <button class="upbtn" onclick="document.getElementById('fileIn').click()">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>
-      Subir desde el teléfono
-    </button>
+    <div class="sub" id="pickSub">¿De dónde sacamos el video?</div>
+
+    <!-- paso 1: las tres opciones -->
+    <div class="pmenu" id="pickMenu">
+      <button class="popt" onclick="document.getElementById('fileIn').click()">
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg></span>
+        <span class="ptx"><b>Subir desde el teléfono</b><small>Elige un video de tu galería o tus archivos</small></span>
+      </button>
+      <button class="popt" onclick="document.getElementById('camIn').click()">
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg></span>
+        <span class="ptx"><b>Tomar un video nuevo</b><small>Abre la cámara y graba ahora</small></span>
+      </button>
+      <button class="popt" id="pickFromProfile">
+        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg></span>
+        <span class="ptx"><b>Elegir desde perfil del alumno</b><small id="pickProfileSub">Videos que ya subiste a su perfil</small></span>
+      </button>
+    </div>
+
+    <!-- paso 2: videos del perfil -->
+    <div id="pickGridWrap" style="display:none">
+      <button class="lnk" id="pickBack" style="margin-bottom:12px">← Otras opciones</button>
+      <div class="pgrid" id="pickGrid"></div>
+    </div>
+
     <div class="actions" style="margin-top:14px">
       <button class="btn danger" id="pickRemove" style="display:none;margin-right:auto">Quitar comparación</button>
       <button class="btn" onclick="closeOv('ovPick')">Cerrar</button>
@@ -528,13 +556,15 @@ function loadFromFile(k, f, a, b){
   setSource(k, URL.createObjectURL(f), f, null, a, b);
 }
 
-$('fileIn').addEventListener('change', function(){
+function onPickedFile(){
   var f=this.files&&this.files[0]; this.value='';
   closeOv('ovPick');
   if(!f) return;
   if((f.type||'').indexOf('video')!==0 && !/\.(mp4|mov|m4v|webm)$/i.test(f.name||'')){ toast('Elige un archivo de video',true); return; }
   openTrim(PICK_TARGET, f);
-});
+}
+$('fileIn').addEventListener('change', onPickedFile);
+$('camIn').addEventListener('change', onPickedFile);
 
 // ---------- RECORTE al subir desde el teléfono ----------
 // No re-codifica nada al elegir: solo marca el tramo. El análisis trabaja
@@ -617,8 +647,23 @@ $('trFull').onclick=function(){ useTrim(false); };
 function openPicker(k){
   PICK_TARGET = k;
   $('pickTitle').textContent = k==='B' ? 'Video para comparar' : 'Elegir video';
-  $('pickSub').textContent = VIDEOS.length ? 'Videos que ya están en el perfil del alumno.' : 'Este alumno todavía no tiene videos en su perfil. Sube uno desde tu teléfono.';
   $('pickRemove').style.display = (k==='B' && COMPARE) ? 'block' : 'none';
+  var n = VIDEOS.length;
+  $('pickProfileSub').textContent = n ? (n===1 ? '1 video en su perfil' : n+' videos en su perfil') : 'Todavía no tiene videos en su perfil';
+  $('pickFromProfile').disabled = !n;
+  showPickMenu();
+  openOv('ovPick');
+}
+function showPickMenu(){
+  $('pickSub').textContent='¿De dónde sacamos el video?';
+  $('pickMenu').style.display='flex';
+  $('pickGridWrap').style.display='none';
+}
+function showPickGrid(){
+  var k=PICK_TARGET;
+  $('pickSub').textContent='Videos que ya están en el perfil del alumno.';
+  $('pickMenu').style.display='none';
+  $('pickGridWrap').style.display='block';
   var g = $('pickGrid'); g.innerHTML='';
   VIDEOS.forEach(function(m){
     var ev = EVENT_TITLE[m.event_id];
@@ -632,8 +677,9 @@ function openPicker(k){
       signUrl(m.thumb_path).then(function(u){ if(u) d.querySelector('.pthumb').innerHTML='<img src="'+u+'" alt="">'; });
     }
   });
-  openOv('ovPick');
 }
+$('pickFromProfile').onclick=showPickGrid;
+$('pickBack').onclick=showPickMenu;
 $('pickRemove').onclick=function(){
   closeOv('ovPick');
   var v=PANES.B.el; v.pause(); v.removeAttribute('src'); v.load();
