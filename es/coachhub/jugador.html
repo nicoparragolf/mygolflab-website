@@ -137,6 +137,13 @@
   .chip.on{background:var(--teal);color:#04211d;border-color:var(--teal)}
   .chip b{font-weight:700;opacity:.6;margin-left:2px}
   .filters-right{margin-left:auto;display:flex;gap:8px}
+  /* barra del timeline: una fila que se desliza de lado + botón fijo */
+  .tlbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .tlbar > .btn-primary{flex:0 0 auto;white-space:nowrap}
+  .chiprow{display:flex;gap:8px;overflow-x:auto;flex:1;min-width:0;padding:2px 0;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  .chiprow::-webkit-scrollbar{display:none}
+  .chiprow > *{flex:0 0 auto;white-space:nowrap}
+  .arearow{margin:0 0 18px}
   .btn-primary{background:var(--teal);color:#04211d;border:none;border-radius:9px;padding:8px 15px;font-family:'Barlow Condensed';font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
   .btn-primary:hover{filter:brightness(1.1)}
   .btn-primary:disabled{opacity:.55;cursor:default}
@@ -2172,7 +2179,6 @@ function renderGallery(){
   });
 
   var html='<div class="gal-head"><div class="filters" style="margin-bottom:0">'+chips+'</div>'+kinds+'</div>';
-  if(IS_COACH) html+='<div style="margin:10px 0 4px"><button class="btn-dl btn-ana" onclick="abrirAnalisis()">Analizar swing</button></div>';
   if(IS_COACH && cnt.none){
     html+='<div class="gal-sub">Abre un archivo para asignarle o cambiarle el área.</div>';
   } else {
@@ -2281,25 +2287,28 @@ function renderTimeline(){
     typeChips+='<div class="chip'+(FILTER_TYPE===t?' on':'')+'" onclick="setFilterType(\''+t+'\')">'+esc(cfg.label)+'</div>';
   });
 
-  var html='<div class="filters">'+typeChips
-    + '<div class="filters-right">'
-    +   (IS_COACH ? '<button class="btn-dl btn-ana" onclick="abrirAnalisis()">Analizar swing</button>' : '')
-    +   '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
-    + '</div></div>';
+  // Una sola fila: tipos de evento (se desliza de lado) + botón "+ Evento".
+  var html='<div class="tlbar"><div class="chiprow">'+typeChips+'</div>'
+    + '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
+    + '</div>';
 
-  // ---- filtro por área del juego (hoy solo lo llevan las clases) ----
-  var areaCount={}; var hayArea=false;
+  // ---- filtro por área: solo las áreas que tienen eventos, en una fila
+  // discreta, y solo si hay al menos dos áreas para elegir ----
+  var areaCount={};
   GAME_AREAS.forEach(function(a){ areaCount[a.k]=0; });
   EVENTS.forEach(function(e){
-    if(e.area && areaCount[e.area]!=null){ areaCount[e.area]++; hayArea=true; }
+    if(FILTER_TYPE!=='all' && e.event_type!==FILTER_TYPE) return;
+    if(e.area && areaCount[e.area]!=null) areaCount[e.area]++;
   });
-  var verAreas = HAS_AREA && hayArea && (FILTER_TYPE==='all' || AREA_TYPES[FILTER_TYPE]);
+  var conAreas = GAME_AREAS.filter(function(a){ return areaCount[a.k]>0; });
+  var verAreas = HAS_AREA && (conAreas.length>=2 || FILTER_AREA!=='all') && (FILTER_TYPE==='all' || AREA_TYPES[FILTER_TYPE]);
   if(verAreas){
-    html+='<div class="subfilters"><span class="flabel">Área del juego</span>'
-       + '<div class="chip'+(FILTER_AREA==='all'?' on':'')+'" onclick="setFilterArea(\'all\')">Todas</div>';
+    html+='<div class="chiprow arearow">'
+       + '<div class="gchip'+(FILTER_AREA==='all'?' on':'')+'" onclick="setFilterArea(\'all\')">Todas las áreas</div>';
     GAME_AREAS.forEach(function(a){
-      html+='<div class="chip'+(FILTER_AREA===a.k?' on':'')+'" onclick="setFilterArea(\''+a.k+'\')">'
-          + a.label+' <b>'+areaCount[a.k]+'</b></div>';
+      if(!areaCount[a.k] && FILTER_AREA!==a.k) return;
+      html+='<div class="gchip'+(FILTER_AREA===a.k?' on':'')+'" onclick="setFilterArea(\''+a.k+'\')">'
+          + esc(a.label)+' <b>'+areaCount[a.k]+'</b></div>';
     });
     html+='</div>';
   }
