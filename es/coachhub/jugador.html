@@ -457,7 +457,7 @@
       <a href="/es/index.html">Inicio</a>
       <a href="/es/biblioteca.html">Biblioteca</a>
       <a href="/es/training.html">Training Lab</a>
-      <a href="/es/coachhub/jugador.html" class="active">Coach Hub</a>
+      <a href="/es/coachhub/dashboard.html" class="active">Coach Hub</a>
     </nav>
     <div class="nav-auth">
       <span class="rolechip" id="roleChip" style="display:none"></span>
@@ -1250,11 +1250,24 @@ window.addEventListener('resize',function(){
 // ============================================================
 // SELECT + LOAD
 // ============================================================
+// Al abrir el perfil de un alumno, lo que él subió queda como revisado y
+// sale de "Por revisar" en el dashboard. Si la columna reviewed_at aún no
+// existe (migración sin correr), la actualización falla en silencio.
+function marcarRevisado(playerId){
+  if(!IS_COACH) return;
+  var now=new Date().toISOString();
+  sb.from('player_events').update({reviewed_at:now}).eq('player_id',playerId).neq('created_by',USER.id).is('reviewed_at',null)
+    .then(function(r){ if(r.error) console.warn('reviewed_at events',r.error.message); });
+  sb.from('player_media').update({reviewed_at:now}).eq('player_id',playerId).neq('created_by',USER.id).is('reviewed_at',null)
+    .then(function(r){ if(r.error) console.warn('reviewed_at media',r.error.message); });
+}
+
 async function selectPlayer(id){
   SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
   if(!SEL) return;
   COACH_ID = USER.id;
   VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all'; GAL_AREA='all'; GAL_KIND='all';
+  marcarRevisado(id);
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
   await loadAll(id);
