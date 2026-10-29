@@ -146,6 +146,18 @@
 
   .gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px;background:var(--bg);z-index:300}
   .gate p{color:var(--muted);max-width:380px;line-height:1.5}
+  .gate.chooser{justify-content:flex-start;align-items:stretch;text-align:left;overflow-y:auto;padding:calc(14px + env(safe-area-inset-top)) 16px 30px}
+  .chooser > *{width:100%;max-width:560px;margin-left:auto;margin-right:auto}
+  .ch-head{display:flex;align-items:center;gap:10px}
+  .ch-head b{display:block;font-family:'Barlow Condensed';font-size:22px}
+  .ch-head small{display:block;color:var(--muted);font-size:13px}
+  .ch-search{background:var(--bg2);border:1px solid var(--border2);border-radius:11px;color:var(--text);font-family:inherit;font-size:16px;padding:12px 14px;outline:none;margin-top:6px}
+  .ch-search:focus{border-color:var(--teal)}
+  .ch-list{display:flex;flex-direction:column;gap:6px}
+  .ch-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);text-decoration:none;font-weight:600}
+  .ch-row:hover{border-color:var(--teal-dim)}
+  .ch-av{width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:var(--gold);overflow:hidden;flex:0 0 auto}
+  .ch-av img{width:100%;height:100%;object-fit:cover}
 
   @media(max-width:600px){
     .tool{width:38px;height:38px}
@@ -304,7 +316,11 @@ function fmtT(t){ if(!isFinite(t)||t<0) t=0; var m=Math.floor(t/60), s=t-m*60; r
 function fmtClock(t){ var m=Math.floor(t/60), s=Math.floor(t%60); return m+':'+(s<10?'0':'')+s; }
 function errMsg(e){ if(!e) return 'error desconocido'; return e.message||e.error||JSON.stringify(e); }
 function params(){ return new URLSearchParams(window.location.search); }
-function backUrl(){ return 'jugador.html' + (PLAYER ? '?player='+encodeURIComponent(PLAYER.id) : ''); }
+function fromDash(){ return params().get('from')==='dash'; }
+function backUrl(){
+  if(fromDash()) return 'dashboard.html';
+  return 'jugador.html' + (PLAYER ? '?player='+encodeURIComponent(PLAYER.id) : '');
+}
 
 var SVG_PLAY  = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l11 7-11 7z"/></svg>';
 var SVG_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
@@ -327,10 +343,7 @@ async function init(){
   }
 
   var pid = params().get('player');
-  if(!pid){
-    $('gate').innerHTML='<p>Abre la herramienta desde el perfil de un jugador.</p><a class="pill" href="jugador.html">Ir a Coach Hub</a>';
-    return;
-  }
+  if(!pid){ await choosePlayer(); return; }
   var rp = await sb.from('players').select('id,first_name,last_name,coach_id').eq('id',pid).maybeSingle();
   if(rp.error || !rp.data){
     $('gate').innerHTML='<p>No se encontró el jugador o no tienes acceso a su perfil.</p><a class="pill" href="jugador.html">Volver</a>';
@@ -351,6 +364,39 @@ async function init(){
   var m = mid ? VIDEOS.filter(function(v){ return v.id===mid; })[0] : null;
   if(m) await loadFromMedia('A', m);
   else openPicker('A');
+}
+
+// Entrando desde el dashboard: primero se elige el alumno
+async function choosePlayer(){
+  var r = await sb.from('players').select('id,first_name,last_name,photo_url,status').eq('coach_id',USER.id);
+  var list = (r.data||[]).filter(function(p){ return p.status!=='archivado'; });
+  list.sort(function(a,b){ return ((a.first_name||'')+(a.last_name||'')).localeCompare((b.first_name||'')+(b.last_name||'')); });
+  var g=$('gate');
+  g.className='gate chooser';
+  var h='<div class="ch-head"><a class="iconbtn" href="dashboard.html" title="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a>'
+    + '<div><b>Analizar swing</b><small>¿A qué alumno vas a analizar?</small></div></div>';
+  if(!list.length){
+    h+='<p style="margin-top:30px">Todavía no tienes alumnos. Agrégalos desde Mis jugadores.</p><a class="pill" href="jugador.html">Mis jugadores</a>';
+  } else {
+    h+='<input class="ch-search" id="chSearch" placeholder="Buscar alumno…" autocomplete="off"><div class="ch-list" id="chList"></div>';
+  }
+  g.innerHTML=h;
+  if(!list.length) return;
+  function draw(q){
+    q=(q||'').toLowerCase();
+    var out='';
+    list.forEach(function(p){
+      var n=((p.first_name||'')+' '+(p.last_name||'')).trim();
+      if(q && n.toLowerCase().indexOf(q)<0) return;
+      var ini=((p.first_name||'?').charAt(0)+(p.last_name||'').charAt(0)).toUpperCase();
+      out+='<a class="ch-row" href="analisis.html?player='+encodeURIComponent(p.id)+'&from=dash">'
+        + '<span class="ch-av">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="">':esc(ini))+'</span>'
+        + '<span>'+esc(n)+'</span></a>';
+    });
+    $('chList').innerHTML = out || '<p style="padding:16px 4px">Sin resultados.</p>';
+  }
+  draw('');
+  $('chSearch').addEventListener('input',function(){ draw(this.value); });
 }
 
 async function loadVideos(){
@@ -948,7 +994,7 @@ $('sv_save').onclick=async function(){
   }
   setProg('¡Listo! Guardado en el timeline de '+(PLAYER.first_name||'el alumno')+'.', 1);
   REC_BLOB=null;
-  setTimeout(function(){ window.location.href=backUrl(); }, 900);
+  setTimeout(function(){ window.location.href='jugador.html?player='+encodeURIComponent(PLAYER.id); }, 900);
 };
 
 window.addEventListener('beforeunload', function(e){
