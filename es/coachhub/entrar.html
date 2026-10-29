@@ -55,6 +55,8 @@
   .field label{display:block;font-family:'Barlow Condensed';font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:.4rem}
   .field input{width:100%;padding:.8rem 1rem;background:var(--elevated);border:1px solid var(--border);border-radius:11px;color:var(--text);font-family:'Barlow';font-size:.95rem;outline:none;transition:border-color .2s}
   .field input:focus{border-color:var(--teal)}
+  .forgot{display:block;text-align:right;margin-top:.5rem;font-size:.78rem;color:var(--muted2);text-decoration:none;transition:color .2s}
+  .forgot:hover{color:var(--teal)}
 
   .btn{width:100%;padding:.9rem;border:none;border-radius:11px;font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .15s}
   .btn-primary{background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#04211d}
@@ -120,6 +122,7 @@
         <div class="field">
           <label>Contraseña</label>
           <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+          <a href="/es/recuperar.html?next=coachhub" class="forgot">¿Olvidaste tu contraseña?</a>
         </div>
         <button type="submit" class="btn btn-primary" id="loginBtn">Entrar a mi Coach Hub</button>
       </form>
