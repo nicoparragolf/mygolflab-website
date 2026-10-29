@@ -148,10 +148,10 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // Puerta de entrada de Coach Hub: siempre termina en jugador.html
-  // (ese archivo ya distingue coach vs jugador solo, así que no hace falta
-  // decidir el rol acá — solo confirmar que hay sesión y mandar para allá).
-  const DEST = '/es/coachhub/jugador.html';
+  // Puerta de entrada de Coach Hub: siempre termina en el dashboard.
+  // dashboard.html distingue el rol solo: el coach se queda ahí y el alumno
+  // es redirigido directo a su perfil (jugador.html).
+  const DEST = '/es/coachhub/dashboard.html';
 
   function goToHub(){ window.location.href = DEST; }
 
