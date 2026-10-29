@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuperar contraseña · MyGolfLab</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --card: #131313;
+    --line: rgba(255,255,255,.08);
+    --text: #f2f2f2;
+    --muted: rgba(255,255,255,.55);
+    --teal: #2dd4bf;
+    --gold: #D4C5A9;
+    --error: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-color: rgba(255,255,255,.09) var(--bg); }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.09); border-radius: 10px; border: 2px solid var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .wrap { width: 100%; max-width: 420px; }
+  .brand { text-align: center; margin-bottom: 28px; }
+  .brand a { text-decoration: none; color: var(--text); }
+  .brand .logo { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; line-height: 1; }
+  .brand .logo span { color: var(--teal); }
+  .brand .sub { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-top: 6px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 32px 28px; }
+  h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: .5px; margin-bottom: 8px; }
+  p.lead { color: var(--muted); font-size: 15px; line-height: 1.5; margin-bottom: 24px; }
+  label { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .field { margin-bottom: 18px; position: relative; }
+  input {
+    width: 100%; background: #0d0d0d; border: 1px solid var(--line); border-radius: 12px;
+    color: var(--text); font-size: 16px; padding: 14px 16px; font-family: inherit; outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--teal); }
+  .field.pw input { padding-right: 70px; }
+  .toggle {
+    position: absolute; right: 10px; bottom: 9px; background: none; border: none; color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; padding: 6px 8px;
+  }
+  .btn {
+    width: 100%; background: var(--teal); color: #0a0a0a; border: none; border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 15px; cursor: pointer; transition: opacity .15s;
+  }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .msg { display: none; border-radius: 12px; padding: 13px 15px; font-size: 14px; line-height: 1.45; margin-bottom: 18px; }
+  .msg.show { display: block; }
+  .msg.ok { background: rgba(45,212,191,.08); border: 1px solid rgba(45,212,191,.3); color: var(--teal); }
+  .msg.err { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.3); color: var(--error); }
+  .hint { color: var(--muted); font-size: 13px; margin-top: -8px; margin-bottom: 18px; }
+  .back { display: block; text-align: center; margin-top: 22px; color: var(--muted); font-size: 14px; text-decoration: none; }
+  .back:hover { color: var(--gold); }
+  .view { display: none; }
+  .view.active { display: block; }
+  .spinner { text-align: center; color: var(--muted); padding: 20px 0; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <a href="/es/index.html" id="brandLink">
+      <div class="logo">MY<span>GOLF</span>LAB</div>
+      <div class="sub" id="brandSub">Recuperar acceso</div>
+    </a>
+  </div>
+
+  <div class="card">
+    <!-- Vista 1: pedir el correo -->
+    <div class="view" id="viewRequest">
+      <h1>¿Olvidaste tu contraseña?</h1>
+      <p class="lead">Escribe el correo con el que te registraste y te enviaremos un link para crear una nueva.</p>
+      <div class="msg" id="msgRequest"></div>
+      <form id="formRequest" novalidate>
+        <div class="field">
+          <label for="email">Correo</label>
+          <input type="email" id="email" autocomplete="email" placeholder="tu@correo.com" required>
+        </div>
+        <button type="submit" class="btn" id="btnRequest">Enviar link</button>
+      </form>
+    </div>
+
+    <!-- Vista 2: verificando el link -->
+    <div class="view" id="viewLoading">
+      <div class="spinner">Verificando tu link…</div>
+    </div>
+
+    <!-- Vista 3: crear nueva contraseña -->
+    <div class="view" id="viewUpdate">
+      <h1>Crea tu nueva contraseña</h1>
+      <p class="lead">Elige una contraseña de al menos 8 caracteres.</p>
+      <div class="msg" id="msgUpdate"></div>
+      <form id="formUpdate" novalidate>
+        <div class="field pw">
+          <label for="pw1">Nueva contraseña</label>
+          <input type="password" id="pw1" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="toggle" data-target="pw1">Ver</button>
+        </div>
+        <div class="field pw">
+          <label for="pw2">Repite la contraseña</label>
+          <input type="password" id="pw2" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="toggle" data-target="pw2">Ver</button>
+        </div>
+        <button type="submit" class="btn" id="btnUpdate">Guardar contraseña</button>
+      </form>
+    </div>
+
+    <a class="back" id="backLink" href="/es/login.html">← Volver a iniciar sesión</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ====== CONFIG — pega aquí la misma anon key que usa login.html ======
+  var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+  // =====================================================================
+
+  var DEST_COACHHUB = '/es/coachhub/jugador.html';
+  var DEST_DASHBOARD = '/es/dashboard.html';
+
+  // flowType implicit: el link funciona aunque el alumno lo abra en otro
+  // dispositivo/navegador distinto al que pidió el correo (PKCE no).
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true }
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  var fromCoachHub = params.get('next') === 'coachhub';
+
+  // Marca Coach Hub si viene desde entrar.html
+  if (fromCoachHub) {
+    document.getElementById('brandSub').textContent = 'Coach Hub by MyGolfLab';
+    document.getElementById('brandLink').href = '/es/coachhub/entrar.html';
+    document.getElementById('backLink').href = '/es/coachhub/entrar.html';
+  }
+
+  function show(id) {
+    var views = document.querySelectorAll('.view');
+    for (var i = 0; i < views.length; i++) views[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+  }
+  function msg(id, type, text) {
+    var el = document.getElementById(id);
+    el.className = 'msg show ' + type;
+    el.textContent = text;
+  }
+  function clearMsg(id) { document.getElementById(id).className = 'msg'; }
+
+  // ---------- Mostrar/ocultar contraseña ----------
+  var toggles = document.querySelectorAll('.toggle');
+  for (var t = 0; t < toggles.length; t++) {
+    toggles[t].addEventListener('click', function () {
+      var input = document.getElementById(this.getAttribute('data-target'));
+      var hidden = input.type === 'password';
+      input.type = hidden ? 'text' : 'password';
+      this.textContent = hidden ? 'Ocultar' : 'Ver';
+    });
+  }
+
+  // ---------- Estado inicial ----------
+  var linkError = hash.get('error_code') || hash.get('error') || params.get('error_code');
+  var isRecoveryLink = hash.get('type') === 'recovery' || params.get('type') === 'recovery';
+
+  if (linkError) {
+    show('viewRequest');
+    var expired = (linkError === 'otp_expired') || /expired/i.test(hash.get('error_description') || '');
+    msg('msgRequest', 'err', expired
+      ? 'Ese link ya expiró o ya fue usado. Pide uno nuevo abajo.'
+      : 'El link no es válido. Pide uno nuevo abajo.');
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  } else if (isRecoveryLink) {
+    show('viewLoading');
+    // Si en 8 s no llega la sesión, algo falló con el link
+    setTimeout(function () {
+      if (document.getElementById('viewLoading').classList.contains('active')) {
+        show('viewRequest');
+        msg('msgRequest', 'err', 'No pudimos validar el link. Pide uno nuevo.');
+      }
+    }, 8000);
+  } else {
+    show('viewRequest');
+  }
+
+  sb.auth.onAuthStateChange(function (event) {
+    if (event === 'PASSWORD_RECOVERY') {
+      show('viewUpdate');
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      setTimeout(function () { document.getElementById('pw1').focus(); }, 50);
+    }
+  });
+
+  // ---------- Paso 1: pedir el correo ----------
+  var cooldown = 0;
+  document.getElementById('formRequest').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearMsg('msgRequest');
+    var email = document.getElementById('email').value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg('msgRequest', 'err', 'Revisa el correo, parece que tiene un error.');
+      return;
+    }
+    var btn = document.getElementById('btnRequest');
+    btn.disabled = true;
+    btn.textContent = 'Enviando…';
+
+    var redirectTo = window.location.origin + '/es/recuperar.html' + (fromCoachHub ? '?next=coachhub' : '');
+
+    sb.auth.resetPasswordForEmail(email, { redirectTo: redirectTo }).then(function (res) {
+      if (res.error && /rate|limit|seconds/i.test(res.error.message)) {
+        msg('msgRequest', 'err', 'Pediste varios links seguidos. Espera un minuto y vuelve a intentarlo.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar link';
+        return;
+      }
+      // Mensaje genérico: no revelamos si el correo existe o no
+      msg('msgRequest', 'ok', 'Si ' + email + ' tiene una cuenta, te llegará un correo con el link en unos minutos. Revisa también spam/promociones.');
+      startCooldown(btn);
+    }).catch(function () {
+      msg('msgRequest', 'err', 'No pudimos conectar. Revisa tu internet e intenta de nuevo.');
+      btn.disabled = false;
+      btn.textContent = 'Enviar link';
+    });
+  });
+
+  function startCooldown(btn) {
+    cooldown = 60;
+    btn.disabled = true;
+    var iv = setInterval(function () {
+      cooldown--;
+      btn.textContent = 'Reenviar en ' + cooldown + 's';
+      if (cooldown <= 0) {
+        clearInterval(iv);
+        btn.disabled = false;
+        btn.textContent = 'Reenviar link';
+      }
+    }, 1000);
+  }
+
+  // ---------- Paso 2: guardar la nueva contraseña ----------
+  document.getElementById('formUpdate').addEventListener('submit', function (e) {
+    e.preventDefault();
+    clearMsg('msgUpdate');
+    var p1 = document.getElementById('pw1').value;
+    var p2 = document.getElementById('pw2').value;
+    if (p1.length < 8) { msg('msgUpdate', 'err', 'La contraseña debe tener al menos 8 caracteres.'); return; }
+    if (p1 !== p2) { msg('msgUpdate', 'err', 'Las contraseñas no coinciden.'); return; }
+
+    var btn = document.getElementById('btnUpdate');
+    btn.disabled = true;
+    btn.textContent = 'Guardando…';
+
+    sb.auth.updateUser({ password: p1 }).then(function (res) {
+      if (res.error) {
+        var m = res.error.message || '';
+        var texto = 'No pudimos guardar la contraseña. Intenta de nuevo.';
+        if (/different from the old/i.test(m)) texto = 'La nueva contraseña debe ser distinta a la anterior.';
+        else if (/session|jwt|expired/i.test(m)) texto = 'Tu link expiró. Vuelve a pedir uno nuevo.';
+        else if (/weak|short|characters/i.test(m)) texto = 'Esa contraseña es muy débil. Prueba una más larga o con números.';
+        msg('msgUpdate', 'err', texto);
+        btn.disabled = false;
+        btn.textContent = 'Guardar contraseña';
+        return;
+      }
+      msg('msgUpdate', 'ok', '¡Listo! Tu contraseña quedó actualizada. Entrando…');
+      btn.textContent = 'Listo';
+      redirigir(res.data.user);
+    });
+  });
+
+  // Mismo ruteo que login.html: coach → Coach Hub, jugador → dashboard
+  // (o Coach Hub si vino desde entrar.html)
+  function redirigir(user) {
+    if (fromCoachHub) { setTimeout(function () { location.href = DEST_COACHHUB; }, 1200); return; }
+    sb.from('profiles').select('role').eq('id', user.id).single().then(function (r) {
+      var role = r.data && r.data.role;
+      var dest = (role === 'coach' || role === 'ambos') ? DEST_COACHHUB : DEST_DASHBOARD;
+      setTimeout(function () { location.href = dest; }, 1200);
+    });
+  }
+})();
+</script>
+</body>
+</html>
