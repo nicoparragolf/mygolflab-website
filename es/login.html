@@ -223,6 +223,18 @@
         }
         .form-input:focus { background: var(--bg-card); }
 
+        /* ── ¿OLVIDASTE TU CONTRASEÑA? ── */
+        .forgot-link {
+            display: block;
+            text-align: right;
+            margin-top: 0.55rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .forgot-link:hover { color: var(--primary); }
+
         /* ── SELECTOR DE ROL ── */
         .role-grid {
             display: grid;
@@ -528,6 +540,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                     </div>
+                    <a href="/es/recuperar.html" class="forgot-link" id="forgotLink">¿Olvidaste tu contraseña?</a>
                 </div>
 
                 <button type="submit" class="btn-primary" id="loginBtn">
@@ -641,6 +654,11 @@
         }
         function wantsCoachHub() {
             return localStorage.getItem('mgl_next_coachhub') === '1';
+        }
+
+        // El link "¿Olvidaste tu contraseña?" también respeta Coach Hub
+        if (wantsCoachHub()) {
+            document.getElementById('forgotLink').href = '/es/recuperar.html?next=coachhub';
         }
 
         // ── RUTEO SEGÚN ROL ──
