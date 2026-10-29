@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dashboard · Coach Hub</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="/es/coachhub/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
+    --border:#262626; --border2:#333;
+    --teal:#2dd4bf; --teal-dim:#1a7d72; --gold:#D4C5A9;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
+    --red:#e06a6a; --orange:#e0a15b; --purple:#a98fd4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;color:inherit}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+
+  /* header */
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
+  .brand span{color:var(--teal)}
+  .hubchip{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:3px 10px}
+  .nav-links{display:flex;gap:26px;margin-left:auto}
+  .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .nav-links a:hover{color:var(--text)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:#04211d;overflow:hidden;cursor:pointer;flex:0 0 auto}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:26px 20px calc(60px + env(safe-area-inset-bottom))}
+  .hello h1{font-family:'Bebas Neue';font-size:44px;letter-spacing:1px;line-height:1}
+  .hello p{color:var(--muted);margin-top:6px;font-size:15px}
+
+  /* acciones principales */
+  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0 30px}
+  .act{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 22px 20px;cursor:pointer;transition:border-color .15s,transform .15s;display:flex;flex-direction:column;gap:12px;min-height:172px;overflow:hidden}
+  .act:hover{border-color:var(--teal-dim);transform:translateY(-2px)}
+  .act::after{content:'';position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,.10),transparent 70%);pointer-events:none}
+  .act .ic{width:48px;height:48px;border-radius:13px;background:rgba(45,212,191,.12);border:1px solid var(--teal-dim);display:flex;align-items:center;justify-content:center;color:var(--teal)}
+  .act .ic svg{width:25px;height:25px}
+  .act h2{font-family:'Barlow Condensed';font-weight:700;font-size:24px;letter-spacing:.3px;margin-top:auto}
+  .act p{color:var(--muted);font-size:14px;line-height:1.4;margin-top:-6px}
+  .act .count{position:absolute;right:18px;top:18px;font-family:'Bebas Neue';font-size:30px;color:var(--muted2);line-height:1}
+  .act .badge{position:absolute;right:16px;top:16px;min-width:30px;height:30px;padding:0 9px;border-radius:15px;background:#ff4b4b;color:#fff;font-family:'Barlow Condensed';font-weight:700;font-size:17px;display:none;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,75,75,.18)}
+  .act .badge.on{display:flex}
+  .act.primary{background:linear-gradient(145deg,#12302c,#141414 70%);border-color:var(--teal-dim)}
+  .act.primary .ic{background:var(--teal);color:#04211d;border-color:var(--teal)}
+
+  /* secciones */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .sec{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px;min-width:0}
+  .sec-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .sec-h h3{font-family:'Barlow Condensed';font-weight:700;font-size:20px;letter-spacing:.3px}
+  .sec-h .n{font-family:'Barlow Condensed';font-weight:700;font-size:13px;color:var(--muted);background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:1px 8px}
+  .sec-h .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .seg{display:flex;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;overflow:hidden}
+  .seg button{background:none;border:none;padding:5px 10px;font-family:'Barlow Condensed';font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer}
+  .seg button.on{background:var(--teal);color:#04211d}
+  .lnk{background:none;border:none;color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
+  .lnk:hover{text-decoration:underline}
+
+  .rows{display:flex;flex-direction:column}
+  .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--border);cursor:pointer;border-radius:8px}
+  .row:first-child{border-top:none}
+  .row:hover{background:var(--card2)}
+  .av{width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;font-size:15px;color:var(--gold);flex:0 0 auto;overflow:hidden}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .row .tx{flex:1;min-width:0}
+  .row .tx b{display:block;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .tx small{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .tag{font-family:'Barlow Condensed';font-weight:700;font-size:13px;border-radius:7px;padding:3px 9px;white-space:nowrap;flex:0 0 auto}
+  .tag.red{background:rgba(224,106,106,.13);color:var(--red);border:1px solid rgba(224,106,106,.35)}
+  .tag.orange{background:rgba(224,161,91,.12);color:var(--orange);border:1px solid rgba(224,161,91,.35)}
+  .tag.teal{background:rgba(45,212,191,.1);color:var(--teal);border:1px solid var(--teal-dim)}
+  .tag.muted{background:var(--card2);color:var(--muted);border:1px solid var(--border2)}
+  .chk{width:34px;height:34px;border-radius:9px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;color:var(--muted)}
+  .chk:hover{border-color:var(--teal);color:var(--teal)}
+  .chk svg{width:17px;height:17px}
+  .empty{color:var(--muted);font-size:14px;line-height:1.5;padding:14px 4px}
+  .empty b{color:var(--text);font-weight:600}
+  .more{margin-top:8px}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .st{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 14px}
+  .st .v{font-family:'Bebas Neue';font-size:38px;line-height:1;color:var(--teal)}
+  .st .v small{font-size:18px;color:var(--muted);margin-left:3px}
+  .st .l{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;margin-top:6px;font-family:'Barlow Condensed';font-weight:600}
+  .st .d{font-size:12px;color:var(--muted2);margin-top:3px}
+
+  .notice{background:rgba(224,161,91,.08);border:1px solid rgba(224,161,91,.35);color:var(--orange);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.45;margin-bottom:14px;display:none}
+  .notice.on{display:block}
+
+  .loading{color:var(--muted);padding:60px 0;text-align:center}
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){
+    .actions{grid-template-columns:1fr;gap:12px}
+    .act{min-height:0;flex-direction:row;align-items:center;padding:18px}
+    .act h2{margin-top:0;font-size:21px}
+    .act p{margin-top:2px;font-size:13px}
+    .act .txt{flex:1;min-width:0}
+    .act .count{position:static;font-size:28px}
+    .act .badge{position:static}
+    .grid2{grid-template-columns:1fr;gap:0}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .nav-links{display:none}
+    .hello h1{font-size:38px}
+    .row .tx b{white-space:normal;line-height:1.3}
+    .row .tag.teal{display:none}
+  }
+  @media(min-width:901px){ .act .txt{display:contents} }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
+    <span class="hubchip">Coach Hub</span>
+    <nav class="nav-links">
+      <a href="/es/index.html">Inicio</a>
+      <a href="/es/biblioteca.html">Biblioteca</a>
+      <a href="/es/training.html">Training Lab</a>
+    </nav>
+    <div class="avatar" id="navAvatar" title="Cerrar sesión">?</div>
+  </div>
+</header>
+
+<div class="wrap" id="wrap">
+  <div class="loading">Cargando tu dashboard…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+var USER=null, PLAYERS=[], PBYID={}, EVENTS=[], MEDIA=[], GOALS=[];
+var HAS_REVIEW = true;      // se apaga si falta la columna reviewed_at (migración sin correr)
+var INACT_DAYS = 14;
+var SHOW_ALL = {pend:false, inact:false, goals:false};
+
+var EVENT_LABEL = {
+  clase:'Clase', video_analisis:'Video Análisis', launch_monitor:'Sesión de Launch Monitor',
+  ronda_torneo:'Ronda de Torneo', rutina_calentamiento:'Rutina de Calentamiento',
+  preparacion_fisica:'Preparación Física', meta_objetivo:'Meta / Objetivo', plan_asignado:'Plan de Entrenamiento',
+  objetivo_creado:'Meta / Objetivo', objetivo_logrado:'Objetivo logrado'
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(m){ var t=$('toast'); t.textContent=m; t.className='toast show'; clearTimeout(toast._t); toast._t=setTimeout(function(){ t.className='toast'; },2600); }
+function pad(n){ return (n<10?'0':'')+n; }
+function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function daysBetween(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function fmtDate(d){ if(!d) return ''; var p=String(d).slice(0,10).split('-'); return p[2]+'/'+p[1]; }
+function ago(iso){
+  if(!iso) return '';
+  var s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<3600) return 'hace '+Math.max(1,Math.round(s/60))+' min';
+  if(s<86400) return 'hace '+Math.round(s/3600)+' h';
+  var d=Math.round(s/86400); return d===1?'ayer':'hace '+d+' días';
+}
+function fmtGB(b){ if(b<1073741824) return {v:(b/1048576).toFixed(b<10485760?1:0), u:'MB'}; return {v:(b/1073741824).toFixed(2), u:'GB'}; }
+function initials(p){ return ((p.first_name||'?').charAt(0)+(p.last_name||'').charAt(0)).toUpperCase(); }
+function pname(p){ return p ? ((p.first_name||'')+' '+(p.last_name||'')).trim() : 'Alumno'; }
+function avatarHTML(p){ return '<div class="av">'+(p&&p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="">':esc(p?initials(p):'?'))+'</div>'; }
+function goPlayer(id, view){ window.location.href='jugador.html?player='+encodeURIComponent(id)+(view?'&view='+view:''); }
+
+var IC = {
+  analyze:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 16L17 7"/><path d="M14 7h3v3"/><circle cx="9" cy="10" r="1.6"/></svg>',
+  players:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  inbox:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-6z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>'
+};
+
+// ============================================================
+// INICIO
+// ============================================================
+async function init(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ window.location.href='/es/coachhub/entrar.html'; return; }
+  USER = s.data.session.user;
+
+  var meta = USER.user_metadata||{};
+  var av=$('navAvatar');
+  if(meta.avatar_url) av.innerHTML='<img src="'+esc(meta.avatar_url)+'" alt="">';
+  else av.textContent=(meta.first_name||meta.full_name||USER.email||'?').charAt(0).toUpperCase();
+  av.onclick=async function(){ if(confirm('¿Cerrar sesión?')){ await sb.auth.signOut(); window.location.href='/es/coachhub/entrar.html'; } };
+
+  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  var role = (pr.data && pr.data.role) || 'jugador';
+  // el dashboard es solo para coaches: el alumno va directo a su perfil
+  if(role!=='coach' && role!=='ambos'){ window.location.replace('jugador.html'); return; }
+
+  await loadData();
+  render();
+}
+
+async function loadData(){
+  var rp = await sb.from('players').select('*').eq('coach_id',USER.id);
+  PLAYERS = (rp.data||[]).filter(function(p){ return p.status!=='archivado'; });
+  PLAYERS.sort(function(a,b){ return pname(a).localeCompare(pname(b)); });
+  PBYID = {}; PLAYERS.forEach(function(p){ PBYID[p.id]=p; });
+  var ids = PLAYERS.map(function(p){ return p.id; });
+  if(!ids.length){ EVENTS=[]; MEDIA=[]; GOALS=[]; return; }
+
+  var evCols='id,player_id,event_type,title,event_date,created_by,created_at';
+  var re = await sb.from('player_events').select(evCols+',reviewed_at').in('player_id',ids);
+  if(re.error){ HAS_REVIEW=false; re = await sb.from('player_events').select(evCols).in('player_id',ids); }
+  EVENTS = re.data||[];
+
+  var mdCols='id,player_id,event_id,media_type,size_bytes,created_by,created_at';
+  var rm = await sb.from('player_media').select(mdCols+(HAS_REVIEW?',reviewed_at':'')).in('player_id',ids);
+  if(rm.error && HAS_REVIEW){ HAS_REVIEW=false; rm = await sb.from('player_media').select(mdCols).in('player_id',ids); }
+  MEDIA = rm.data||[];
+
+  var rg = await sb.from('player_goals').select('*').in('player_id',ids).eq('status','activa');
+  GOALS = rg.data||[];
+}
+
+// ============================================================
+// CÁLCULOS
+// ============================================================
+// Lo que subieron los alumnos y el coach todavía no revisa.
+// Se agrupa por evento: "Lukas subió 2 videos a Clase de driver".
+function pendingItems(){
+  if(!HAS_REVIEW) return [];
+  var byEvent = {}, out = [];
+  EVENTS.forEach(function(e){ byEvent[e.id]=e; });
+  var groups = {};
+  EVENTS.forEach(function(e){
+    if(e.created_by!==USER.id && !e.reviewed_at){
+      groups[e.id] = {key:e.id, ev:e, player_id:e.player_id, newEvent:true, media:[], when:e.created_at};
+    }
+  });
+  MEDIA.forEach(function(m){
+    if(m.created_by===USER.id || m.reviewed_at) return;
+    var g = groups[m.event_id];
+    if(!g){ g = groups[m.event_id] = {key:m.event_id, ev:byEvent[m.event_id]||null, player_id:m.player_id, newEvent:false, media:[], when:m.created_at}; }
+    g.media.push(m);
+    if(m.created_at > g.when) g.when = m.created_at;
+  });
+  Object.keys(groups).forEach(function(k){ if(PBYID[groups[k].player_id]) out.push(groups[k]); });
+  out.sort(function(a,b){ return a.when<b.when?1:-1; });
+  return out;
+}
+
+function lastActivity(){
+  var last = {};
+  EVENTS.forEach(function(e){
+    var d = e.event_date || String(e.created_at||'').slice(0,10);
+    if(d && (!last[e.player_id] || d>last[e.player_id].d)) last[e.player_id] = {d:d, t:e.title, ty:e.event_type};
+  });
+  return last;
+}
+
+function inactiveList(){
+  var last = lastActivity(), hoy = todayISO(), out=[];
+  PLAYERS.forEach(function(p){
+    var l = last[p.id];
+    var ref = l ? l.d : String(p.created_at||'').slice(0,10);
+    if(!ref) return;
+    var days = daysBetween(ref, hoy);
+    if(days >= INACT_DAYS) out.push({p:p, days:days, last:l});
+  });
+  out.sort(function(a,b){ return b.days-a.days; });
+  return out;
+}
+
+function goalsDue(){
+  var hoy=todayISO(), out=[];
+  GOALS.forEach(function(g){
+    if(!g.due_date || !PBYID[g.player_id]) return;
+    var d = daysBetween(hoy, g.due_date);
+    if(d <= 21) out.push({g:g, d:d});
+  });
+  out.sort(function(a,b){ return a.d-b.d; });
+  return out;
+}
+
+function monthStats(){
+  var hoy=todayISO(), ym=hoy.slice(0,7);
+  var act={}, clases=0, analisis=0, bytes=0, mesBytes=0;
+  EVENTS.forEach(function(e){
+    if(String(e.event_date||'').slice(0,7)!==ym) return;
+    act[e.player_id]=true;
+    if(e.event_type==='clase') clases++;
+    if(e.event_type==='video_analisis') analisis++;
+  });
+  MEDIA.forEach(function(m){
+    var b=Number(m.size_bytes)||0; bytes+=b;
+    if(String(m.created_at||'').slice(0,7)===ym) mesBytes+=b;
+  });
+  return {activos:Object.keys(act).length, total:PLAYERS.length, clases:clases, analisis:analisis, bytes:bytes, mesBytes:mesBytes};
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render(){
+  var meta=USER.user_metadata||{};
+  var nombre = meta.first_name || (meta.full_name||'').split(' ')[0] || '';
+  var h = new Date().getHours();
+  var saludo = h<12 ? 'Buenos días' : (h<20 ? 'Buenas tardes' : 'Buenas noches');
+  var pend = pendingItems();
+
+  var html =
+      '<div class="hello"><h1>'+esc(saludo+(nombre?', '+nombre:''))+'</h1>'
+    + '<p>'+(PLAYERS.length ? PLAYERS.length+(PLAYERS.length===1?' alumno':' alumnos')+' en tu Coach Hub' : 'Todavía no tienes alumnos. Agrega el primero desde Mis jugadores.')+'</p></div>'
+
+    + '<div class="actions">'
+    +   '<div class="act primary" onclick="window.location.href=\'analisis.html?from=dash\'">'
+    +     '<div class="ic">'+IC.analyze+'</div>'
+    +     '<div class="txt"><h2>Analizar swing</h2><p>Dibuja sobre el video, compara dos swings y graba tu explicación con voz.</p></div>'
+    +   '</div>'
+    +   '<div class="act" onclick="window.location.href=\'jugador.html\'">'
+    +     '<div class="ic">'+IC.players+'</div>'
+    +     '<div class="txt"><h2>Mis jugadores</h2><p>Perfiles, timeline, galería y notas de cada alumno.</p></div>'
+    +     '<span class="count">'+PLAYERS.length+'</span>'
+    +   '</div>'
+    +   '<div class="act" onclick="document.getElementById(\'secPend\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">'
+    +     '<div class="ic">'+IC.inbox+'</div>'
+    +     '<div class="txt"><h2>Por revisar</h2><p>Videos y eventos que tus alumnos subieron y aún no ves.</p></div>'
+    +     '<span class="badge'+(pend.length?' on':'')+'">'+pend.length+'</span>'
+    +   '</div>'
+    + '</div>'
+
+    + '<div class="notice'+(HAS_REVIEW?'':' on')+'">Para activar <b>Por revisar</b> falta correr <b>coach_hub_dashboard.sql</b> en Supabase. El resto del dashboard ya funciona.</div>'
+
+    + '<div class="sec" id="secPend"></div>'
+    + '<div class="grid2">'
+    +   '<div class="sec" id="secInact"></div>'
+    +   '<div class="sec" id="secGoals"></div>'
+    + '</div>'
+    + '<div class="sec" id="secStats"></div>';
+
+  $('wrap').innerHTML = html;
+  renderPending(); renderInactive(); renderGoals(); renderStats();
+}
+
+function renderPending(){
+  var list = pendingItems(), box=$('secPend');
+  var h='<div class="sec-h"><h3>Por revisar</h3><span class="n">'+list.length+'</span>'
+       + (list.length>1 ? '<div class="r"><button class="lnk" onclick="markAllReviewed()">Marcar todo como revisado</button></div>' : '')
+       + '</div>';
+  if(!HAS_REVIEW){
+    h+='<div class="empty">Disponible cuando corras la migración.</div>';
+  } else if(!list.length){
+    h+='<div class="empty"><b>Todo al día.</b> Cuando un alumno suba un video o registre algo en su perfil, aparece acá.</div>';
+  } else {
+    var lim = SHOW_ALL.pend ? list.length : 6;
+    h+='<div class="rows">';
+    list.slice(0,lim).forEach(function(it){
+      var p=PBYID[it.player_id], ev=it.ev;
+      var nv=it.media.filter(function(m){ return m.media_type==='video'; }).length, nf=it.media.length-nv;
+      var partes=[];
+      if(nv) partes.push(nv+(nv===1?' video':' videos'));
+      if(nf) partes.push(nf+(nf===1?' foto':' fotos'));
+      var accion = it.newEvent
+        ? 'registró '+(EVENT_LABEL[ev.event_type]||'un evento')+(partes.length?' con '+partes.join(' y '):'')
+        : 'subió '+(partes.join(' y ')||'archivos');
+      var titulo = ev ? ev.title : '';
+      h+='<div class="row" onclick="openPending(\''+it.key+'\')">'
+        + avatarHTML(p)
+        + '<div class="tx"><b>'+esc(pname(p))+' '+esc(accion)+'</b><small>'+esc(titulo?('«'+titulo+'» · '):'')+esc(ago(it.when))+'</small></div>'
+        + '<span class="tag teal">Ver</span>'
+        + '<div class="chk" title="Marcar como revisado" onclick="event.stopPropagation();markReviewed(\''+it.key+'\')">'+IC.check+'</div>'
+        + '</div>';
+    });
+    h+='</div>';
+    if(list.length>6) h+='<div class="more"><button class="lnk" onclick="SHOW_ALL.pend=!SHOW_ALL.pend;renderPending()">'+(SHOW_ALL.pend?'Ver menos':'Ver los '+list.length)+'</button></div>';
+  }
+  box.innerHTML=h;
+}
+
+function renderInactive(){
+  var list=inactiveList(), box=$('secInact');
+  var seg='<div class="seg">';
+  [14,21,30].forEach(function(n){ seg+='<button class="'+(INACT_DAYS===n?'on':'')+'" onclick="INACT_DAYS='+n+';renderInactive()">'+n+' días</button>'; });
+  seg+='</div>';
+  var h='<div class="sec-h"><h3>Alumnos sin actividad</h3><span class="n">'+list.length+'</span><div class="r">'+seg+'</div></div>';
+  if(!list.length){
+    h+='<div class="empty"><b>Todos activos.</b> Ningún alumno lleva '+INACT_DAYS+' días o más sin clase ni evento.</div>';
+  } else {
+    var lim = SHOW_ALL.inact ? list.length : 6;
+    h+='<div class="rows">';
+    list.slice(0,lim).forEach(function(x){
+      var sub = x.last ? 'Último: '+(x.last.t||EVENT_LABEL[x.last.ty]||'evento')+' · '+fmtDate(x.last.d) : 'Sin eventos registrados';
+      h+='<div class="row" onclick="goPlayer(\''+x.p.id+'\')">'
+        + avatarHTML(x.p)
+        + '<div class="tx"><b>'+esc(pname(x.p))+'</b><small>'+esc(sub)+'</small></div>'
+        + '<span class="tag '+(x.days>=30?'red':'orange')+'">'+x.days+' días</span>'
+        + '</div>';
+    });
+    h+='</div>';
+    if(list.length>6) h+='<div class="more"><button class="lnk" onclick="SHOW_ALL.inact=!SHOW_ALL.inact;renderInactive()">'+(SHOW_ALL.inact?'Ver menos':'Ver los '+list.length)+'</button></div>';
+  }
+  box.innerHTML=h;
+}
+
+function renderGoals(){
+  var list=goalsDue(), box=$('secGoals');
+  var h='<div class="sec-h"><h3>Metas por vencer</h3><span class="n">'+list.length+'</span><div class="r"><span style="color:var(--muted);font-size:12.5px">próximas 3 semanas</span></div></div>';
+  if(!list.length){
+    h+='<div class="empty">No hay metas activas que venzan en las próximas 3 semanas.</div>';
+  } else {
+    var lim = SHOW_ALL.goals ? list.length : 6;
+    h+='<div class="rows">';
+    list.slice(0,lim).forEach(function(x){
+      var p=PBYID[x.g.player_id];
+      var txt = x.d<0 ? 'Venció hace '+Math.abs(x.d)+(Math.abs(x.d)===1?' día':' días') : (x.d===0 ? 'Vence hoy' : 'Faltan '+x.d+(x.d===1?' día':' días'));
+      var cls = x.d<0 ? 'red' : (x.d<=7 ? 'orange' : 'muted');
+      h+='<div class="row" onclick="goPlayer(\''+x.g.player_id+'\')">'
+        + avatarHTML(p)
+        + '<div class="tx"><b>'+esc(x.g.title||'Meta')+'</b><small>'+esc(pname(p))+(x.g.target_text?' · '+esc(x.g.target_text):'')+'</small></div>'
+        + '<span class="tag '+cls+'">'+esc(txt)+'</span>'
+        + '</div>';
+    });
+    h+='</div>';
+    if(list.length>6) h+='<div class="more"><button class="lnk" onclick="SHOW_ALL.goals=!SHOW_ALL.goals;renderGoals()">'+(SHOW_ALL.goals?'Ver menos':'Ver las '+list.length)+'</button></div>';
+  }
+  box.innerHTML=h;
+}
+
+function renderStats(){
+  var s=monthStats(), box=$('secStats');
+  var meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var mes = meses[new Date().getMonth()];
+  var g=fmtGB(s.bytes), gm=fmtGB(s.mesBytes);
+  box.innerHTML =
+      '<div class="sec-h"><h3>Tu mes en números</h3><div class="r"><span style="color:var(--muted);font-size:12.5px;text-transform:capitalize">'+mes+'</span></div></div>'
+    + '<div class="stats">'
+    +   '<div class="st"><div class="v">'+s.activos+'<small>/ '+s.total+'</small></div><div class="l">Alumnos activos</div><div class="d">con al menos un evento este mes</div></div>'
+    +   '<div class="st"><div class="v">'+s.clases+'</div><div class="l">Clases registradas</div><div class="d">eventos tipo Clase</div></div>'
+    +   '<div class="st"><div class="v">'+s.analisis+'</div><div class="l">Análisis grabados</div><div class="d">Video Análisis del mes</div></div>'
+    +   '<div class="st"><div class="v">'+g.v+'<small>'+g.u+'</small></div><div class="l">Espacio en videos</div><div class="d">+'+gm.v+' '+gm.u+' este mes</div></div>'
+    + '</div>';
+}
+
+// ============================================================
+// ACCIONES DE "POR REVISAR"
+// ============================================================
+async function markGroup(it){
+  var now=new Date().toISOString();
+  if(it.newEvent){
+    var r1=await sb.from('player_events').update({reviewed_at:now}).eq('id',it.key);
+    if(r1.error) console.warn(r1.error); else it.ev.reviewed_at=now;
+  }
+  var ids=it.media.map(function(m){ return m.id; });
+  if(ids.length){
+    var r2=await sb.from('player_media').update({reviewed_at:now}).in('id',ids);
+    if(r2.error) console.warn(r2.error); else it.media.forEach(function(m){ m.reviewed_at=now; });
+  }
+}
+function findPending(key){ return pendingItems().filter(function(x){ return x.key===key; })[0]; }
+
+async function markReviewed(key){
+  var it=findPending(key); if(!it) return;
+  await markGroup(it);
+  render(); toast('Marcado como revisado');
+}
+async function openPending(key){
+  var it=findPending(key); if(!it) return;
+  await markGroup(it);
+  goPlayer(it.player_id);
+}
+async function markAllReviewed(){
+  var list=pendingItems();
+  if(!list.length || !confirm('¿Marcar los '+list.length+' pendientes como revisados?')) return;
+  for(var i=0;i<list.length;i++) await markGroup(list[i]);
+  render(); toast('Todo al día');
+}
+
+init();
+</script>
+</body>
+</html>
