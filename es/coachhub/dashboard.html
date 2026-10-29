@@ -39,9 +39,17 @@
   .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
   .brand span{color:var(--teal)}
   .hubchip{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:3px 10px}
-  .nav-links{display:flex;gap:26px;margin-left:auto}
+  .nav-links{display:flex;gap:20px;margin-left:auto}
+  .nav-links a,.hubchip{white-space:nowrap}
   .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
   .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--teal)}
+  .nav-sep{width:1px;height:18px;background:var(--border2);align-self:center}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:4px}
+  .hamburger span{width:24px;height:2px;background:var(--text);transition:transform .2s,opacity .2s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
   .avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:#04211d;overflow:hidden;cursor:pointer;flex:0 0 auto}
   .avatar img{width:100%;height:100%;object-fit:cover}
 
@@ -123,6 +131,12 @@
     .grid2{grid-template-columns:1fr;gap:0}
     .stats{grid-template-columns:repeat(2,1fr)}
     .nav-links{display:none}
+    .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
+    .nav-links.mobile-open a{padding:15px 0;font-size:19px;border-bottom:1px solid var(--border)}
+    .nav-links.mobile-open a:last-child{border-bottom:none}
+    .nav-links.mobile-open .nav-sep{width:100%;height:1px;margin:6px 0;background:var(--border2)}
+    .hamburger{display:flex}
+    .avatar{margin-left:auto}
     .hello h1{font-size:38px}
     .row .tx b{white-space:normal;line-height:1.3}
     .row .tag.teal{display:none}
@@ -136,12 +150,17 @@
   <div class="nav-inner">
     <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
     <span class="hubchip">Coach Hub</span>
-    <nav class="nav-links">
+    <nav class="nav-links" id="navLinks">
+      <a href="/es/coachhub/dashboard.html" class="active">Dashboard</a>
+      <a href="/es/coachhub/jugador.html">Mis jugadores</a>
+      <a href="/es/coachhub/analisis.html?from=dash">Analizar swing</a>
+      <span class="nav-sep"></span>
       <a href="/es/index.html">Inicio</a>
       <a href="/es/biblioteca.html">Biblioteca</a>
       <a href="/es/training.html">Training Lab</a>
     </nav>
     <div class="avatar" id="navAvatar" title="Cerrar sesión">?</div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
   </div>
 </header>
 
@@ -498,6 +517,16 @@ async function markAllReviewed(){
   for(var i=0;i<list.length;i++) await markGroup(list[i]);
   render(); toast('Todo al día');
 }
+
+// menú hamburguesa (mobile)
+(function(){
+  var btn=$('hamburgerBtn'), nav=$('navLinks');
+  function set(open){ btn.classList.toggle('open',open); nav.classList.toggle('mobile-open',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!nav.classList.contains('mobile-open')); });
+  nav.addEventListener('click',function(e){ if(e.target.tagName==='A') set(false); });
+  document.addEventListener('click',function(e){ if(nav.classList.contains('mobile-open') && !nav.contains(e.target)) set(false); });
+  window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
+})();
 
 init();
 </script>
