@@ -418,7 +418,23 @@
   .trimwork.on{display:block}
   .trimwork .lbl{font-size:12.5px;color:var(--teal);margin-top:7px;font-variant-numeric:tabular-nums}
 
+  /* ── GALERÍA ── */
+  .gal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .gal-sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .gal-kind{display:flex;gap:6px}
+  .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+  .gal-item{min-width:0}
+  .gal-grid .mthumb{width:100%;max-width:none}
+  .gal-area{position:absolute;left:7px;top:7px;z-index:2;background:rgba(10,10,10,.78);border:1px solid rgba(224,161,91,.45);color:var(--orange);font-family:'Barlow Condensed';font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;padding:1px 7px;border-radius:5px}
+  .gal-area.none{color:var(--muted);border-color:var(--border2)}
+  .gal-cap{margin-top:7px;font-size:12.5px;line-height:1.35;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gal-cap small{display:block;color:var(--muted);font-size:11.5px}
+  .gal-empty{background:var(--card);border:1px dashed var(--border2);border-radius:14px;padding:40px 20px;text-align:center;color:var(--muted);line-height:1.6}
+  .lb-area{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 10px;font-family:'Barlow Condensed';font-weight:600;font-size:14px;cursor:pointer}
+  .lb-area.hide{display:none}
+
   @media(max-width:900px){
+    .gal-grid{grid-template-columns:repeat(2,1fr);gap:10px}
     .shell{grid-template-columns:1fr}
     .roster{position:static}
     .nav-links{display:none}
@@ -538,11 +554,11 @@
       </div>
     </div>
 
-    <!-- Área del juego: solo para las clases -->
+    <!-- Área del juego: clases, video análisis, launch monitor y preparación física -->
     <div class="field" id="ne_areaWrap" style="display:none">
       <label>Área del juego trabajada</label>
       <div class="pick" id="ne_areaPick"></div>
-      <div class="hint">Permite filtrar el historial y ver todas las clases de cada área por separado. Toca de nuevo para quitar la selección.</div>
+      <div class="hint">Los videos y fotos de este evento quedan en esa área de la Galería. Toca de nuevo para quitar la selección.</div>
     </div>
 
     <!-- Dispositivo: solo para las sesiones de launch monitor -->
@@ -774,6 +790,7 @@
   <div id="lbBody"></div>
   <div class="lb-bar">
     <span class="lb-title" id="lbTitle"></span>
+    <select class="lb-area hide" id="lbArea" title="Área del juego"></select>
     <button class="btn-dl" id="lbDl">Descargar</button>
     <button class="btn-danger" id="lbDel">Eliminar archivo</button>
   </div>
@@ -821,7 +838,9 @@ var METRIC_BY_KEY = {};
 var VIEW = 'timeline';
 var FILTER_TYPE = 'all';
 var FILTER_PILLAR = 'all';
-var FILTER_AREA = 'all';     // full_swing | short_game | putting
+var FILTER_AREA = 'all';     // full_swing | short_game | putting | fisico | estrategia
+var GAL_AREA = 'all';        // filtro de área de la Galería ('none' = sin área)
+var GAL_KIND = 'all';        // all | video | imagen
 var FILTER_GROUP = 'all';    // juniors | amateurs | profesionales | seniors
 var EDIT_ID = null;          // evento en edición
 var REMOVE_MEDIA = [];       // ids de media marcados para borrar al guardar
@@ -908,15 +927,20 @@ var PILLAR_LABEL = {ground_forces:'Ground Forces',kinematic_sequence:'Kinematic 
 var CAT_LABEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite_amateur:'Elite amateur',profesional:'Profesional',senior:'Senior'};
 var TIER_LABEL = {basico:'Básico',intermedio:'Intermedio',avanzado:'Avanzado'};
 
-// Áreas del juego — hoy se usan en las clases; el filtro del timeline las lee de acá.
+// Áreas del juego — las usan los eventos, el filtro del timeline y la Galería.
+// Las claves full_swing/short_game/putting se mantienen para no romper los
+// eventos ya guardados; solo cambian las etiquetas visibles.
 var GAME_AREAS = [
   {k:'full_swing', label:'Full Swing'},
-  {k:'short_game', label:'Short Game'},
-  {k:'putting',    label:'Putting'}
+  {k:'short_game', label:'Juego Corto'},
+  {k:'putting',    label:'Putter'},
+  {k:'fisico',     label:'Físico'},
+  {k:'estrategia', label:'Estrategia / Cancha'}
 ];
-var AREA_LABEL = {full_swing:'Full Swing', short_game:'Short Game', putting:'Putting'};
+var AREA_LABEL = {};
+GAME_AREAS.forEach(function(a){ AREA_LABEL[a.k]=a.label; });
 // tipos de evento que llevan área del juego
-var AREA_TYPES = {clase:true};
+var AREA_TYPES = {clase:true, video_analisis:true, launch_monitor:true, preparacion_fisica:true};
 
 // Agrupación del portafolio: las categorías finas se mantienen en la ficha,
 // pero el roster se filtra por estos cuatro grupos.
@@ -1216,7 +1240,7 @@ async function selectPlayer(id){
   SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
   if(!SEL) return;
   COACH_ID = USER.id;
-  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all';
+  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all'; GAL_AREA='all'; GAL_KIND='all';
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
   await loadAll(id);
@@ -1309,7 +1333,11 @@ async function loadMedia(playerId){
   MEDIA_BY_EVENT={}; MEDIA_BY_ID={};
   var r = await sb.from('player_media').select('*').eq('player_id',playerId).order('created_at');
   if(r.error){ showError('No se pudo leer player_media', errMsg(r.error)); return; }
-  (r.data||[]).forEach(function(m){
+  var filas=r.data||[];
+  // player_media.area la agrega coach_hub_galeria.sql; sin ella la galería
+  // igual funciona usando el área de cada evento, pero no se puede editar.
+  HAS_MEDIA_AREA = !filas.length || Object.prototype.hasOwnProperty.call(filas[0],'area');
+  filas.forEach(function(m){
     if(!MEDIA_BY_EVENT[m.event_id]) MEDIA_BY_EVENT[m.event_id]=[];
     MEDIA_BY_EVENT[m.event_id].push(m);
     MEDIA_BY_ID[m.id]=m;
@@ -1888,6 +1916,7 @@ async function openLightbox(id){
     body.innerHTML='<img src="'+u+'" alt="">';
   }
   document.getElementById('lbTitle').textContent = (m.file_name||'') + (m.size_bytes?' · '+fmtSize(m.size_bytes):'');
+  setupLbArea(m);
   // descargar: disponible para el coach y para el alumno
   document.getElementById('lbDl').onclick=function(){ downloadMedia(m.id); };
   // el jugador solo puede borrar lo que subió él mismo
@@ -1914,6 +1943,34 @@ async function downloadMedia(id,ev){
   setTimeout(function(){ a.remove(); },2000);
   toast('Descargando '+name);
 }
+// Selector de área en el lightbox: solo el coach la cambia. El área propia del
+// archivo (player_media.area) manda sobre la del evento; "Igual que el evento"
+// la deja en null para que vuelva a heredar.
+function setupLbArea(m){
+  var sel=document.getElementById('lbArea');
+  if(!IS_COACH || !HAS_MEDIA_AREA){ sel.className='lb-area hide'; sel.onchange=null; return; }
+  var ev=eventOf(m);
+  var evArea=ev?eventArea(ev):null;
+  var h='<option value="">'+(evArea?'Área: '+esc(AREA_LABEL[evArea])+' (del evento)':'Sin área')+'</option>';
+  GAME_AREAS.forEach(function(a){
+    h+='<option value="'+a.k+'"'+(m.area===a.k?' selected':'')+'>Área: '+esc(a.label)+'</option>';
+  });
+  sel.innerHTML=h;
+  if(!m.area) sel.value='';
+  sel.className='lb-area';
+  sel.onchange=async function(){
+    var val=this.value||null;
+    var r=await sb.from('player_media').update({area:val}).eq('id',m.id).select('id,area');
+    if(r.error || !r.data || !r.data.length){
+      showError('No se pudo cambiar el área', r.error?errMsg(r.error):'La base de datos no aceptó el cambio.', 'Revisa que hayas corrido coach_hub_galeria.sql en Supabase.');
+      return;
+    }
+    m.area=val;
+    toast('Área actualizada');
+    if(VIEW==='galeria') renderGallery();
+  };
+}
+
 function closeLightbox(){
   document.getElementById('lbBody').innerHTML='';
   document.getElementById('lightbox').classList.remove('show');
@@ -1969,12 +2026,14 @@ function renderProfile(){
 
   html+='<div class="subnav">'
     + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
+    + '<button class="'+(VIEW==='galeria'?'on':'')+'" onclick="setView(\'galeria\')">Galería'+(Object.keys(MEDIA_BY_ID).length?' ('+Object.keys(MEDIA_BY_ID).length+')':'')+'</button>'
     + '<button class="'+(VIEW==='notas'?'on':'')+'" onclick="setView(\'notas\')">Notas'+(NOTES.length?' ('+NOTES.length+')':'')+'</button>'
     + '</div>';
 
   html+='<div id="viewBox"></div>';
   document.getElementById('mainPanel').innerHTML=html;
   if(VIEW==='timeline')      renderTimeline();
+  else if(VIEW==='galeria')  renderGallery();
   else if(VIEW==='metas')    renderGoals();
   else if(VIEW==='planes')   renderPlans();
   else                       renderNotes();
@@ -1984,6 +2043,120 @@ function renderProfile(){
   // mismas vistas. Métricas también queda fuera del subnav por ahora.
 }
 function setView(v){ VIEW=v; renderProfile(); }
+
+// ============================================================
+// GALERÍA — todos los videos y fotos del jugador en un solo lugar
+// ============================================================
+var HAS_MEDIA_AREA = true;   // se apaga solo si player_media.area no existe todavía
+
+function eventOf(m){
+  for(var i=0;i<EVENTS.length;i++){ if(EVENTS[i].id===m.event_id) return EVENTS[i]; }
+  return null;
+}
+// área de un evento: la elegida, o Físico si es una sesión de preparación física
+function eventArea(e){
+  if(!e) return null;
+  if(e.area && AREA_LABEL[e.area]) return e.area;
+  if(e.event_type==='preparacion_fisica') return 'fisico';
+  return null;
+}
+// área de un archivo: la propia (si el coach la cambió) o la de su evento
+function mediaArea(m){
+  if(m.area && AREA_LABEL[m.area]) return m.area;
+  return eventArea(eventOf(m));
+}
+
+function galleryItems(){
+  var out=[];
+  Object.keys(MEDIA_BY_ID).forEach(function(id){
+    var m=MEDIA_BY_ID[id];
+    var e=eventOf(m);
+    out.push({m:m, e:e, area:mediaArea(m), fecha:(e&&e.event_date)||String(m.created_at||'').slice(0,10)});
+  });
+  out.sort(function(a,b){
+    if(a.fecha!==b.fecha) return a.fecha<b.fecha?1:-1;
+    return String(a.m.created_at||'')<String(b.m.created_at||'')?1:-1;
+  });
+  return out;
+}
+
+function setGalArea(a){ GAL_AREA=a; renderGallery(); }
+function setGalKind(k){ GAL_KIND=k; renderGallery(); }
+
+function renderGallery(){
+  var box=document.getElementById('viewBox');
+  if(!box) return;
+  var all=galleryItems();
+
+  if(!all.length){
+    box.innerHTML='<div class="gal-empty">Todavía no hay videos ni fotos en este perfil.<br>'
+      + 'Se agregan desde <b>+ Evento</b> o con el botón <b>+ Video</b> de cada tarjeta del timeline, y aparecen acá solos.</div>';
+    return;
+  }
+
+  // conteos por área (respetando el filtro de tipo de archivo)
+  var porKind=all.filter(function(x){ return GAL_KIND==='all' || x.m.media_type===GAL_KIND; });
+  var cnt={none:0};
+  GAME_AREAS.forEach(function(a){ cnt[a.k]=0; });
+  porKind.forEach(function(x){ if(x.area) cnt[x.area]++; else cnt.none++; });
+
+  var chips='<div class="chip'+(GAL_AREA==='all'?' on':'')+'" onclick="setGalArea(\'all\')">Todas <b>'+porKind.length+'</b></div>';
+  GAME_AREAS.forEach(function(a){
+    if(!cnt[a.k] && GAL_AREA!==a.k) return;
+    chips+='<div class="chip'+(GAL_AREA===a.k?' on':'')+'" onclick="setGalArea(\''+a.k+'\')">'+esc(a.label)+' <b>'+cnt[a.k]+'</b></div>';
+  });
+  if(cnt.none || GAL_AREA==='none'){
+    chips+='<div class="chip'+(GAL_AREA==='none'?' on':'')+'" onclick="setGalArea(\'none\')">Sin área <b>'+cnt.none+'</b></div>';
+  }
+
+  var kinds='<div class="gal-kind">'
+    + '<div class="gchip'+(GAL_KIND==='all'?' on':'')+'" onclick="setGalKind(\'all\')">Todo</div>'
+    + '<div class="gchip'+(GAL_KIND==='video'?' on':'')+'" onclick="setGalKind(\'video\')">Videos</div>'
+    + '<div class="gchip'+(GAL_KIND==='imagen'?' on':'')+'" onclick="setGalKind(\'imagen\')">Fotos</div>'
+    + '</div>';
+
+  var list=porKind.filter(function(x){
+    if(GAL_AREA==='all') return true;
+    if(GAL_AREA==='none') return !x.area;
+    return x.area===GAL_AREA;
+  });
+
+  var html='<div class="gal-head"><div class="filters" style="margin-bottom:0">'+chips+'</div>'+kinds+'</div>';
+  if(IS_COACH && cnt.none){
+    html+='<div class="gal-sub">Abre un archivo para asignarle o cambiarle el área.</div>';
+  } else {
+    html+='<div class="gal-sub"></div>';
+  }
+
+  if(!list.length){
+    html+='<div class="gal-empty">No hay archivos con este filtro.</div>';
+    box.innerHTML=html;
+    return;
+  }
+
+  html+='<div class="gal-grid">';
+  list.forEach(function(x){
+    var m=x.m, e=x.e;
+    var areaTag = x.area
+      ? '<span class="gal-area">'+esc(AREA_LABEL[x.area])+'</span>'
+      : (IS_COACH ? '<span class="gal-area none">Sin área</span>' : '');
+    html+='<div class="gal-item">'
+      + '<div class="mthumb" data-media="'+esc(m.id)+'" onclick="openLightbox(\''+m.id+'\')" title="'+esc(m.file_name||'')+'">'
+      +   areaTag
+      +   (m.media_type==='video'
+            ? '<div class="play"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5l11 7-11 7z"/></svg></div>'
+            : '<span class="tag">Foto</span>')
+      +   '<button class="mdl" title="Descargar" onclick="downloadMedia(\''+m.id+'\',event)">'+SVG_DL+'</button>'
+      + '</div>'
+      + '<div class="gal-cap">'+esc(e?e.title:(m.file_name||''))
+      +   '<small>'+esc(fmtDate(x.fecha))+(e?' · '+esc(tipoCfg(e.event_type).label):'')+'</small>'
+      + '</div>'
+      + '</div>';
+  });
+  html+='</div>';
+  box.innerHTML=html;
+  hydrateThumbs();
+}
 
 // ============================================================
 // TIMELINE
