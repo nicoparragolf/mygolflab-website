@@ -83,6 +83,25 @@
   input[type=range].scrub::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#ff4b4b;margin-top:-9px;box-shadow:0 1px 6px rgba(0,0,0,.6)}
   input[type=range].scrub::-moz-range-thumb{width:22px;height:22px;border:none;border-radius:50%;background:#ff4b4b}
 
+  /* barra de tiempo propia: se arrastra desde cualquier punto, no solo la bolita */
+  .sbar{position:relative;flex:1;height:34px;cursor:pointer;touch-action:none;--p:0%}
+  .strack{position:absolute;left:0;right:0;top:15px;height:4px;border-radius:4px;background:#3a3a3a;overflow:hidden}
+  .strack i{display:block;height:100%;width:var(--p);background:#ff4b4b}
+  .sthumb{position:absolute;top:6px;left:var(--p);width:22px;height:22px;margin-left:-11px;border-radius:50%;background:#ff4b4b;box-shadow:0 1px 6px rgba(0,0,0,.6);transition:transform .12s}
+  .sbar.drag .sthumb{transform:scale(1.25)}
+
+  .zoomreset{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:6;display:none;background:rgba(17,17,17,.88);border:1px solid var(--border2);color:#fff;border-radius:20px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:700;font-size:14px;letter-spacing:.4px;cursor:pointer}
+  .zoomreset.on{display:block}
+
+  /* recorte */
+  .trbar{position:relative;height:46px;margin:4px 0 6px;touch-action:none;cursor:pointer}
+  .trbar .rail{position:absolute;left:0;right:0;top:19px;height:8px;border-radius:5px;background:#2a2a2a}
+  .trsel{position:absolute;top:19px;height:8px;background:var(--teal);border-radius:5px}
+  .trh{position:absolute;top:5px;width:20px;height:36px;margin-left:-10px;border-radius:7px;background:var(--teal);border:3px solid #04211d;box-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .trhead{position:absolute;top:2px;width:2px;height:42px;margin-left:-1px;background:#fff;opacity:.85;pointer-events:none}
+  .trtimes{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:14px}
+  .trtimes b{color:var(--teal);font-family:'Barlow Condensed';font-size:17px}
+
   .jogrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
   .fbtn{background:var(--card2);border:1px solid var(--border2);border-radius:9px;width:40px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
   .fbtn svg{width:20px;height:20px}
@@ -186,6 +205,7 @@
   <div class="stagewrap drawing" id="stageWrap">
     <canvas id="stage" width="720" height="1280"></canvas>
     <div class="recbadge" id="recBadge">● REC 0:00</div>
+    <button class="zoomreset" id="zoomReset">Quitar zoom</button>
     <div class="placeholder" id="placeholder">
       <h2>Elige un video</h2>
       <p>Usa uno que ya esté en el perfil del alumno o sube uno nuevo desde tu teléfono.</p>
@@ -240,6 +260,22 @@
   </div>
 </div>
 
+<!-- Recortar video subido desde el teléfono -->
+<div class="ov" id="ovTrim">
+  <div class="sheet">
+    <h3>Recortar video</h3>
+    <div class="sub">Deja solo el tramo del swing. Así el análisis es más ágil y, si guardas el original, sube mucho más liviano.</div>
+    <video class="preview" id="trVid" playsinline muted preload="auto"></video>
+    <div class="trbar" id="trBar"><div class="rail"></div><div class="trsel" id="trSel"></div><div class="trhead" id="trHead"></div><div class="trh" id="trA"></div><div class="trh" id="trB"></div></div>
+    <div class="trtimes"><span id="trTa">0:00.00</span><span>Tramo: <b id="trLen">0:00</b></span><span id="trTb">0:00.00</span></div>
+    <div class="actions" style="flex-wrap:wrap">
+      <button class="btn" id="trFull" style="margin-right:auto">Usar completo</button>
+      <button class="btn" id="trPlay">Ver tramo</button>
+      <button class="btn primary" id="trOk">Usar este tramo</button>
+    </div>
+  </div>
+</div>
+
 <!-- Guardar grabación -->
 <div class="ov" id="ovSave">
   <div class="sheet">
@@ -287,7 +323,13 @@ var COLORS = ['#ff4fd8','#39e75f','#ffd43b','#4dabf7','#ff5a5a','#ffffff'];
 // ESTADO
 // ============================================================
 var USER=null, PLAYER=null, VIDEOS=[], EVENT_TITLE={};
-var PANES = { A:{el:null, src:null, file:null, media:null, ready:false}, B:{el:null, src:null, file:null, media:null, ready:false} };
+// a/b: tramo elegido al recortar (b=null → hasta el final). target/seeking:
+// los saltos de tiempo se encadenan para que la barra no se trabe.
+var PANES = { A:{el:null, src:null, file:null, media:null, ready:false, a:0, b:null, target:null, seeking:false, seekT:0, drag:false},
+              B:{el:null, src:null, file:null, media:null, ready:false, a:0, b:null, target:null, seeking:false, seekT:0, drag:false} };
+var VIEW = {z:1, x:0, y:0};   // zoom y desplazamiento del escenario
+var PTRS = {};                // dedos/punteros activos sobre el escenario
+var PINCH = null, PAN = null, GESTURE_LOCK = false;
 var COMPARE = false;
 var PLAYING = false;
 var SPEED = 1;
@@ -415,15 +457,29 @@ async function signUrl(path, secs){
 // ============================================================
 // CARGAR VIDEOS EN LOS PANELES
 // ============================================================
+function rA(k){ return PANES[k].a||0; }
+function rB(k){ var p=PANES[k], d=p.el.duration||0; return (p.b!=null && p.b<d) ? p.b : d; }
+function isTrimmed(k){ var p=PANES[k], d=p.el.duration||0; return d>0 && (rA(k)>0.05 || rB(k)<d-0.05); }
+
 function setupVideoEvents(k){
-  var v = PANES[k].el;
+  var p = PANES[k], v = p.el;
   v.addEventListener('loadedmetadata', function(){
-    PANES[k].ready = true;
-    try{ v.currentTime = 0.001; }catch(e){}
+    p.ready = true;
+    seekPane(k, rA(k)+0.001);
     computeLayout(); renderLanes();
   });
   v.addEventListener('timeupdate', updateLanes);
-  v.addEventListener('seeked', updateLanes);
+  // Encadena los saltos: si mientras el video buscaba un cuadro el dedo ya
+  // pidió otro, se va directo al último pedido en vez de hacer cola.
+  v.addEventListener('seeked', function(){
+    p.seeking=false;
+    if(p.target!=null && Math.abs(v.currentTime-p.target)>0.004){
+      p.seeking=true; p.seekT=Date.now(); v.currentTime=p.target;
+    } else {
+      p.target=null;
+    }
+    updateLanes();
+  });
   v.addEventListener('ended', function(){ if(!anyPlaying()){ PLAYING=false; syncPlayBtn(); } });
   v.addEventListener('error', function(){
     if(!v.getAttribute('src')) return;
@@ -431,10 +487,25 @@ function setupVideoEvents(k){
   });
 }
 
-function setSource(k, url, file, media){
+function seekPane(k, t){
+  var p=PANES[k], v=p.el;
+  if(!p.ready) return;
+  var lo=rA(k), hi=Math.max(lo, rB(k)-0.001);
+  t=Math.max(lo, Math.min(hi, t));
+  p.target=t;
+  // si un salto anterior quedó colgado más de medio segundo, se fuerza el nuevo
+  if(!p.seeking || Date.now()-p.seekT>500){
+    p.seeking=true; p.seekT=Date.now();
+    try{ v.currentTime=t; }catch(e){ p.seeking=false; }
+  }
+}
+function paneTime(k){ var p=PANES[k]; return p.target!=null ? p.target : p.el.currentTime; }
+
+function setSource(k, url, file, media, a, b){
   var p = PANES[k], v = p.el;
   if(p.src && p.file) URL.revokeObjectURL(p.src);
   p.src = url; p.file = file||null; p.media = media||null; p.ready = false;
+  p.a = a||0; p.b = (b!=null) ? b : null; p.target=null; p.seeking=false;
   v.pause();
   // las URL firmadas de Supabase permiten CORS: hace falta para poder
   // dibujar el video en el canvas y grabarlo después
@@ -451,18 +522,94 @@ async function loadFromMedia(k, m){
   if(k==='B'){ COMPARE=true; $('btnCompare').classList.add('on'); }
   setSource(k, u, null, m);
 }
-function loadFromFile(k, f){
+function loadFromFile(k, f, a, b){
   if(!f) return;
-  if((f.type||'').indexOf('video')!==0){ toast('Elige un archivo de video',true); return; }
   if(k==='B'){ COMPARE=true; $('btnCompare').classList.add('on'); }
-  setSource(k, URL.createObjectURL(f), f, null);
+  setSource(k, URL.createObjectURL(f), f, null, a, b);
 }
 
 $('fileIn').addEventListener('change', function(){
   var f=this.files&&this.files[0]; this.value='';
   closeOv('ovPick');
-  if(f) loadFromFile(PICK_TARGET, f);
+  if(!f) return;
+  if((f.type||'').indexOf('video')!==0 && !/\.(mp4|mov|m4v|webm)$/i.test(f.name||'')){ toast('Elige un archivo de video',true); return; }
+  openTrim(PICK_TARGET, f);
 });
+
+// ---------- RECORTE al subir desde el teléfono ----------
+// No re-codifica nada al elegir: solo marca el tramo. El análisis trabaja
+// sobre el video original (máxima calidad para el cuadro a cuadro) y el
+// tramo se re-codifica únicamente si se guarda el original en el perfil.
+var TR = null;
+function openTrim(k, f){
+  var v=$('trVid');
+  TR = {k:k, f:f, url:URL.createObjectURL(f), dur:0, a:0, b:0, watch:null, seeking:false, want:null};
+  v.src=TR.url;
+  v.onloadedmetadata=function(){
+    TR.dur = isFinite(v.duration) ? v.duration : 0;
+    if(!TR.dur || TR.dur<=6){ useTrim(false); return; }   // videos cortos: directo
+    TR.a=0; TR.b=TR.dur; drawTrim();
+    openOv('ovTrim');
+  };
+  v.onerror=function(){ useTrim(false); };
+  v.onseeked=function(){ TR.seeking=false; if(TR.want!=null){ var t=TR.want; TR.want=null; trSeek(t); } };
+}
+function trSeek(t){
+  if(!TR) return;
+  var v=$('trVid');
+  if(TR.seeking){ TR.want=t; return; }
+  TR.seeking=true; try{ v.currentTime=t; }catch(e){ TR.seeking=false; }
+}
+function drawTrim(){
+  if(!TR || !TR.dur) return;
+  var pa=TR.a/TR.dur*100, pb=TR.b/TR.dur*100;
+  $('trA').style.left=pa+'%'; $('trB').style.left=pb+'%';
+  $('trSel').style.left=pa+'%'; $('trSel').style.width=(pb-pa)+'%';
+  $('trTa').textContent=fmtT(TR.a); $('trTb').textContent=fmtT(TR.b);
+  $('trLen').textContent=fmtT(TR.b-TR.a);
+  $('trHead').style.left=($('trVid').currentTime/TR.dur*100)+'%';
+}
+(function(){
+  var bar=$('trBar'), which=null;
+  function tAt(e){ var r=bar.getBoundingClientRect(); return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*(TR?TR.dur:0); }
+  bar.addEventListener('pointerdown', function(e){
+    if(!TR) return;
+    var t=tAt(e);
+    which = Math.abs(t-TR.a) <= Math.abs(t-TR.b) ? 'a' : 'b';
+    bar.setPointerCapture(e.pointerId); move(e);
+  });
+  function move(e){
+    if(!which || !TR) return;
+    var t=tAt(e), gap=Math.min(0.5, TR.dur/10);
+    if(which==='a') TR.a=Math.min(t, TR.b-gap); else TR.b=Math.max(t, TR.a+gap);
+    $('trVid').pause();
+    trSeek(which==='a'?TR.a:TR.b);
+    drawTrim();
+  }
+  bar.addEventListener('pointermove', move);
+  bar.addEventListener('pointerup', function(){ which=null; });
+  bar.addEventListener('pointercancel', function(){ which=null; });
+  $('trVid').addEventListener('timeupdate', drawTrim);
+})();
+$('trPlay').onclick=function(){
+  if(!TR) return;
+  var v=$('trVid');
+  v.currentTime=TR.a; v.play();
+  clearInterval(TR.watch);
+  TR.watch=setInterval(function(){ if(!TR){ return; } drawTrim(); if(v.paused || v.currentTime>=TR.b){ v.pause(); clearInterval(TR.watch); } }, 50);
+};
+function useTrim(conRecorte){
+  if(!TR) return;
+  var t=TR; TR=null;
+  clearInterval(t.watch);
+  var v=$('trVid'); v.pause(); v.removeAttribute('src'); try{ v.load(); }catch(e){}
+  URL.revokeObjectURL(t.url);
+  closeOv('ovTrim');
+  if(conRecorte) loadFromFile(t.k, t.f, t.a, t.b);
+  else loadFromFile(t.k, t.f);
+}
+$('trOk').onclick=function(){ useTrim(true); };
+$('trFull').onclick=function(){ useTrim(false); };
 
 // ============================================================
 // SELECTOR DE VIDEO
@@ -526,6 +673,7 @@ function computeLayout(){
   canvas.width = nw; canvas.height = nh;
   LAYOUT = []; var x=0;
   dims.forEach(function(d,i){ LAYOUT.push({k:d.k, x:x, y:0, w:widths[i], h:H}); x += widths[i]+GAP; });
+  if(changed) resetZoom();
   if(changed && keys.length>1 && window.innerWidth<700) setFold(true);
   if(changed && SHAPES.length){ SHAPES=[]; REDO=[]; toast('Cambió el formato del escenario: se borraron los dibujos'); }
 }
@@ -536,25 +684,38 @@ function computeLayout(){
 function lw(){ return Math.max(3, Math.round(canvas.width/170)); }
 
 function loop(){
+  ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.setTransform(VIEW.z,0,0,VIEW.z,VIEW.x,VIEW.y);
   LAYOUT.forEach(function(L){
     var v = PANES[L.k].el;
     if(v.readyState>=2){ try{ ctx.drawImage(v, L.x, L.y, L.w, L.h); }catch(e){} }
-    if(LAYOUT.length>1){
-      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(L.x+10, 10, 30, 26);
-      ctx.fillStyle='#2dd4bf'; ctx.font='bold 18px Barlow, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(L.k, L.x+25, 23);
-    }
   });
   SHAPES.forEach(drawShape);
   if(CUR) drawShape(CUR);
   if(ANGLE_WAIT) drawShape(ANGLE_WAIT);
+  ctx.setTransform(1,0,0,1,0,0);
+  if(LAYOUT.length>1 && VIEW.z<1.01){
+    LAYOUT.forEach(function(L){
+      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(L.x+10, 10, 30, 26);
+      ctx.fillStyle='#2dd4bf'; ctx.font='bold 18px Barlow, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(L.k, L.x+25, 23);
+    });
+  }
+  // fin del tramo recortado: se detiene ahí
+  if(PLAYING){
+    activeKeys().forEach(function(k){
+      var v=PANES[k].el;
+      if(PANES[k].ready && !v.paused && v.currentTime>=rB(k)-0.01){ v.pause(); }
+    });
+    if(!anyPlaying()){ PLAYING=false; syncPlayBtn(); updateLanes(); }
+  }
   requestAnimationFrame(loop);
 }
 
 function drawShape(s){
   var P = s.pts; if(!P || !P.length) return;
-  var w = lw();
+  var w = s.w || lw();
   ctx.save();
   ctx.strokeStyle = s.c; ctx.fillStyle = s.c; ctx.lineWidth = w; ctx.lineCap='round'; ctx.lineJoin='round';
   ctx.shadowColor='rgba(0,0,0,.55)'; ctx.shadowBlur=w*1.2;
@@ -631,51 +792,135 @@ function buildTools(){
   $('btnClear').onclick=function(){ if(!SHAPES.length) return; REDO=SHAPES.slice().reverse(); SHAPES=[]; ANGLE_WAIT=null; };
 }
 
-function canvasPt(e){
+// coordenadas del canvas (sin zoom) y del "mundo" (video con zoom aplicado)
+function canvasPx(e){
   var r=canvas.getBoundingClientRect();
   return [ (e.clientX-r.left)*canvas.width/r.width, (e.clientY-r.top)*canvas.height/r.height ];
 }
+function toWorld(p){ return [ (p[0]-VIEW.x)/VIEW.z, (p[1]-VIEW.y)/VIEW.z ]; }
+
+function clampView(){
+  var W=canvas.width, H=canvas.height;
+  VIEW.z=Math.max(1, Math.min(6, VIEW.z));
+  VIEW.x=Math.min(0, Math.max(W-W*VIEW.z, VIEW.x));
+  VIEW.y=Math.min(0, Math.max(H-H*VIEW.z, VIEW.y));
+  $('zoomReset').classList.toggle('on', VIEW.z>1.01);
+}
+function resetZoom(){ VIEW.z=1; VIEW.x=0; VIEW.y=0; clampView(); }
+$('zoomReset').onclick=resetZoom;
+
+function ptrList(){ return Object.keys(PTRS).map(function(id){ return PTRS[id]; }); }
+
+// Si se estaba dibujando y entra un segundo dedo, el trazo se descarta:
+// eran dos dedos para hacer zoom, no un dibujo.
+function cancelStroke(){
+  if(CUR && CUR.t==='angle' && CUR.pts.length===3){ CUR.pts.length=2; ANGLE_WAIT=CUR; }
+  CUR=null;
+}
 
 canvas.addEventListener('pointerdown', function(e){
-  if(!TOOL || !LAYOUT.length) return;
+  if(!LAYOUT.length) return;
   e.preventDefault();
-  canvas.setPointerCapture(e.pointerId);
-  var p=canvasPt(e);
-  if(TOOL==='angle'){
-    if(ANGLE_WAIT){
-      // segundo toque: fija el otro brazo del ángulo
-      ANGLE_WAIT.pts[2]=p; CUR=ANGLE_WAIT; ANGLE_WAIT=null;
-    } else {
-      CUR={t:'angle', c:COLOR, pts:[p,p]};
-    }
+  try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+  PTRS[e.pointerId]=canvasPx(e);
+  var list=ptrList();
+
+  if(list.length>=2){
+    cancelStroke(); PAN=null;
+    var a=list[0], b=list[1];
+    var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+    PINCH={ d0:Math.max(10,Math.hypot(a[0]-b[0],a[1]-b[1])), z0:VIEW.z,
+            wx:(mx-VIEW.x)/VIEW.z, wy:(my-VIEW.y)/VIEW.z };
+    GESTURE_LOCK=true;
     return;
   }
-  CUR={t:TOOL, c:COLOR, pts:[p,p]};
+  if(GESTURE_LOCK) return;
+
+  var px=PTRS[e.pointerId];
+  if(!TOOL){
+    // sin herramienta: un dedo mueve la imagen cuando hay zoom
+    if(VIEW.z>1.01) PAN={sx:px[0], sy:px[1], x0:VIEW.x, y0:VIEW.y};
+    return;
+  }
+  var p=toWorld(px), w=lw()/VIEW.z;
+  if(TOOL==='angle'){
+    if(ANGLE_WAIT){ ANGLE_WAIT.pts[2]=p; CUR=ANGLE_WAIT; ANGLE_WAIT=null; }
+    else CUR={t:'angle', c:COLOR, w:w, pts:[p,p]};
+    return;
+  }
+  CUR={t:TOOL, c:COLOR, w:w, pts:[p,p]};
 });
+
 canvas.addEventListener('pointermove', function(e){
-  if(!CUR) return;
+  if(!PTRS[e.pointerId]) return;
   e.preventDefault();
-  var p=canvasPt(e);
-  if(CUR.t==='pen'){ var l=CUR.pts[CUR.pts.length-1]; if(Math.abs(l[0]-p[0])+Math.abs(l[1]-p[1])>2) CUR.pts.push(p); }
+  PTRS[e.pointerId]=canvasPx(e);
+  var list=ptrList();
+
+  if(PINCH && list.length>=2){
+    var a=list[0], b=list[1];
+    var d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+    var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
+    VIEW.z=Math.max(1, Math.min(6, PINCH.z0*d/PINCH.d0));
+    VIEW.x=mx-PINCH.wx*VIEW.z; VIEW.y=my-PINCH.wy*VIEW.z;
+    clampView();
+    return;
+  }
+  if(PAN){
+    var q=PTRS[e.pointerId];
+    VIEW.x=PAN.x0+(q[0]-PAN.sx); VIEW.y=PAN.y0+(q[1]-PAN.sy);
+    clampView();
+    return;
+  }
+  if(!CUR) return;
+  var p=toWorld(PTRS[e.pointerId]);
+  if(CUR.t==='pen'){ var l=CUR.pts[CUR.pts.length-1]; if(Math.abs(l[0]-p[0])+Math.abs(l[1]-p[1])>2/VIEW.z) CUR.pts.push(p); }
   else if(CUR.t==='angle'){ if(CUR.pts.length===3) CUR.pts[2]=p; else CUR.pts[1]=p; }
   else CUR.pts[1]=p;
 });
+
 function endStroke(){
   if(!CUR) return;
   var s=CUR; CUR=null;
+  var min=8/VIEW.z;
   if(s.t==='angle' && s.pts.length<3){
     // primer brazo dibujado: espera el segundo toque
     var a=s.pts[0], b=s.pts[1];
-    if(Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1])<8) return;
+    if(Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1])<min) return;
     ANGLE_WAIT=s; toast('Ahora toca donde termina el otro brazo del ángulo');
     return;
   }
   var a0=s.pts[0], b0=s.pts[s.pts.length-1];
-  if(s.t!=='pen' && Math.abs(a0[0]-b0[0])+Math.abs(a0[1]-b0[1])<6) return;
+  if(s.t!=='pen' && Math.abs(a0[0]-b0[0])+Math.abs(a0[1]-b0[1])<min*0.75) return;
   SHAPES.push(s); REDO=[];
 }
-canvas.addEventListener('pointerup', endStroke);
-canvas.addEventListener('pointercancel', endStroke);
+function onPtrUp(e){
+  if(!PTRS[e.pointerId]) return;
+  delete PTRS[e.pointerId];
+  var n=ptrList().length;
+  if(PINCH && n<2) PINCH=null;
+  if(n===0){
+    PAN=null;
+    if(GESTURE_LOCK){ GESTURE_LOCK=false; CUR=null; return; }
+    endStroke();
+  }
+}
+canvas.addEventListener('pointerup', onPtrUp);
+canvas.addEventListener('pointercancel', onPtrUp);
+
+// computador: rueda / pellizco del trackpad hace zoom donde está el cursor
+canvas.addEventListener('wheel', function(e){
+  if(!LAYOUT.length) return;
+  e.preventDefault();
+  var c=canvasPx(e), f=Math.exp(-e.deltaY*0.0022);
+  var wx=(c[0]-VIEW.x)/VIEW.z, wy=(c[1]-VIEW.y)/VIEW.z;
+  VIEW.z=Math.max(1, Math.min(6, VIEW.z*f));
+  VIEW.x=c[0]-wx*VIEW.z; VIEW.y=c[1]-wy*VIEW.z;
+  clampView();
+}, {passive:false});
+// Safari iOS: que el pellizco no haga zoom a toda la página
+document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
 
 // ============================================================
 // REPRODUCCIÓN
@@ -692,7 +937,7 @@ $('btnPlay').onclick=function(){
   } else {
     keys.forEach(function(k){
       var v=PANES[k].el;
-      if(v.ended || v.currentTime>=v.duration-0.05) v.currentTime=0;
+      if(v.ended || v.currentTime>=rB(k)-0.05 || v.currentTime<rA(k)) v.currentTime=rA(k);
       v.playbackRate=SPEED;
       var pr=v.play(); if(pr && pr.catch) pr.catch(function(err){ console.warn(err); });
     });
@@ -719,9 +964,9 @@ function buildSpeeds(){
 function pauseAll(){ ['A','B'].forEach(function(k){ PANES[k].el.pause(); }); PLAYING=false; syncPlayBtn(); }
 
 function stepFrames(k, n){
-  var v=PANES[k].el; if(!PANES[k].ready) return;
+  if(!PANES[k].ready) return;
   pauseAll();
-  v.currentTime = Math.max(0, Math.min((v.duration||0)-0.001, v.currentTime + n/FPS));
+  seekPane(k, paneTime(k) + n/FPS);
 }
 
 // ---------- barras por video: deslizador + rueda cuadro a cuadro ----------
@@ -733,24 +978,18 @@ function renderLanes(){
     lane.innerHTML =
         '<div class="lane">'
       +   (COMPARE ? '<span class="lab">'+k+'</span>' : '')
-      +   '<input type="range" class="scrub" id="scrub'+k+'" min="0" max="1000" step="1" value="0">'
+      +   '<div class="sbar" id="scrub'+k+'"><div class="strack"><i></i></div><span class="sthumb"></span></div>'
       +   '<span class="time" id="time'+k+'">0:00.00</span>'
       + '</div>'
       + '<div class="jogrow">'
       +   '<button class="fbtn" title="Cuadro anterior" id="prev'+k+'">'+SVG_BACK+'</button>'
       +   '<div class="jog" id="jog'+k+'" title="Desliza para avanzar o retroceder cuadro a cuadro"></div>'
       +   '<button class="fbtn" title="Cuadro siguiente" id="next'+k+'">'+SVG_FWD+'</button>'
-      +   ('<button class="fbtn" title="Cambiar este video" id="chg'+k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13l-3-3"/><path d="M20 17H7l3 3"/></svg></button>')
+      +   '<button class="fbtn" title="Cambiar este video" id="chg'+k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13l-3-3"/><path d="M20 17H7l3 3"/></svg></button>'
       + '</div>';
     box.appendChild(lane);
 
-    var sc=$('scrub'+k);
-    sc.addEventListener('input', function(){
-      var v=PANES[k].el; if(!v.duration) return;
-      pauseAll();
-      v.currentTime = (sc.value/1000)*v.duration;
-      sc.style.setProperty('--p', (sc.value/10)+'%');
-    });
+    setupScrub(k);
     $('prev'+k).onclick=function(){ stepFrames(k,-1); };
     $('next'+k).onclick=function(){ stepFrames(k,1); };
     $('chg'+k).onclick=function(){ if(REC){ toast('Termina la grabación antes de cambiar el video',true); return; } openPicker(k); };
@@ -759,34 +998,59 @@ function renderLanes(){
   updateLanes();
 }
 
+// La barra roja responde de inmediato al dedo (la bolita sigue al dedo aunque
+// el video todavía esté buscando el cuadro) y se puede tomar desde cualquier
+// punto, no solo desde la bolita.
+function setupScrub(k){
+  var bar=$('scrub'+k), p=PANES[k];
+  function frac(e){ var r=bar.getBoundingClientRect(); return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); }
+  function apply(e){
+    var f=frac(e), a=rA(k), b=rB(k);
+    bar.style.setProperty('--p', (f*100)+'%');
+    $('time'+k).textContent=fmtT(f*(b-a));
+    seekPane(k, a+f*(b-a));
+  }
+  bar.addEventListener('pointerdown', function(e){
+    if(!p.ready) return;
+    e.preventDefault();
+    pauseAll(); p.drag=true; bar.classList.add('drag');
+    try{ bar.setPointerCapture(e.pointerId); }catch(err){}
+    apply(e);
+  });
+  bar.addEventListener('pointermove', function(e){ if(p.drag) apply(e); });
+  function up(){ if(!p.drag) return; p.drag=false; bar.classList.remove('drag'); updateLanes(); }
+  bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+}
+
 function updateLanes(){
   ['A','B'].forEach(function(k){
-    var sc=$('scrub'+k), tm=$('time'+k), v=PANES[k].el;
-    if(!sc || !v.duration) return;
-    var p=v.currentTime/v.duration;
-    if(document.activeElement!==sc) sc.value=Math.round(p*1000);
-    sc.style.setProperty('--p', (p*100)+'%');
-    tm.textContent=fmtT(v.currentTime);
+    var bar=$('scrub'+k), tm=$('time'+k), p=PANES[k], v=p.el;
+    if(!bar || !v.duration || p.drag) return;
+    var a=rA(k), b=rB(k), t=paneTime(k);
+    var f=b>a ? (t-a)/(b-a) : 0;
+    f=Math.max(0,Math.min(1,f));
+    bar.style.setProperty('--p', (f*100)+'%');
+    tm.textContent=fmtT(t-a);
   });
 }
-setInterval(function(){ if(PLAYING) updateLanes(); }, 120);
+setInterval(function(){ if(PLAYING) updateLanes(); }, 60);
 
-// La rueda: arrastrar 8 px = 1 cuadro. El fondo se desplaza con el dedo
+// La rueda: arrastrar 7 px = 1 cuadro. El fondo se desplaza con el dedo
 // para que se sienta como la ruedita de V1.
 function setupJog(k){
   var jog=$('jog'+k); if(!jog) return;
   var startX=0, acc=0, off=0, dragging=false;
-  jog.addEventListener('pointerdown', function(e){ dragging=true; startX=e.clientX; acc=0; jog.setPointerCapture(e.pointerId); pauseAll(); });
+  jog.addEventListener('pointerdown', function(e){ dragging=true; startX=e.clientX; acc=0; try{ jog.setPointerCapture(e.pointerId); }catch(err){} pauseAll(); });
   jog.addEventListener('pointermove', function(e){
     if(!dragging) return;
     var dx=e.clientX-startX; startX=e.clientX;
     off+=dx; jog.style.backgroundPosition=off+'px 50%,'+off+'px 50%';
     acc+=dx;
-    var frames=Math.trunc(acc/8);
+    var frames=Math.trunc(acc/7);
     if(frames){
-      acc-=frames*8;
-      var v=PANES[k].el;
-      if(v.duration) v.currentTime=Math.max(0, Math.min(v.duration-0.001, v.currentTime - frames/FPS));
+      acc-=frames*7;
+      seekPane(k, paneTime(k) - frames/FPS);
+      updateLanes();
     }
   });
   function up(){ dragging=false; }
@@ -903,6 +1167,65 @@ $('sv_dl').onclick=function(){
   document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); }, 1500);
 };
 
+// Re-codifica solo el tramo [startT, endT] del archivo (en tiempo real,
+// porque el video tiene que reproducirse para capturarlo). Mismo método
+// que el recorte del perfil del jugador.
+function trimVideoFile(file, startT, endT, opts, onProg){
+  return new Promise(function(resolve){
+    var mt=pickMime();
+    if(!mt){ resolve({error:'este navegador no permite recortar videos'}); return; }
+    var url=URL.createObjectURL(file);
+    var v=document.createElement('video');
+    v.src=url; v.playsInline=true; v.preload='auto'; v.muted=true;
+    var limpio=false;
+    function cleanup(){ if(limpio) return; limpio=true; try{v.pause();}catch(e){} URL.revokeObjectURL(url); }
+    v.onerror=function(){ cleanup(); resolve({error:'no se pudo leer el archivo'}); };
+    v.onloadedmetadata=function(){
+      var vw=v.videoWidth||1280, vh=v.videoHeight||720;
+      var k=opts.maxSide ? Math.min(1, opts.maxSide/Math.max(vw,vh)) : 1;
+      var cw=Math.max(2,Math.round(vw*k/2)*2), ch=Math.max(2,Math.round(vh*k/2)*2);
+      var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+      var cx=cv.getContext('2d');
+      var stream;
+      try{ stream=cv.captureStream(opts.fps||30); }catch(e){ cleanup(); resolve({error:'este navegador no permite capturar el canvas'}); return; }
+      var rec;
+      try{ rec=new MediaRecorder(stream,{mimeType:mt, videoBitsPerSecond:opts.bps||2000000}); }
+      catch(e){ try{ rec=new MediaRecorder(stream); }catch(e2){ cleanup(); resolve({error:'este navegador no permite grabar el recorte'}); return; } }
+      var chunks=[];
+      rec.ondataavailable=function(e){ if(e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop=function(){
+        cleanup();
+        var tipo=mt.split(';')[0];
+        var blob=new Blob(chunks,{type:tipo});
+        if(!blob.size){ resolve({error:'el recorte quedó vacío'}); return; }
+        var ext=tipo.indexOf('mp4')>=0?'mp4':'webm';
+        var base=(file.name||'video').replace(/\.[^.]+$/,'');
+        var out;
+        try{ out=new File([blob], base+'-recorte.'+ext, {type:tipo, lastModified:Date.now()}); }
+        catch(e){ out=blob; out.name=base+'-recorte.'+ext; }
+        resolve({file:out});
+      };
+      var raf=null, arrancado=false;
+      function draw(){
+        if(v.currentTime>=endT-0.02 || v.ended){ if(raf) cancelAnimationFrame(raf); try{ rec.stop(); }catch(e){} return; }
+        try{ cx.drawImage(v,0,0,cw,ch); }catch(e){}
+        if(onProg) onProg(Math.min(1,(v.currentTime-startT)/Math.max(0.1,endT-startT)));
+        raf=requestAnimationFrame(draw);
+      }
+      function arrancar(){
+        if(arrancado) return; arrancado=true;
+        try{ rec.start(300); }catch(e){ cleanup(); resolve({error:'no se pudo iniciar la grabación'}); return; }
+        var pr=v.play();
+        if(pr && pr.then){ pr.then(function(){ raf=requestAnimationFrame(draw); }).catch(function(){ try{rec.stop();}catch(e){} cleanup(); resolve({error:'el navegador bloqueó la reproducción'}); }); }
+        else raf=requestAnimationFrame(draw);
+      }
+      v.addEventListener('seeked',function(){ arrancar(); },{once:true});
+      try{ v.currentTime=startT; }catch(e){ arrancar(); }
+      setTimeout(function(){ arrancar(); },1500);
+    };
+  });
+}
+
 async function uploadXHR(path, blob, contentType, onProg){
   var s = await sb.auth.getSession();
   var token = (s.data && s.data.session && s.data.session.access_token) || SUPABASE_ANON_KEY;
@@ -970,7 +1293,13 @@ $('sv_save').onclick=async function(){
   if($('sv_orig').checked){
     var locales=activeKeys().filter(function(k){ return PANES[k].file; });
     for(var i=0;i<locales.length;i++){
-      var f=PANES[locales[i]].file;
+      var kk=locales[i], f=PANES[kk].file;
+      if(isTrimmed(kk)){
+        setProg('Preparando el tramo recortado del video original…', 0);
+        var tr=await trimVideoFile(f, rA(kk), rB(kk), {bps:4000000, fps:60, maxSide:1920}, function(p){ setProg('Preparando el tramo recortado… '+Math.round(p*100)+'%', p); });
+        if(tr && tr.file) f=tr.file;
+        else { fails.push('recorte: '+((tr&&tr.error)||'error')); continue; }
+      }
       var fx=((f.name||'').split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'mp4';
       var op=base+'-original-'+(i+1)+'.'+fx;
       var uo=await uploadXHR(op, f, f.type||'video/mp4', function(p){ setProg('Subiendo video original… '+Math.round(p*100)+'%', p); });
