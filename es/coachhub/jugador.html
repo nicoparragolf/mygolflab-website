@@ -295,6 +295,8 @@
   @media(hover:none){ .mdl{opacity:1} }
   .btn-dl{background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
   .btn-dl:hover{border-color:var(--teal-dim);color:var(--teal)}
+  .btn-dl.hide{display:none}
+  .btn-ana{background:var(--card2);border:1px solid var(--teal-dim);color:var(--teal)}
 
   /* archivos ya subidos, dentro del modal de edición */
   .exlist{display:flex;flex-direction:column;gap:6px;margin-top:8px}
@@ -791,6 +793,7 @@
   <div class="lb-bar">
     <span class="lb-title" id="lbTitle"></span>
     <select class="lb-area hide" id="lbArea" title="Área del juego"></select>
+    <button class="btn-dl hide" id="lbAna">Analizar</button>
     <button class="btn-dl" id="lbDl">Descargar</button>
     <button class="btn-danger" id="lbDel">Eliminar archivo</button>
   </div>
@@ -1085,7 +1088,18 @@ async function init(){
 
   await loadMetricDefs();
 
-  if(IS_COACH){ await loadPlayers(); showEmptyCoachPanel(); }
+  if(IS_COACH){
+    await loadPlayers();
+    var qp=new URLSearchParams(window.location.search);
+    var pid=qp.get('player');
+    if(pid && PLAYERS.some(function(p){ return p.id===pid; })){
+      await selectPlayer(pid);
+      var vw=qp.get('view');
+      if(vw==='galeria' || vw==='notas'){ VIEW=vw; renderProfile(); }
+    } else {
+      showEmptyCoachPanel();
+    }
+  }
   else { await initModoJugador(); }
 }
 
@@ -1917,6 +1931,10 @@ async function openLightbox(id){
   }
   document.getElementById('lbTitle').textContent = (m.file_name||'') + (m.size_bytes?' · '+fmtSize(m.size_bytes):'');
   setupLbArea(m);
+  // herramienta de análisis: solo coach, solo videos
+  var ana=document.getElementById('lbAna');
+  ana.className = 'btn-dl'+((IS_COACH && m.media_type==='video')?'':' hide');
+  ana.onclick=function(){ abrirAnalisis(m.id); };
   // descargar: disponible para el coach y para el alumno
   document.getElementById('lbDl').onclick=function(){ downloadMedia(m.id); };
   // el jugador solo puede borrar lo que subió él mismo
@@ -2080,6 +2098,12 @@ function galleryItems(){
   return out;
 }
 
+function abrirAnalisis(mediaId){
+  var u='analisis.html?player='+encodeURIComponent(SEL.id);
+  if(mediaId) u+='&media='+encodeURIComponent(mediaId);
+  window.location.href=u;
+}
+
 function setGalArea(a){ GAL_AREA=a; renderGallery(); }
 function setGalKind(k){ GAL_KIND=k; renderGallery(); }
 
@@ -2122,6 +2146,7 @@ function renderGallery(){
   });
 
   var html='<div class="gal-head"><div class="filters" style="margin-bottom:0">'+chips+'</div>'+kinds+'</div>';
+  if(IS_COACH) html+='<div style="margin:10px 0 4px"><button class="btn-dl btn-ana" onclick="abrirAnalisis()">Analizar swing</button></div>';
   if(IS_COACH && cnt.none){
     html+='<div class="gal-sub">Abre un archivo para asignarle o cambiarle el área.</div>';
   } else {
@@ -2232,6 +2257,7 @@ function renderTimeline(){
 
   var html='<div class="filters">'+typeChips
     + '<div class="filters-right">'
+    +   (IS_COACH ? '<button class="btn-dl btn-ana" onclick="abrirAnalisis()">Analizar swing</button>' : '')
     +   '<button class="btn-primary" onclick="openEventModal()">+ Evento</button>'
     + '</div></div>';
 
