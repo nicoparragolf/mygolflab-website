@@ -140,6 +140,30 @@
   .modal .acts .l{margin-right:auto}
   /* recortador de foto de perfil */
   .modal.crop{max-width:440px}
+  /* foto y nombre */
+  .idn-row{display:flex;gap:26px;align-items:center}
+  .idn-ph{position:relative;width:132px;height:132px;border-radius:50%;flex:0 0 auto;background:#2B2619;border:2px solid var(--teal-dim);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .idn-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .idn-ini{font-family:'Bebas Neue';font-size:48px;color:var(--teal);letter-spacing:1px}
+  .idn-cam{position:absolute;right:6px;bottom:6px;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#1C1709;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--card)}
+  .idn-cam svg{width:18px;height:18px}
+  .idn-ph:hover{border-color:var(--teal)}
+  .idn-ph .bar{position:absolute;left:0;bottom:0;height:5px;background:var(--teal);width:0;transition:width .2s}
+  .idn-f{flex:1 1 auto;display:grid;gap:12px;min-width:0}
+  .media-row.two{grid-template-columns:1fr 1fr}
+  /* ventanita de la foto */
+  .sheet-bg{align-items:center}
+  .modal.sheet{max-width:380px}
+  .sheet-ph{width:110px;height:110px;border-radius:50%;overflow:hidden;margin:0 auto 16px;border:2px solid var(--teal-dim)}
+  .sheet-ph img{width:100%;height:100%;object-fit:cover}
+  .sheet-op{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:8px;cursor:pointer;color:var(--text);font-family:Barlow,sans-serif}
+  .sheet-op:hover{border-color:var(--teal-dim)}
+  .sheet-op span{width:34px;height:34px;border-radius:50%;background:rgba(212,197,169,.1);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto}
+  .sheet-op b{display:block;font-size:15px}
+  .sheet-op small{color:var(--muted);font-size:13px}
+  .sheet-op.danger span{background:rgba(224,106,106,.12);color:var(--red,#e06a6a)}
+  .sheet-op.danger b{color:var(--red,#e06a6a)}
+  @media(max-width:620px){ .idn-row{flex-direction:column;align-items:center;text-align:left} .idn-f{width:100%} .media-row.two{grid-template-columns:1fr} }
   .crop-stage{position:relative;width:100%;max-width:380px;aspect-ratio:1/1;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;touch-action:none;cursor:grab}
   .crop-stage:active{cursor:grabbing}
   .crop-stage canvas{width:100%;height:100%;display:block}
@@ -218,6 +242,14 @@
 <div class="savebar" id="saveBar"><span>Tienes cambios sin guardar</span><button class="btn primary" onclick="saveProfile()">Guardar cambios</button></div>
 
 <div class="modal-bg" id="offerModal"><div class="modal" id="offerBody"></div></div>
+<div class="modal-bg sheet-bg" id="photoSheet"><div class="modal sheet">
+  <h3>Foto de perfil</h3>
+  <div class="sheet-ph" id="sheetPh"></div>
+  <button class="sheet-op" type="button" id="opAdjust"><span>✥</span><div><b>Ajustar la foto actual</b><small>Acercar, mover o girar</small></div></button>
+  <button class="sheet-op" type="button" id="opPick"><span>⬆</span><div><b>Elegir otra foto</b><small>De la galería del teléfono o tu computador</small></div></button>
+  <button class="sheet-op danger" type="button" id="opRemove"><span>×</span><div><b>Quitar foto</b></div></button>
+  <div class="acts"><button class="btn ghost" type="button" onclick="closeSheet()">Cancelar</button></div>
+</div></div>
 <div class="modal-bg" id="cropModal"><div class="modal crop">
   <h3>Ajusta tu foto</h3>
   <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="640" height="640"></canvas><div class="crop-ring"></div></div>
@@ -339,20 +371,30 @@ async function loadViews(){
 // ============================================================
 // SECCIONES (se usan igual en modo normal y en el asistente)
 // ============================================================
+var CAM_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+function secIdentity(){
+  var path=P.photo_path, ini=(P.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
+  return '<div class="sec idn"><div class="idn-row">'
+     + '<div class="idn-ph'+(path?' has':'')+'" id="drop_photo_path" onclick="photoSheet()" title="Cambiar o ajustar foto">'
+     +   (path?'<img src="'+pubUrl(path)+'" alt="">':'<span class="idn-ini">'+esc(ini||'+')+'</span>')
+     +   '<span class="idn-cam">'+CAM_SVG+'</span><div class="bar"></div></div>'
+     + '<div class="idn-f">'
+     +   '<div class="f"><label>Nombre público</label><input id="f_name" value="'+esc(P.display_name)+'" oninput="onName()"></div>'
+     +   '<div class="f"><label>Titular <i>una línea</i></label><input id="f_headline" maxlength="90" placeholder="Coach PGA · Especialista en juego corto y juniors" value="'+esc(P.headline)+'" oninput="markDirty()"></div>'
+     +   '<div class="hint">'+(path?'Toca tu foto para ajustarla o elegir otra.':'Toca el círculo para subir tu foto de perfil.')+'</div>'
+     + '</div></div></div>';
+}
 function secBasic(){
   return '<div class="sec"><h2>Datos básicos</h2><p class="sub">Cómo te van a encontrar los alumnos.</p><div class="grid">'
-     +   '<div class="f"><label>Nombre público</label><input id="f_name" value="'+esc(P.display_name)+'" oninput="onName()"></div>'
      +   '<div class="f"><label>Tu link</label><div class="slugbox"><span>…/coaches/perfil.html?c=</span><input id="f_slug" value="'+esc(P.slug)+'" oninput="markDirty()"></div><div class="hint">Solo minúsculas, números y guiones.</div></div>'
-     +   '<div class="f full"><label>Titular <i>una línea</i></label><input id="f_headline" maxlength="90" placeholder="Coach PGA · Especialista en juego corto y juniors" value="'+esc(P.headline)+'" oninput="markDirty()"></div>'
      +   '<div class="f"><label>País</label><select id="f_country" onchange="markDirty()">'+optionList(COUNTRIES,P.country)+'</select></div>'
      +   '<div class="f"><label>Años enseñando</label><input id="f_years" type="number" min="0" max="60" value="'+(P.years_experience==null?'':P.years_experience)+'" oninput="markDirty()"></div>'
      +   '<div class="f full"><label>Idiomas en que das clases</label>'+chipsHTML('languages',LANGS,P.languages||[])+'</div>'
      + '</div></div>';
 }
 function secMedia(){
-  return '<div class="sec"><h2>Foto y presentación</h2><p class="sub">Lo primero que ve un alumno. Una buena foto y un video corto de presentación hacen la diferencia.</p>'
-     + '<div class="media-row">'
-     +   mediaBox('photo_path','Foto de perfil','JPG o PNG','image/*',true)
+  return '<div class="sec"><h2>Presentación</h2><p class="sub">Un video corto de presentación y un buen "Sobre mí" hacen la diferencia.</p>'
+     + '<div class="media-row two">'
      +   mediaBox('intro_video_path','Video de presentación','30–60 seg · quién eres y cómo enseñas · opcional','video/*',false)
      +   mediaBox('sample_video_path','Análisis de muestra','Un análisis real tuyo · opcional','video/*',false)
      + '</div><div class="hr"></div><div class="grid">'
@@ -386,7 +428,7 @@ function secOffers(){
      + '<div class="offers" id="offers"></div></div>';
 }
 function secPublish(){
-  return '<div class="sec"><div class="sec-h"><h2>Para publicar</h2><div class="r" id="pubBtnBox"></div></div>'
+  return '<div class="sec" id="pubSec"><div class="sec-h"><h2>Para publicar</h2><div class="r" id="pubBtnBox"></div></div>'
      + '<p class="sub">Tu vitrina aparece en el buscador de coaches cuando completas lo esencial.</p><div class="check" id="checklist"></div></div>';
 }
 
@@ -399,9 +441,10 @@ function render(){
   var h =
     '<a class="backlink" href="/es/coachhub/cuenta.html">‹ Mi cuenta</a>'
   + '<div class="top"><div><h1>Editar perfil</h1><p>Tu perfil público (vitrina): lo que ven los alumnos de todo el mundo hispano para encontrarte y pedirte clases.</p></div>'
-  + '<div class="r"><span class="status '+(P.is_published?'on':'off')+'">'+(P.is_published?'Publicada':'Borrador')+'</span>'
+  + '<div class="r"><span class="status '+(P.is_published?'on':'off')+'">'+(P.is_published?'Publicada':'Borrador')+'</span><span id="topDraft"></span>'
   + (IS_NEW?'':'<a class="btn ghost" href="'+perfilUrl+'" target="_blank">Ver perfil público</a>')
   + '</div></div>';
+  h += secIdentity();
   if(!IS_NEW){
     h += '<div class="stats">'
       + '<div class="st"><div class="v">'+VIEWS.d7+'</div><div class="l">Visitas 7 días</div></div>'
@@ -414,6 +457,7 @@ function render(){
   renderOffers();
   renderChecklist();
   // desde Mi cuenta → "Mis ofertas" baja directo a las ofertas
+  if(location.hash==='#foto' && !render._foto){ render._foto=true; setTimeout(photoSheet,80); }
   if(location.hash==='#ofertas' && !render._scrolled){ render._scrolled=true; var o=$('ofertas'); if(o) setTimeout(function(){ o.scrollIntoView({behavior:'smooth',block:'start'}); },60); }
 }
 
@@ -421,8 +465,8 @@ function render(){
 // ASISTENTE DE PRIMER REGISTRO
 // ============================================================
 var STEPS = [
-  {id:'basic',  t:'Datos básicos',       sec:secBasic},
-  {id:'media',  t:'Foto y presentación', sec:secMedia},
+  {id:'basic',  t:'Foto y nombre',       sec:function(){ return secIdentity()+secBasic(); }},
+  {id:'media',  t:'Presentación',        sec:secMedia},
   {id:'spec',   t:'Especialidad',        sec:secSpec},
   {id:'cred',   t:'Trayectoria',         sec:secCred},
   {id:'offers', t:'Lo que vendes',       sec:secOffers},
@@ -435,9 +479,9 @@ function stepMissing(i){
     if(!c.name.trim()) m.push('tu nombre público');
     if(slugify(c.slug||c.name).length<3) m.push('tu link (mínimo 3 caracteres)');
     if(c.headline.trim().length<10) m.push('un titular (mínimo 10 caracteres)');
+    if(!c.photo) m.push('tu foto de perfil');
   }
   if(id==='media'){
-    if(!c.photo) m.push('tu foto de perfil');
     if(c.bio.trim().length<80) m.push('"Sobre mí" (mínimo 80 caracteres)');
   }
   if(id==='spec'){
@@ -553,6 +597,11 @@ function renderChecklist(){
   box.innerHTML=h;
   var pb=$('pubBtnBox');
   if(WIZ || IS_NEW){ pb.innerHTML=''; return; }
+  // completa y publicada: la lista ya no hace falta; "Pasar a borrador" queda arriba
+  var done = ok && P.is_published, sec=$('pubSec'), td=$('topDraft');
+  if(sec) sec.style.display = done ? 'none' : '';
+  if(td) td.innerHTML = done ? '<button class="btn ghost sm" onclick="setPublished(false)">Pasar a borrador</button>' : '';
+  if(done){ pb.innerHTML=''; return; }
   pb.innerHTML = P.is_published
     ? '<button class="btn sm ghost" onclick="setPublished(false)">Pasar a borrador</button>'
     : '<button class="btn primary sm" '+(ok?'':'disabled')+' onclick="setPublished(true)">Publicar vitrina</button>';
@@ -636,6 +685,36 @@ $('fileInput').addEventListener('change', function(){
   var ext=(f.name.split('.').pop()||'bin').toLowerCase();
   var path=USER.id+'/'+field.replace('_path','')+'-'+Date.now()+'.'+ext;
   upload(path,f,field);
+});
+
+// ============================================================
+// VENTANITA DE LA FOTO: ajustar la actual, elegir otra o quitarla
+// ============================================================
+async function photoSheet(){
+  if(IS_NEW){
+    // primera vez: hay que guardar el nombre antes de poder subir archivos
+    if(!fv('f_name','').trim()){ toast('Escribe primero tu nombre público',true); return; }
+    var ok = await saveProfile({silent:true, norender:true});
+    if(!ok) return;
+  }
+  if(!P.photo_path){ pickFile('photo_path','image/*'); return; }
+  $('sheetPh').innerHTML='<img src="'+pubUrl(P.photo_path)+'" alt="">';
+  $('photoSheet').classList.add('on');
+}
+function closeSheet(){ $('photoSheet').classList.remove('on'); }
+$('photoSheet').addEventListener('click',function(e){ if(e.target===this) closeSheet(); });
+$('opPick').addEventListener('click',function(){ closeSheet(); pickFile('photo_path','image/*'); });
+$('opRemove').addEventListener('click',function(){ closeSheet(); clearMedia('photo_path'); });
+$('opAdjust').addEventListener('click',async function(){
+  var b=this; b.disabled=true;
+  try{
+    var r = await fetch(pubUrl(P.photo_path), {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    var blob = await r.blob();
+    closeSheet();
+    openCrop(new File([blob],'foto.jpg',{type:blob.type||'image/jpeg'}));
+  }catch(e){ toast('No se pudo abrir tu foto actual. Elige otra del teléfono.',true); }
+  b.disabled=false;
 });
 
 // ============================================================
