@@ -76,10 +76,38 @@
   .cta h2{font-family:'Barlow Condensed';font-weight:700;font-size:24px}
   .cta p{color:var(--muted);font-size:15px;margin-top:4px}
   .cta a{margin-left:auto;background:var(--teal);color:#04211d;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px}
+  .finder{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(145deg,#12302c,#141414 65%);border:1px solid var(--teal-dim);border-radius:18px;padding:20px 22px;margin-bottom:22px}
+  .finder h2{font-family:'Barlow Condensed';font-weight:700;font-size:22px}
+  .finder p{color:var(--muted);font-size:14.5px;margin-top:3px}
+  .finder .b{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+  .bt{background:var(--teal);color:#04211d;border:none;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
+  .bt.gh{background:none;color:var(--text);border:1px solid var(--border2)}
+  .recs{margin-bottom:26px}
+  .recs h2{font-family:'Barlow Condensed';font-weight:700;font-size:22px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .recs h2 button{background:none;border:none;color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer}
+  .recs .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .card .why{font-size:13px;color:var(--gold);line-height:1.4}
+  .card.top1{border-color:var(--teal-dim)}
+  .mb{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 14px}
+  .mb.on{display:flex}
+  .md{background:var(--card);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:560px;padding:24px}
+  .md h3{font-family:'Bebas Neue';font-size:34px;letter-spacing:1px;line-height:1}
+  .md .s{color:var(--muted);font-size:14.5px;margin:6px 0 18px}
+  .q{margin-bottom:16px}
+  .q label{display:block;font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:7px}
+  .q label i{font-style:normal;text-transform:none;letter-spacing:0;font-family:'Barlow';font-weight:400;color:var(--muted2);font-size:12.5px}
+  .q input,.q select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:11px 12px;font-size:15px;outline:none}
+  .q input:focus,.q select:focus{border-color:var(--teal-dim)}
+  .q2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .md .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;border:1px solid rgba(224,106,106,.5);color:#ffb3b3;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:200}
+  .toast.show{opacity:1}
   .loading{color:var(--muted);padding:40px 0;text-align:center}
 
   @media(max-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} }
   @media(max-width:640px){
+    .finder .b{margin-left:0}
+    .q2{grid-template-columns:1fr}
     .grid{grid-template-columns:1fr}
     .hero h1{font-size:46px}
     .hero{padding-top:30px}
@@ -108,6 +136,7 @@
 </section>
 
 <div class="wrap">
+  <div id="finderBox"></div>
   <div class="filters">
     <div class="chips" id="fSpec"></div>
     <select id="fLang" onchange="apply()"><option value="">Cualquier idioma</option><option value="es">Español</option><option value="en">Inglés</option><option value="pt">Portugués</option></select>
@@ -119,6 +148,30 @@
 
   <div class="cta"><div><h2>¿Eres coach?</h2><p>Crea tu vitrina gratis y recibe alumnos de todo el mundo hispano.</p></div><a href="/es/coachhub/index.html">Crear mi vitrina</a></div>
 </div>
+
+<div class="mb" id="qModal" onclick="if(event.target===this)closeQ()">
+  <div class="md">
+    <h3>Encuentra tu coach ideal</h3>
+    <p class="s">5 preguntas rápidas y te recomendamos los coaches que mejor calzan contigo.</p>
+    <div class="q2">
+      <div class="q"><label>Tu nivel</label><select id="q_nivel">
+        <option value="">Elige…</option><option value="iniciacion">Estoy empezando</option><option value="junior">Junior</option>
+        <option value="amateur">Amateur</option><option value="college">College</option><option value="elite">Elite amateur</option>
+        <option value="profesional">Profesional</option><option value="senior">Senior</option></select></div>
+      <div class="q"><label>Hándicap <i>opcional</i></label><input id="q_hcp" type="number" step="0.1" min="-10" max="54" placeholder="Ej: 14"></div>
+    </div>
+    <div class="q"><label>¿Qué quieres mejorar?</label><div class="chips" id="q_areas"></div></div>
+    <div class="q"><label>¿Qué te está pasando? <i>opcional</i></label><input id="q_prob" maxlength="140" placeholder="Ej: slice con el driver, inconsistencia con los hierros"></div>
+    <div class="q"><label>Tu objetivo <i>opcional</i></label><input id="q_obj" maxlength="140" placeholder="Ej: bajar de 85, jugar torneos juveniles"></div>
+    <div class="q2">
+      <div class="q"><label>Presupuesto por análisis</label><select id="q_pres">
+        <option value="">Sin límite</option><option value="20000">Hasta $20.000</option><option value="40000">Hasta $40.000</option><option value="70000">Hasta $70.000</option></select></div>
+      <div class="q"><label>Idioma</label><select id="q_lang"><option value="es">Español</option><option value="en">Inglés</option><option value="pt">Portugués</option></select></div>
+    </div>
+    <div class="acts"><button class="bt gh" onclick="closeQ()">Cancelar</button><button class="bt" onclick="submitQ()">Ver mis coaches</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
 <script>
 var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
@@ -146,10 +199,100 @@ function score(c){
 async function init(){
   var h=''; SPEC.forEach(function(s){ h+='<span class="chip" data-v="'+s[0]+'" onclick="toggle(this)">'+s[1]+'</span>'; });
   $('fSpec').innerHTML=h;
+  var qa=''; SPEC.forEach(function(x){ qa+='<span class="chip" data-v="'+x[0]+'" onclick="this.classList.toggle(\'on\')">'+x[1]+'</span>'; });
+  $('q_areas').innerHTML=qa;
   var r = await sb.from('v_vitrina_coaches').select('*');
   if(r.error){ $('list').innerHTML='<div class="empty">No se pudieron cargar los coaches.</div>'; return; }
   ALL = r.data||[];
+  var lv = await sb.from('coach_profiles').select('coach_id,levels').eq('is_published',true);
+  (lv.data||[]).forEach(function(x){ LEVELS[x.coach_id]=x.levels||[]; });
+  var ss = await sb.auth.getSession();
+  USER = ss.data && ss.data.session ? ss.data.session.user : null;
+  INTAKE = loadIntake();
+  if(!INTAKE && USER){
+    var ri = await sb.from('student_intake').select('*').eq('user_id',USER.id).maybeSingle();
+    if(ri.data) INTAKE = ri.data;
+  }
+  renderFinder();
   apply();
+}
+
+// ============================================================
+// CUESTIONARIO + RECOMENDACIONES
+// ============================================================
+var LEVELS={}, USER=null, INTAKE=null;
+var LEVEL_L={iniciacion:'Iniciación',junior:'Juniors',amateur:'Amateurs',college:'College',elite:'Elite amateur',profesional:'Profesionales',senior:'Seniors'};
+function toast(m){ var t=$('toast'); t.textContent=m; t.className='toast show'; clearTimeout(toast._t); toast._t=setTimeout(function(){ t.className='toast'; },3500); }
+function loadIntake(){ try{ var v=localStorage.getItem('mgl_intake'); return v?JSON.parse(v):null; }catch(e){ return null; } }
+function saveIntakeLocal(o){ try{ localStorage.setItem('mgl_intake',JSON.stringify(o)); }catch(e){} }
+
+function openQ(){
+  var i=INTAKE||{};
+  $('q_nivel').value=i.nivel||''; $('q_hcp').value=(i.handicap==null?'':i.handicap);
+  $('q_prob').value=i.problema||''; $('q_obj').value=i.objetivo||'';
+  $('q_pres').value=i.presupuesto?String(i.presupuesto):''; $('q_lang').value=i.idioma||'es';
+  $('q_areas').querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('on',(i.areas||[]).indexOf(c.getAttribute('data-v'))>=0); });
+  $('qModal').classList.add('on');
+}
+function closeQ(){ $('qModal').classList.remove('on'); }
+async function submitQ(){
+  var areas=[]; $('q_areas').querySelectorAll('.chip.on').forEach(function(c){ areas.push(c.getAttribute('data-v')); });
+  var nivel=$('q_nivel').value;
+  if(!nivel){ toast('Cuéntanos tu nivel'); return; }
+  if(!areas.length){ toast('Elige al menos un área que quieras mejorar'); return; }
+  var hcp=$('q_hcp').value, pres=$('q_pres').value;
+  INTAKE={nivel:nivel, handicap:hcp===''?null:parseFloat(hcp), areas:areas, problema:$('q_prob').value.trim(),
+          objetivo:$('q_obj').value.trim(), presupuesto:pres?parseInt(pres,10):null, idioma:$('q_lang').value};
+  saveIntakeLocal(INTAKE);
+  if(USER){
+    var row=Object.assign({user_id:USER.id, updated_at:new Date().toISOString()}, INTAKE);
+    sb.from('student_intake').upsert(row).then(function(){});
+  }
+  closeQ(); renderFinder();
+  var rb=$('recsBox'); if(rb) rb.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// mismo criterio que mgl_recomendar_coaches en Supabase
+function matchScore(c, i){
+  var lv=LEVELS[c.coach_id]||[];
+  var sp=(c.specialties||[]).filter(function(x){ return (i.areas||[]).indexOf(x)>=0; }).length;
+  var s=Math.min(3,sp);
+  if(i.nivel && lv.indexOf(i.nivel)>=0) s+=2;
+  if((c.languages||[]).indexOf(i.idioma||'es')>=0) s+=1;
+  if(!i.presupuesto || (c.precio_desde!=null && c.precio_desde<=i.presupuesto)) s+=1;
+  s+= (Number(c.rating_avg)*c.rating_count + 4.5*3)/(c.rating_count+3) - 3;
+  if(c.response_sla_hours<=48) s+=1;
+  if(c.is_verified) s+=0.5;
+  return s;
+}
+function whyText(c, i){
+  var r=[], lv=LEVELS[c.coach_id]||[];
+  var sp=(c.specialties||[]).filter(function(x){ return (i.areas||[]).indexOf(x)>=0; }).map(function(x){ return SPEC_L[x]; });
+  if(sp.length) r.push('Especialista en '+sp.join(' y '));
+  if(i.nivel && lv.indexOf(i.nivel)>=0) r.push('trabaja con '+LEVEL_L[i.nivel]);
+  if(c.response_sla_hours<=48) r.push('responde en '+c.response_sla_hours+' h');
+  return r.join(' · ');
+}
+
+function renderFinder(){
+  var box=$('finderBox');
+  if(!INTAKE){
+    box.innerHTML='<div class="finder"><div><h2>¿No sabes a quién elegir?</h2><p>Responde 5 preguntas y te recomendamos los coaches que mejor calzan con tu juego.</p></div>'
+      + '<div class="b"><button class="bt" onclick="openQ()">Encontrar mi coach</button></div></div>';
+    return;
+  }
+  var lista = ALL.filter(function(c){ return (c.languages||[]).indexOf(INTAKE.idioma||'es')>=0; })
+    .map(function(c){ return {c:c, s:matchScore(c,INTAKE)}; })
+    .sort(function(a,b){ return b.s-a.s; }).slice(0,3);
+  var h='<div class="recs" id="recsBox"><h2>Recomendados para ti <button onclick="openQ()">Cambiar respuestas</button></h2>'
+    + '<div class="sub">Según tu nivel, lo que quieres mejorar y tu presupuesto.</div>';
+  if(!lista.length) h+='<div class="empty">Todavía no hay coaches que calcen con tus respuestas. Revisa todos los coaches más abajo.</div>';
+  else {
+    h+='<div class="grid">';
+    lista.forEach(function(x,k){ h+=cardHTML(x.c, whyText(x.c,INTAKE), k===0); });
+    h+='</div>';
+  }
+  box.innerHTML=h+'</div>';
 }
 function toggle(el){
   el.classList.toggle('on'); var v=el.getAttribute('data-v');
@@ -177,20 +320,25 @@ function apply(){
     return;
   }
   var h='<div class="grid">';
-  list.forEach(function(c){
+  list.forEach(function(c){ h+=cardHTML(c); });
+  $('list').innerHTML=h+'</div>';
+}
+function cardHTML(c, why, top){
+  var h='';
     var ini=(c.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
     var rating = c.rating_count ? '<span class="stars">★</span> '+Number(c.rating_avg).toFixed(1)+' ('+c.rating_count+')' : 'Nuevo';
-    h+='<a class="card" href="/es/coaches/perfil.html?c='+encodeURIComponent(c.slug)+'">'
+    h+='<a class="card'+(top?' top1':'')+'" href="/es/coaches/perfil.html?c='+encodeURIComponent(c.slug)+'">'
       + '<div class="top"><div class="ph">'+(c.photo_path?'<img src="'+pubUrl(c.photo_path)+'" alt="" loading="lazy">':esc(ini))+'</div>'
       + '<div><h3>'+esc(c.display_name)+(c.is_verified?'<span class="ver">✓</span>':'')+'</h3>'
       + '<div class="sm">'+rating+(COUNTRY[c.country]?' · '+esc(COUNTRY[c.country]):'')+'</div></div></div>'
+      + (why?'<div class="why">'+esc(why)+'</div>':'')
       + '<div class="hl">'+esc(c.headline||'')+'</div>'
       + '<div class="tags">'+(c.specialties||[]).slice(0,3).map(function(s){ return '<span class="tag">'+esc(SPEC_L[s]||s)+'</span>'; }).join('')+'</div>'
       + '<div class="ft"><div class="pr">'+(c.precio_desde===0?'<small>Primera evaluación</small><b>Gratis</b>':'<small>Desde</small><b>'+(c.precio_desde==null?'—':clp(c.precio_desde))+'</b>')+'</div>'
       + '<div class="resp">Responde en<br><b style="color:var(--text)">'+(c.response_sla_hours<=72?c.response_sla_hours+' h':Math.round(c.response_sla_hours/24)+' días')+'</b></div></div>'
       + '</a>';
-  });
-  $('list').innerHTML=h+'</div>';
+  
+  return h;
 }
 init();
 </script>

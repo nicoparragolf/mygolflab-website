@@ -138,6 +138,22 @@
   .hr{height:1px;background:var(--border);margin:18px 0}
   .mtitle{font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;color:var(--gold);margin-bottom:12px}
 
+  .wz-steps{display:flex;gap:6px;margin:0 0 18px;overflow-x:auto;padding-bottom:4px}
+  .wz-dot{flex:1;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+  .wz-dot span{width:32px;height:32px;border-radius:50%;border:1px solid var(--border2);background:var(--card);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:var(--muted)}
+  .wz-dot small{font-family:'Barlow Condensed';font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted2)}
+  .wz-dot.on span{background:var(--teal);border-color:var(--teal);color:#04211d}
+  .wz-dot.on small{color:var(--text)}
+  .wz-dot.done span{background:rgba(45,212,191,.12);border-color:var(--teal-dim);color:var(--teal)}
+  .wz-nav{display:flex;justify-content:space-between;gap:10px;margin-top:4px}
+  .wz-nav .btn{padding:13px 22px;font-size:16px}
+  .wz-nav .btn:disabled{opacity:.5}
+  .wz-done{text-align:center;max-width:560px;margin:50px auto}
+  .wz-done .ok{width:74px;height:74px;border-radius:50%;background:var(--teal);color:#04211d;font-size:38px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  .wz-done h1{font-family:'Bebas Neue';font-size:44px;letter-spacing:1px}
+  .wz-done p{color:var(--muted);font-size:16px;line-height:1.5;margin-top:10px}
+  .wz-done .link{margin:20px auto 0;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:14px;color:var(--teal);word-break:break-all}
+  .wz-done .acts{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
   .loading{color:var(--muted);padding:60px 0;text-align:center}
   .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200;max-width:90vw;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -195,6 +211,7 @@ var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var BUCKET = 'coach-public';
 
 var USER=null, P=null, IS_NEW=true, OFFERS=[], VIEWS={d7:0,d30:0}, DIRTY=false, EDIT_OFFER=null;
+var WIZ=false, WSTEP=0;   // WIZ = asistente de primer registro
 
 // ============================================================
 // CATÁLOGOS
@@ -229,11 +246,11 @@ function chipsHTML(group, arr, selected){
 function toggleChip(el){ el.classList.toggle('on'); markDirty(); }
 function chipVals(group, root){
   var out=[]; var box=(root||document).querySelector('[data-group="'+group+'"]');
-  if(!box) return out;
+  if(!box) return null;   // el grupo no está en pantalla
   box.querySelectorAll('.chip.on').forEach(function(c){ out.push(c.getAttribute('data-v')); });
   return out;
 }
-function markDirty(){ DIRTY=true; $('saveBar').classList.add('on'); renderChecklist(); }
+function markDirty(){ DIRTY=true; if(!WIZ) $('saveBar').classList.add('on'); renderChecklist(); updBio(); }
 
 // ============================================================
 // INICIO
@@ -263,6 +280,12 @@ async function init(){
   }
   await loadOffers();
   await loadViews();
+  // Primer registro (o llegó desde el aviso del dashboard): asistente paso a paso
+  var q = new URLSearchParams(location.search);
+  if(!P.is_published && (IS_NEW || q.get('onboarding')==='1')){
+    WIZ = true;
+    WSTEP = IS_NEW ? 0 : firstIncomplete();
+  }
   render();
 }
 
@@ -281,19 +304,70 @@ async function loadViews(){
 }
 
 // ============================================================
+// SECCIONES (se usan igual en modo normal y en el asistente)
+// ============================================================
+function secBasic(){
+  return '<div class="sec"><h2>Datos básicos</h2><p class="sub">Cómo te van a encontrar los alumnos.</p><div class="grid">'
+     +   '<div class="f"><label>Nombre público</label><input id="f_name" value="'+esc(P.display_name)+'" oninput="onName()"></div>'
+     +   '<div class="f"><label>Tu link</label><div class="slugbox"><span>…/coaches/perfil.html?c=</span><input id="f_slug" value="'+esc(P.slug)+'" oninput="markDirty()"></div><div class="hint">Solo minúsculas, números y guiones.</div></div>'
+     +   '<div class="f full"><label>Titular <i>una línea</i></label><input id="f_headline" maxlength="90" placeholder="Coach PGA · Especialista en juego corto y juniors" value="'+esc(P.headline)+'" oninput="markDirty()"></div>'
+     +   '<div class="f"><label>País</label><select id="f_country" onchange="markDirty()">'+optionList(COUNTRIES,P.country)+'</select></div>'
+     +   '<div class="f"><label>Años enseñando</label><input id="f_years" type="number" min="0" max="60" value="'+(P.years_experience==null?'':P.years_experience)+'" oninput="markDirty()"></div>'
+     +   '<div class="f full"><label>Idiomas en que das clases</label>'+chipsHTML('languages',LANGS,P.languages||[])+'</div>'
+     + '</div></div>';
+}
+function secMedia(){
+  return '<div class="sec"><h2>Foto y presentación</h2><p class="sub">Lo primero que ve un alumno. Una buena foto y un video corto de presentación hacen la diferencia.</p>'
+     + '<div class="media-row">'
+     +   mediaBox('photo_path','Foto de perfil','JPG o PNG','image/*',true)
+     +   mediaBox('intro_video_path','Video de presentación','30–60 seg · quién eres y cómo enseñas · opcional','video/*',false)
+     +   mediaBox('sample_video_path','Análisis de muestra','Un análisis real tuyo · opcional','video/*',false)
+     + '</div><div class="hr"></div><div class="grid">'
+     +   '<div class="f full"><label>Sobre mí</label><textarea id="f_bio" placeholder="Tu trayectoria, dónde enseñas, con quién has trabajado…" oninput="markDirty()">'+esc(P.bio)+'</textarea><div class="hint" id="bioCount"></div></div>'
+     +   '<div class="f full"><label>Mi forma de enseñar <i>opcional</i></label><textarea id="f_phil" placeholder="Cómo trabajas un swing, qué priorizas, qué puede esperar un alumno…" oninput="markDirty()">'+esc(P.philosophy)+'</textarea></div>'
+     + '</div></div>';
+}
+function secSpec(){
+  return '<div class="sec"><h2>Especialidad</h2><p class="sub">Se usa para el buscador y para recomendarte a alumnos que buscan exactamente lo que haces.</p><div class="grid">'
+     +   '<div class="f full"><label>Especialidades</label>'+chipsHTML('specialties',SPECIALTIES,P.specialties||[])+'</div>'
+     +   '<div class="f full"><label>Niveles con los que trabajas</label>'+chipsHTML('levels',LEVELS,P.levels||[])+'</div>'
+     +   '<div class="f"><label>Respondes los análisis en</label><select id="f_sla" onchange="markDirty()">'+optionList([['24','24 horas'],['48','48 horas'],['72','72 horas'],['120','5 días']],String(P.response_sla_hours||72))+'</select><div class="hint">Si no respondes a tiempo, se le devuelve el dinero al alumno.</div></div>'
+     + '</div></div>';
+}
+function secCred(){
+  var certs = (P.certifications||[]).map(function(c){ return typeof c==='string'?c:(c.nombre||''); }).join('\n');
+  var soc = P.social_links||{};
+  return '<div class="sec"><h2>Trayectoria</h2><p class="sub">Uno por línea. Todo opcional, pero suma mucha confianza.</p><div class="grid">'
+     +   '<div class="f"><label>Certificaciones</label><textarea id="f_certs" placeholder="TPI Golf Level 2&#10;Trackman Level 1" oninput="markDirty()">'+esc(certs)+'</textarea></div>'
+     +   '<div class="f"><label>Logros destacados</label><textarea id="f_high" placeholder="Ex director de academia&#10;10 jugadores becados a college" oninput="markDirty()">'+esc((P.highlights||[]).join('\n'))+'</textarea></div>'
+     +   '<div class="f full"><label>Jugadores con los que has trabajado</label><textarea id="f_players" style="min-height:70px" oninput="markDirty()">'+esc((P.notable_players||[]).join('\n'))+'</textarea></div>'
+     +   '<div class="f"><label>Instagram</label><input id="s_instagram" placeholder="@usuario" value="'+esc(soc.instagram||'')+'" oninput="markDirty()"></div>'
+     +   '<div class="f"><label>YouTube</label><input id="s_youtube" placeholder="https://youtube.com/@…" value="'+esc(soc.youtube||'')+'" oninput="markDirty()"></div>'
+     +   '<div class="f"><label>TikTok</label><input id="s_tiktok" placeholder="@usuario" value="'+esc(soc.tiktok||'')+'" oninput="markDirty()"></div>'
+     +   '<div class="f"><label>Sitio web</label><input id="s_web" placeholder="https://…" value="'+esc(soc.web||'')+'" oninput="markDirty()"></div>'
+     + '</div></div>';
+}
+function secOffers(){
+  return '<div class="sec"><div class="sec-h"><h2>Lo que vendes</h2><div class="r"><button class="btn primary sm" onclick="openOffer()">+ Nueva oferta</button></div></div>'
+     + '<p class="sub">Define precio y qué tiene que grabar el alumno. Tip: una evaluación inicial gratis o rebajada es la mejor puerta de entrada (cada alumno puede usarla una sola vez contigo).</p>'
+     + '<div class="offers" id="offers"></div></div>';
+}
+function secPublish(){
+  return '<div class="sec"><div class="sec-h"><h2>Para publicar</h2><div class="r" id="pubBtnBox"></div></div>'
+     + '<p class="sub">Tu vitrina aparece en el buscador de coaches cuando completas lo esencial.</p><div class="check" id="checklist"></div></div>';
+}
+
+// ============================================================
 // RENDER
 // ============================================================
 function render(){
-  var certs = (P.certifications||[]).map(function(c){ return typeof c==='string'?c:(c.nombre||''); }).join('\n');
-  var soc = P.social_links||{};
+  if(WIZ){ renderWizard(); return; }
   var perfilUrl = '/es/coaches/perfil.html?c='+encodeURIComponent(P.slug||'');
-
   var h =
     '<div class="top"><div><h1>Mi vitrina</h1><p>Tu perfil público para que alumnos de todo el mundo hispano te encuentren y te compren análisis online.</p></div>'
   + '<div class="r"><span class="status '+(P.is_published?'on':'off')+'">'+(P.is_published?'Publicada':'Borrador')+'</span>'
   + (IS_NEW?'':'<a class="btn ghost" href="'+perfilUrl+'" target="_blank">Ver perfil público</a>')
   + '</div></div>';
-
   if(!IS_NEW){
     h += '<div class="stats">'
       + '<div class="st"><div class="v">'+VIEWS.d7+'</div><div class="l">Visitas 7 días</div></div>'
@@ -301,54 +375,93 @@ function render(){
       + '<div class="st"><div class="v">'+(P.rating_count? Number(P.rating_avg).toFixed(1):'—')+'</div><div class="l">'+(P.rating_count||0)+' reseñas</div></div>'
       + '</div>';
   }
-
-  // --- Publicación
-  h += '<div class="sec"><div class="sec-h"><h2>Para publicar</h2><div class="r" id="pubBtnBox"></div></div>'
-     + '<p class="sub">Tu vitrina aparece en el buscador cuando completas lo esencial.</p><div class="check" id="checklist"></div></div>';
-
-  // --- Identidad
-  h += '<div class="sec"><h2>Quién eres</h2><p class="sub">Lo primero que ve un alumno. Una buena foto y un video corto de presentación hacen la diferencia.</p>'
-     + '<div class="media-row">'
-     +   mediaBox('photo_path','Foto de perfil','JPG o PNG','image/*',true)
-     +   mediaBox('intro_video_path','Video de presentación','30–60 seg · quién eres y cómo enseñas','video/*',false)
-     +   mediaBox('sample_video_path','Análisis de muestra','Un análisis real tuyo (con permiso del alumno)','video/*',false)
-     + '</div><div class="hr"></div><div class="grid">'
-     +   '<div class="f"><label>Nombre público</label><input id="f_name" value="'+esc(P.display_name)+'" oninput="onName()"></div>'
-     +   '<div class="f"><label>Tu link</label><div class="slugbox"><span>…/coaches/perfil.html?c=</span><input id="f_slug" value="'+esc(P.slug)+'" oninput="markDirty()"></div><div class="hint">Solo minúsculas, números y guiones.</div></div>'
-     +   '<div class="f full"><label>Titular <i>una línea</i></label><input id="f_headline" maxlength="90" placeholder="Coach PGA · Especialista en juego corto y juniors" value="'+esc(P.headline)+'" oninput="markDirty()"></div>'
-     +   '<div class="f full"><label>Sobre mí</label><textarea id="f_bio" placeholder="Tu trayectoria, dónde enseñas, con quién has trabajado…" oninput="markDirty()">'+esc(P.bio)+'</textarea></div>'
-     +   '<div class="f full"><label>Mi forma de enseñar</label><textarea id="f_phil" placeholder="Cómo trabajas un swing, qué priorizas, qué puede esperar un alumno…" oninput="markDirty()">'+esc(P.philosophy)+'</textarea></div>'
-     +   '<div class="f"><label>País</label><select id="f_country" onchange="markDirty()">'+optionList(COUNTRIES,P.country)+'</select></div>'
-     +   '<div class="f"><label>Años enseñando</label><input id="f_years" type="number" min="0" max="60" value="'+(P.years_experience==null?'':P.years_experience)+'" oninput="markDirty()"></div>'
-     +   '<div class="f full"><label>Idiomas</label>'+chipsHTML('languages',LANGS,P.languages||[])+'</div>'
-     + '</div></div>';
-
-  // --- Especialidad
-  h += '<div class="sec"><h2>Especialidad</h2><p class="sub">Se usa para el buscador y para recomendarte a alumnos que buscan exactamente lo que haces.</p><div class="grid">'
-     +   '<div class="f full"><label>Especialidades</label>'+chipsHTML('specialties',SPECIALTIES,P.specialties||[])+'</div>'
-     +   '<div class="f full"><label>Niveles con los que trabajas</label>'+chipsHTML('levels',LEVELS,P.levels||[])+'</div>'
-     +   '<div class="f"><label>Respondes los análisis en</label><select id="f_sla" onchange="markDirty()">'+optionList([['24','24 horas'],['48','48 horas'],['72','72 horas'],['120','5 días']],String(P.response_sla_hours||72))+'</select><div class="hint">Si no respondes a tiempo, se le devuelve el dinero al alumno.</div></div>'
-     + '</div></div>';
-
-  // --- Credenciales
-  h += '<div class="sec"><h2>Credenciales y logros</h2><p class="sub">Uno por línea.</p><div class="grid">'
-     +   '<div class="f"><label>Certificaciones</label><textarea id="f_certs" placeholder="TPI Golf Level 2&#10;Trackman Level 1" oninput="markDirty()">'+esc(certs)+'</textarea></div>'
-     +   '<div class="f"><label>Logros destacados</label><textarea id="f_high" placeholder="Ex director Andes Golf Academy&#10;10 jugadores becados a college" oninput="markDirty()">'+esc((P.highlights||[]).join('\n'))+'</textarea></div>'
-     +   '<div class="f full"><label>Jugadores con los que has trabajado</label><textarea id="f_players" style="min-height:70px" oninput="markDirty()">'+esc((P.notable_players||[]).join('\n'))+'</textarea></div>'
-     +   '<div class="f"><label>Instagram</label><input id="s_instagram" placeholder="@usuario" value="'+esc(soc.instagram||'')+'" oninput="markDirty()"></div>'
-     +   '<div class="f"><label>YouTube</label><input id="s_youtube" placeholder="https://youtube.com/@…" value="'+esc(soc.youtube||'')+'" oninput="markDirty()"></div>'
-     +   '<div class="f"><label>TikTok</label><input id="s_tiktok" placeholder="@usuario" value="'+esc(soc.tiktok||'')+'" oninput="markDirty()"></div>'
-     +   '<div class="f"><label>Sitio web</label><input id="s_web" placeholder="https://…" value="'+esc(soc.web||'')+'" oninput="markDirty()"></div>'
-     + '</div></div>';
-
-  // --- Ofertas
-  h += '<div class="sec"><div class="sec-h"><h2>Lo que vendes</h2><div class="r"><button class="btn primary sm" onclick="openOffer()">+ Nueva oferta</button></div></div>'
-     + '<p class="sub">Define precio y qué tiene que grabar el alumno. Tip: una evaluación inicial gratis o rebajada es la mejor puerta de entrada (cada alumno puede usarla una sola vez contigo).</p>'
-     + '<div class="offers" id="offers"></div></div>';
-
+  h += secPublish() + secBasic() + secMedia() + secSpec() + secCred() + secOffers();
   $('wrap').innerHTML = h;
   renderOffers();
   renderChecklist();
+}
+
+// ============================================================
+// ASISTENTE DE PRIMER REGISTRO
+// ============================================================
+var STEPS = [
+  {id:'basic',  t:'Datos básicos',       sec:secBasic},
+  {id:'media',  t:'Foto y presentación', sec:secMedia},
+  {id:'spec',   t:'Especialidad',        sec:secSpec},
+  {id:'cred',   t:'Trayectoria',         sec:secCred},
+  {id:'offers', t:'Lo que vendes',       sec:secOffers},
+  {id:'publish',t:'Publicar',            sec:secPublish}
+];
+function stepMissing(i){
+  var c=current(), m=[];
+  var id=STEPS[i].id;
+  if(id==='basic'){
+    if(!c.name.trim()) m.push('tu nombre público');
+    if(slugify(c.slug||c.name).length<3) m.push('tu link (mínimo 3 caracteres)');
+    if(c.headline.trim().length<10) m.push('un titular (mínimo 10 caracteres)');
+  }
+  if(id==='media'){
+    if(!c.photo) m.push('tu foto de perfil');
+    if(c.bio.trim().length<80) m.push('"Sobre mí" (mínimo 80 caracteres)');
+  }
+  if(id==='spec'){
+    if(!c.specs.length) m.push('al menos una especialidad');
+    if(!c.levels.length) m.push('al menos un nivel');
+  }
+  if(id==='offers' && !c.offers) m.push('al menos una oferta');
+  return m;
+}
+function firstIncomplete(){
+  for(var i=0;i<STEPS.length-1;i++){ if(stepMissing(i).length) return i; }
+  return STEPS.length-1;
+}
+function renderWizard(){
+  if(WSTEP==='done'){
+    var url='/es/coaches/perfil.html?c='+encodeURIComponent(P.slug||'');
+    $('wrap').innerHTML='<div class="wz-done"><div class="ok">✓</div><h1>¡Tu vitrina está publicada!</h1>'
+      + '<p>Ya apareces en el buscador de coaches. Comparte tu link en Instagram y WhatsApp para recibir tus primeros alumnos.</p>'
+      + '<div class="link">mygolflab.golf'+esc(url)+'</div>'
+      + '<div class="acts"><a class="btn" href="'+url+'" target="_blank">Ver mi perfil público</a><a class="btn primary" href="dashboard.html">Ir a mi dashboard</a></div></div>';
+    return;
+  }
+  var st=STEPS[WSTEP];
+  var dots=''; STEPS.forEach(function(s,i){ dots+='<div class="wz-dot'+(i<WSTEP?' done':'')+(i===WSTEP?' on':'')+'"><span>'+(i<WSTEP?'✓':(i+1))+'</span><small>'+esc(s.t)+'</small></div>'; });
+  var h='<div class="top"><div><h1>Bienvenido a Coach Hub</h1><p>Antes de empezar, crea tu perfil de coach. Así los jugadores te pueden encontrar en la vitrina y comprarte clases online. Toma unos 5 minutos y se guarda en cada paso.</p></div></div>'
+    + '<div class="wz-steps">'+dots+'</div>'
+    + st.sec()
+    + '<div class="wz-nav">'
+    + (WSTEP>0?'<button class="btn ghost" onclick="wizBack()">‹ Atrás</button>':'<span></span>')
+    + (st.id==='publish'
+        ? '<button class="btn primary" id="wzNext" onclick="wizPublish()">Publicar mi vitrina</button>'
+        : '<button class="btn primary" id="wzNext" onclick="wizNext()">'+(st.id==='cred'?'Siguiente (o saltar)':'Siguiente')+' ›</button>')
+    + '</div>';
+  $('wrap').innerHTML=h;
+  if(st.id==='offers') renderOffers();
+  if(st.id==='publish') renderChecklist();
+  updBio();
+}
+async function wizNext(){
+  var miss=stepMissing(WSTEP);
+  if(miss.length){ toast('Te falta: '+miss.join(', '),true); return; }
+  var btn=$('wzNext'); btn.disabled=true;
+  if(STEPS[WSTEP].id!=='offers'){
+    var ok=await saveProfile({silent:true, norender:true});
+    if(!ok){ btn.disabled=false; return; }
+  }
+  WSTEP++; render(); window.scrollTo(0,0);
+}
+function wizBack(){
+  if(DIRTY && !IS_NEW){ saveProfile({silent:true, norender:true}); }
+  WSTEP=Math.max(0,WSTEP-1); render(); window.scrollTo(0,0);
+}
+async function wizPublish(){
+  for(var i=0;i<STEPS.length-1;i++){
+    var m=stepMissing(i);
+    if(m.length){ toast('Te falta: '+m.join(', '),true); WSTEP=i; render(); return; }
+  }
+  var r = await sb.from('coach_profiles').update({is_published:true}).eq('coach_id',USER.id).select().single();
+  if(r.error){ toast('No se pudo publicar: '+r.error.message,true); return; }
+  P=r.data; WSTEP='done'; render();
 }
 
 function mediaBox(field, title, sub, accept, isPhoto){
@@ -366,17 +479,27 @@ function onName(){
   if(IS_NEW || !s.value) s.value=slugify(n);
   markDirty();
 }
+function updBio(){
+  var b=$('f_bio'), c=$('bioCount'); if(!b||!c) return;
+  var n=b.value.trim().length;
+  c.textContent = n<80 ? (n+' / 80 caracteres mínimos') : (n+' caracteres');
+}
 
 // ============================================================
 // CHECKLIST + PUBLICAR
 // ============================================================
+// lee el formulario visible; lo que no está en pantalla se toma de lo guardado
+function fv(id, fb){ var e=$(id); return e ? e.value : (fb==null?'':fb); }
+function chipsOr(group, fb){ var v=chipVals(group); return v===null ? (fb||[]).slice() : v; }
 function current(){
-  // lee el formulario sin guardar
   return {
     photo: !!P.photo_path,
-    headline: ($('f_headline')||{}).value || '',
-    bio: ($('f_bio')||{}).value || '',
-    specs: chipVals('specialties'),
+    name: fv('f_name', P.display_name),
+    slug: fv('f_slug', P.slug),
+    headline: fv('f_headline', P.headline),
+    bio: fv('f_bio', P.bio),
+    specs: chipsOr('specialties', P.specialties),
+    levels: chipsOr('levels', P.levels),
     offers: OFFERS.filter(function(o){ return o.is_active; }).length
   };
 }
@@ -393,7 +516,7 @@ function renderChecklist(){
   var h=''; items.forEach(function(i){ h+='<div class="'+(i[0]?'ok':'')+'"><span class="dot">'+(i[0]?'✓':'')+'</span>'+esc(i[1])+'</div>'; });
   box.innerHTML=h;
   var pb=$('pubBtnBox');
-  if(IS_NEW){ pb.innerHTML=''; return; }
+  if(WIZ || IS_NEW){ pb.innerHTML=''; return; }
   pb.innerHTML = P.is_published
     ? '<button class="btn sm ghost" onclick="setPublished(false)">Pasar a borrador</button>'
     : '<button class="btn primary sm" '+(ok?'':'disabled')+' onclick="setPublished(true)">Publicar vitrina</button>';
@@ -409,35 +532,41 @@ async function setPublished(v){
 // GUARDAR PERFIL
 // ============================================================
 function collect(){
-  var slug = slugify($('f_slug').value || $('f_name').value);
-  var soc={}; ['instagram','youtube','tiktok','web'].forEach(function(k){ var v=$('s_'+k).value.trim(); if(v) soc[k]=v; });
-  var yrs=$('f_years').value;
+  var c=current();
+  var slug = slugify(c.slug || c.name);
+  var soc;
+  if($('s_instagram')){ soc={}; ['instagram','youtube','tiktok','web'].forEach(function(k){ var v=$('s_'+k).value.trim(); if(v) soc[k]=v; }); }
+  else soc = P.social_links||{};
+  var yrs=fv('f_years', P.years_experience==null?'':String(P.years_experience));
+  var langs=chipsOr('languages', P.languages);
+  var certs = $('f_certs') ? lines($('f_certs').value).map(function(n){ return {nombre:n, verificada:false}; }) : (P.certifications||[]);
   return {
     coach_id: USER.id,
-    display_name: $('f_name').value.trim(),
+    display_name: c.name.trim(),
     slug: slug,
-    headline: $('f_headline').value.trim(),
-    bio: $('f_bio').value.trim(),
-    philosophy: $('f_phil').value.trim(),
-    country: $('f_country').value,
+    headline: c.headline.trim(),
+    bio: c.bio.trim(),
+    philosophy: fv('f_phil', P.philosophy).trim(),
+    country: fv('f_country', P.country),
     years_experience: yrs===''?null:parseInt(yrs,10),
-    languages: chipVals('languages').length ? chipVals('languages') : ['es'],
-    specialties: chipVals('specialties'),
-    levels: chipVals('levels'),
-    response_sla_hours: parseInt($('f_sla').value,10),
-    certifications: lines($('f_certs').value).map(function(n){ return {nombre:n, verificada:false}; }),
-    highlights: lines($('f_high').value),
-    notable_players: lines($('f_players').value),
+    languages: langs.length ? langs : ['es'],
+    specialties: c.specs,
+    levels: c.levels,
+    response_sla_hours: parseInt(fv('f_sla', String(P.response_sla_hours||72)),10),
+    certifications: certs,
+    highlights: $('f_high') ? lines($('f_high').value) : (P.highlights||[]),
+    notable_players: $('f_players') ? lines($('f_players').value) : (P.notable_players||[]),
     social_links: soc,
     photo_path: P.photo_path, intro_video_path: P.intro_video_path, sample_video_path: P.sample_video_path,
     timezone: (Intl.DateTimeFormat().resolvedOptions().timeZone)||'America/Santiago'
   };
 }
-async function saveProfile(){
+async function saveProfile(opts){
+  opts=opts||{};
   var d = collect();
   if(!d.display_name){ toast('Falta tu nombre público',true); return false; }
   if(d.slug.length<3){ toast('Tu link necesita al menos 3 caracteres',true); return false; }
-  $('f_slug').value=d.slug;
+  if($('f_slug')) $('f_slug').value=d.slug;
   var r = IS_NEW
     ? await sb.from('coach_profiles').insert(d).select().single()
     : await sb.from('coach_profiles').update(d).eq('coach_id',USER.id).select().single();
@@ -448,7 +577,8 @@ async function saveProfile(){
     return false;
   }
   P=r.data; IS_NEW=false; DIRTY=false; $('saveBar').classList.remove('on');
-  render(); toast('Cambios guardados');
+  if(!opts.norender) render();
+  if(!opts.silent) toast('Cambios guardados');
   return true;
 }
 
