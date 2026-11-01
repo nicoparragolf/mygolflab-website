@@ -20,7 +20,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --teal:#2dd4bf; --teal-dark:#14b8a6; --gold:#D4C5A9;
+    --teal:#D4C5A9; --teal-dark:#B9A982; --gold:#F0B860;
     --bg:#0a0a0a; --card:#111111; --elevated:#1a1a1a;
     --border:#262626; --text:#ffffff; --muted:#a3a3a3; --muted2:#737373;
     --red-bg:rgba(239,68,68,.1); --red:#fca5a5;
@@ -33,7 +33,7 @@
     padding:1.5rem;position:relative;overflow-x:hidden;
   }
   .bg-decoration{position:fixed;inset:0;pointer-events:none;z-index:0}
-  .bg-decoration::before{content:'';position:absolute;top:-15%;right:-10%;width:520px;height:520px;background:radial-gradient(circle,rgba(45,212,191,.08) 0%,transparent 70%);border-radius:50%}
+  .bg-decoration::before{content:'';position:absolute;top:-15%;right:-10%;width:520px;height:520px;background:radial-gradient(circle,rgba(212,197,169,.08) 0%,transparent 70%);border-radius:50%}
 
   .wrap{position:relative;z-index:1;width:100%;max-width:400px;animation:fadeIn .5s ease both}
   @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -42,7 +42,7 @@
   .logo-icon{width:60px;height:60px;margin:0 auto .9rem;position:relative}
   .logo-icon svg{width:100%;height:100%}
   .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.06em}
-  .logo-text span{color:var(--gold)}
+  .logo-text span{color:var(--teal)}
   .logo-tag{font-size:.82rem;color:var(--muted2);margin-top:.3rem}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:1.8rem}
@@ -59,7 +59,7 @@
   .forgot:hover{color:var(--teal)}
 
   .btn{width:100%;padding:.9rem;border:none;border-radius:11px;font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;transition:all .15s}
-  .btn-primary{background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#04211d}
+  .btn-primary{background:linear-gradient(135deg,#D4C5A9,#B9A982);color:#1C1709}
   .btn-primary:hover{opacity:.92}
   .btn-primary:disabled{opacity:.5;cursor:default}
   .btn-google{background:var(--elevated);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.9rem}
@@ -75,7 +75,7 @@
   .switch a:hover{text-decoration:underline}
 
   .gate{text-align:center;padding:2.4rem 1rem}
-  .gate .spinner{width:30px;height:30px;border:3px solid rgba(45,212,191,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  .gate .spinner{width:30px;height:30px;border:3px solid rgba(212,197,169,.2);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
   @keyframes spin{to{transform:rotate(360deg)}}
   .gate p{color:var(--muted);font-size:.9rem}
 
@@ -89,9 +89,9 @@
   .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
   .role-card{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;padding:.8rem .9rem;background:var(--elevated);border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:left;color:var(--text);font-family:'Barlow'}
   .role-card:hover{border-color:var(--muted2)}
-  .role-card.active{border-color:var(--gold);background:rgba(212,197,169,.07)}
+  .role-card.active{border-color:var(--teal);background:rgba(212,197,169,.07)}
   .role-title{font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.04em}
-  .role-card.active .role-title{color:var(--gold)}
+  .role-card.active .role-title{color:var(--teal)}
   .role-desc{font-size:.76rem;color:var(--muted2);line-height:1.3}
   .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
   .hint{font-size:.76rem;color:var(--muted2);margin-top:.45rem;line-height:1.4}
@@ -109,11 +109,11 @@
   <div class="logo">
     <div class="logo-icon">
       <svg viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="48" fill="#132a27"/>
-        <line x1="42" y1="18" x2="42" y2="80" stroke="#2dd4bf" stroke-width="4"/>
-        <ellipse cx="42" cy="80" rx="14" ry="3.2" fill="#14b8a6"/>
-        <polygon points="42,18 76,32 42,44" fill="#D4C5A9"/>
-        <circle cx="42" cy="55" r="4.5" fill="#132a27" stroke="#2dd4bf" stroke-width="2.5"/>
+        <circle cx="50" cy="50" r="48" fill="#2A2518"/>
+        <line x1="42" y1="18" x2="42" y2="80" stroke="#D4C5A9" stroke-width="4"/>
+        <ellipse cx="42" cy="80" rx="14" ry="3.2" fill="#B9A982"/>
+        <polygon points="42,18 76,32 42,44" fill="#F0B860"/>
+        <circle cx="42" cy="55" r="4.5" fill="#2A2518" stroke="#D4C5A9" stroke-width="2.5"/>
       </svg>
     </div>
     <div class="logo-text">COACH<span>HUB</span></div>
