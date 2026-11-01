@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Coach · Coach Hub by MyGolfLab</title>
+<meta name="description" content="Clases de golf online con coaches profesionales en español. Análisis de swing en video.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
+    --border:#262626; --border2:#333;
+    --teal:#2dd4bf; --teal-dim:#1a7d72; --gold:#D4C5A9;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666; --red:#e06a6a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;color:inherit}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  .nav-inner{max-width:1100px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
+  .brand span{color:var(--teal)}
+  .hubchip{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:3px 10px;white-space:nowrap}
+  .nav-links{display:flex;gap:20px;margin-left:auto}
+  .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .nav-links a:hover{color:var(--text)}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+  .back{display:inline-flex;gap:6px;align-items:center;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:14px;margin-bottom:18px}
+  .back:hover{color:var(--text)}
+
+  .hero{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;background:linear-gradient(145deg,#12302c,#141414 65%);border:1px solid var(--teal-dim);border-radius:22px;padding:28px}
+  .ph{width:132px;height:132px;border-radius:50%;background:var(--card2);border:2px solid var(--teal-dim);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:52px;color:var(--gold)}
+  .ph img{width:100%;height:100%;object-fit:cover}
+  .hero h1{font-family:'Bebas Neue';font-size:48px;letter-spacing:1px;line-height:1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ver{font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;background:var(--teal);color:#04211d;border-radius:20px;padding:3px 10px}
+  .hero .hl{color:#cfcfcf;font-size:17px;margin-top:8px;line-height:1.4}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;color:var(--muted);font-size:14.5px}
+  .meta b{color:var(--text);font-weight:600}
+  .stars{color:var(--gold);letter-spacing:1px}
+
+  .cols{display:grid;grid-template-columns:1fr 380px;gap:22px;margin-top:22px;align-items:start}
+  .sec{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:18px}
+  .sec h2{font-family:'Barlow Condensed';font-weight:700;font-size:21px;letter-spacing:.3px;margin-bottom:12px}
+  .sec p.txt{color:#d6d6d6;font-size:15.5px;line-height:1.65;white-space:pre-line}
+  .vid{width:100%;border-radius:14px;background:#000;display:block;max-height:560px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:6px 12px;font-size:14px}
+  .chip.t{border-color:var(--teal-dim);color:var(--teal)}
+  ul.list{list-style:none;display:flex;flex-direction:column;gap:9px}
+  ul.list li{display:flex;gap:10px;font-size:15px;line-height:1.45;color:#d6d6d6}
+  ul.list li::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:8px;flex:0 0 auto}
+  .lbl{font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:16px 0 8px}
+  .lbl:first-child{margin-top:0}
+  .soc{display:flex;flex-wrap:wrap;gap:10px}
+  .soc a{font-family:'Barlow Condensed';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.4px;border:1px solid var(--border2);border-radius:9px;padding:6px 11px;color:var(--muted)}
+  .soc a:hover{color:var(--teal);border-color:var(--teal-dim)}
+
+  .side{position:sticky;top:84px}
+  .offer{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:14px}
+  .offer.trial{border-color:rgba(212,197,169,.5);background:linear-gradient(160deg,rgba(212,197,169,.08),var(--card) 60%)}
+  .offer .k{font-family:'Barlow Condensed';font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--gold)}
+  .offer h3{font-family:'Barlow Condensed';font-weight:700;font-size:22px;margin-top:4px;line-height:1.15}
+  .offer .pr{font-family:'Bebas Neue';font-size:38px;color:var(--teal);line-height:1;margin:10px 0 2px}
+  .offer .pr small{font-family:'Barlow';font-size:14px;color:var(--muted);margin-left:4px}
+  .offer p{color:var(--muted);font-size:14px;line-height:1.5;margin-top:8px;white-space:pre-line}
+  .rec{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px;font-size:13.5px;color:#cfcfcf;line-height:1.5}
+  .rec b{display:block;font-family:'Barlow Condensed';font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
+  .buy{width:100%;margin-top:14px;background:var(--teal);border:none;border-radius:11px;padding:13px;font-family:'Barlow Condensed';font-weight:700;font-size:17px;letter-spacing:.5px;text-transform:uppercase;color:#04211d;cursor:pointer}
+  .buy:hover{filter:brightness(1.08)}
+  .guar{display:flex;gap:10px;color:var(--muted);font-size:13px;line-height:1.45;padding:4px 6px 0}
+  .guar svg{width:18px;height:18px;flex:0 0 auto;color:var(--teal);margin-top:1px}
+
+  .rv{border-top:1px solid var(--border);padding:14px 0}
+  .rv:first-of-type{border-top:none;padding-top:0}
+  .rv .h{display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--muted)}
+  .rv p{margin-top:6px;color:#d6d6d6;font-size:15px;line-height:1.55}
+  .empty{color:var(--muted);font-size:14.5px}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;max-width:440px;width:100%;padding:24px;text-align:center}
+  .modal h3{font-family:'Barlow Condensed';font-weight:700;font-size:24px;margin-bottom:10px}
+  .modal p{color:var(--muted);font-size:15px;line-height:1.55}
+  .modal button{margin-top:18px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;cursor:pointer}
+
+  .loading{color:var(--muted);padding:80px 0;text-align:center}
+
+  @media(max-width:900px){
+    .nav-links{gap:14px}
+    .nav-links a.hide-m{display:none}
+    .hero{grid-template-columns:1fr;text-align:center;padding:24px 18px}
+    .ph{margin:0 auto;width:112px;height:112px}
+    .hero h1{justify-content:center;font-size:40px}
+    .meta{justify-content:center}
+    .cols{grid-template-columns:1fr}
+    .side{position:static;order:-1}
+  }
+  @media(max-width:520px){ .hubchip{display:none} .nav-inner{gap:12px} .brand{font-size:22px} .nav-links a.hide-m{display:inline} }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
+    <span class="hubchip">Coach Hub</span>
+    <nav class="nav-links">
+      <a href="/es/coaches/">Coaches</a>
+      <a href="/es/coachhub/index.html" class="hide-m">Soy coach</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap" id="wrap"><div class="loading">Cargando perfil…</div></div>
+
+<div class="modal-bg" id="soonModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal"><h3>¡Muy pronto!</h3><p>Estamos activando los pagos con Mercado Pago. En unos días vas a poder comprar tu análisis directamente desde aquí.</p><button onclick="document.getElementById('soonModal').classList.remove('on')">Entendido</button></div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var BUCKET='coach-public';
+
+var SPEC = {full_swing:'Full Swing',juego_corto:'Juego Corto',putter:'Putter',fisico:'Físico',estrategia:'Estrategia / Cancha',juniors:'Juniors'};
+var LEVEL = {iniciacion:'Iniciación',junior:'Junior',amateur:'Amateur',college:'College',elite:'Elite amateur',profesional:'Profesional',senior:'Senior'};
+var LANG = {es:'Español',en:'Inglés',pt:'Portugués'};
+var COUNTRY = {CL:'Chile',AR:'Argentina',MX:'México',CO:'Colombia',PE:'Perú',UY:'Uruguay',PY:'Paraguay',EC:'Ecuador',ES:'España',US:'Estados Unidos',OT:''};
+var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
+var ANGLE = {frente:'de frente',linea_de_tiro:'desde la línea de tiro',atras:'desde atrás del objetivo',resultado:'mostrando el vuelo de bola'};
+var CLUB = {libre:'el palo que quieras trabajar',driver:'driver',hierro_7:'hierro 7',wedge:'wedge',putter:'putter'};
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function pubUrl(p){ return p ? SUPABASE_URL+'/storage/v1/object/public/'+BUCKET+'/'+p.split('/').map(encodeURIComponent).join('/') : ''; }
+function clp(n){ try{ return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n||0); }catch(e){ return '$'+n; } }
+function stars(r){ var f=Math.round(r), s=''; for(var i=0;i<5;i++) s+= i<f?'★':'☆'; return s; }
+function safeLink(u){ u=String(u||'').trim(); if(!u) return ''; if(/^https?:\/\//i.test(u)) return u; return 'https://'+u; }
+function handleLink(net, v){
+  v=String(v||'').trim(); if(!v) return '';
+  if(/^https?:\/\//i.test(v)) return v;
+  var h=v.replace(/^@/,'');
+  if(net==='instagram') return 'https://instagram.com/'+encodeURIComponent(h);
+  if(net==='tiktok') return 'https://tiktok.com/@'+encodeURIComponent(h);
+  return safeLink(v);
+}
+function fmtDate(iso){ var d=new Date(iso); var m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear(); }
+
+var C=null, OFFERS=[], REVIEWS=[];
+
+async function init(){
+  var slug = new URLSearchParams(location.search).get('c');
+  if(!slug){ location.replace('/es/coaches/'); return; }
+  var r = await sb.from('coach_profiles').select('*').eq('slug',slug).maybeSingle();
+  if(r.error || !r.data){
+    $('wrap').innerHTML='<div class="loading">No encontramos este coach.<br><br><a href="/es/coaches/" style="color:var(--teal)">Ver todos los coaches →</a></div>';
+    return;
+  }
+  C=r.data;
+  var ro = await sb.from('coach_offerings').select('*').eq('coach_id',C.coach_id).eq('is_active',true).order('is_trial',{ascending:false}).order('sort_order');
+  OFFERS = ro.data||[];
+  var rr = await sb.from('coach_reviews').select('rating,comment,created_at').eq('coach_id',C.coach_id).order('created_at',{ascending:false}).limit(20);
+  REVIEWS = rr.data||[];
+  document.title = C.display_name+' · Coach de golf online · Coach Hub';
+  render();
+  sb.rpc('mgl_registrar_visita',{p_slug:slug});
+}
+
+function render(){
+  var ini = (C.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
+  var draft = !C.is_published;
+  var h = '<a class="back" href="/es/coaches/">‹ Todos los coaches</a>';
+  if(draft) h+='<div class="sec" style="border-color:rgba(224,161,91,.4);color:#e0a15b;padding:14px 18px">Vista previa: tu vitrina está en borrador y solo tú puedes verla.</div>';
+
+  h += '<div class="hero"><div class="ph">'+(C.photo_path?'<img src="'+pubUrl(C.photo_path)+'" alt="">':esc(ini))+'</div><div>'
+     + '<h1>'+esc(C.display_name)+(C.is_verified?'<span class="ver">Verificado</span>':'')+'</h1>'
+     + (C.headline?'<div class="hl">'+esc(C.headline)+'</div>':'')
+     + '<div class="meta">'
+     +   (C.rating_count?'<span><span class="stars">'+stars(C.rating_avg)+'</span> <b>'+Number(C.rating_avg).toFixed(1)+'</b> ('+C.rating_count+')</span>':'<span>Nuevo en Coach Hub</span>')
+     +   (COUNTRY[C.country]?'<span>'+esc(COUNTRY[C.country])+'</span>':'')
+     +   '<span>'+(C.languages||[]).map(function(l){ return esc(LANG[l]||l); }).join(' · ')+'</span>'
+     +   '<span>Responde en <b>'+(C.response_sla_hours<=72?C.response_sla_hours+' h':Math.round(C.response_sla_hours/24)+' días')+'</b></span>'
+     +   (C.years_experience?'<span><b>'+C.years_experience+'</b> años enseñando</span>':'')
+     + '</div></div></div>';
+
+  h += '<div class="cols"><div>';
+  if(C.intro_video_path) h+='<div class="sec"><h2>Preséntate</h2><video class="vid" src="'+pubUrl(C.intro_video_path)+'#t=0.5" controls playsinline preload="metadata"></video></div>';
+  if(C.bio) h+='<div class="sec"><h2>Sobre mí</h2><p class="txt">'+esc(C.bio)+'</p></div>';
+  if(C.philosophy) h+='<div class="sec"><h2>Mi forma de enseñar</h2><p class="txt">'+esc(C.philosophy)+'</p></div>';
+
+  var spec=(C.specialties||[]), lev=(C.levels||[]);
+  if(spec.length||lev.length){
+    h+='<div class="sec"><h2>Especialidad</h2>';
+    if(spec.length) h+='<div class="lbl">Áreas</div><div class="chips">'+spec.map(function(s){ return '<span class="chip t">'+esc(SPEC[s]||s)+'</span>'; }).join('')+'</div>';
+    if(lev.length) h+='<div class="lbl">Niveles</div><div class="chips">'+lev.map(function(s){ return '<span class="chip">'+esc(LEVEL[s]||s)+'</span>'; }).join('')+'</div>';
+    h+='</div>';
+  }
+
+  var certs=(C.certifications||[]).map(function(c){ return typeof c==='string'?c:c.nombre; }).filter(Boolean);
+  if(certs.length || (C.highlights||[]).length || (C.notable_players||[]).length){
+    h+='<div class="sec"><h2>Trayectoria</h2>';
+    if(certs.length) h+='<div class="lbl">Certificaciones</div><ul class="list">'+certs.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>';
+    if((C.highlights||[]).length) h+='<div class="lbl">Logros</div><ul class="list">'+C.highlights.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ul>';
+    if((C.notable_players||[]).length) h+='<div class="lbl">Ha trabajado con</div><div class="chips">'+C.notable_players.map(function(x){ return '<span class="chip">'+esc(x)+'</span>'; }).join('')+'</div>';
+    h+='</div>';
+  }
+
+  if(C.sample_video_path) h+='<div class="sec"><h2>Así se ve un análisis</h2><p class="txt" style="color:var(--muted);font-size:14px;margin-bottom:12px">Un análisis real: dibujo sobre tu video y te explico con mi voz qué cambiar y por qué.</p><video class="vid" src="'+pubUrl(C.sample_video_path)+'#t=0.5" controls playsinline preload="metadata"></video></div>';
+
+  h+='<div class="sec"><h2>Reseñas'+(REVIEWS.length?' ('+C.rating_count+')':'')+'</h2>';
+  if(!REVIEWS.length) h+='<p class="empty">Aún no tiene reseñas. Solo pueden opinar alumnos que compraron y recibieron su análisis.</p>';
+  REVIEWS.forEach(function(rv){
+    h+='<div class="rv"><div class="h"><span class="stars">'+stars(rv.rating)+'</span><span>Alumno verificado · '+fmtDate(rv.created_at)+'</span></div>'+(rv.comment?'<p>'+esc(rv.comment)+'</p>':'')+'</div>';
+  });
+  h+='</div>';
+
+  var soc=C.social_links||{}, sl='';
+  [['instagram','Instagram'],['youtube','YouTube'],['tiktok','TikTok'],['web','Sitio web']].forEach(function(n){
+    if(soc[n[0]]) sl+='<a href="'+esc(handleLink(n[0],soc[n[0]]))+'" target="_blank" rel="noopener nofollow">'+n[1]+'</a>';
+  });
+  if(sl) h+='<div class="sec"><h2>Sígueme</h2><div class="soc">'+sl+'</div></div>';
+  h+='</div>';
+
+  // --- columna de compra
+  h+='<div class="side">';
+  if(!OFFERS.length) h+='<div class="offer"><p>Este coach todavía no tiene clases disponibles.</p></div>';
+  OFFERS.forEach(function(o){
+    var cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
+    var per = o.kind==='plan_mensual' ? '<small>/ '+(o.duration_days||30)+' días</small>' : '';
+    var inc = o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? o.analyses_included+' análisis por período' : '1 análisis en video');
+    h+='<div class="offer'+(o.is_trial?' trial':'')+'">'
+      + '<div class="k">'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+' · '+esc(inc)+'</div>'
+      + '<h3>'+esc(o.title)+'</h3>'
+      + '<div class="pr">'+(o.price===0?'Gratis':clp(o.price))+per+'</div>'
+      + (o.description?'<p>'+esc(o.description)+'</p>':'')
+      + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
+      + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(o.price===0?'Pedir evaluación':'Comprar')+'</button>'
+      + '</div>';
+  });
+  h+='<div class="guar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>Si el coach no responde dentro de '+(C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+', te devolvemos el dinero. Tu análisis queda guardado para siempre en tu perfil.</span></div>';
+  h+='</div></div>';
+
+  $('wrap').innerHTML=h;
+}
+
+function buy(offerId){
+  // Etapa siguiente: Edge Function "crear-pago" + Mercado Pago.
+  $('soonModal').classList.add('on');
+}
+
+init();
+</script>
+</body>
+</html>

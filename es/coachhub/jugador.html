@@ -470,6 +470,7 @@
       <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
       <a href="/es/coachhub/jugador.html" id="navHub" class="active">Coach Hub</a>
       <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
+      <a href="/es/coachhub/vitrina.html" id="navVit" style="display:none">Mi vitrina</a>
     </nav>
     <div class="nav-auth">
       <span class="rolechip" id="roleChip" style="display:none"></span>
@@ -1102,6 +1103,7 @@ async function init(){
   if(IS_COACH){
     document.getElementById('navDash').style.display='';
     document.getElementById('navAna').style.display='';
+    document.getElementById('navVit').style.display='';
     document.getElementById('navHub').textContent='Mis jugadores';
     document.getElementById('navLinks').classList.add('coach');
   }
