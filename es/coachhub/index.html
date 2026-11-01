@@ -150,21 +150,14 @@
 
   /* ══ HERO ══ */
   .hero {
-    min-height: 100svh; display: flex; align-items: center; justify-content: center; position: relative;
+    min-height: 92svh; display: flex; align-items: center; justify-content: center; position: relative;
     overflow: hidden; padding: calc(var(--nav-height) + 80px) 24px 90px; text-align: center;
   }
   .hero-bg {
     position: absolute; inset: 0;
     background:
-      linear-gradient(180deg, rgba(10,10,10,0.62) 0%, rgba(10,10,10,0.55) 45%, rgba(10,10,10,0.8) 85%, #0a0a0a 100%),
-      url('/es/coachhub/img/hero-clase.jpg') center 35% / cover no-repeat;
-  }
-  @media (max-width: 700px) {
-    .hero-bg {
-      background:
-        linear-gradient(180deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.55) 40%, rgba(10,10,10,0.85) 85%, #0a0a0a 100%),
-        url('/es/coachhub/img/hero-clase-m.jpg') 42% center / cover no-repeat;
-    }
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,212,191,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 15% 85%, rgba(212,197,169,0.03) 0%, transparent 60%);
   }
   .hero-grid {
     position: absolute; inset: 0;
@@ -175,8 +168,6 @@
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 80%);
   }
   .hero-inner { position: relative; z-index: 10; max-width: 860px; }
-  .hero-sub { color: #d0d0d0 !important; }
-  .hero-grid { opacity: .5; }
   .hero-eyebrow {
     font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 5px;
     text-transform: uppercase; color: var(--teal); margin-bottom: 28px; display: inline-flex; align-items: center; gap: 14px;
@@ -287,8 +278,6 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-
-
   /* ══ RESPONSIVE ══ */
   @media (max-width: 900px) {
     .compare-grid { grid-template-columns: 1fr; }
@@ -303,6 +292,15 @@
     .hero-title { font-size: clamp(46px, 13vw, 80px); }
     section { padding: 72px 20px; }
   }
+
+  /* ══ SPONSORS ══ */
+  .sponsors{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0c0c0c;padding:34px 24px}
+  .sponsors-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px 64px;flex-wrap:wrap}
+  .sponsors-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);width:100%;text-align:center;margin-bottom:-6px}
+  .sponsor{display:flex;align-items:center;justify-content:center;height:46px;opacity:.85;transition:opacity .2s}
+  .sponsor:hover{opacity:1}
+  .sponsor img{height:100%;width:auto;display:block}
+  @media (max-width:600px){ .sponsor{height:34px} .sponsors-in{gap:22px 36px} }
 </style>
 </head>
 <body>
@@ -353,7 +351,13 @@
   </div>
 </div>
 
-
+<!-- ══ SPONSORS ══ -->
+<div class="sponsors">
+  <div class="sponsors-in">
+    <div class="sponsors-label">Con el apoyo de</div>
+    <div class="sponsor"><img src="/es/img/sponsors/titleist-blanco.png" alt="Titleist" width="629" height="182" loading="lazy"></div>
+  </div>
+</div>
 
 <!-- ══ PROBLEMA / SOLUCIÓN ══ -->
 <section>
@@ -464,8 +468,6 @@
 </section>
 
 <div class="section-divider"></div>
-
-
 
 <!-- ══ CTA FINAL ══ -->
 <section class="cta-section">
