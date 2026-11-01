@@ -60,6 +60,9 @@
       + '#siteHeader{box-shadow:inset 0 2px 0 rgba(212,197,169,.6)}'
       + '.brand-by{font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:600;'
       +   'letter-spacing:.8px;text-transform:uppercase;color:#8a8a8a;margin-left:6px;white-space:nowrap}'
+      + '.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;'
+      +   'margin-left:6px;border-radius:9px;background:#D4C5A9;color:#1C1709;font-family:"Barlow Condensed",sans-serif;'
+      +   'font-size:11px;font-weight:700;letter-spacing:0;line-height:1;vertical-align:2px}'
       + '@media (max-width:520px){.brand-by{display:none}}'
       + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}';
   }
@@ -125,6 +128,43 @@
     wrap.appendChild(sw);
   }
 
+  // ── 3. Contador de mensajes sin leer (links con data-nav="mensajes") ──
+  var UNREAD = 0;
+  function paintUnread() {
+    var links = document.querySelectorAll('a[data-nav="mensajes"]');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i], b = a.querySelector('.nav-badge');
+      if (UNREAD > 0) {
+        if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; a.appendChild(b); }
+        var txt = UNREAD > 99 ? '99+' : String(UNREAD);
+        if (b.textContent !== txt) b.textContent = txt;
+      } else if (b) {
+        b.parentNode.removeChild(b);
+      }
+    }
+  }
+  function setupUnread(sb, uid) {
+    async function refresh() {
+      try {
+        var r = await sb.from('coach_messages').select('id', { count: 'exact', head: true })
+          .neq('sender_id', uid).is('read_at', null);
+        if (r.error) return;           // la tabla aún no existe: no se muestra nada
+        UNREAD = r.count || 0;
+        paintUnread();
+      } catch (e) {}
+    }
+    window.MGL_REFRESH_UNREAD = refresh;
+    refresh();
+    setInterval(refresh, 60000);
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+    // Algunas páginas arman el menú con JS después: se vuelve a pintar el contador
+    var hdr = document.getElementById('siteHeader');
+    if (hdr && window.MutationObserver) {
+      new MutationObserver(function () { if (UNREAD > 0) paintUnread(); })
+        .observe(hdr, { childList: true, subtree: true });
+    }
+  }
+
   async function decide() {
     try {
       if (!window.supabase || !window.supabase.createClient) {
@@ -143,6 +183,7 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
+      if (PRODUCT === 'hub') setupUnread(sb, uid);
 
       var show = ALWAYS;
       var hubHref = '/es/coachhub/dashboard.html';
