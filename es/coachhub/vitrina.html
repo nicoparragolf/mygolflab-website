@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Mi vitrina · Coach Hub</title>
+<title>Editar perfil · Coach Hub</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
@@ -129,6 +129,9 @@
   .savebar.on{transform:none;visibility:visible}
   .savebar span{align-self:center;color:var(--muted);font-size:14px;margin-right:6px}
 
+  .backlink{display:inline-block;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:14px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .backlink:hover{color:var(--teal)}
+  #ofertas{scroll-margin-top:80px}
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px}
   .modal-bg.on{display:flex}
   .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:620px;padding:22px}
@@ -204,7 +207,6 @@
       <a href="/es/coachhub/clases.html" data-nav="clases">Clases</a>
       <a href="/es/coachhub/mensajes.html" data-nav="mensajes">Mensajes</a>
       <a href="/es/coachhub/analisis.html?from=dash">Analizar swing</a>
-      <a href="/es/coachhub/vitrina.html" class="active">Mi vitrina</a>
     </nav>
     <a class="avatar" id="navAvatar" href="/es/coachhub/cuenta.html" title="Mi cuenta">?</a>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
@@ -379,7 +381,7 @@ function secCred(){
      + '</div></div>';
 }
 function secOffers(){
-  return '<div class="sec"><div class="sec-h"><h2>Lo que vendes</h2><div class="r"><button class="btn primary sm" onclick="openOffer()">+ Nueva oferta</button></div></div>'
+  return '<div class="sec" id="ofertas"><div class="sec-h"><h2>Lo que vendes</h2><div class="r"><button class="btn primary sm" onclick="openOffer()">+ Nueva oferta</button></div></div>'
      + '<p class="sub">Define precio y qué tiene que grabar el alumno. Tip: una evaluación inicial gratis o rebajada es la mejor puerta de entrada (cada alumno puede usarla una sola vez contigo).</p>'
      + '<div class="offers" id="offers"></div></div>';
 }
@@ -395,7 +397,8 @@ function render(){
   if(WIZ){ renderWizard(); return; }
   var perfilUrl = '/es/coaches/perfil.html?c='+encodeURIComponent(P.slug||'');
   var h =
-    '<div class="top"><div><h1>Mi vitrina</h1><p>Tu perfil público para que alumnos de todo el mundo hispano te encuentren y te compren análisis online.</p></div>'
+    '<a class="backlink" href="/es/coachhub/cuenta.html">‹ Mi cuenta</a>'
+  + '<div class="top"><div><h1>Editar perfil</h1><p>Tu perfil público (vitrina): lo que ven los alumnos de todo el mundo hispano para encontrarte y pedirte clases.</p></div>'
   + '<div class="r"><span class="status '+(P.is_published?'on':'off')+'">'+(P.is_published?'Publicada':'Borrador')+'</span>'
   + (IS_NEW?'':'<a class="btn ghost" href="'+perfilUrl+'" target="_blank">Ver perfil público</a>')
   + '</div></div>';
@@ -410,6 +413,8 @@ function render(){
   $('wrap').innerHTML = h;
   renderOffers();
   renderChecklist();
+  // desde Mi cuenta → "Mis ofertas" baja directo a las ofertas
+  if(location.hash==='#ofertas' && !render._scrolled){ render._scrolled=true; var o=$('ofertas'); if(o) setTimeout(function(){ o.scrollIntoView({behavior:'smooth',block:'start'}); },60); }
 }
 
 // ============================================================
