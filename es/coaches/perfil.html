@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
@@ -131,17 +132,12 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
+    <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
-      <a href="/es/index.html">Inicio</a>
-      <a href="/es/coach-ai.html">Coach IA</a>
-      <a href="/es/training.html">Training Lab</a>
       <a href="/es/coaches/" class="active">Coaches</a>
-      <a href="/es/library.html">Biblioteca</a>
-      <a href="/es/pricing.html">Planes</a>
       <span class="nav-sep"></span>
       <a href="/es/coachhub/index.html" class="nav-coach">Soy coach</a>
-      <a href="/es/login.html" class="nav-btn" id="navAuthBtn">Iniciar sesión</a>
+      <a href="/es/coachhub/entrar.html" class="nav-btn" id="navAuthBtn">Iniciar sesión</a>
     </nav>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
   </div>
@@ -292,7 +288,7 @@ function buy(offerId){
   btn.addEventListener('click',function(e){ e.stopPropagation(); btn.classList.toggle('open'); nav.classList.toggle('open'); });
   document.addEventListener('click',function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.classList.remove('open'); } });
   sb.auth.getSession().then(function(r){
-    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi dashboard'; a.href='/es/dashboard.html'; }
+    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
   });
 })();
 init();

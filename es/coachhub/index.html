@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coach Hub — El historial de tus alumnos, en un solo lugar | MyGolfLab</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
@@ -308,20 +309,18 @@
 <!-- HEADER — unificado con el resto del sitio -->
 <header id="siteHeader">
   <div class="nav-left">
-    <a href="/es/index.html" class="logo">MY<span>GOLF</span>LAB</a>
-    <a href="/es/coachhub/index.html" class="nav-cta active"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg>Coach Hub</a>
+    <a href="/es/coachhub/index.html" class="logo">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
   </div>
   <div class="nav-collapse">
     <ul class="nav-links">
-      <li><a href="/es/coachhub/index.html" class="active">Coach Hub</a></li>
+      <li><a href="/es/coachhub/index.html" class="active">Producto</a></li>
       <li><a href="/es/coachhub/pricing.html">Planes</a></li>
       <li><a href="/es/index.html">Para jugadores</a></li>
-      <li><a href="/es/coaches/">Coaches</a></li>
-      <li><a href="/es/about.html">Quiénes Somos</a></li>
+      <li><a href="/es/coaches/">Vitrina de coaches</a></li>
     </ul>
     <div class="nav-auth" id="header-auth">
-      <a href="/es/login.html" class="btn-outline">Iniciar Sesión</a>
-      <a href="/es/login.html" class="btn-primary">Crear cuenta</a>
+      <a href="/es/coachhub/entrar.html" class="btn-outline">Iniciar Sesión</a>
+      <a href="/es/coachhub/entrar.html?registro=coach" class="btn-primary">Crear cuenta</a>
     </div>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menú" aria-expanded="false">
@@ -346,7 +345,7 @@
         Ver planes
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <a href="/es/login.html" class="btn-hero ghost">Crear cuenta de coach</a>
+      <a href="/es/coachhub/entrar.html?registro=coach" class="btn-hero ghost">Crear cuenta de coach</a>
     </div>
     <p class="hero-note">Un espacio compartido entre coach y alumno</p>
   </div>
@@ -477,7 +476,7 @@
     <p class="cta-desc">Coach Hub es un producto separado de MyGolfLab, pensado para coaches. Revisa los planes y elige el que se ajusta al tamaño de tu cartera de alumnos.</p>
     <div class="cta-actions">
       <a href="/es/coachhub/pricing.html" class="btn-hero teal">Ver planes de Coach Hub</a>
-      <a href="/es/login.html" class="btn-hero ghost">Crear cuenta de coach</a>
+      <a href="/es/coachhub/entrar.html?registro=coach" class="btn-hero ghost">Crear cuenta de coach</a>
     </div>
     <p class="cta-note">Storage incluido en todos los planes · Sin cargos ocultos por GB</p>
   </div>
@@ -487,14 +486,14 @@
 <footer class="footer-expanded">
   <div class="footer-top">
     <div class="footer-brand">
-      <div class="footer-logo">MY<span>GOLF</span>LAB <span style="color:var(--text-muted)">· COACH HUB</span></div>
+      <div class="footer-logo">COACH<span>HUB</span> <span style="color:var(--text-muted)">· by MyGolfLab</span></div>
       <p>El historial completo de tus alumnos, en un solo lugar. Producto B2B de MyGolfLab para coaches de golf.</p>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Coach Hub</div>
       <a href="/es/coachhub/index.html">Producto</a>
       <a href="/es/coachhub/pricing.html">Planes y precios</a>
-      <a href="/es/login.html">Crear cuenta de coach</a>
+      <a href="/es/coachhub/entrar.html?registro=coach">Crear cuenta de coach</a>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">MyGolfLab</div>
@@ -504,8 +503,8 @@
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Cuenta</div>
-      <a href="/es/login.html">Iniciar Sesión</a>
-      <a href="/es/login.html">Crear Cuenta</a>
+      <a href="/es/coachhub/entrar.html">Iniciar Sesión</a>
+      <a href="/es/coachhub/entrar.html?registro=coach">Crear Cuenta</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -547,8 +546,8 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
       : '<span class="nav-avatar-initials">' + initials + '</span>';
 
     document.getElementById('header-auth').innerHTML =
-      '<a href="/es/coachhub/jugador.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
-      '<a href="/es/coachhub/jugador.html" class="btn-outline">Ir a mi Coach Hub</a>' +
+      '<a href="/es/coachhub/dashboard.html" class="nav-avatar" title="' + name + '">' + avatarInner + '</a>' +
+      '<a href="/es/coachhub/dashboard.html" class="btn-outline">Ir a mi Coach Hub</a>' +
       '<a href="#" class="btn-primary" data-logout>Cerrar Sesión</a>';
 
     document.querySelectorAll('[data-logout]').forEach(btn => {

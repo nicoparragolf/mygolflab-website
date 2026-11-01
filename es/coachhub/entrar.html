@@ -42,7 +42,7 @@
   .logo-icon{width:60px;height:60px;margin:0 auto .9rem;position:relative}
   .logo-icon svg{width:100%;height:100%}
   .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.06em}
-  .logo-text span{color:var(--teal)}
+  .logo-text span{color:var(--gold)}
   .logo-tag{font-size:.82rem;color:var(--muted2);margin-top:.3rem}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:1.8rem}
@@ -80,6 +80,25 @@
   .gate p{color:var(--muted);font-size:.9rem}
 
   .footer{text-align:center;margin-top:1.3rem;font-size:.75rem;color:var(--muted2)}
+  .footer a{color:var(--muted);text-decoration:underline}
+
+  .tabs{display:flex;gap:4px;background:var(--elevated);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:1.3rem}
+  .tab{flex:1;padding:.6rem;border:none;background:transparent;color:var(--muted2);font-family:'Barlow Condensed';font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;border-radius:9px;cursor:pointer}
+  .tab.active{background:#242424;color:var(--text)}
+
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .role-card{display:flex;flex-direction:column;align-items:flex-start;gap:.2rem;padding:.8rem .9rem;background:var(--elevated);border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:left;color:var(--text);font-family:'Barlow'}
+  .role-card:hover{border-color:var(--muted2)}
+  .role-card.active{border-color:var(--gold);background:rgba(212,197,169,.07)}
+  .role-title{font-family:'Barlow Condensed';font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.04em}
+  .role-card.active .role-title{color:var(--gold)}
+  .role-desc{font-size:.76rem;color:var(--muted2);line-height:1.3}
+  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .hint{font-size:.76rem;color:var(--muted2);margin-top:.45rem;line-height:1.4}
+
+  .done{text-align:center;padding:1.2rem .4rem}
+  .done h2{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.04em;margin-bottom:.6rem}
+  .done p{color:var(--muted);font-size:.9rem;line-height:1.5}
 </style>
 </head>
 <body>
@@ -112,34 +131,94 @@
     <!-- Login / registro, solo si no hay sesión -->
     <div id="authBox" style="display:none">
 
+      <div class="tabs" id="tabs">
+        <button type="button" class="tab active" data-tab="login">Entrar</button>
+        <button type="button" class="tab" data-tab="register">Crear cuenta</button>
+      </div>
+
       <div class="msg error" id="err"><span id="errText"></span></div>
 
-      <form id="loginForm" novalidate>
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" required>
-        </div>
-        <div class="field">
-          <label>Contraseña</label>
-          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
-          <a href="/es/recuperar.html?next=coachhub" class="forgot">¿Olvidaste tu contraseña?</a>
-        </div>
-        <button type="submit" class="btn btn-primary" id="loginBtn">Entrar a mi Coach Hub</button>
-      </form>
+      <!-- ENTRAR -->
+      <div id="loginBox">
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label>Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+            <a href="/es/recuperar.html?next=coachhub" class="forgot">¿Olvidaste tu contraseña?</a>
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">Entrar a mi Coach Hub</button>
+        </form>
 
-      <div class="divider"><span>o</span></div>
+        <div class="divider"><span>o</span></div>
 
-      <button type="button" class="btn btn-google" id="googleBtn">
-        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        Continuar con Google
-      </button>
+        <button type="button" class="btn btn-google" id="googleBtn">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continuar con Google
+        </button>
+      </div>
 
-      <p class="switch">¿No tienes cuenta todavía? Pídele a tu coach que agregue tu email a tu ficha, o <a id="goRegister">créala aquí</a>.</p>
+      <!-- CREAR CUENTA -->
+      <div id="registerBox" style="display:none">
+        <form id="registerForm" novalidate>
+          <div class="field">
+            <label>¿Cómo vas a usar Coach Hub?</label>
+            <div class="role-grid">
+              <button type="button" class="role-card active" data-role="coach">
+                <span class="role-title">Soy coach</span>
+                <span class="role-desc">Gestiono alumnos y doy clases online</span>
+              </button>
+              <button type="button" class="role-card" data-role="jugador">
+                <span class="role-title">Soy alumno</span>
+                <span class="role-desc">Tomo clases con un coach</span>
+              </button>
+            </div>
+            <p class="hint" id="roleHint">Al entrar vas a completar tu perfil de coach para aparecer en la vitrina.</p>
+          </div>
+
+          <div class="name-grid">
+            <div class="field">
+              <label>Nombre</label>
+              <input type="text" id="rFirst" placeholder="Diego" autocomplete="given-name" required>
+            </div>
+            <div class="field">
+              <label>Apellido</label>
+              <input type="text" id="rLast" placeholder="Vargas" autocomplete="family-name" required>
+            </div>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="rEmail" placeholder="tu@email.com" autocomplete="email" required>
+          </div>
+          <div class="field">
+            <label>Contraseña</label>
+            <input type="password" id="rPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" required>
+          </div>
+          <button type="submit" class="btn btn-primary" id="registerBtn">Crear mi cuenta</button>
+        </form>
+
+        <div class="divider"><span>o</span></div>
+
+        <button type="button" class="btn btn-google" id="googleRegBtn">
+          <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continuar con Google
+        </button>
+      </div>
+
+      <!-- CONFIRMACIÓN DE EMAIL -->
+      <div class="done" id="doneBox" style="display:none">
+        <h2>Revisa tu email</h2>
+        <p>Te enviamos un link de confirmación a <b id="doneEmail"></b>. Ábrelo para activar tu cuenta y entrar a tu Coach Hub.</p>
+      </div>
+
     </div>
 
   </div>
 
-  <p class="footer">Coach Hub y MyGolfLab comparten tu cuenta — son productos distintos, un solo login.</p>
+  <p class="footer">Coach Hub y MyGolfLab comparten tu cuenta — son productos distintos, un solo login.<br>¿Buscas entrenar por tu cuenta con IA? <a href="/es/login.html">Entra a MyGolfLab</a></p>
 </div>
 
 <script>
@@ -166,9 +245,26 @@
     else showAuth();
   });
 
-  sb.auth.onAuthStateChange((event, session) => {
-    if(event === 'SIGNED_IN' && session) goToHub();
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'SIGNED_IN' && session){
+      await applyPendingRole(session.user.id);
+      goToHub();
+    }
   });
+
+  // Google no permite mandar metadata en el registro: el rol elegido se guarda
+  // antes del redirect y se aplica al volver (solo sube de jugador a coach).
+  async function applyPendingRole(userId){
+    var pending = localStorage.getItem('mgl_pending_role');
+    if(pending !== 'coach') return;
+    localStorage.removeItem('mgl_pending_role');
+    try{
+      var r = await sb.from('profiles').select('role').eq('id', userId).maybeSingle();
+      if(r.data && r.data.role === 'jugador'){
+        await sb.from('profiles').update({ role: 'coach' }).eq('id', userId);
+      }
+    }catch(e){ console.warn('applyPendingRole', e); }
+  }
 
   function showError(msg){
     document.getElementById('errText').textContent = msg;
@@ -198,18 +294,88 @@
     // si no hay error, onAuthStateChange se encarga del redirect
   });
 
-  document.getElementById('googleBtn').addEventListener('click', async () => {
+  async function googleSignIn(guardarRol){
+    if(guardarRol) localStorage.setItem('mgl_pending_role', selectedRole);
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html' }
     });
     if(error) showError('Error con Google: ' + error.message);
-  });
+  }
+  document.getElementById('googleBtn').addEventListener('click', () => googleSignIn(false));
+  document.getElementById('googleRegBtn').addEventListener('click', () => googleSignIn(true));
 
-  // Registro rápido: usa el mismo formulario de MyGolfLab (ya crea el rol
-  // "jugador" por defecto) y vuelve derecho a Coach Hub en vez del dashboard.
-  document.getElementById('goRegister').addEventListener('click', () => {
-    window.location.href = '/es/login.html?next=coachhub';
+  // ── TABS: Entrar / Crear cuenta ──
+  function setTab(tab){
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.getElementById('loginBox').style.display = tab === 'login' ? '' : 'none';
+    document.getElementById('registerBox').style.display = tab === 'register' ? '' : 'none';
+    document.getElementById('err').classList.remove('show');
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
+
+  // ── SELECTOR DE ROL (Coach Hub registra coaches y alumnos) ──
+  let selectedRole = 'coach';
+  function setRole(role){
+    selectedRole = role;
+    document.querySelectorAll('.role-card').forEach(c => c.classList.toggle('active', c.dataset.role === role));
+    document.getElementById('roleHint').textContent = role === 'coach'
+      ? 'Al entrar vas a completar tu perfil de coach para aparecer en la vitrina.'
+      : 'Si tu coach ya agregó tu email a tu ficha, la vas a ver al entrar.';
+  }
+  document.querySelectorAll('.role-card').forEach(c => c.addEventListener('click', () => setRole(c.dataset.role)));
+
+  // ?registro=coach o ?registro=alumno abre directo el formulario de registro
+  const qp = new URLSearchParams(window.location.search);
+  if(qp.get('registro')){
+    setTab('register');
+    setRole(qp.get('registro') === 'alumno' ? 'jugador' : 'coach');
+  }
+
+  // ── CREAR CUENTA ──
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.getElementById('err').classList.remove('show');
+    const first = document.getElementById('rFirst').value.trim();
+    const last = document.getElementById('rLast').value.trim();
+    const email = document.getElementById('rEmail').value.trim();
+    const password = document.getElementById('rPassword').value;
+    if(!first || !last || !email || !password){ showError('Completa nombre, apellido, email y contraseña.'); return; }
+    if(password.length < 8){ showError('La contraseña debe tener al menos 8 caracteres.'); return; }
+
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true; btn.textContent = 'Creando...';
+    const { data, error } = await sb.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: {
+          first_name: first,
+          last_name: last,
+          full_name: first + ' ' + last,
+          role: selectedRole,
+          plan: 'Starter'
+        },
+        emailRedirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html'
+      }
+    });
+    btn.disabled = false; btn.textContent = 'Crear mi cuenta';
+
+    if(error){
+      const msg = error.message.includes('already registered')
+        ? 'Este email ya tiene cuenta (de MyGolfLab o Coach Hub). Usa "Entrar" con el mismo email.'
+        : error.message.includes('Password should be at least')
+        ? 'La contraseña debe tener al menos 8 caracteres.'
+        : 'No se pudo crear la cuenta. Inténtalo de nuevo.';
+      showError(msg);
+      return;
+    }
+    // Si el proyecto no exige confirmar email, ya hay sesión y onAuthStateChange redirige
+    if(data && data.session) return;
+    document.getElementById('tabs').style.display = 'none';
+    document.getElementById('registerBox').style.display = 'none';
+    document.getElementById('doneEmail').textContent = email;
+    document.getElementById('doneBox').style.display = '';
   });
 </script>
 </body>
