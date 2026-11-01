@@ -355,9 +355,10 @@ var USER=null, PLAYER=null, VIDEOS=[], EVENT_TITLE={};
 // los saltos de tiempo se encadenan para que la barra no se trabe.
 var PANES = { A:{el:null, src:null, file:null, media:null, ready:false, a:0, b:null, target:null, seeking:false, seekT:0, drag:false},
               B:{el:null, src:null, file:null, media:null, ready:false, a:0, b:null, target:null, seeking:false, seekT:0, drag:false} };
-var VIEW = {z:1, x:0, y:0};   // zoom y desplazamiento del escenario
+// zoom y desplazamiento POR VIDEO: al comparar, cada video se acerca por separado
+var VIEWS = {A:{z:1,x:0,y:0}, B:{z:1,x:0,y:0}};
 var PTRS = {};                // dedos/punteros activos sobre el escenario
-var PINCH = null, PAN = null, GESTURE_LOCK = false;
+var PINCH = null, PAN = null, GESTURE_LOCK = false, PINCH_START = null;
 var COMPARE = false;
 var PLAYING = false;
 var SPEED = 1;
@@ -732,17 +733,23 @@ function lw(){ return Math.max(3, Math.round(canvas.width/170)); }
 function loop(){
   ctx.setTransform(1,0,0,1,0,0);
   ctx.fillStyle='#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.setTransform(VIEW.z,0,0,VIEW.z,VIEW.x,VIEW.y);
   LAYOUT.forEach(function(L){
-    var v = PANES[L.k].el;
-    if(v.readyState>=2){ try{ ctx.drawImage(v, L.x, L.y, L.w, L.h); }catch(e){} }
+    var V = VIEWS[L.k], v = PANES[L.k].el;
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.beginPath(); ctx.rect(L.x, L.y, L.w, L.h); ctx.clip();
+    ctx.setTransform(V.z,0,0,V.z, L.x+V.x, L.y+V.y);
+    if(v.readyState>=2){ try{ ctx.drawImage(v, 0, 0, L.w, L.h); }catch(e){} }
+    // los dibujos se guardan en coordenadas del video al que pertenecen
+    SHAPES.forEach(function(sh){ if((sh.k||'A')===L.k) drawShape(sh); });
+    if(CUR && (CUR.k||'A')===L.k) drawShape(CUR);
+    if(ANGLE_WAIT && (ANGLE_WAIT.k||'A')===L.k) drawShape(ANGLE_WAIT);
+    ctx.restore();
   });
-  SHAPES.forEach(drawShape);
-  if(CUR) drawShape(CUR);
-  if(ANGLE_WAIT) drawShape(ANGLE_WAIT);
   ctx.setTransform(1,0,0,1,0,0);
-  if(LAYOUT.length>1 && VIEW.z<1.01){
+  if(LAYOUT.length>1){
     LAYOUT.forEach(function(L){
+      if(VIEWS[L.k].z>1.01) return;
       ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(L.x+10, 10, 30, 26);
       ctx.fillStyle='#D4C5A9'; ctx.font='bold 18px Barlow, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText(L.k, L.x+25, 23);
@@ -843,16 +850,28 @@ function canvasPx(e){
   var r=canvas.getBoundingClientRect();
   return [ (e.clientX-r.left)*canvas.width/r.width, (e.clientY-r.top)*canvas.height/r.height ];
 }
-function toWorld(p){ return [ (p[0]-VIEW.x)/VIEW.z, (p[1]-VIEW.y)/VIEW.z ]; }
-
-function clampView(){
-  var W=canvas.width, H=canvas.height;
-  VIEW.z=Math.max(1, Math.min(6, VIEW.z));
-  VIEW.x=Math.min(0, Math.max(W-W*VIEW.z, VIEW.x));
-  VIEW.y=Math.min(0, Math.max(H-H*VIEW.z, VIEW.y));
-  $('zoomReset').classList.toggle('on', VIEW.z>1.01);
+// ¿Sobre qué video está este punto del canvas?
+function paneAt(p){
+  for(var i=0;i<LAYOUT.length;i++){ var L=LAYOUT[i]; if(p[0]>=L.x && p[0]<=L.x+L.w) return L; }
+  if(!LAYOUT.length) return null;
+  return p[0] < LAYOUT[0].x ? LAYOUT[0] : LAYOUT[LAYOUT.length-1];
 }
-function resetZoom(){ VIEW.z=1; VIEW.x=0; VIEW.y=0; clampView(); }
+function paneByKey(k){ for(var i=0;i<LAYOUT.length;i++) if(LAYOUT[i].k===k) return LAYOUT[i]; return LAYOUT[0]; }
+// punto del canvas → coordenadas dentro del video L (sin zoom)
+function toLocal(p, L){ var V=VIEWS[L.k]; return [ (p[0]-L.x-V.x)/V.z, (p[1]-L.y-V.y)/V.z ]; }
+
+function clampOne(L){
+  var V=VIEWS[L.k];
+  V.z=Math.max(1, Math.min(6, V.z));
+  V.x=Math.min(0, Math.max(L.w-L.w*V.z, V.x));
+  V.y=Math.min(0, Math.max(L.h-L.h*V.z, V.y));
+}
+function clampView(){
+  LAYOUT.forEach(clampOne);
+  var any = LAYOUT.some(function(L){ return VIEWS[L.k].z>1.01; });
+  $('zoomReset').classList.toggle('on', any);
+}
+function resetZoom(){ ['A','B'].forEach(function(k){ VIEWS[k]={z:1,x:0,y:0}; }); clampView(); }
 $('zoomReset').onclick=resetZoom;
 
 function ptrList(){ return Object.keys(PTRS).map(function(id){ return PTRS[id]; }); }
@@ -875,26 +894,31 @@ canvas.addEventListener('pointerdown', function(e){
     cancelStroke(); PAN=null;
     var a=list[0], b=list[1];
     var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
-    PINCH={ d0:Math.max(10,Math.hypot(a[0]-b[0],a[1]-b[1])), z0:VIEW.z,
-            wx:(mx-VIEW.x)/VIEW.z, wy:(my-VIEW.y)/VIEW.z };
+    // el zoom se aplica solo al video donde empezó el pellizco
+    var L=paneAt(PINCH_START||a), V=VIEWS[L.k];
+    PINCH={ k:L.k, d0:Math.max(10,Math.hypot(a[0]-b[0],a[1]-b[1])), z0:V.z,
+            wx:(mx-L.x-V.x)/V.z, wy:(my-L.y-V.y)/V.z };
     GESTURE_LOCK=true;
     return;
   }
   if(GESTURE_LOCK) return;
 
   var px=PTRS[e.pointerId];
+  PINCH_START=px;
+  var Lp=paneAt(px), Vp=VIEWS[Lp.k];
   if(!TOOL){
-    // sin herramienta: un dedo mueve la imagen cuando hay zoom
-    if(VIEW.z>1.01) PAN={sx:px[0], sy:px[1], x0:VIEW.x, y0:VIEW.y};
+    // sin herramienta: un dedo mueve la imagen de ESE video cuando tiene zoom
+    if(Vp.z>1.01) PAN={k:Lp.k, sx:px[0], sy:px[1], x0:Vp.x, y0:Vp.y};
     return;
   }
-  var p=toWorld(px), w=lw()/VIEW.z;
-  if(TOOL==='angle'){
-    if(ANGLE_WAIT){ ANGLE_WAIT.pts[2]=p; CUR=ANGLE_WAIT; ANGLE_WAIT=null; }
-    else CUR={t:'angle', c:COLOR, w:w, pts:[p,p]};
+  if(TOOL==='angle' && ANGLE_WAIT){
+    var La=paneByKey(ANGLE_WAIT.k||'A');
+    ANGLE_WAIT.pts[2]=toLocal(px, La); CUR=ANGLE_WAIT; ANGLE_WAIT=null;
     return;
   }
-  CUR={t:TOOL, c:COLOR, w:w, pts:[p,p]};
+  var p=toLocal(px, Lp), w=lw()/Vp.z;
+  if(TOOL==='angle'){ CUR={t:'angle', k:Lp.k, c:COLOR, w:w, pts:[p,p]}; return; }
+  CUR={t:TOOL, k:Lp.k, c:COLOR, w:w, pts:[p,p]};
 });
 
 canvas.addEventListener('pointermove', function(e){
@@ -907,20 +931,22 @@ canvas.addEventListener('pointermove', function(e){
     var a=list[0], b=list[1];
     var d=Math.hypot(a[0]-b[0],a[1]-b[1]);
     var mx=(a[0]+b[0])/2, my=(a[1]+b[1])/2;
-    VIEW.z=Math.max(1, Math.min(6, PINCH.z0*d/PINCH.d0));
-    VIEW.x=mx-PINCH.wx*VIEW.z; VIEW.y=my-PINCH.wy*VIEW.z;
+    var L=paneByKey(PINCH.k), V=VIEWS[PINCH.k];
+    V.z=Math.max(1, Math.min(6, PINCH.z0*d/PINCH.d0));
+    V.x=mx-L.x-PINCH.wx*V.z; V.y=my-L.y-PINCH.wy*V.z;
     clampView();
     return;
   }
   if(PAN){
-    var q=PTRS[e.pointerId];
-    VIEW.x=PAN.x0+(q[0]-PAN.sx); VIEW.y=PAN.y0+(q[1]-PAN.sy);
+    var q=PTRS[e.pointerId], Vq=VIEWS[PAN.k];
+    Vq.x=PAN.x0+(q[0]-PAN.sx); Vq.y=PAN.y0+(q[1]-PAN.sy);
     clampView();
     return;
   }
   if(!CUR) return;
-  var p=toWorld(PTRS[e.pointerId]);
-  if(CUR.t==='pen'){ var l=CUR.pts[CUR.pts.length-1]; if(Math.abs(l[0]-p[0])+Math.abs(l[1]-p[1])>2/VIEW.z) CUR.pts.push(p); }
+  var Lc=paneByKey(CUR.k||'A'), Vc=VIEWS[Lc.k];
+  var p=toLocal(PTRS[e.pointerId], Lc);
+  if(CUR.t==='pen'){ var l=CUR.pts[CUR.pts.length-1]; if(Math.abs(l[0]-p[0])+Math.abs(l[1]-p[1])>2/Vc.z) CUR.pts.push(p); }
   else if(CUR.t==='angle'){ if(CUR.pts.length===3) CUR.pts[2]=p; else CUR.pts[1]=p; }
   else CUR.pts[1]=p;
 });
@@ -928,7 +954,7 @@ canvas.addEventListener('pointermove', function(e){
 function endStroke(){
   if(!CUR) return;
   var s=CUR; CUR=null;
-  var min=8/VIEW.z;
+  var min=8/VIEWS[s.k||'A'].z;
   if(s.t==='angle' && s.pts.length<3){
     // primer brazo dibujado: espera el segundo toque
     var a=s.pts[0], b=s.pts[1];
@@ -959,9 +985,11 @@ canvas.addEventListener('wheel', function(e){
   if(!LAYOUT.length) return;
   e.preventDefault();
   var c=canvasPx(e), f=Math.exp(-e.deltaY*0.0022);
-  var wx=(c[0]-VIEW.x)/VIEW.z, wy=(c[1]-VIEW.y)/VIEW.z;
-  VIEW.z=Math.max(1, Math.min(6, VIEW.z*f));
-  VIEW.x=c[0]-wx*VIEW.z; VIEW.y=c[1]-wy*VIEW.z;
+  // zoom solo en el video que está bajo el cursor
+  var L=paneAt(c), V=VIEWS[L.k];
+  var wx=(c[0]-L.x-V.x)/V.z, wy=(c[1]-L.y-V.y)/V.z;
+  V.z=Math.max(1, Math.min(6, V.z*f));
+  V.x=c[0]-L.x-wx*V.z; V.y=c[1]-L.y-wy*V.z;
   clampView();
 }, {passive:false});
 // Safari iOS: que el pellizco no haga zoom a toda la página
