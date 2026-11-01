@@ -16,7 +16,7 @@
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
     --border:#262626; --border2:#333;
-    --teal:#2dd4bf; --teal-dim:#1a7d72; --gold:#D4C5A9;
+    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
     --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -43,13 +43,13 @@
   .hero p{color:var(--muted);font-size:17px;margin-top:12px;max-width:620px;line-height:1.5}
   .steps{display:flex;gap:26px;margin-top:22px;flex-wrap:wrap}
   .steps div{display:flex;gap:10px;align-items:center;color:#cfcfcf;font-size:14.5px}
-  .steps b{width:28px;height:28px;border-radius:50%;background:rgba(45,212,191,.12);border:1px solid var(--teal-dim);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700}
+  .steps b{width:28px;height:28px;border-radius:50%;background:rgba(212,197,169,.12);border:1px solid var(--teal-dim);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700}
 
   .wrap{max-width:1200px;margin:0 auto;padding:0 20px 80px}
   .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:16px 0 20px;border-top:1px solid var(--border)}
   .chips{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:260px}
   .chip{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:7px 13px;font-size:14px;cursor:pointer;user-select:none}
-  .chip.on{background:rgba(45,212,191,.12);border-color:var(--teal);color:var(--teal)}
+  .chip.on{background:rgba(212,197,169,.12);border-color:var(--teal);color:var(--teal)}
   select{background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;font-size:14px;outline:none}
   .count{color:var(--muted);font-size:14px;margin-bottom:14px}
 
@@ -60,7 +60,7 @@
   .ph{width:64px;height:64px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:26px;color:var(--gold);flex:0 0 auto}
   .ph img{width:100%;height:100%;object-fit:cover}
   .card h3{font-family:'Barlow Condensed';font-weight:700;font-size:21px;line-height:1.1;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-  .ver{font-size:11px;letter-spacing:.5px;text-transform:uppercase;background:var(--teal);color:#04211d;border-radius:10px;padding:1px 7px}
+  .ver{font-size:11px;letter-spacing:.5px;text-transform:uppercase;background:var(--teal);color:#1C1709;border-radius:10px;padding:1px 7px}
   .card .sm{color:var(--muted);font-size:13.5px;margin-top:3px}
   .stars{color:var(--gold)}
   .card .hl{color:#d0d0d0;font-size:14.5px;line-height:1.45;min-height:42px}
@@ -72,15 +72,15 @@
   .resp{color:var(--muted);font-size:13px;text-align:right}
 
   .empty{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:40px 20px;text-align:center;color:var(--muted);line-height:1.6}
-  .cta{margin-top:40px;background:linear-gradient(145deg,#12302c,#141414 65%);border:1px solid var(--teal-dim);border-radius:20px;padding:26px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .cta{margin-top:40px;background:linear-gradient(145deg,#2B2619,#141414 65%);border:1px solid var(--teal-dim);border-radius:20px;padding:26px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
   .cta h2{font-family:'Barlow Condensed';font-weight:700;font-size:24px}
   .cta p{color:var(--muted);font-size:15px;margin-top:4px}
-  .cta a{margin-left:auto;background:var(--teal);color:#04211d;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px}
-  .finder{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(145deg,#12302c,#141414 65%);border:1px solid var(--teal-dim);border-radius:18px;padding:20px 22px;margin-bottom:22px}
+  .cta a{margin-left:auto;background:var(--teal);color:#1C1709;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px}
+  .finder{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:linear-gradient(145deg,#2B2619,#141414 65%);border:1px solid var(--teal-dim);border-radius:18px;padding:20px 22px;margin-bottom:22px}
   .finder h2{font-family:'Barlow Condensed';font-weight:700;font-size:22px}
   .finder p{color:var(--muted);font-size:14.5px;margin-top:3px}
   .finder .b{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
-  .bt{background:var(--teal);color:#04211d;border:none;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
+  .bt{background:var(--teal);color:#1C1709;border:none;border-radius:11px;padding:12px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;white-space:nowrap}
   .bt.gh{background:none;color:var(--text);border:1px solid var(--border2)}
   .recs{margin-bottom:26px}
   .recs h2{font-family:'Barlow Condensed';font-weight:700;font-size:22px;margin-bottom:4px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -122,7 +122,7 @@
   .cc-name h3{font-family:'Bebas Neue';font-size:32px;letter-spacing:.5px;line-height:1;font-weight:400;display:flex;align-items:center;gap:8px}
   .cc-name .sm{color:#cfcfcf;font-size:13.5px;margin-top:5px}
   .cc-badge{position:absolute;top:12px;z-index:2;font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;border-radius:20px;padding:4px 10px}
-  .cc-badge.v{left:12px;background:var(--teal);color:#04211d}
+  .cc-badge.v{left:12px;background:var(--teal);color:#1C1709}
   .cc-badge.t{right:12px;background:var(--gold);color:#1a160d}
   .cc-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
   .cc-body .why{font-size:13px;color:var(--gold);line-height:1.4}
@@ -188,7 +188,7 @@
 </section>
 
 <div class="wrap">
-  <div id="demoBar" style="display:none;align-items:center;gap:10px;background:rgba(212,197,169,.1);border:1px solid rgba(212,197,169,.4);color:var(--gold);border-radius:12px;padding:11px 14px;font-size:14px;margin-bottom:18px"><b>Vista de ejemplo.</b> Estos coaches son ficticios y solo se ven con ?demo=1.</div>
+  <div id="demoBar" style="display:none;align-items:center;gap:10px;background:rgba(240,184,96,.1);border:1px solid rgba(240,184,96,.4);color:var(--gold);border-radius:12px;padding:11px 14px;font-size:14px;margin-bottom:18px"><b>Vista de ejemplo.</b> Estos coaches son ficticios y solo se ven con ?demo=1.</div>
   <div id="finderBox"></div>
   <div class="filters">
     <div class="chips" id="fSpec"></div>
