@@ -74,7 +74,10 @@
     var a = document.createElement('a');
     a.href = href;
     a.textContent = label;
-    if (activeClass) { a.className = activeClass; a.setAttribute('aria-current', 'page'); }
+    if (activeClass) a.className = activeClass;
+    // Solo el producto en el que estás es la "página actual" (se oculta en el botón compacto).
+    // OJO: go-hub es solo color; si lleva aria-current, el botón queda vacío.
+    if (activeClass === 'on-mgl' || activeClass === 'on-hub') a.setAttribute('aria-current', 'page');
     return a;
   }
 

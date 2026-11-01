@@ -851,6 +851,23 @@
     .nav-links a { font-size: 13.5px; letter-spacing: 0.02em; }
   }
 
+  /* ══ PUENTE A COACH HUB (dorado = color de Coach Hub) ══ */
+  .ch-band{padding:0 24px 96px}
+  .ch-band-in{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .ch-card{border:1px solid rgba(212,197,169,.3);border-radius:18px;padding:32px;
+    background:linear-gradient(135deg,rgba(212,197,169,.09),rgba(212,197,169,.015));display:flex;flex-direction:column;align-items:flex-start}
+  .ch-card.alt{background:#0f0f0f;border-color:var(--border)}
+  .ch-tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    color:#D4C5A9;border:1px solid rgba(212,197,169,.4);border-radius:20px;padding:3px 11px;margin-bottom:14px}
+  .ch-card h3{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;line-height:1.02;margin-bottom:10px}
+  .ch-card p{color:var(--text-muted);font-size:15px;line-height:1.6;margin-bottom:22px;max-width:440px}
+  .ch-card a{margin-top:auto;display:inline-flex;align-items:center;gap:6px;padding:13px 26px;border-radius:8px;
+    font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none}
+  .ch-card a.gold{background:#D4C5A9;color:#1C1709}
+  .ch-card a.line{border:1px solid rgba(212,197,169,.45);color:#D4C5A9}
+  .ch-card a:hover{opacity:.88}
+  @media (max-width:760px){.ch-band-in{grid-template-columns:1fr}.ch-card{padding:26px}}
+
   /* ══ SPONSORS ══ */
   .sponsors{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0c0c0c;padding:34px 24px}
   .sponsors-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px 64px;flex-wrap:wrap}
@@ -1176,6 +1193,24 @@
       <a href="/es/training.html" class="btn-hero ghost">Explorar Training Lab</a>
     </div>
     <p class="cta-note">7 días gratis · Cancela cuando quieras</p>  </div>
+</section>
+
+<!-- ══ PUENTE A COACH HUB ══ -->
+<section class="ch-band">
+  <div class="ch-band-in reveal">
+    <div class="ch-card">
+      <span class="ch-tag">Coach Hub</span>
+      <h3>¿Prefieres un coach de verdad?</h3>
+      <p>Elige un coach, mándale tu swing desde el celular y recibe un análisis grabado con su voz, drills y seguimiento. En español, desde cualquier país.</p>
+      <a class="gold" href="/es/coaches/">Ver coaches &rsaquo;</a>
+    </div>
+    <div class="ch-card alt">
+      <span class="ch-tag">Para coaches</span>
+      <h3>¿Eres coach?</h3>
+      <p>Toda la información de tus alumnos en un solo lugar, análisis de swing con tu voz y una vitrina para dar clases online.</p>
+      <a class="line" href="/es/coachhub/index.html">Conoce Coach Hub &rsaquo;</a>
+    </div>
+  </div>
 </section>
 
 <!-- ══ FOOTER ══ -->
