@@ -849,6 +849,15 @@
     .nav-links { gap: 16px; }
     .nav-links a { font-size: 13.5px; letter-spacing: 0.02em; }
   }
+
+  /* ══ SPONSORS ══ */
+  .sponsors{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0c0c0c;padding:34px 24px}
+  .sponsors-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px 64px;flex-wrap:wrap}
+  .sponsors-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);width:100%;text-align:center;margin-bottom:-6px}
+  .sponsor{display:flex;align-items:center;justify-content:center;height:46px;opacity:.85;transition:opacity .2s}
+  .sponsor:hover{opacity:1}
+  .sponsor img{height:100%;width:auto;display:block}
+  @media (max-width:600px){ .sponsor{height:34px} .sponsors-in{gap:22px 36px} }
 </style>
 </head>
 <body>
@@ -907,6 +916,14 @@
   <div class="scroll-hint">
     <span>Scroll</span>
     <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- ══ SPONSORS ══ -->
+<div class="sponsors">
+  <div class="sponsors-in">
+    <div class="sponsors-label">Con el apoyo de</div>
+    <div class="sponsor"><img src="/es/img/sponsors/titleist-blanco.png" alt="Titleist" width="629" height="182" loading="lazy"></div>
   </div>
 </div>
 
