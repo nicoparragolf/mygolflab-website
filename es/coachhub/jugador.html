@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
@@ -462,13 +463,10 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
-      <a href="/es/index.html">Inicio</a>
-      <a href="/es/biblioteca.html">Biblioteca</a>
-      <a href="/es/training.html">Training Lab</a>
       <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
-      <a href="/es/coachhub/jugador.html" id="navHub" class="active">Coach Hub</a>
+      <a href="/es/coachhub/jugador.html" id="navHub" class="active">Mi perfil</a>
       <a href="/es/coaches/" id="navCoaches" style="display:none">Coaches</a>
       <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
       <a href="/es/coachhub/vitrina.html" id="navVit" style="display:none">Mi vitrina</a>
@@ -1084,7 +1082,7 @@ function fmtRich(txt){
 async function init(){
   var res = await sb.auth.getSession();
   var session = res.data.session;
-  if(!session){ window.location.href='/es/login.html'; return; }
+  if(!session){ window.location.href='/es/coachhub/entrar.html'; return; }
   USER = session.user;
 
   var av=document.getElementById('navAvatar');

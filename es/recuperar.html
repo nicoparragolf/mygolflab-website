@@ -295,7 +295,7 @@
     if (fromCoachHub) { setTimeout(function () { location.href = DEST_COACHHUB; }, 1200); return; }
     sb.from('profiles').select('role').eq('id', user.id).single().then(function (r) {
       var role = r.data && r.data.role;
-      var dest = (role === 'coach' || role === 'ambos') ? DEST_COACHHUB : DEST_DASHBOARD;
+      var dest = (role === 'coach') ? DEST_COACHHUB : DEST_DASHBOARD;
       setTimeout(function () { location.href = dest; }, 1200);
     });
   }

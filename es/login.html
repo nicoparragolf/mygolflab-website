@@ -562,23 +562,6 @@
                     <span id="registerErrorText"></span>
                 </div>
 
-                <!-- SELECTOR DE ROL -->
-                <div class="form-group">
-                    <label class="form-label">¿Cómo vas a usar MyGolfLab?</label>
-                    <div class="role-grid">
-                        <button type="button" class="role-card active" data-role="jugador">
-                            <svg viewBox="0 0 24 24"><path d="M6 4h12v6a6 6 0 01-12 0z"/><path d="M9 20h6"/><path d="M12 16v4"/></svg>
-                            <span class="role-title">Soy jugador</span>
-                            <span class="role-desc">Quiero mejorar mi juego</span>
-                        </button>
-                        <button type="button" class="role-card" data-role="coach">
-                            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                            <span class="role-title">Soy coach</span>
-                            <span class="role-desc">Entreno jugadores</span>
-                        </button>
-                    </div>
-                </div>
-
                 <div class="name-grid">
                     <div class="form-group">
                         <label class="form-label">Nombre</label>
@@ -626,75 +609,53 @@
         </div>
 
         <div class="auth-footer">
+            ¿Eres coach? <a href="/es/coachhub/entrar.html?registro=coach">Entra a Coach Hub</a><br>
             ¿Tienes problemas para entrar? <a href="mailto:nico@smoothgolf.co">Contacta soporte</a>
         </div>
     </div>
 
     <script>
+        // ── LINKS ANTIGUOS DE COACH HUB ──
+        // Antes Coach Hub usaba este login con ?next=coachhub. Ahora tiene su
+        // propia puerta; se redirige conservando el #hash (tokens de confirmación
+        // de email / Google) para que la sesión se complete allá.
+        (function () {
+            var q = new URLSearchParams(window.location.search);
+            if (q.get('next') === 'coachhub' || localStorage.getItem('mgl_next_coachhub') === '1') {
+                localStorage.removeItem('mgl_next_coachhub');
+                window.location.replace('/es/coachhub/entrar.html' + window.location.hash);
+                throw new Error('redirigiendo a Coach Hub');
+            }
+        })();
+
         // ── SUPABASE INIT ──
         const SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
         const { createClient } = supabase;
         const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const DEST_COACH  = '/es/coachhub/dashboard.html';  // los alumnos que lleguen acá los redirige a jugador.html
+        // MyGolfLab y Coach Hub son productos distintos con una sola cuenta.
+        // Este login es el de MyGolfLab (jugadores). Los coaches se registran
+        // en la puerta de Coach Hub: /es/coachhub/entrar.html
+        const DEST_COACH  = '/es/coachhub/dashboard.html';
         const DEST_PLAYER = '/es/dashboard.html';
 
-        let selectedRole = 'jugador';
+        const selectedRole = 'jugador';
         let routing = false;
 
-        // ── ¿venimos de la puerta de entrada de Coach Hub? ──
-        // Si es así, el login/registro debe volver siempre a Coach Hub,
-        // sin importar el rol — no queremos pasar por el dashboard de MyGolfLab.
-        // Se guarda en localStorage porque el link de confirmación de email o el
-        // regreso de Google OAuth pueden llegar sin el query param original.
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('next') === 'coachhub') {
-            localStorage.setItem('mgl_next_coachhub', '1');
-        }
-        function wantsCoachHub() {
-            return localStorage.getItem('mgl_next_coachhub') === '1';
-        }
-
-        // El link "¿Olvidaste tu contraseña?" también respeta Coach Hub
-        if (wantsCoachHub()) {
-            document.getElementById('forgotLink').href = '/es/recuperar.html?next=coachhub';
-        }
-
         // ── RUTEO SEGÚN ROL ──
-        // Un coach entra a su hub; un alumno entra al dashboard normal —
-        // salvo que haya llegado desde la puerta de Coach Hub, en cuyo caso
-        // siempre va para allá (jugador.html distingue coach vs jugador solo).
+        // Un coach "puro" no usa MyGolfLab: entra directo a su Coach Hub.
+        // Jugadores y rol "ambos" entran al dashboard de MyGolfLab
+        // (desde ahí el selector de producto los lleva a Coach Hub).
         async function routeByRole(userId) {
             if (routing) return;
             routing = true;
-
-            if (wantsCoachHub()) {
-                localStorage.removeItem('mgl_next_coachhub');
-                window.location.href = DEST_COACH;
-                return;
-            }
-
             let dest = DEST_PLAYER;
             try {
                 const { data } = await sb.from('profiles').select('role').eq('id', userId).maybeSingle();
-                if (data && (data.role === 'coach' || data.role === 'ambos')) dest = DEST_COACH;
+                if (data && data.role === 'coach') dest = DEST_COACH;
             } catch (e) { console.warn('routeByRole', e); }
             window.location.href = dest;
-        }
-
-        // Google no permite mandar metadata en el signUp, así que el rol elegido
-        // se guarda antes del redirect y se aplica al volver.
-        async function applyPendingRole(userId) {
-            const pending = localStorage.getItem('mgl_pending_role');
-            if (pending !== 'coach') return;
-            localStorage.removeItem('mgl_pending_role');
-            try {
-                const { data } = await sb.from('profiles').select('role').eq('id', userId).maybeSingle();
-                if (data && data.role === 'jugador') {
-                    await sb.from('profiles').update({ role: 'coach' }).eq('id', userId);
-                }
-            } catch (e) { console.warn('applyPendingRole', e); }
         }
 
         // ── REDIRECT IF ALREADY LOGGED IN ──
@@ -705,7 +666,6 @@
         // Handle OAuth redirect
         sb.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' && session) {
-                await applyPendingRole(session.user.id);
                 routeByRole(session.user.id);
             }
         });
@@ -719,18 +679,6 @@
                 tab.classList.add('active');
                 document.getElementById(target + 'Form').classList.add('active');
                 clearMessages();
-            });
-        });
-
-        // ── SELECTOR DE ROL ──
-        document.querySelectorAll('.role-card').forEach(card => {
-            card.addEventListener('click', () => {
-                document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                selectedRole = card.dataset.role;
-                // el handicap solo tiene sentido para quien va a jugar
-                document.getElementById('hcpGroup').className =
-                    selectedRole === 'coach' ? 'form-group hidden' : 'form-group';
             });
         });
 
@@ -813,14 +761,11 @@
                         first_name: firstName,
                         last_name: lastName,
                         full_name: `${firstName} ${lastName}`,
-                        handicap: (selectedRole !== 'coach' && hcp) ? parseFloat(hcp) : null,
+                        handicap: hcp ? parseFloat(hcp) : null,
                         role: selectedRole,
                         plan: 'Starter'
                     },
-                    // vuelve al login para que el ruteo por rol decida el destino
-                    // (si vinimos de Coach Hub, mgl_next_coachhub ya quedó guardado
-                    // y el link de confirmación cae bien igual aunque no lleve el query param)
-                    emailRedirectTo: 'https://mygolflab.golf/es/login.html' + (wantsCoachHub() ? '?next=coachhub' : '')
+                    emailRedirectTo: 'https://mygolflab.golf/es/login.html'
                 }
             });
             setLoading('registerBtn', false);
@@ -842,18 +787,17 @@
         });
 
         // ── GOOGLE OAUTH ──
-        async function googleSignIn(guardarRol) {
-            if (guardarRol) localStorage.setItem('mgl_pending_role', selectedRole);
+        async function googleSignIn() {
             const { error } = await sb.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://mygolflab.golf/es/login.html' + (wantsCoachHub() ? '?next=coachhub' : '')
+                    redirectTo: 'https://mygolflab.golf/es/login.html'
                 }
             });
             if (error) alert('Error con Google: ' + error.message);
         }
-        document.getElementById('googleLoginBtn').addEventListener('click', () => googleSignIn(false));
-        document.getElementById('googleRegisterBtn').addEventListener('click', () => googleSignIn(true));
+        document.getElementById('googleLoginBtn').addEventListener('click', () => googleSignIn());
+        document.getElementById('googleRegisterBtn').addEventListener('click', () => googleSignIn());
 
         // ── PASSWORD TOGGLE ──
         function togglePwd(inputId, btn) {
