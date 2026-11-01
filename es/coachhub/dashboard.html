@@ -80,6 +80,12 @@
   .sec-h h3{font-family:'Barlow Condensed';font-weight:700;font-size:20px;letter-spacing:.3px}
   .sec-h .n{font-family:'Barlow Condensed';font-weight:700;font-size:13px;color:var(--muted);background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:1px 8px}
   .sec-h .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .sec-h .n.hot{background:var(--teal);color:#1C1709;border-color:var(--teal)}
+  .row.unread .tx b{color:var(--text)}
+  .row.unread .tx small{color:#e8e8e8;font-weight:600}
+  .row .tx small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mbadge{background:var(--teal);color:#1C1709;font-family:'Barlow Condensed';font-weight:700;font-size:12px;min-width:22px;height:22px;border-radius:11px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .mtime{color:var(--muted2);font-size:12.5px;flex:0 0 auto;white-space:nowrap}
   .seg{display:flex;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;overflow:hidden}
   .seg button{background:none;border:none;padding:5px 10px;font-family:'Barlow Condensed';font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer}
   .seg button.on{background:var(--teal);color:#1C1709}
@@ -253,6 +259,7 @@ async function init(){
   render();
 }
 
+var CONVS = {}, MSG_OK = false;
 async function loadData(){
   var rp = await sb.from('players').select('*').eq('coach_id',USER.id);
   PLAYERS = (rp.data||[]).filter(function(p){ return p.status!=='archivado'; });
@@ -273,6 +280,17 @@ async function loadData(){
 
   var rg = await sb.from('player_goals').select('*').in('player_id',ids).eq('status','activa');
   GOALS = rg.data||[];
+
+  // Mensajes: último mensaje y no leídos por alumno (si la tabla existe)
+  var rmsg = await sb.from('coach_messages').select('player_id,sender_id,body,created_at,read_at')
+    .in('player_id',ids).order('created_at',{ascending:false}).limit(500);
+  MSG_OK = !rmsg.error;
+  CONVS = {};
+  (rmsg.data||[]).forEach(function(m){
+    var c = CONVS[m.player_id] || (CONVS[m.player_id]={player_id:m.player_id,last:null,unread:0});
+    if(!c.last) c.last=m;
+    if(m.sender_id!==USER.id && !m.read_at) c.unread++;
+  });
 }
 
 // ============================================================
@@ -385,6 +403,7 @@ function render(){
     + (VITRINA_OK && !VITRINA_PUB ? '<a class="vbanner" href="vitrina.html?onboarding=1"><b>Tu vitrina aún no está publicada.</b> Termina tu perfil de coach para aparecer en el buscador y recibir alumnos online. <span>Completar ›</span></a>' : '')
     + '<div class="notice'+(HAS_REVIEW?'':' on')+'">Para activar <b>Por revisar</b> falta correr <b>coach_hub_dashboard.sql</b> en Supabase. El resto del dashboard ya funciona.</div>'
 
+    + '<div class="sec" id="secMsg"></div>'
     + '<div class="sec" id="secPend"></div>'
     + '<div class="grid2">'
     +   '<div class="sec" id="secInact"></div>'
@@ -393,7 +412,37 @@ function render(){
     + '<div class="sec" id="secStats"></div>';
 
   $('wrap').innerHTML = html;
-  renderPending(); renderInactive(); renderGoals(); renderStats();
+  renderMessages(); renderPending(); renderInactive(); renderGoals(); renderStats();
+}
+
+// ── Mensajes: conversaciones recientes, primero las que tienen mensajes sin leer ──
+function renderMessages(){
+  var box=$('secMsg'); if(!box) return;
+  var list=Object.keys(CONVS).map(function(k){ return CONVS[k]; }).filter(function(c){ return PBYID[c.player_id]; });
+  list.sort(function(a,b){
+    if((b.unread>0)!==(a.unread>0)) return b.unread>0 ? 1 : -1;
+    return a.last.created_at < b.last.created_at ? 1 : -1;
+  });
+  var unread=list.reduce(function(s,c){ return s+c.unread; },0);
+  var h='<div class="sec-h"><h3>Mensajes</h3><span class="n'+(unread?' hot':'')+'">'+(unread?unread+' sin leer':list.length)+'</span>'
+    + '<div class="r"><a class="lnk" href="mensajes.html">Ver todos</a></div></div>';
+  if(!MSG_OK){
+    h+='<div class="empty">Para activar <b>Mensajes</b> falta correr <b>coach_hub_mensajes.sql</b> en Supabase.</div>';
+  } else if(!list.length){
+    h+='<div class="empty"><b>Sin conversaciones todavía.</b> Escríbele a un alumno desde <a class="lnk" href="mensajes.html">Mensajes</a> o desde su perfil.</div>';
+  } else {
+    h+='<div class="rows">';
+    list.slice(0,5).forEach(function(c){
+      var p=PBYID[c.player_id], m=c.last, mine=m.sender_id===USER.id;
+      h+='<div class="row'+(c.unread?' unread':'')+'" onclick="window.location.href=\'mensajes.html?player='+encodeURIComponent(c.player_id)+'\'">'
+        + avatarHTML(p)
+        + '<div class="tx"><b>'+esc(pname(p))+'</b><small>'+esc((mine?'Tú: ':'')+m.body.replace(/\s+/g,' '))+'</small></div>'
+        + (c.unread ? '<span class="mbadge">'+c.unread+'</span>' : '<span class="mtime">'+esc(ago(m.created_at))+'</span>')
+        + '</div>';
+    });
+    h+='</div>';
+  }
+  box.innerHTML=h;
 }
 
 function renderPending(){

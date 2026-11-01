@@ -64,6 +64,49 @@
       +   'margin-left:6px;border-radius:9px;background:#D4C5A9;color:#1C1709;font-family:"Barlow Condensed",sans-serif;'
       +   'font-size:11px;font-weight:700;letter-spacing:0;line-height:1;vertical-align:2px}'
       + '@media (max-width:1180px){.brand-by{display:none}}'
+      // campana de avisos
+      + '.mgl-bell{position:relative;flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid #2a2a2a;background:#121212;'
+      +   'color:#cfcfcf;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:6px;transition:border-color .2s,color .2s}'
+      + '.mgl-bell:hover,.mgl-bell.open{border-color:rgba(212,197,169,.5);color:#D4C5A9}'
+      + '.mgl-bell svg{width:19px;height:19px}'
+      // en mobile el menú se esconde: la campana se va a la derecha junto al avatar
+      + '@media (max-width:900px){#siteHeader .mgl-bell{margin-left:auto}#siteHeader .mgl-bell + #navAvatar{margin-left:6px !important}}'
+      + '.mgl-bell .nb{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#D4C5A9;color:#1C1709;'
+      +   'font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #0a0a0a}'
+      + '.mgl-bell.ring svg{animation:mglRing .9s ease}'
+      + '@keyframes mglRing{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg)}30%{transform:rotate(-14deg)}45%{transform:rotate(10deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(3deg)}}'
+      + '.mgl-panel{position:fixed;z-index:300;width:min(370px,calc(100vw - 20px));max-height:min(560px,calc(100vh - 90px));overflow-y:auto;'
+      +   'background:#121212;border:1px solid #2e2e2e;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.6);font-family:Barlow,sans-serif;color:#f5f5f5;display:none}'
+      + '.mgl-panel.on{display:block}'
+      + '.mgl-panel h5{font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#777;margin:0;padding:14px 16px 6px}'
+      + '.mgl-panel .ph{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 4px}'
+      + '.mgl-panel .ph b{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:1px;font-weight:400}'
+      + '.mgl-panel .it{display:flex;gap:11px;align-items:flex-start;padding:10px 16px;text-decoration:none;color:inherit;border-top:1px solid #1d1d1d}'
+      + '.mgl-panel .it:hover{background:#18170f}'
+      + '.mgl-panel .av{width:36px;height:36px;border-radius:50%;background:#2B2619;color:#D4C5A9;display:flex;align-items:center;justify-content:center;'
+      +   'font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14px;flex:0 0 auto}'
+      + '.mgl-panel .tx{flex:1 1 auto;min-width:0}'
+      + '.mgl-panel .tx b{display:block;font-size:14.5px;font-weight:600}'
+      + '.mgl-panel .tx span{display:block;font-size:13.5px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+      + '.mgl-panel .tx em{font-style:normal;font-size:12px;color:#777}'
+      + '.mgl-panel .ct{background:#D4C5A9;color:#1C1709;border-radius:10px;min-width:20px;height:20px;padding:0 6px;font-family:"Barlow Condensed",sans-serif;'
+      +   'font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:2px}'
+      + '.mgl-panel .none{padding:22px 16px 26px;text-align:center;color:#888;font-size:14px;line-height:1.5}'
+      + '.mgl-panel .ft{display:flex;gap:8px;padding:10px 12px 12px;border-top:1px solid #1d1d1d;flex-wrap:wrap}'
+      + '.mgl-panel .ft a,.mgl-panel .ft button{flex:1 1 auto;text-align:center;font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:700;letter-spacing:.6px;'
+      +   'text-transform:uppercase;color:#D4C5A9;border:1px solid rgba(212,197,169,.35);border-radius:10px;padding:8px 10px;background:none;cursor:pointer;text-decoration:none}'
+      + '.mgl-toasts{position:fixed;right:16px;z-index:400;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px));pointer-events:none}'
+      + '.mgl-toast{pointer-events:auto;display:flex;gap:12px;align-items:flex-start;background:#161510;border:1px solid rgba(212,197,169,.45);border-radius:14px;'
+      +   'padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.55);color:#f5f5f5;text-decoration:none;font-family:Barlow,sans-serif;animation:mglIn .28s ease}'
+      + '.mgl-toast.out{opacity:0;transform:translateY(-8px);transition:all .25s}'
+      + '.mgl-toast .av{width:38px;height:38px;border-radius:50%;background:#2B2619;color:#D4C5A9;display:flex;align-items:center;justify-content:center;'
+      +   'font-family:"Barlow Condensed",sans-serif;font-weight:700;flex:0 0 auto}'
+      + '.mgl-toast .tx{flex:1 1 auto;min-width:0}'
+      + '.mgl-toast .tx small{display:block;font-family:"Barlow Condensed",sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#D4C5A9}'
+      + '.mgl-toast .tx b{display:block;font-size:15px;font-weight:600;margin-top:1px}'
+      + '.mgl-toast .tx span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;color:#bbb;margin-top:2px}'
+      + '.mgl-toast .x{background:none;border:none;color:#777;font-size:18px;cursor:pointer;padding:0 2px;line-height:1}'
+      + '@keyframes mglIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}'
       + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}';
   }
 
@@ -158,11 +201,12 @@
           if (!c.error) COUNTS.clases = c.count || 0;
         }
         paintUnread();
+        paintBell();
       } catch (e) {}
     }
     window.MGL_REFRESH_UNREAD = refresh;
     refresh();
-    setInterval(refresh, 60000);
+    setInterval(refresh, 30000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
     // Algunas páginas arman el menú con JS después: se vuelve a pintar el contador
     var hdr = document.getElementById('siteHeader');
@@ -170,6 +214,186 @@
       new MutationObserver(function () { if (COUNTS.mensajes > 0 || COUNTS.clases > 0) paintUnread(); })
         .observe(hdr, { childList: true, subtree: true });
     }
+  }
+
+  // ── 4. Campana de avisos + aviso flotante cuando llega algo nuevo ──
+  var NOTIF = { sb: null, uid: null, coach: false, names: {}, namesOk: false, bell: null, panel: null, box: null };
+  function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function iniH(n) { var p = String(n || '?').trim().split(/\s+/); return ((p[0] || '?').charAt(0) + ((p[1] || '').charAt(0))).toUpperCase(); }
+  function agoH(iso) {
+    var s = (Date.now() - new Date(iso).getTime()) / 1000;
+    if (s < 60) return 'ahora';
+    if (s < 3600) return 'hace ' + Math.round(s / 60) + ' min';
+    if (s < 86400) return 'hace ' + Math.round(s / 3600) + ' h';
+    var d = Math.round(s / 86400); return d === 1 ? 'ayer' : 'hace ' + d + ' días';
+  }
+  var BELL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
+
+  async function loadNames() {
+    if (NOTIF.namesOk) return;
+    var sb = NOTIF.sb;
+    try {
+      if (NOTIF.coach) {
+        var r = await sb.from('players').select('id,first_name,last_name').eq('coach_id', NOTIF.uid);
+        (r.data || []).forEach(function (p) { NOTIF.names[p.id] = ((p.first_name || '') + ' ' + (p.last_name || '')).trim() || 'Alumno'; });
+      }
+      var c = await sb.rpc('mgl_msg_mis_coaches');
+      (c.data || []).forEach(function (x) { if (!NOTIF.names[x.player_id]) NOTIF.names[x.player_id] = x.coach_name || 'Tu coach'; });
+      NOTIF.namesOk = true;
+    } catch (e) {}
+  }
+  function nameOf(pid) { return NOTIF.names[pid] || (NOTIF.coach ? 'Alumno' : 'Tu coach'); }
+
+  function placeBell() {
+    var hdr = document.getElementById('siteHeader');
+    if (!hdr || hdr.querySelector('.mgl-bell')) return;
+    var b = document.createElement('button');
+    b.className = 'mgl-bell'; b.type = 'button'; b.setAttribute('aria-label', 'Avisos');
+    b.innerHTML = BELL_SVG;
+    var av = hdr.querySelector('#navAvatar');
+    var ham = hdr.querySelector('.hamburger');
+    if (av && av.parentNode) av.parentNode.insertBefore(b, av);
+    else if (ham && ham.parentNode) ham.parentNode.insertBefore(b, ham);
+    else (hdr.querySelector('.nav-inner') || hdr).appendChild(b);
+    NOTIF.bell = b;
+
+    var p = document.createElement('div');
+    p.className = 'mgl-panel'; document.body.appendChild(p);
+    NOTIF.panel = p;
+    var t = document.createElement('div');
+    t.className = 'mgl-toasts'; document.body.appendChild(t);
+    NOTIF.box = t;
+    positionFloating();
+    window.addEventListener('resize', positionFloating);
+    window.addEventListener('scroll', positionFloating, { passive: true });
+
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (p.classList.contains('on')) { closePanel(); return; }
+      openPanel();
+    });
+    document.addEventListener('click', function (e) { if (p.classList.contains('on') && !p.contains(e.target)) closePanel(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePanel(); });
+  }
+  function positionFloating() {
+    var hdr = document.getElementById('siteHeader'); if (!hdr) return;
+    var bottom = Math.max(0, hdr.getBoundingClientRect().bottom) + 10;
+    if (NOTIF.panel) { NOTIF.panel.style.top = bottom + 'px'; NOTIF.panel.style.right = '10px'; }
+    if (NOTIF.box) NOTIF.box.style.top = bottom + 'px';
+  }
+  function closePanel() { if (NOTIF.panel) NOTIF.panel.classList.remove('on'); if (NOTIF.bell) NOTIF.bell.classList.remove('open'); }
+
+  function paintBell() {
+    var b = NOTIF.bell; if (!b) return;
+    var n = COUNTS.mensajes + (NOTIF.coach ? COUNTS.clases : 0);
+    var nb = b.querySelector('.nb');
+    if (n > 0) {
+      if (!nb) { nb = document.createElement('span'); nb.className = 'nb'; b.appendChild(nb); }
+      nb.textContent = n > 99 ? '99+' : String(n);
+      b.setAttribute('aria-label', n + ' avisos sin leer');
+    } else if (nb) { nb.parentNode.removeChild(nb); b.setAttribute('aria-label', 'Avisos'); }
+  }
+
+  async function openPanel() {
+    var p = NOTIF.panel, sb = NOTIF.sb;
+    NOTIF.bell.classList.add('open');
+    positionFloating();
+    p.innerHTML = '<div class="ph"><b>Avisos</b></div><div class="none">Cargando…</div>';
+    p.classList.add('on');
+    await loadNames();
+    var h = '<div class="ph"><b>Avisos</b></div>', algo = false;
+
+    // mensajes sin leer, agrupados por conversación
+    try {
+      var r = await sb.from('coach_messages').select('player_id,body,created_at')
+        .neq('sender_id', NOTIF.uid).is('read_at', null).order('created_at', { ascending: false }).limit(100);
+      if (!r.error && r.data && r.data.length) {
+        var g = {}, order = [];
+        r.data.forEach(function (m) { if (!g[m.player_id]) { g[m.player_id] = { last: m, n: 0 }; order.push(m.player_id); } g[m.player_id].n++; });
+        h += '<h5>Mensajes sin leer</h5>';
+        order.slice(0, 8).forEach(function (pid) {
+          var x = g[pid], nm = nameOf(pid);
+          h += '<a class="it" href="/es/coachhub/mensajes.html?player=' + encodeURIComponent(pid) + '"><div class="av">' + escH(iniH(nm)) + '</div>'
+            + '<div class="tx"><b>' + escH(nm) + '</b><span>' + escH(x.last.body.replace(/\s+/g, ' ')) + '</span><em>' + agoH(x.last.created_at) + '</em></div>'
+            + '<div class="ct">' + x.n + '</div></a>';
+        });
+        algo = true;
+      }
+    } catch (e) {}
+
+    // clases nuevas (solo coach)
+    if (NOTIF.coach) {
+      try {
+        var c = await sb.from('coach_lessons').select('id,student_name,offering,created_at')
+          .eq('coach_id', NOTIF.uid).eq('status', 'pendiente').order('created_at', { ascending: false }).limit(6);
+        if (!c.error && c.data && c.data.length) {
+          h += '<h5>Clases por responder</h5>';
+          c.data.forEach(function (l) {
+            h += '<a class="it" href="/es/coachhub/clases.html?clase=' + encodeURIComponent(l.id) + '"><div class="av">' + escH(iniH(l.student_name)) + '</div>'
+              + '<div class="tx"><b>' + escH(l.student_name || 'Alumno') + '</b><span>' + escH((l.offering && l.offering.title) || 'Clase') + '</span><em>' + agoH(l.created_at) + '</em></div></a>';
+          });
+          algo = true;
+        }
+      } catch (e) {}
+    }
+
+    if (!algo) h += '<div class="none">Estás al día.<br>Aquí te avisamos cuando llegue un mensaje' + (NOTIF.coach ? ' o una clase nueva.' : '.') + '</div>';
+    h += '<div class="ft"><a href="/es/coachhub/mensajes.html">Ver mensajes</a>' + (NOTIF.coach ? '<a href="/es/coachhub/clases.html">Ver clases</a>' : '');
+    if ('Notification' in window && Notification.permission === 'default') h += '<button type="button" id="mglNotifOn">Avisar también fuera de esta pestaña</button>';
+    h += '</div>';
+    p.innerHTML = h;
+    var on = document.getElementById('mglNotifOn');
+    if (on) on.addEventListener('click', function (e) {
+      e.stopPropagation();
+      Notification.requestPermission().then(function () { openPanel(); });
+    });
+  }
+
+  function toast(title, kind, body, href) {
+    if (!NOTIF.box) return;
+    var a = document.createElement('a');
+    a.className = 'mgl-toast'; a.href = href;
+    a.innerHTML = '<div class="av">' + escH(iniH(title)) + '</div><div class="tx"><small>' + escH(kind) + '</small><b>' + escH(title) + '</b><span>' + escH(body) + '</span></div>'
+      + '<button class="x" type="button" aria-label="Cerrar">×</button>';
+    a.querySelector('.x').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); hide(); });
+    NOTIF.box.insertBefore(a, NOTIF.box.firstChild);
+    while (NOTIF.box.children.length > 3) NOTIF.box.removeChild(NOTIF.box.lastChild);
+    var tm = setTimeout(hide, 7000);
+    function hide() { clearTimeout(tm); a.classList.add('out'); setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 260); }
+    if (NOTIF.bell) { NOTIF.bell.classList.remove('ring'); void NOTIF.bell.offsetWidth; NOTIF.bell.classList.add('ring'); }
+    // fuera de la pestaña: aviso del navegador (si lo autorizó)
+    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        var n = new Notification(kind + ' · ' + title, { body: body, icon: '/es/coachhub/icon-192.png', tag: href });
+        n.onclick = function () { window.focus(); location.href = href; };
+      } catch (e) {}
+    }
+  }
+
+  function setupNotifications(sb, uid, isCoach) {
+    NOTIF.sb = sb; NOTIF.uid = uid; NOTIF.coach = isCoach;
+    placeBell();
+    var path = location.pathname;
+    try {
+      sb.channel('mgl-avisos-' + uid)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_messages' }, async function (pl) {
+          var m = pl.new || {};
+          if (!m.player_id || m.sender_id === uid) return;
+          if (window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+          // en Mensajes la propia página ya muestra el mensaje
+          if (path.indexOf('/mensajes.html') >= 0 && !document.hidden) return;
+          await loadNames();
+          toast(nameOf(m.player_id), 'Nuevo mensaje', m.body || '', '/es/coachhub/mensajes.html?player=' + encodeURIComponent(m.player_id));
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_lessons' }, function (pl) {
+          var l = pl.new || {};
+          if (!isCoach || l.coach_id !== uid) return;
+          if (window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+          if (path.indexOf('/clases.html') >= 0 && !document.hidden) return;
+          toast(l.student_name || 'Alumno', 'Nueva clase', (l.offering && l.offering.title) || 'Pidió una clase', '/es/coachhub/clases.html?clase=' + encodeURIComponent(l.id));
+        })
+        .subscribe();
+    } catch (e) { console.warn('avisos', e); }
   }
 
   async function decide() {
@@ -190,7 +414,10 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
-      if (PRODUCT === 'hub') setupUnread(sb, uid, role === 'coach' || role === 'ambos');
+      if (PRODUCT === 'hub') {
+        setupNotifications(sb, uid, role === 'coach' || role === 'ambos');
+        setupUnread(sb, uid, role === 'coach' || role === 'ambos');
+      }
 
       var show = ALWAYS;
       var hubHref = '/es/coachhub/dashboard.html';
