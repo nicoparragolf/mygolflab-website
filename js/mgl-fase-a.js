@@ -489,6 +489,13 @@
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
       'stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>';
 
+    /* Puente a Coach Hub: del análisis con IA a un coach de verdad */
+    html += '<div class="coachhub-referral fade-in-up delay-3"><span class="ch-eyebrow">Coach Hub</span>' +
+      '<h3>¿QUIERES QUE UN COACH REAL REVISE TU SWING?</h3>' +
+      '<p>Elige un coach, mándale este mismo video y recibe un análisis grabado con su voz, ' +
+      'drills y seguimiento. En español, desde cualquier país.</p>' +
+      '<a href="/es/coaches/">Ver coaches \u203A</a></div>';
+
     html += '<button type="button" class="new-analysis-btn" onclick="resetAnalysis()">' +
             '↻ ANALIZAR OTRO SWING</button>';
 
