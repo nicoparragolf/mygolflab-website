@@ -150,14 +150,22 @@
 
   /* ══ HERO ══ */
   .hero {
-    min-height: 0; display: flex; align-items: center; justify-content: center; position: relative;
-    overflow: hidden; padding: calc(var(--nav-height) + 80px) 24px 60px; text-align: center;
+    min-height: 100svh; display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden; padding: calc(var(--nav-height) + 80px) 24px 90px; text-align: center;
   }
   .hero-bg {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,212,191,0.05) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 15% 85%, rgba(212,197,169,0.03) 0%, transparent 60%);
+      radial-gradient(ellipse 70% 55% at 50% 48%, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.25) 70%),
+      linear-gradient(180deg, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.35) 35%, rgba(10,10,10,0.75) 80%, #0a0a0a 100%),
+      url('/es/coachhub/img/hero-clase.jpg') center 35% / cover no-repeat;
+  }
+  @media (max-width: 700px) {
+    .hero-bg {
+      background:
+        linear-gradient(180deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.55) 40%, rgba(10,10,10,0.85) 85%, #0a0a0a 100%),
+        url('/es/coachhub/img/hero-clase-m.jpg') 42% center / cover no-repeat;
+    }
   }
   .hero-grid {
     position: absolute; inset: 0;
@@ -167,7 +175,10 @@
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 10%, transparent 80%);
   }
-  .hero-inner { position: relative; z-index: 10; max-width: 860px; }
+  .hero-inner { position: relative; z-index: 10; max-width: 860px; text-shadow: 0 2px 24px rgba(0,0,0,.55); }
+  .hero-sub { color: #c9c9c9 !important; }
+  .hero-grid { opacity: .5; }
+  .mk-wrap { margin-top: 70px; }
   .hero-eyebrow {
     font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 5px;
     text-transform: uppercase; color: var(--teal); margin-bottom: 28px; display: inline-flex; align-items: center; gap: 14px;
