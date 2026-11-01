@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Mensajes · Coach Hub</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="/es/coachhub/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
+    --border:#262626; --border2:#333;
+    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
+    --red:#e06a6a;
+    --hdr:62px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  button,textarea,input{font-family:inherit;color:inherit}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+
+  /* header */
+  #siteHeader{position:relative;flex:0 0 auto;z-index:50;background:rgba(10,10,10,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:var(--hdr);display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
+  .brand span{color:var(--teal)}
+  .nav-links{display:flex;gap:20px;margin-left:auto}
+  .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--teal)}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:4px}
+  .hamburger span{width:24px;height:2px;background:var(--text);transition:transform .2s,opacity .2s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:#1C1709;overflow:hidden;cursor:pointer;flex:0 0 auto}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+
+  /* layout */
+  .shell{flex:1 1 auto;min-height:0;width:100%;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:330px 1fr;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  .list{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;background:var(--bg)}
+  .list-head{padding:18px 18px 12px;border-bottom:1px solid var(--border)}
+  .list-head h1{font-family:'Bebas Neue';font-size:32px;letter-spacing:1px;line-height:1}
+  .search{margin-top:12px;width:100%;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none}
+  .search:focus{border-color:var(--teal-dim)}
+  .convs{flex:1 1 auto;overflow-y:auto}
+  .grp{font-family:'Barlow Condensed';font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);padding:14px 18px 6px}
+  .conv{display:flex;gap:12px;align-items:center;padding:12px 18px;cursor:pointer;border-bottom:1px solid #151515;position:relative}
+  .conv:hover{background:#121212}
+  .conv.on{background:#16140f}
+  .conv.on::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--teal)}
+  .av{width:44px;height:44px;border-radius:50%;background:#2B2619;color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;font-size:16px;flex:0 0 auto;overflow:hidden}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .cv-main{flex:1 1 auto;min-width:0}
+  .cv-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .cv-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cv-time{font-size:12px;color:var(--muted2);flex:0 0 auto}
+  .cv-prev{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .conv.unread .cv-prev{color:var(--text);font-weight:600}
+  .conv.unread .cv-time{color:var(--teal)}
+  .cv-badge{background:var(--teal);color:#1C1709;font-family:'Barlow Condensed';font-weight:700;font-size:12px;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .cv-nolink{font-size:11px;color:var(--muted2);font-family:'Barlow Condensed';letter-spacing:.4px;text-transform:uppercase}
+  .list-empty{padding:30px 20px;color:var(--muted);font-size:14px;line-height:1.55}
+  .list-empty a{color:var(--teal);text-decoration:underline}
+
+  /* hilo */
+  .thread{display:flex;flex-direction:column;min-height:0;min-width:0;background:#0c0c0c}
+  .th-head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg);flex:0 0 auto}
+  .th-back{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:6px 6px 6px 0}
+  .th-back svg{width:24px;height:24px}
+  .th-name{font-weight:600;font-size:16px}
+  .th-sub{font-size:12.5px;color:var(--muted)}
+  .th-link{margin-left:auto;font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:5px 12px;white-space:nowrap}
+  .th-link:hover{background:rgba(212,197,169,.08)}
+  .notice{margin:12px 18px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.45;background:rgba(240,184,96,.08);border:1px solid rgba(240,184,96,.3);color:#e9cf9f}
+  .msgs{flex:1 1 auto;overflow-y:auto;padding:18px 18px 8px;display:flex;flex-direction:column;gap:4px}
+  .day{align-self:center;font-family:'Barlow Condensed';font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);background:#141414;border:1px solid var(--border);border-radius:20px;padding:3px 12px;margin:12px 0 8px}
+  .b{max-width:min(72%,560px);padding:9px 13px 7px;border-radius:16px;font-size:15px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;position:relative}
+  .b .t{display:block;font-size:11px;margin-top:3px;text-align:right;opacity:.65}
+  .b.me{align-self:flex-end;background:var(--teal);color:#1C1709;border-bottom-right-radius:5px}
+  .b.me .t{color:#3a321f}
+  .b.them{align-self:flex-start;background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:5px}
+  .b.me + .b.me{border-top-right-radius:6px}
+  .b.them + .b.them{border-top-left-radius:6px}
+  .b.pending{opacity:.6}
+  .b.failed{outline:1px solid var(--red)}
+  .b .del{position:absolute;top:-8px;left:-8px;width:22px;height:22px;border-radius:50%;background:#222;border:1px solid var(--border2);color:var(--muted);font-size:13px;line-height:20px;text-align:center;cursor:pointer;display:none}
+  .b.me:hover .del{display:block}
+  .th-empty{margin:auto;text-align:center;color:var(--muted);padding:40px 24px;max-width:380px;line-height:1.55}
+  .th-empty h2{font-family:'Bebas Neue';font-size:30px;letter-spacing:1px;color:var(--text);margin-bottom:6px}
+  .composer{flex:0 0 auto;display:flex;gap:10px;align-items:flex-end;padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--bg)}
+  .composer textarea{flex:1 1 auto;resize:none;max-height:150px;min-height:44px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:14px;font-size:15px;line-height:1.4;outline:none}
+  .composer textarea:focus{border-color:var(--teal-dim)}
+  .send{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:none;background:var(--teal);color:#1C1709;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .send:disabled{opacity:.4;cursor:default}
+  .send svg{width:20px;height:20px}
+
+  .setup{margin:auto;max-width:520px;padding:30px 24px;text-align:center;color:var(--muted);line-height:1.6}
+  .setup h2{font-family:'Bebas Neue';font-size:30px;color:var(--text);letter-spacing:1px;margin-bottom:8px}
+  .setup code{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--teal);font-size:13px}
+  .loading{margin:auto;color:var(--muted);padding:40px}
+
+  .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){
+    .nav-links{display:none}
+    .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
+    .nav-links.mobile-open a{padding:15px 0;font-size:19px;border-bottom:1px solid var(--border)}
+    .nav-links.mobile-open a:last-child{border-bottom:none}
+    .hamburger{display:flex}
+    .nav-inner .avatar{margin-left:auto}
+  }
+  @media(max-width:760px){
+    .shell{grid-template-columns:1fr;border:none}
+    .list,.thread{grid-column:1;grid-row:1}
+    .shell.show-thread .list{display:none}
+    .shell:not(.show-thread) .thread{display:none}
+    .th-back{display:block}
+    .b{max-width:84%}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <nav class="nav-links" id="navLinks"></nav>
+    <div class="avatar" id="navAvatar" title="Cerrar sesión">?</div>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="shell" id="shell">
+  <aside class="list" id="listPane">
+    <div class="list-head">
+      <h1>Mensajes</h1>
+      <input class="search" id="search" type="search" placeholder="Buscar" autocomplete="off" style="display:none">
+    </div>
+    <div class="convs" id="convs"><div class="loading">Cargando…</div></div>
+  </aside>
+  <section class="thread" id="threadPane">
+    <div class="th-empty"><h2>Tus conversaciones</h2>Elige una conversación para ver los mensajes.</div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ============================================================
+// ESTADO
+// ============================================================
+var USER = null, ROLE = 'jugador', IS_COACH = false;
+var CONVS = [];          // {player_id, name, avatar, kind:'alumno'|'coach', linked, last, unread}
+var CUR = null;          // conversación abierta
+var MSGS = [];           // mensajes de la conversación abierta
+var CHANNEL = null;
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); },2600); }
+function pad(n){ return (n<10?'0':'')+n; }
+function hhmm(iso){ var d=new Date(iso); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+function dayKey(iso){ var d=new Date(iso); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function dayLabel(iso){
+  var d=new Date(iso), hoy=new Date(), ayer=new Date(); ayer.setDate(hoy.getDate()-1);
+  if(dayKey(d)===dayKey(hoy)) return 'Hoy';
+  if(dayKey(d)===dayKey(ayer)) return 'Ayer';
+  var M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return d.getDate()+' '+M[d.getMonth()]+(d.getFullYear()!==hoy.getFullYear()?' '+d.getFullYear():'');
+}
+function listTime(iso){
+  if(!iso) return '';
+  var d=new Date(iso), hoy=new Date();
+  if(dayKey(d)===dayKey(hoy)) return hhmm(iso);
+  var dif=(hoy-d)/86400000;
+  if(dif<7){ return ['dom','lun','mar','mié','jue','vie','sáb'][d.getDay()]; }
+  return pad(d.getDate())+'/'+pad(d.getMonth()+1);
+}
+function initialsOf(name){ var p=String(name||'?').trim().split(/\s+/); return ((p[0]||'?').charAt(0)+((p[1]||'').charAt(0))).toUpperCase(); }
+function avHTML(c){ return '<div class="av">'+(c.avatar?'<img src="'+esc(c.avatar)+'" alt="">':esc(initialsOf(c.name)))+'</div>'; }
+function isMissingTable(err){
+  if(!err) return false;
+  var m=(err.message||'')+' '+(err.code||'');
+  return m.indexOf('coach_messages')>=0 || m.indexOf('42P01')>=0 || m.indexOf('PGRST205')>=0 || m.indexOf('mgl_msg')>=0 || m.indexOf('PGRST202')>=0;
+}
+function isMobile(){ return window.innerWidth<=760; }
+
+// ============================================================
+// MENÚ SEGÚN ROL
+// ============================================================
+function buildNav(){
+  var items = IS_COACH
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing'],['/es/coachhub/vitrina.html','Mi vitrina']]
+    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
+  var h='';
+  items.forEach(function(it){
+    h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'" class="active"':'')+'>'+it[1]+'</a>';
+  });
+  $('navLinks').innerHTML=h;
+  var brand=document.querySelector('#siteHeader .brand');
+  if(brand) brand.href = IS_COACH ? '/es/coachhub/dashboard.html' : '/es/coachhub/jugador.html';
+}
+
+// ============================================================
+// INICIO
+// ============================================================
+async function init(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ window.location.href='/es/coachhub/entrar.html'; return; }
+  USER = s.data.session.user;
+
+  var meta = USER.user_metadata||{};
+  var av=$('navAvatar');
+  if(meta.avatar_url || meta.picture) av.innerHTML='<img src="'+esc(meta.avatar_url||meta.picture)+'" alt="">';
+  else av.textContent=(meta.first_name||meta.full_name||USER.email||'?').charAt(0).toUpperCase();
+  av.onclick=async function(){ if(confirm('¿Cerrar sesión?')){ await sb.auth.signOut(); window.location.href='/es/coachhub/entrar.html'; } };
+
+  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  ROLE = (pr.data && pr.data.role) || 'jugador';
+  IS_COACH = (ROLE==='coach' || ROLE==='ambos');
+  buildNav();
+
+  var ok = await loadConvs();
+  if(!ok) return;
+
+  // ¿Viene con ?player=ID? (botón "Mensaje" desde el perfil)
+  var qp=new URLSearchParams(window.location.search);
+  var pid=qp.get('player');
+  var target = pid && CONVS.filter(function(c){ return c.player_id===pid; })[0];
+  // Un jugador con un solo coach entra directo a la conversación
+  if(!target && !IS_COACH && CONVS.length===1) target=CONVS[0];
+  // En desktop, abrir la conversación más reciente para no dejar el panel vacío
+  if(!target && !isMobile() && CONVS.length && CONVS[0].last) target=CONVS[0];
+  if(target) openConv(target.player_id);
+
+  subscribe();
+}
+
+// ============================================================
+// CONVERSACIONES
+// ============================================================
+async function loadConvs(){
+  var list=[];
+
+  // Como coach: una conversación por cada ficha de alumno
+  if(IS_COACH){
+    var r = await sb.from('players').select('id,first_name,last_name,photo_url,user_id').eq('coach_id',USER.id);
+    if(r.error){ $('convs').innerHTML='<div class="list-empty">No se pudieron cargar tus alumnos.</div>'; return false; }
+    (r.data||[]).forEach(function(p){
+      list.push({ player_id:p.id, name:((p.first_name||'')+' '+(p.last_name||'')).trim()||'Alumno',
+                  avatar:p.photo_url||'', kind:'alumno', linked:!!p.user_id, last:null, unread:0 });
+    });
+  }
+
+  // Como jugador: una conversación por cada coach que tenga mi ficha
+  var c = await sb.rpc('mgl_msg_mis_coaches');
+  if(c.error){
+    if(isMissingTable(c.error)){ showSetup(); return false; }
+    console.warn('mis coaches', c.error);
+  } else {
+    (c.data||[]).forEach(function(x){
+      if(list.some(function(y){ return y.player_id===x.player_id; })) return;
+      list.push({ player_id:x.player_id, name:x.coach_name||'Tu coach', avatar:x.coach_avatar||'',
+                  kind:'coach', linked:true, last:null, unread:0 });
+    });
+  }
+
+  // Último mensaje y no leídos de cada conversación (el RLS ya filtra lo mío)
+  if(list.length){
+    var m = await sb.from('coach_messages').select('player_id,sender_id,body,created_at,read_at')
+      .order('created_at',{ascending:false}).limit(1000);
+    if(m.error){
+      if(isMissingTable(m.error)){ showSetup(); return false; }
+      console.warn('mensajes', m.error);
+    } else {
+      var byId={}; list.forEach(function(x){ byId[x.player_id]=x; });
+      (m.data||[]).forEach(function(msg){
+        var cv=byId[msg.player_id]; if(!cv) return;
+        if(!cv.last) cv.last=msg;
+        if(msg.sender_id!==USER.id && !msg.read_at) cv.unread++;
+      });
+    }
+  }
+
+  CONVS=list;
+  sortConvs();
+  $('search').style.display = CONVS.length>6 ? '' : 'none';
+  renderList();
+  return true;
+}
+
+function sortConvs(){
+  CONVS.sort(function(a,b){
+    var ta=a.last?new Date(a.last.created_at).getTime():0, tb=b.last?new Date(b.last.created_at).getTime():0;
+    if(ta!==tb) return tb-ta;
+    return a.name.localeCompare(b.name,'es');
+  });
+}
+
+function renderList(){
+  var q=($('search').value||'').trim().toLowerCase();
+  var items=CONVS.filter(function(c){ return !q || c.name.toLowerCase().indexOf(q)>=0; });
+
+  if(!CONVS.length){
+    $('convs').innerHTML = IS_COACH
+      ? '<div class="list-empty">Todavía no tienes alumnos. Agrégalos desde <a href="/es/coachhub/jugador.html">Mis jugadores</a> y aquí aparecerá una conversación con cada uno.</div>'
+      : '<div class="list-empty">Aún no tienes un coach en Coach Hub. Cuando tu coach agregue tu email (<b>'+esc(USER.email)+'</b>) a tu ficha, podrás escribirle aquí.<br><br>¿Buscas coach? <a href="/es/coaches/">Mira la vitrina</a>.</div>';
+    return;
+  }
+
+  var showGroups = IS_COACH && CONVS.some(function(c){ return c.kind==='coach'; });
+  var h='';
+  ['coach','alumno'].forEach(function(kind){
+    var g=items.filter(function(c){ return c.kind===kind; });
+    if(!g.length) return;
+    if(showGroups) h+='<div class="grp">'+(kind==='coach'?'Mis coaches':'Mis alumnos')+'</div>';
+    g.forEach(function(c){
+      var prev = c.last ? ((c.last.sender_id===USER.id?'Tú: ':'')+c.last.body.replace(/\s+/g,' ')) : (c.linked ? 'Sin mensajes todavía' : '');
+      h+='<div class="conv'+(CUR&&CUR.player_id===c.player_id?' on':'')+(c.unread?' unread':'')+'" onclick="openConv(\''+c.player_id+'\')">'
+        + avHTML(c)
+        + '<div class="cv-main"><div class="cv-top"><span class="cv-name">'+esc(c.name)+'</span><span class="cv-time">'+(c.last?listTime(c.last.created_at):'')+'</span></div>'
+        + '<div class="cv-top"><span class="cv-prev">'+(prev?esc(prev):'<span class="cv-nolink">Sin cuenta vinculada</span>')+'</span>'
+        + (c.unread?'<span class="cv-badge">'+(c.unread>99?'99+':c.unread)+'</span>':'')+'</div></div></div>';
+    });
+  });
+  $('convs').innerHTML = h || '<div class="list-empty">Sin resultados.</div>';
+}
+
+// ============================================================
+// HILO
+// ============================================================
+async function openConv(pid){
+  var c=CONVS.filter(function(x){ return x.player_id===pid; })[0];
+  if(!c) return;
+  CUR=c; MSGS=[];
+  $('shell').classList.add('show-thread');
+  renderList();
+
+  var perfil = c.kind==='alumno'
+    ? '<a class="th-link" href="/es/coachhub/jugador.html?player='+encodeURIComponent(pid)+'">Ver perfil</a>'
+    : '<a class="th-link" href="/es/coachhub/jugador.html">Mi perfil</a>';
+  var sub = c.kind==='alumno' ? 'Alumno' : 'Tu coach';
+
+  $('threadPane').innerHTML =
+      '<div class="th-head">'
+    +   '<button class="th-back" onclick="backToList()" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>'
+    +   avHTML(c)
+    +   '<div><div class="th-name">'+esc(c.name)+'</div><div class="th-sub">'+sub+'</div></div>'
+    +   perfil
+    + '</div>'
+    + (c.kind==='alumno' && !c.linked ? '<div class="notice">Este alumno todavía no tiene cuenta vinculada. Puedes escribirle igual: verá los mensajes cuando se vincule con su email.</div>' : '')
+    + '<div class="msgs" id="msgs"><div class="loading">Cargando mensajes…</div></div>'
+    + '<form class="composer" id="composer" onsubmit="sendMsg(event)">'
+    +   '<textarea id="input" rows="1" placeholder="Escribe un mensaje…" maxlength="4000"></textarea>'
+    +   '<button class="send" id="sendBtn" type="submit" aria-label="Enviar" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>'
+    + '</form>';
+
+  var input=$('input');
+  input.addEventListener('input',function(){ autosize(); $('sendBtn').disabled=!input.value.trim(); });
+  input.addEventListener('keydown',function(e){
+    // Enter envía en computador; en el teléfono Enter es salto de línea
+    if(e.key==='Enter' && !e.shiftKey && !isMobile()){ e.preventDefault(); sendMsg(e); }
+  });
+  if(!isMobile()) input.focus();
+
+  var r = await sb.from('coach_messages').select('id,player_id,sender_id,body,created_at,read_at')
+    .eq('player_id',pid).order('created_at',{ascending:false}).limit(300);
+  if(CUR!==c) return; // cambió de conversación mientras cargaba
+  if(r.error){
+    if(isMissingTable(r.error)){ showSetup(); return; }
+    $('msgs').innerHTML='<div class="th-empty">No se pudieron cargar los mensajes.</div>';
+    return;
+  }
+  MSGS=(r.data||[]).reverse();
+  renderMsgs(true);
+  markRead(c);
+}
+
+function backToList(){
+  $('shell').classList.remove('show-thread');
+  CUR=null; renderList();
+  if(window.history && window.history.replaceState) window.history.replaceState(null,'','/es/coachhub/mensajes.html');
+}
+
+function autosize(){ var t=$('input'); t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,150)+'px'; }
+
+function renderMsgs(scroll){
+  var box=$('msgs'); if(!box) return;
+  if(!MSGS.length){
+    box.innerHTML='<div class="th-empty">'+(CUR.kind==='alumno'
+      ? 'Escríbele a '+esc(CUR.name.split(' ')[0])+'. Puede ser un recordatorio de la clase, un comentario sobre su último video o la tarea de la semana.'
+      : 'Escríbele a tu coach. Cuéntale cómo te fue entrenando o pregúntale lo que quieras.')+'</div>';
+    return;
+  }
+  var nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+  var h='', lastDay='';
+  MSGS.forEach(function(m){
+    var dk=dayKey(m.created_at);
+    if(dk!==lastDay){ h+='<div class="day">'+dayLabel(m.created_at)+'</div>'; lastDay=dk; }
+    var me=m.sender_id===USER.id;
+    h+='<div class="b '+(me?'me':'them')+(m._pending?' pending':'')+(m._failed?' failed':'')+'">'
+      + (me && !m._pending && !m._failed ? '<span class="del" title="Borrar" onclick="delMsg(\''+m.id+'\')">×</span>' : '')
+      + esc(m.body)
+      + '<span class="t">'+(m._failed?'No se envió · ':'')+hhmm(m.created_at)+(me && m.read_at?' · Visto':'')+'</span></div>';
+  });
+  box.innerHTML=h;
+  if(scroll || nearBottom) box.scrollTop=box.scrollHeight;
+}
+
+async function sendMsg(e){
+  if(e && e.preventDefault) e.preventDefault();
+  if(!CUR) return;
+  var input=$('input'), text=input.value.replace(/\s+$/,'');
+  if(!text.trim()) return;
+  input.value=''; autosize(); $('sendBtn').disabled=true;
+
+  var tmp={ id:'tmp-'+Date.now(), player_id:CUR.player_id, sender_id:USER.id, body:text, created_at:new Date().toISOString(), read_at:null, _pending:true };
+  MSGS.push(tmp); renderMsgs(true);
+
+  var conv=CUR;
+  var r = await sb.from('coach_messages').insert({ player_id:conv.player_id, sender_id:USER.id, body:text })
+    .select('id,player_id,sender_id,body,created_at,read_at').single();
+  if(r.error){
+    tmp._pending=false; tmp._failed=true; renderMsgs(false);
+    toast(isMissingTable(r.error) ? 'Falta correr el SQL de mensajes en Supabase' : 'No se pudo enviar el mensaje');
+    if(CUR===conv && !$('input').value){ $('input').value=text; autosize(); $('sendBtn').disabled=false; }
+    return;
+  }
+  // Reemplaza el temporal (si el realtime no llegó antes)
+  var i=MSGS.indexOf(tmp);
+  var ya=MSGS.some(function(m){ return m.id===r.data.id; });
+  if(i>=0){ if(ya) MSGS.splice(i,1); else MSGS[i]=r.data; }
+  if(CUR===conv) renderMsgs(true);
+  conv.last=r.data; sortConvs(); renderList();
+}
+
+async function delMsg(id){
+  if(!confirm('¿Borrar este mensaje? Se borra para los dos.')) return;
+  var r = await sb.from('coach_messages').delete().eq('id',id);
+  if(r.error){ toast('No se pudo borrar'); return; }
+  MSGS=MSGS.filter(function(m){ return m.id!==id; });
+  renderMsgs(false);
+  if(CUR){ CUR.last = MSGS.length ? MSGS[MSGS.length-1] : null; renderList(); }
+}
+
+async function markRead(c){
+  if(!c.unread && !MSGS.some(function(m){ return m.sender_id!==USER.id && !m.read_at; })) return;
+  var r = await sb.rpc('mgl_msg_marcar_leidos',{ p_player:c.player_id });
+  if(!r.error){
+    c.unread=0; renderList();
+    if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+  }
+}
+
+// ============================================================
+// TIEMPO REAL
+// ============================================================
+function subscribe(){
+  try{
+    CHANNEL = sb.channel('mensajes-'+USER.id)
+      .on('postgres_changes',{ event:'INSERT', schema:'public', table:'coach_messages' },function(payload){ onInsert(payload.new); })
+      .on('postgres_changes',{ event:'DELETE', schema:'public', table:'coach_messages' },function(payload){ onDelete(payload.old); })
+      .subscribe();
+  }catch(e){ console.warn('realtime', e); }
+  // Respaldo por si el tiempo real no está disponible: refresca al volver a la pestaña
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) refreshCurrent(); });
+}
+
+function onInsert(m){
+  if(!m || !m.player_id) return;
+  var c=CONVS.filter(function(x){ return x.player_id===m.player_id; })[0];
+  if(!c) return;
+  c.last=m;
+  if(CUR && CUR.player_id===m.player_id){
+    if(!MSGS.some(function(x){ return x.id===m.id; })){
+      // si es mío y todavía está el temporal, lo reemplaza
+      var tmpIdx=-1;
+      if(m.sender_id===USER.id){ for(var i=MSGS.length-1;i>=0;i--){ if(MSGS[i]._pending && MSGS[i].body===m.body){ tmpIdx=i; break; } } }
+      if(tmpIdx>=0) MSGS[tmpIdx]=m; else MSGS.push(m);
+      renderMsgs(false);
+    }
+    if(m.sender_id!==USER.id){
+      if(!document.hidden) markRead(c); else c.unread++;
+    }
+  } else if(m.sender_id!==USER.id){
+    c.unread++;
+    toast('Nuevo mensaje de '+c.name.split(' ')[0]);
+  }
+  sortConvs(); renderList();
+  if(m.sender_id!==USER.id && window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+}
+
+function onDelete(old){
+  if(!old || !old.id) return;
+  if(MSGS.some(function(x){ return x.id===old.id; })){
+    MSGS=MSGS.filter(function(x){ return x.id!==old.id; });
+    renderMsgs(false);
+  }
+}
+
+async function refreshCurrent(){
+  if(!CUR) return;
+  var r = await sb.from('coach_messages').select('id,player_id,sender_id,body,created_at,read_at')
+    .eq('player_id',CUR.player_id).order('created_at',{ascending:false}).limit(300);
+  if(r.error) return;
+  MSGS=(r.data||[]).reverse(); renderMsgs(false); markRead(CUR);
+}
+
+// ============================================================
+// SIN SQL TODAVÍA
+// ============================================================
+function showSetup(){
+  $('shell').classList.add('show-thread');
+  $('listPane').style.display='none';
+  $('shell').style.gridTemplateColumns='1fr';
+  $('threadPane').innerHTML='<div class="setup"><h2>Falta un paso</h2>Para activar Mensajes hay que crear la tabla en Supabase: abre el <b>SQL Editor</b> y corre el archivo <code>sql/coach_hub_mensajes.sql</code> del repositorio. Después recarga esta página.</div>';
+}
+
+// ============================================================
+// MENÚ MOBILE
+// ============================================================
+(function(){
+  var btn=$('hamburgerBtn'), nav=$('navLinks');
+  function set(open){ btn.classList.toggle('open',open); nav.classList.toggle('mobile-open',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!nav.classList.contains('mobile-open')); });
+  nav.addEventListener('click',function(e){ if(e.target.tagName==='A') set(false); });
+  document.addEventListener('click',function(e){ if(nav.classList.contains('mobile-open') && !nav.contains(e.target)) set(false); });
+  window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
+})();
+
+$('search').addEventListener('input', renderList);
+init();
+</script>
+</body>
+</html>

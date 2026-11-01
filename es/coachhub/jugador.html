@@ -119,6 +119,8 @@
   .phero-badges{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
   .badge{font-family:'Barlow Condensed';font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:4px 11px;border-radius:20px}
   .badge.cat{background:rgba(212,197,169,.14);color:var(--teal);border:1px solid var(--teal-dim)}
+  .badge.msgbtn{background:rgba(212,197,169,.12);color:var(--teal);border:1px solid rgba(212,197,169,.4);cursor:pointer;text-decoration:none}
+  .badge.msgbtn:hover{background:rgba(212,197,169,.2)}
   .badge.tier{background:rgba(240,184,96,.14);color:var(--gold);border:1px solid rgba(240,184,96,.3)}
   .badge.hcp{background:var(--card2);color:var(--text);border:1px solid var(--border2)}
   .badge.link-on{background:rgba(212,197,169,.1);color:var(--teal);border:1px solid var(--teal-dim);cursor:pointer}
@@ -467,6 +469,7 @@
     <nav class="nav-links" id="navLinks">
       <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
       <a href="/es/coachhub/jugador.html" id="navHub" class="active">Mi perfil</a>
+      <a href="/es/coachhub/mensajes.html" id="navMsg" data-nav="mensajes">Mensajes</a>
       <a href="/es/coaches/" id="navCoaches" style="display:none">Coaches</a>
       <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
       <a href="/es/coachhub/vitrina.html" id="navVit" style="display:none">Mi vitrina</a>
@@ -2076,6 +2079,7 @@ function renderProfile(){
     +   '<span class="badge tier">Stats: '+esc(TIER_LABEL[p.stats_tier]||p.stats_tier)+'</span>'
     +   '<span class="badge hcp">HCP '+hcp+'</span>'
     +   linkBadge
+    +   '<a class="badge msgbtn" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(p.id)+'">'+(IS_COACH?'Enviar mensaje':'Escribir a mi coach')+'</a>'
     + '</div></div>'
     + '<div class="phero-stats">'
     +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
