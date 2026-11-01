@@ -469,6 +469,7 @@
       <a href="/es/training.html">Training Lab</a>
       <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
       <a href="/es/coachhub/jugador.html" id="navHub" class="active">Coach Hub</a>
+      <a href="/es/coaches/" id="navCoaches" style="display:none">Coaches</a>
       <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
       <a href="/es/coachhub/vitrina.html" id="navVit" style="display:none">Mi vitrina</a>
     </nav>
@@ -1094,6 +1095,13 @@ async function init(){
   var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
   ROLE = (pr.data && pr.data.role) || 'jugador';
   IS_COACH = (ROLE==='coach' || ROLE==='ambos');
+  if(IS_COACH){
+    // primer ingreso del coach: crear su perfil de la vitrina antes de seguir
+    var cpv = await sb.from('coach_profiles').select('coach_id').eq('coach_id',USER.id).maybeSingle();
+    if(!cpv.error && !cpv.data){ window.location.replace('vitrina.html?onboarding=1'); return; }
+  } else {
+    document.getElementById('navCoaches').style.display='';
+  }
 
   var chip=document.getElementById('roleChip');
   chip.textContent = IS_COACH ? 'Coach' : 'Jugador';

@@ -217,6 +217,12 @@
   }
   @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important;transition-duration:.001ms!important} }
   :focus-visible { outline:2px solid var(--teal); outline-offset:2px; }
+
+  /* menú: con el link Coaches se aprieta entre 881 y 1200 px */
+  @media (min-width: 881px) and (max-width: 1200px) {
+    .nav-links { gap: 16px; }
+    .nav-links a { font-size: 13.5px; letter-spacing: 0.02em; }
+  }
 </style>
 </head>
 <body>
@@ -232,6 +238,7 @@
       <li><a href="/es/index.html">Inicio</a></li>
       <li><a href="/es/coach-ai.html">Coach IA</a></li>
       <li><a href="/es/training.html">Training Lab</a></li>
+      <li><a href="/es/coaches/">Coaches</a></li>
       <li><a href="/es/library.html">Biblioteca</a></li>
       <li><a href="/es/pricing.html">Planes</a></li>
       <li><a href="/es/about.html">Quiénes Somos</a></li>

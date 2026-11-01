@@ -116,6 +116,9 @@
   .notice{background:rgba(224,161,91,.08);border:1px solid rgba(224,161,91,.35);color:var(--orange);border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.45;margin-bottom:14px;display:none}
   .notice.on{display:block}
 
+  .vbanner{display:block;background:linear-gradient(145deg,#12302c,#141414 70%);border:1px solid var(--teal-dim);border-radius:14px;padding:14px 16px;font-size:14.5px;line-height:1.45;color:#d6d6d6;margin:-10px 0 18px}
+  .vbanner b{color:var(--text)}
+  .vbanner span{color:var(--teal);font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
   .loading{color:var(--muted);padding:60px 0;text-align:center}
   .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -180,6 +183,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 var USER=null, PLAYERS=[], PBYID={}, EVENTS=[], MEDIA=[], GOALS=[];
+var VITRINA_PUB=true, VITRINA_OK=false;
 var HAS_REVIEW = true;      // se apaga si falta la columna reviewed_at (migración sin correr)
 var INACT_DAYS = 14;
 var SHOW_ALL = {pend:false, inact:false, goals:false};
@@ -239,6 +243,12 @@ async function init(){
   var role = (pr.data && pr.data.role) || 'jugador';
   // el dashboard es solo para coaches: el alumno va directo a su perfil
   if(role!=='coach' && role!=='ambos'){ window.location.replace('jugador.html'); return; }
+
+  // Primer ingreso del coach: antes de todo, crear su perfil de la vitrina
+  var cp = await sb.from('coach_profiles').select('is_published').eq('coach_id',USER.id).maybeSingle();
+  if(!cp.error && !cp.data){ window.location.replace('vitrina.html?onboarding=1'); return; }
+  VITRINA_PUB = !cp.error && cp.data && cp.data.is_published;
+  VITRINA_OK = !cp.error;
 
   await loadData();
   render();
@@ -373,6 +383,7 @@ function render(){
     +   '</div>'
     + '</div>'
 
+    + (VITRINA_OK && !VITRINA_PUB ? '<a class="vbanner" href="vitrina.html?onboarding=1"><b>Tu vitrina aún no está publicada.</b> Termina tu perfil de coach para aparecer en el buscador y recibir alumnos online. <span>Completar ›</span></a>' : '')
     + '<div class="notice'+(HAS_REVIEW?'':' on')+'">Para activar <b>Por revisar</b> falta correr <b>coach_hub_dashboard.sql</b> en Supabase. El resto del dashboard ya funciona.</div>'
 
     + '<div class="sec" id="secPend"></div>'
