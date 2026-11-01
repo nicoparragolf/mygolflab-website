@@ -385,9 +385,17 @@
           await loadNames();
           toast(nameOf(m.player_id), 'Nuevo mensaje', m.body || '', '/es/coachhub/mensajes.html?player=' + encodeURIComponent(m.player_id));
         })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'coach_lessons' }, function (pl) {
+          var l = pl.new || {};
+          if (!isCoach || l.coach_id !== uid || l.payment_status !== 'pagado' || l.status !== 'pendiente') return;
+          if (!l.paid_at || Date.now() - new Date(l.paid_at).getTime() > 120000) return;
+          if (window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+          if (path.indexOf('/clases.html') >= 0 && !document.hidden) return;
+          toast(l.student_name || 'Alumno', 'Nueva clase pagada', (l.offering && l.offering.title) || 'Clase', '/es/coachhub/clases.html?clase=' + encodeURIComponent(l.id));
+        })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_lessons' }, function (pl) {
           var l = pl.new || {};
-          if (!isCoach || l.coach_id !== uid) return;
+          if (!isCoach || l.coach_id !== uid || l.status !== 'pendiente') return;
           if (window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
           if (path.indexOf('/clases.html') >= 0 && !document.hidden) return;
           toast(l.student_name || 'Alumno', 'Nueva clase', (l.offering && l.offering.title) || 'Pidió una clase', '/es/coachhub/clases.html?clase=' + encodeURIComponent(l.id));

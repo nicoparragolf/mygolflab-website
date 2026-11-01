@@ -122,6 +122,11 @@
   .rq .fl button{margin:0;background:none;border:none;padding:0 4px;color:var(--muted);font-size:18px;cursor:pointer}
   .rq .note{font-size:13px;color:#e9cf9f;background:rgba(240,184,96,.08);border:1px solid rgba(240,184,96,.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
   .rq .err{font-size:13.5px;color:#f0a0a0;margin-top:10px;display:none}
+  .rq .note.pay{color:#cfcfcf;background:rgba(212,197,169,.06);border-color:rgba(212,197,169,.25)}
+  .desg{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+  .desg>div{display:flex;justify-content:space-between;padding:3px 0;color:#cfcfcf}
+  .desg .tot{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;color:var(--text);font-weight:600}
+  .desg .clp{display:block;color:var(--muted);font-size:12.5px;margin-top:6px}
   .rq .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
   .rq .acts button{margin:0}
   .rq .acts .go{background:var(--teal);color:#1C1709;border-color:var(--teal)}
@@ -321,7 +326,11 @@ function cambiarMoneda(){ MGL_PRECIO.cambiar(MGL_PRECIO.esChile()?'USD':'CLP'); 
 // ============================================================
 // SOLICITAR UNA CLASE (sin pago por ahora; Mercado Pago después)
 // ============================================================
-var REQ = null, SENDING = false;
+var REQ = null, SENDING = false, FEE_PCT = 5;
+// cargo por servicio vigente (lo paga el alumno y cubre la comisión de Flow)
+sb.from('mgl_pagos_config').select('service_fee_pct').eq('id',1).maybeSingle().then(function(r){
+  if(r && r.data && r.data.service_fee_pct!=null) FEE_PCT = Number(r.data.service_fee_pct);
+});
 function fmtMB(b){ return b>=1073741824 ? (b/1073741824).toFixed(1)+' GB' : Math.max(1,Math.round(b/1048576))+' MB'; }
 
 async function buy(offerId){
@@ -348,18 +357,34 @@ function renderReq(){
     + '<div class="sub">'+esc(o.title)+' · con '+esc(C.display_name)+'</div>'
     + '<div class="pz"><div><small>'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+'</small>'+esc(o.title)+'</div>'
     +   '<div style="text-align:right"><b>'+MGL_PRECIO.mostrar(o.price,o.currency||'CLP')+'</b><small>'+esc(MGL_PRECIO.otra(o.price,o.currency||'CLP'))+'</small></div></div>'
+    + (paid ? desglose(o) : '')
     + (ang.length?'<div class="rec" style="margin-top:0"><b>Qué tienes que grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
     + '<label class="l">Tus videos <span style="text-transform:none;letter-spacing:0;font-weight:500">(hasta '+maxv+')</span></label>'
     + '<div class="drop" onclick="if(!SENDING)$(\'reqFiles\').click()">Toca para elegir tus videos del celular o computador</div>'
     + '<div class="files" id="reqList"></div>'
     + '<label class="l">¿Qué quieres trabajar?</label>'
     + '<textarea id="reqNote" maxlength="2000" placeholder="Ej: le pego con slice al driver y pierdo distancia. Juego hace 3 años, hándicap 18."></textarea>'
-    + (paid?'<div class="note">Todavía no se cobra en la plataforma. Tu coach recibe la solicitud y te escribe para coordinar el pago antes de entregarte la clase.</div>':'')
+    + (paid?'<div class="note pay">Pagas de forma segura con <b>Flow</b>: Webpay (crédito o débito), otras tarjetas o transferencia. Tu coach recibe la clase apenas se confirma el pago.</div>':'')
     + '<div class="err" id="reqErr"></div>'
-    + '<div class="acts"><button onclick="closeReq()" id="reqCancel">Cancelar</button><button class="go" id="reqGo" onclick="sendReq()">Enviar solicitud</button></div>';
+    + '<div class="acts"><button onclick="closeReq()" id="reqCancel">Cancelar</button><button class="go" id="reqGo" onclick="sendReq()">'+(paid?'Ir a pagar':'Enviar solicitud')+'</button></div>';
   $('reqBody').className='modal rq';
   $('reqBody').innerHTML=h;
   renderFiles();
+}
+// precio + cargo por servicio = total (y lo que se cobra en pesos)
+function desglose(o){
+  var cur=o.currency||'CLP', baseClp=MGL_PRECIO.clp(o.price,cur), feeClp=Math.round(baseClp*FEE_PCT/100), totClp=baseClp+feeClp;
+  var cl=MGL_PRECIO.esChile();
+  // fuera de Chile: si la oferta está en USD se calcula en dólares (sin ida y vuelta por pesos)
+  var bUsd = cur==='USD' ? Number(o.price) : MGL_PRECIO.usd(baseClp,'CLP');
+  var fUsd = Math.round(bUsd*FEE_PCT)/100, tUsd = Math.round((bUsd+fUsd)*100)/100;
+  function f(clpVal, usdVal){ return cl ? MGL_PRECIO.fmtCLP(clpVal) : MGL_PRECIO.fmtUSD(usdVal); }
+  return '<div class="desg">'
+    + '<div><span>Clase</span><span>'+f(baseClp,bUsd)+'</span></div>'
+    + '<div><span>Cargo por servicio ('+String(FEE_PCT).replace('.',',')+'%)</span><span>'+f(feeClp,fUsd)+'</span></div>'
+    + '<div class="tot"><span>Total</span><span>'+f(totClp,tUsd)+'</span></div>'
+    + (cl ? '' : '<div class="clp">Se cobra en pesos chilenos: <b>'+MGL_PRECIO.fmtCLP(totClp)+' CLP</b> aprox. Tu banco hace la conversión.</div>')
+    + '</div>';
 }
 function closeReq(){ if(SENDING) return; $('reqModal').classList.remove('on'); REQ=null; }
 function renderFiles(){
@@ -409,6 +434,7 @@ async function sendReq(){
   if(note.length<5){ showReqErr('Cuéntale brevemente al coach qué quieres trabajar.'); return; }
   SENDING=true; renderFiles();
   $('reqGo').disabled=true; $('reqGo').textContent='Subiendo videos…'; $('reqCancel').disabled=true;
+  var lessonId=null, paid=Number(REQ.o.price)>0;
 
   var folder=Date.now().toString(36), paths=[];
   try{
@@ -424,6 +450,7 @@ async function sendReq(){
       p_price_clp: MGL_PRECIO.clp(o.price, o.currency||'CLP')
     });
     if(r.error) throw r.error;
+    lessonId=r.data;
   }catch(e){
     SENDING=false;
     if(paths.length) sb.storage.from('lesson-uploads').remove(paths);
@@ -435,8 +462,29 @@ async function sendReq(){
     renderFiles();
     return;
   }
-  SENDING=false;
   try{ localStorage.removeItem('mgl_pedir'); }catch(e){}
+
+  // clase pagada: crear el cobro en Flow y llevar al alumno a pagar
+  if(paid && lessonId){
+    $('reqGo').textContent='Abriendo Flow…';
+    try{
+      var s2=await sb.auth.getSession();
+      var resp=await fetch('/api/pago-crear',{ method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+s2.data.session.access_token},
+        body:JSON.stringify({lesson_id:lessonId}) });
+      var j=await resp.json().catch(function(){ return {}; });
+      if(resp.ok && j.url){ window.location.href=j.url; return; }
+      throw new Error(j.error||'No se pudo abrir el pago');
+    }catch(e){
+      SENDING=false;
+      $('reqBody').className='modal rq done';
+      $('reqBody').innerHTML='<h3>Falta el pago</h3><p>Tus videos quedaron guardados, pero no pudimos abrir el pago ('+esc(e.message)+'). Puedes pagar la clase desde <b>Mis clases</b>.</p>'
+        + '<a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ir a Mis clases</a>';
+      return;
+    }
+  }
+
+  SENDING=false;
   $('reqBody').className='modal rq done';
   $('reqBody').innerHTML='<h3>¡Solicitud enviada!</h3><p>'+esc(C.display_name)+' recibió tus videos. Te va a responder en '
     + (C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+' como máximo.</p>'

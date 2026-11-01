@@ -2,6 +2,15 @@
   "functions": {
     "api/coach.js": {
       "maxDuration": 60
+    },
+    "api/pago-crear.js": {
+      "maxDuration": 30
+    },
+    "api/pago-confirmar.js": {
+      "maxDuration": 30
+    },
+    "api/pago-retorno.js": {
+      "maxDuration": 30
     }
   }
 }
