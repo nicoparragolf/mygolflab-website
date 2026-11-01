@@ -42,13 +42,20 @@
   .nav-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
   .brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text)}
   .brand span{color:var(--teal)}
-  .nav-links{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:32px}
+  /* el menú va a la derecha (antes centrado en absoluto: con 5 links se montaba sobre el logo) */
+  .nav-links{display:flex;gap:32px;margin-left:auto;margin-right:22px}
   .nav-links a{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;transition:color .2s}
   .nav-links a:hover{color:var(--text)}
   .nav-links a.active{color:var(--teal)}
   .nav-links.coach{gap:22px}
   .nav-links a{white-space:nowrap}
   .nav-links.coach a{font-size:16px}
+  /* pantallas medianas: menú más compacto para que no choque con el logo */
+  @media(min-width:901px) and (max-width:1180px){
+    .nav-links,.nav-links.coach{gap:16px;margin-right:14px}
+    .nav-links a,.nav-links.coach a{font-size:15px}
+    #siteHeader .rolechip{display:none !important}
+  }
   .nav-auth{display:flex;align-items:center;gap:14px}
   .rolechip{font-family:'Barlow Condensed';font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:3px 10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:600;color:#1C1709;overflow:hidden}
