@@ -150,8 +150,8 @@
 
   /* ══ HERO ══ */
   .hero {
-    min-height: 92svh; display: flex; align-items: center; justify-content: center; position: relative;
-    overflow: hidden; padding: calc(var(--nav-height) + 80px) 24px 90px; text-align: center;
+    min-height: 0; display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden; padding: calc(var(--nav-height) + 80px) 24px 60px; text-align: center;
   }
   .hero-bg {
     position: absolute; inset: 0;
@@ -278,6 +278,151 @@
   .reveal.visible { opacity: 1; transform: translateY(0); }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+
+  /* ══ VISUALES DEL PRODUCTO (mockups en HTML/CSS) ══ */
+  .mk-wrap{position:relative;max-width:1060px;margin:0 auto;padding:0 24px 40px}
+  .mk-glow{position:absolute;left:50%;top:10%;transform:translateX(-50%);width:80%;height:70%;background:radial-gradient(ellipse,rgba(45,212,191,.13),transparent 65%);filter:blur(30px);pointer-events:none}
+  .mk-browser{position:relative;background:#0f0f0f;border:1px solid var(--border-mid);border-radius:14px;box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(45,212,191,.06);overflow:hidden;text-align:left}
+  .mk-bar{height:34px;display:flex;align-items:center;gap:7px;padding:0 14px;background:#151515;border-bottom:1px solid var(--border)}
+  .mk-bar i{width:10px;height:10px;border-radius:50%;background:#2a2a2a;display:block}
+  .mk-url{margin-left:14px;flex:1;max-width:340px;height:20px;border-radius:6px;background:#0c0c0c;border:1px solid var(--border);font-size:11px;color:#666;display:flex;align-items:center;padding:0 10px;font-family:'Barlow',sans-serif}
+  .mk-app{display:grid;grid-template-columns:230px 1fr;min-height:430px}
+  .mk-side{border-right:1px solid var(--border);padding:16px 12px;background:#0d0d0d}
+  .mk-side h6{font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#666;margin:2px 6px 10px;font-weight:600}
+  .mk-search{height:30px;border-radius:8px;background:#151515;border:1px solid var(--border);margin-bottom:10px;font-size:11.5px;color:#555;display:flex;align-items:center;padding:0 10px}
+  .mk-pl{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:9px;margin-bottom:2px}
+  .mk-pl.on{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.22)}
+  .mk-av{width:30px;height:30px;border-radius:50%;background:#1c1c1c;border:1px solid #2c2c2c;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--gold);flex:0 0 auto}
+  .mk-pl b{display:block;font-size:12.5px;font-weight:500;color:#e6e6e6}
+  .mk-pl small{display:block;font-size:10.5px;color:#6f6f6f}
+  .mk-dot{width:7px;height:7px;border-radius:50%;background:#ff5a5a;margin-left:auto;box-shadow:0 0 0 3px rgba(255,90,90,.15)}
+  .mk-main{padding:18px 20px 20px;overflow:hidden}
+  .mk-hero{display:flex;gap:14px;align-items:center;background:linear-gradient(145deg,#12302c,#141414 70%);border:1px solid rgba(45,212,191,.28);border-radius:14px;padding:14px 16px}
+  .mk-hero .mk-av{width:46px;height:46px;font-size:17px}
+  .mk-hero h5{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.5px;line-height:1;color:#f5f5f5;font-weight:400}
+  .mk-hero p{font-size:11.5px;color:#8a8a8a;margin-top:3px}
+  .mk-kpi{margin-left:auto;display:flex;gap:16px}
+  .mk-kpi div{text-align:right}
+  .mk-kpi b{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;color:var(--teal);font-weight:400}
+  .mk-kpi small{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#777}
+  .mk-tabs{display:flex;gap:16px;margin:14px 2px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#666}
+  .mk-tabs .on{color:var(--teal);border-bottom:2px solid var(--teal);padding-bottom:4px}
+  .mk-tl{position:relative;padding-left:18px}
+  .mk-tl::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:linear-gradient(var(--teal),rgba(45,212,191,.05))}
+  .mk-ev{position:relative;background:#141414;border:1px solid var(--border);border-radius:11px;padding:10px 12px;margin-bottom:9px}
+  .mk-ev::before{content:'';position:absolute;left:-18px;top:14px;width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px #0f0f0f}
+  .mk-ev.gold{border-color:rgba(212,197,169,.4);background:linear-gradient(120deg,rgba(212,197,169,.09),#141414 60%)}
+  .mk-ev.gold::before{background:var(--gold)}
+  .mk-ev .h{display:flex;align-items:center;gap:8px}
+  .mk-tag{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal);background:rgba(45,212,191,.1);border-radius:5px;padding:2px 6px}
+  .mk-ev.gold .mk-tag{color:#1a160d;background:var(--gold)}
+  .mk-ev .t{font-size:12.5px;color:#e8e8e8;font-weight:500}
+  .mk-ev .d{margin-left:auto;font-size:10.5px;color:#666}
+  .mk-ev p{font-size:11.5px;color:#8a8a8a;margin-top:5px;line-height:1.45}
+  .mk-thumbs{display:flex;gap:7px;margin-top:8px}
+  .mk-th{width:46px;aspect-ratio:9/16;border-radius:7px;background:linear-gradient(170deg,#2a3b2f 0%,#1b2a20 55%,#2f4a33 100%);position:relative;overflow:hidden;border:1px solid #2a2a2a}
+  .mk-th::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-40%,-50%);border-left:7px solid rgba(255,255,255,.85);border-top:5px solid transparent;border-bottom:5px solid transparent}
+  .mk-th.b{background:linear-gradient(170deg,#2b3540,#1a222b 55%,#2d3b2c)}
+  .mk-pills{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .mk-pills span{font-size:10.5px;color:#bdbdbd;background:#1b1b1b;border:1px solid #2a2a2a;border-radius:6px;padding:2px 7px}
+  .mk-pills span b{color:var(--teal);font-weight:600}
+
+  /* celular con el analizador */
+  .mk-phone{position:absolute;right:-6px;bottom:-14px;width:214px;aspect-ratio:9/19;background:#050505;border:7px solid #1d1d1d;border-radius:34px;box-shadow:0 30px 70px rgba(0,0,0,.75),0 0 0 1px #2c2c2c;overflow:hidden;z-index:3}
+  .mk-phone::before{content:'';position:absolute;top:7px;left:50%;transform:translateX(-50%);width:64px;height:16px;border-radius:10px;background:#000;z-index:4}
+  .mk-scr{position:absolute;inset:0;background:linear-gradient(180deg,#22301f 0%,#16211a 42%,#2c3d2a 70%,#3a4f33 100%)}
+  .mk-scr > svg{position:absolute;inset:0;width:100%;height:100%}
+  .mk-ptop{position:absolute;top:32px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;z-index:2}
+  .mk-rec{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;color:#fff;background:rgba(255,60,60,.9);border-radius:10px;padding:2px 8px;display:flex;align-items:center;gap:5px}
+  .mk-rec::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;animation:mkblink 1.2s infinite}
+  .mk-chip{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;color:#cfcfcf;background:rgba(0,0,0,.55);border-radius:8px;padding:2px 7px}
+  .mk-tools{position:absolute;bottom:14px;left:10px;right:10px;background:rgba(10,10,10,.82);backdrop-filter:blur(6px);border:1px solid #2b2b2b;border-radius:14px;padding:8px 10px;z-index:2}
+  .mk-scrub{height:3px;background:#333;border-radius:2px;position:relative;margin-bottom:8px}
+  .mk-scrub::before{content:'';position:absolute;left:0;top:0;bottom:0;width:58%;background:var(--teal);border-radius:2px}
+  .mk-scrub::after{content:'';position:absolute;left:58%;top:50%;width:11px;height:11px;border-radius:50%;background:#fff;transform:translate(-50%,-50%)}
+  .mk-ic{display:flex;justify-content:space-between}
+  .mk-ic span{width:24px;height:24px;border-radius:7px;background:#1c1c1c;display:flex;align-items:center;justify-content:center}
+  .mk-ic span.on{background:var(--teal)}
+  .mk-ic svg{width:13px;height:13px}
+  @keyframes mkblink{50%{opacity:.25}}
+  .mk-caption{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-top:34px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+  .mk-caption span{display:flex;align-items:center;gap:8px}
+  .mk-caption i{width:7px;height:7px;border-radius:50%;background:var(--teal);display:block}
+  .mk-caption i.g{background:var(--gold)}
+
+  /* secciones con visual al lado */
+  .split{display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center}
+  .split.rev .split-txt{order:2}
+  .split .section-sub{margin-bottom:26px}
+  .split-list{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .split-list li{display:flex;gap:10px;font-size:15px;font-weight:300;line-height:1.6;color:var(--text)}
+  .split-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:9px;flex:0 0 auto}
+
+  /* tarjeta de ronda con Strokes Gained */
+  .mk-card{background:var(--bg-card);border:1px solid var(--border-mid);border-radius:18px;padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.45);position:relative}
+  .mk-rh{display:flex;align-items:flex-start;gap:12px}
+  .mk-rh h5{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px;line-height:1;font-weight:400}
+  .mk-rh p{font-size:12.5px;color:var(--text-muted);margin-top:4px}
+  .mk-score{margin-left:auto;text-align:right}
+  .mk-score b{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:.9;color:var(--text);font-weight:400}
+  .mk-score small{display:block;font-size:12px;color:var(--teal);font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:1px}
+  .mk-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}
+  .mk-stats div{background:#151515;border:1px solid var(--border);border-radius:10px;padding:10px 8px;text-align:center}
+  .mk-stats b{display:block;font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:400;line-height:1}
+  .mk-stats small{font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#777}
+  .mk-sgt{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#777;display:flex;justify-content:space-between;margin-bottom:10px}
+  .mk-sgt span{color:var(--gold);letter-spacing:1px}
+  .mk-sg{display:grid;grid-template-columns:110px 1fr 46px;align-items:center;gap:10px;margin-bottom:9px;font-size:13px;color:#cfcfcf}
+  .mk-sg .tr{height:10px;background:#181818;border-radius:5px;position:relative}
+  .mk-sg .tr::before{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:#3a3a3a}
+  .mk-sg .bar{position:absolute;top:0;bottom:0;border-radius:5px}
+  .mk-sg .bar.p{left:50%;background:var(--teal)}
+  .mk-sg .bar.n{right:50%;background:#e06a6a}
+  .mk-sg b{text-align:right;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px}
+  .mk-sg b.p{color:var(--teal)} .mk-sg b.n{color:#e06a6a}
+  .mk-note{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;font-size:12.5px;color:var(--text-muted);line-height:1.5}
+  .mk-note b{color:var(--gold);font-weight:500}
+
+  /* vitrina */
+  .mk-vit{position:relative;padding:56px 0 66px}
+  .mk-prof{background:var(--bg-card);border:1px solid var(--border-mid);border-radius:18px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.45);max-width:430px}
+  .mk-prof-h{background:linear-gradient(145deg,#12302c,#141414 70%);padding:20px;display:flex;gap:14px;align-items:center;border-bottom:1px solid rgba(45,212,191,.2)}
+  .mk-prof-h .mk-av{width:58px;height:58px;font-size:22px;border:2px solid rgba(45,212,191,.4)}
+  .mk-prof-h h5{font-family:'Bebas Neue',sans-serif;font-size:26px;font-weight:400;letter-spacing:.5px;line-height:1;display:flex;gap:8px;align-items:center}
+  .mk-ver{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;background:var(--teal);color:#04211d;border-radius:10px;padding:2px 7px}
+  .mk-prof-h p{font-size:12.5px;color:#bbb;margin-top:4px}
+  .mk-prof-h small{display:block;font-size:11.5px;color:#888;margin-top:5px}
+  .mk-prof-h small b{color:var(--gold);font-weight:500}
+  .mk-offer{margin:14px;border:1px solid rgba(212,197,169,.4);border-radius:14px;padding:14px;background:linear-gradient(160deg,rgba(212,197,169,.07),transparent 60%)}
+  .mk-offer .k{font-family:'Barlow Condensed',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}
+  .mk-offer h6{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;margin-top:2px;color:#f0f0f0}
+  .mk-offer .pr{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--teal);line-height:1;margin:6px 0 8px}
+  .mk-offer .rec{font-size:11.5px;color:#aaa;background:#141414;border:1px solid var(--border);border-radius:9px;padding:8px 10px;line-height:1.45}
+  .mk-buy{margin-top:10px;background:var(--teal);color:#04211d;border-radius:9px;text-align:center;padding:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:14px}
+  .mk-offer2{margin:0 14px 14px;border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .mk-offer2 b{font-size:13.5px;font-weight:500;color:#e6e6e6}
+  .mk-offer2 small{display:block;font-size:11px;color:#777}
+  .mk-offer2 span{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--teal)}
+  .mk-notif{position:absolute;right:0;top:0;width:270px;background:rgba(22,22,22,.96);backdrop-filter:blur(8px);border:1px solid rgba(45,212,191,.35);border-radius:14px;padding:12px 14px;display:flex;gap:11px;align-items:center;box-shadow:0 20px 50px rgba(0,0,0,.6);animation:mkfloat 4s ease-in-out infinite}
+  .mk-notif .ic{width:34px;height:34px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .mk-notif b{display:block;font-size:13px;font-weight:600;color:#f0f0f0}
+  .mk-notif small{display:block;font-size:11.5px;color:#999;margin-top:1px}
+  .mk-notif2{top:auto;bottom:0;right:0;width:240px;border-color:rgba(212,197,169,.4);animation-delay:-2s}
+  .mk-notif2 .ic{background:var(--gold)}
+  @keyframes mkfloat{50%{transform:translateY(-6px)}}
+
+  @media (max-width: 900px){
+    .mk-app{grid-template-columns:1fr}
+    .mk-side{display:none}
+    .mk-kpi{display:none}
+    .mk-phone{position:relative;right:auto;bottom:auto;margin:-60px auto 0;width:190px}
+    .split{grid-template-columns:1fr;gap:36px}
+    .split.rev .split-txt{order:0}
+    .mk-notif{position:relative;right:auto;top:auto;width:auto;max-width:430px;margin-bottom:12px}
+    .mk-notif2{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){ .mk-notif,.mk-rec::before{animation:none} }
+
   /* ══ RESPONSIVE ══ */
   @media (max-width: 900px) {
     .compare-grid { grid-template-columns: 1fr; }
@@ -340,6 +485,84 @@
     </div>
     <p class="hero-note">Un espacio compartido entre coach y alumno</p>
   </div>
+</div>
+
+
+<!-- ══ VISUAL DEL PRODUCTO: perfil del jugador + analizador ══ -->
+<div class="mk-wrap reveal" aria-hidden="true">
+  <div class="mk-glow"></div>
+  <div class="mk-browser">
+    <div class="mk-bar"><i></i><i></i><i></i><div class="mk-url">mygolflab.golf/es/coachhub/jugador.html</div></div>
+    <div class="mk-app">
+      <aside class="mk-side">
+        <h6>Mis jugadores · 24</h6>
+        <div class="mk-search">Buscar jugador…</div>
+        <div class="mk-pl on"><div class="mk-av">MR</div><div><b>Martín Rojas</b><small>Amateur · hcp 8.4</small></div></div>
+        <div class="mk-pl"><div class="mk-av">SV</div><div><b>Sofía Vidal</b><small>Junior · Sub 16</small></div><span class="mk-dot"></span></div>
+        <div class="mk-pl"><div class="mk-av">TE</div><div><b>Tomás Errázuriz</b><small>College</small></div></div>
+        <div class="mk-pl"><div class="mk-av">CA</div><div><b>Camila Araya</b><small>Elite amateur</small></div><span class="mk-dot"></span></div>
+        <div class="mk-pl"><div class="mk-av">JP</div><div><b>Joaquín Pérez</b><small>Senior</small></div></div>
+      </aside>
+      <div class="mk-main">
+        <div class="mk-hero">
+          <div class="mk-av">MR</div>
+          <div><h5>Martín Rojas</h5><p>Amateur · Club de Golf · desde marzo 2025</p></div>
+          <div class="mk-kpi"><div><b>214</b><small>días entrenando</small></div><div><b>8.4</b><small>hándicap</small></div></div>
+        </div>
+        <div class="mk-tabs"><span class="on">Timeline</span><span>Galería</span><span>Notas</span></div>
+        <div class="mk-tl">
+          <div class="mk-ev gold">
+            <div class="h"><span class="mk-tag">Hito</span><span class="t">Primera ronda bajo 80 en torneo</span><span class="d">hace 3 días</span></div>
+            <p>78 golpes en el Interclubes. Mejor Strokes Gained con el driver de la temporada.</p>
+          </div>
+          <div class="mk-ev">
+            <div class="h"><span class="mk-tag">Video Análisis</span><span class="t">Transición y secuencia cinemática</span><span class="d">hace 1 semana</span></div>
+            <div class="mk-thumbs"><div class="mk-th"></div><div class="mk-th b"></div><div class="mk-th"></div></div>
+          </div>
+          <div class="mk-ev">
+            <div class="h"><span class="mk-tag">Launch Monitor</span><span class="t">Sesión de hierro 7</span><span class="d">hace 2 semanas</span></div>
+            <div class="mk-pills"><span>Vel. palo <b>84 mph</b></span><span>Carry <b>152 m</b></span><span>Ángulo de ataque <b>−3.1°</b></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mk-phone">
+    <div class="mk-scr">
+      <svg viewBox="0 0 200 420" preserveAspectRatio="xMidYMid slice">
+        <!-- golfista (silueta simple) -->
+        <g stroke="#0b0f0c" stroke-linecap="round" fill="none" opacity=".88">
+          <circle cx="104" cy="148" r="13" fill="#0b0f0c" stroke="none"/>
+          <path d="M101 162 L92 222" stroke-width="20"/>
+          <path d="M92 222 L80 268 L74 312" stroke-width="13"/>
+          <path d="M93 222 L110 266 L118 312" stroke-width="13"/>
+          <path d="M98 176 L122 196 L134 178" stroke-width="8"/>
+          <path d="M98 178 L118 198 L133 180" stroke-width="7"/>
+          <path d="M134 178 L168 92" stroke-width="3" stroke="#c9c9c9"/>
+        </g>
+        <!-- líneas del coach -->
+        <line x1="40" y1="330" x2="176" y2="70" stroke="#2dd4bf" stroke-width="2.5" stroke-dasharray="6 5"/>
+        <line x1="104" y1="132" x2="88" y2="236" stroke="#D4C5A9" stroke-width="2.5"/>
+        <circle cx="104" cy="148" r="22" stroke="#D4C5A9" stroke-width="2.5" fill="none"/>
+        <path d="M150 238 q16 -18 4 -40" stroke="#ff6b6b" stroke-width="3" fill="none"/>
+        <path d="M148 204 l7 -7 l3 9" stroke="#ff6b6b" stroke-width="3" fill="none" stroke-linejoin="round"/>
+        <text x="112" y="250" fill="#D4C5A9" font-family="Barlow Condensed, sans-serif" font-size="13" font-weight="700">38°</text>
+      </svg>
+      <div class="mk-ptop"><span class="mk-rec">REC 0:42</span><span class="mk-chip">Comparar</span></div>
+      <div class="mk-tools">
+        <div class="mk-scrub"></div>
+        <div class="mk-ic">
+          <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="#04211d" stroke-width="2.5" stroke-linecap="round"><path d="M5 19L19 5"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.2"><circle cx="12" cy="12" r="8"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"><path d="M5 19L19 5M12 5h7v7"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"><path d="M4 18L12 6l8 12"/></svg></span>
+          <span><svg viewBox="0 0 24 24" fill="#ff5a5a"><rect x="9" y="5" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0012 0" stroke="#ff5a5a" stroke-width="2" fill="none"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mk-caption"><span><i></i>Timeline por alumno</span><span><i class="g"></i>Hitos en dorado</span><span><i></i>Analizador con tu voz</span></div>
 </div>
 
 <!-- ══ PROBLEMA / SOLUCIÓN ══ -->
@@ -446,6 +669,85 @@
       </div>
       <div class="feature-name">Se adapta al nivel</div>
       <p class="feature-desc">Estadísticas de torneo en tres niveles — básico para niños y principiantes, intermedio para junior competitivo, avanzado con Strokes Gained para college, elite amateur y profesionales. El mismo perfil crece con el jugador.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+
+<!-- ══ ESTADÍSTICAS DE TORNEO (visual) ══ -->
+<section>
+  <div class="split">
+    <div class="split-txt reveal">
+      <div class="section-eyebrow">Rondas de torneo</div>
+      <h2 class="section-title">Mira dónde se<br><span style="color:var(--teal)">ganan los golpes</span></h2>
+      <p class="section-sub">Cada ronda queda en el timeline del jugador. Con Strokes Gained ves qué parte del juego le suma y cuál le resta, comparado con jugadores de su categoría.</p>
+      <ul class="split-list">
+        <li>Ingreso en 3 niveles: resumen, hoyo por hoyo o tiro a tiro</li>
+        <li>La comparación se ajusta a la categoría de cada jugador</li>
+        <li>El jugador carga sus rondas desde el celular y tú las ves al instante</li>
+      </ul>
+    </div>
+    <div class="reveal" aria-hidden="true">
+      <div class="mk-card">
+        <div class="mk-rh">
+          <div><h5>Interclubes · Ronda 2</h5><p>Martín Rojas · par 72 · categoría amateur</p></div>
+          <div class="mk-score"><b>78</b><small>+6 · MEJOR DEL AÑO</small></div>
+        </div>
+        <div class="mk-stats">
+          <div><b>9/14</b><small>Fairways</small></div>
+          <div><b>10/18</b><small>Greens</small></div>
+          <div><b>31</b><small>Putts</small></div>
+          <div><b>3/7</b><small>Up &amp; down</small></div>
+        </div>
+        <div class="mk-sgt">Strokes Gained <span>vs. amateur hcp 5–10</span></div>
+        <div class="mk-sg"><span>Salida</span><div class="tr"><div class="bar p" style="width:38%"></div></div><b class="p">+1.6</b></div>
+        <div class="mk-sg"><span>Approach</span><div class="tr"><div class="bar n" style="width:22%"></div></div><b class="n">−0.9</b></div>
+        <div class="mk-sg"><span>Juego corto</span><div class="tr"><div class="bar p" style="width:12%"></div></div><b class="p">+0.5</b></div>
+        <div class="mk-sg"><span>Putting</span><div class="tr"><div class="bar n" style="width:9%"></div></div><b class="n">−0.4</b></div>
+        <div class="mk-note"><b>Lectura del coach:</b> el trabajo de secuencia en el driver ya se ve en cancha. Próximo foco: distancias con wedges.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══ VITRINA (visual) ══ -->
+<section>
+  <div class="split rev">
+    <div class="split-txt reveal">
+      <div class="section-eyebrow">Tu vitrina</div>
+      <h2 class="section-title">Alumnos nuevos<br><span style="color:var(--teal)">de todo el mundo hispano</span></h2>
+      <p class="section-sub">Crea tu perfil público y vende análisis de swing online. Los jugadores te encuentran en el buscador de coaches, te mandan sus videos y quedan directo en tu Coach Hub.</p>
+      <ul class="split-list">
+        <li>Perfil con tu foto, video de presentación, credenciales y reseñas verificadas</li>
+        <li>Tú defines precios, paquetes y qué tiene que grabar el alumno</li>
+        <li>Respondes con el analizador y tu voz, y todo queda en el timeline del jugador</li>
+      </ul>
+      <div style="margin-top:30px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="/es/login.html" class="btn-hero teal">Crear mi vitrina</a>
+        <a href="/es/coaches/" class="btn-hero ghost">Ver coaches</a>
+      </div>
+    </div>
+    <div class="mk-vit reveal" aria-hidden="true">
+      <div class="mk-notif"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04211d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></div><div><b>Nuevo alumno</b><small>Valentina (México) compró una Evaluación inicial</small></div></div>
+      <div class="mk-prof">
+        <div class="mk-prof-h">
+          <div class="mk-av">AL</div>
+          <div><h5>Andrés Lagos <span class="mk-ver">Verificado</span></h5><p>Coach PGA · Especialista en full swing</p><small><b>★ 4.9</b> (38) · Chile · Responde en 48 h</small></div>
+        </div>
+        <div class="mk-offer">
+          <div class="k">Evaluación inicial · 1 análisis en video</div>
+          <h6>Primera mirada a tu swing</h6>
+          <div class="pr">$15.000</div>
+          <div class="rec">Graba 3 swings de frente y desde la línea de tiro, con hierro 7.</div>
+          <div class="mk-buy">Comprar</div>
+        </div>
+        <div class="mk-offer2"><div><b>Pack 4 análisis</b><small>Con seguimiento y drills</small></div><span>$90.000</span></div>
+      </div>
+      <div class="mk-notif mk-notif2"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a160d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></div><div><b>Análisis entregado</b><small>Respondiste en 31 h · quedó en su timeline</small></div></div>
     </div>
   </div>
 </section>
