@@ -32,7 +32,6 @@
   .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
   .brand span{color:var(--teal)}
   .hubchip{font-family:'Barlow Condensed';font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:3px 10px;white-space:nowrap}
-  .nav-links{display:flex;gap:20px;margin-left:auto}
   .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
   .nav-links a:hover{color:var(--text)}
   .nav-links a.active{color:var(--teal)}
@@ -113,7 +112,26 @@
     .hero{padding-top:30px}
     .cta a{margin-left:0}
   }
-  @media(max-width:520px){ .hubchip{display:none} .nav-inner{gap:12px} .brand{font-size:22px} .nav-links a.hide-m{display:inline} }
+
+  /* menú principal del sitio */
+  .nav-links{display:flex;align-items:center;gap:22px;margin-left:auto}
+  .nav-sep{width:1px;height:18px;background:var(--border2)}
+  .nav-links a.nav-coach{color:var(--gold)}
+  .nav-links a.nav-btn{border:1px solid var(--border2);border-radius:8px;padding:7px 14px;color:var(--text)}
+  .nav-links a.nav-btn:hover{border-color:var(--teal);color:var(--teal)}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:auto}
+  .hamburger span{width:24px;height:2px;background:var(--text);transition:transform .2s,opacity .2s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  @media(max-width:1000px){
+    .hamburger{display:flex}
+    .nav-links{display:none}
+    .nav-links.open{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:#0a0a0a;border-bottom:1px solid var(--border);padding:6px 20px 16px;margin:0;z-index:60}
+    .nav-links.open a{padding:14px 0;font-size:19px;border-bottom:1px solid var(--border)}
+    .nav-links.open .nav-sep{display:none}
+    .nav-links.open a.nav-btn{margin-top:12px;text-align:center;border:1px solid var(--border2)}
+  }
 </style>
 </head>
 <body>
@@ -121,11 +139,18 @@
 <header id="siteHeader">
   <div class="nav-inner">
     <a href="/es/index.html" class="brand">MY<span>GOLF</span>LAB</a>
-    <span class="hubchip">Coach Hub</span>
-    <nav class="nav-links">
+    <nav class="nav-links" id="navLinks">
+      <a href="/es/index.html">Inicio</a>
+      <a href="/es/coach-ai.html">Coach IA</a>
+      <a href="/es/training.html">Training Lab</a>
       <a href="/es/coaches/" class="active">Coaches</a>
-      <a href="/es/coachhub/index.html">Soy coach</a>
+      <a href="/es/library.html">Biblioteca</a>
+      <a href="/es/pricing.html">Planes</a>
+      <span class="nav-sep"></span>
+      <a href="/es/coachhub/index.html" class="nav-coach">Soy coach</a>
+      <a href="/es/login.html" class="nav-btn" id="navAuthBtn">Iniciar sesión</a>
     </nav>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
   </div>
 </header>
 
@@ -340,6 +365,16 @@ function cardHTML(c, why, top){
   
   return h;
 }
+
+// menú principal: hamburguesa + estado de sesión
+(function(){
+  var btn=document.getElementById('hamburgerBtn'), nav=document.getElementById('navLinks');
+  btn.addEventListener('click',function(e){ e.stopPropagation(); btn.classList.toggle('open'); nav.classList.toggle('open'); });
+  document.addEventListener('click',function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.classList.remove('open'); } });
+  sb.auth.getSession().then(function(r){
+    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi dashboard'; a.href='/es/dashboard.html'; }
+  });
+})();
 init();
 </script>
 </body>
