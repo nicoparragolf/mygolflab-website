@@ -63,7 +63,7 @@
       + '.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;'
       +   'margin-left:6px;border-radius:9px;background:#D4C5A9;color:#1C1709;font-family:"Barlow Condensed",sans-serif;'
       +   'font-size:11px;font-weight:700;letter-spacing:0;line-height:1;vertical-align:2px}'
-      + '@media (max-width:520px){.brand-by{display:none}}'
+      + '@media (max-width:1180px){.brand-by{display:none}}'
       + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}';
   }
 
