@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
+<script src="/js/mgl-precios.js"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
@@ -189,6 +190,7 @@
     <nav class="nav-links" id="navLinks">
       <a href="/es/coachhub/dashboard.html">Dashboard</a>
       <a href="/es/coachhub/jugador.html">Mis jugadores</a>
+      <a href="/es/coachhub/clases.html" data-nav="clases">Clases</a>
       <a href="/es/coachhub/mensajes.html" data-nav="mensajes">Mensajes</a>
       <a href="/es/coachhub/analisis.html?from=dash">Analizar swing</a>
       <a href="/es/coachhub/vitrina.html" class="active">Mi vitrina</a>
@@ -674,25 +676,41 @@ function renderOffers(){
     h+='<div class="offer'+(o.is_active?'':' off')+'">'
       + '<div class="tx"><b><span class="kind">'+esc(KINDS[o.kind]||o.kind)+'</span>'+esc(o.title)+(o.is_trial?'<span class="trial">Evaluación</span>':'')+(o.is_active?'':' · pausada')+'</b>'
       + '<small>'+esc(offerSummary(o))+'</small></div>'
-      + '<div class="price">'+(o.price===0?'Gratis':clp(o.price))+'</div>'
+      + '<div class="price">'+(o.price===0?'Gratis':precioCoach(o))+'</div>'
       + '<button class="btn sm" onclick="openOffer(\''+o.id+'\')">Editar</button>'
       + '</div>';
   });
   box.innerHTML=h;
 }
 
+// El coach ve el precio en su moneda y, chico, la equivalencia en la otra
+function precioCoach(o){
+  var m=o.currency||'CLP';
+  var main = m==='USD' ? MGL_PRECIO.fmtUSD(Number(o.price)) : clp(o.price);
+  var alt = m==='USD' ? '≈ '+MGL_PRECIO.fmtCLP(MGL_PRECIO.clp(o.price,'USD')) : '≈ '+MGL_PRECIO.fmtUSD(MGL_PRECIO.usd(o.price,'CLP'));
+  return main+'<small style="display:block;font-family:Barlow,sans-serif;font-size:12px;color:var(--muted);letter-spacing:0">'+alt+'</small>';
+}
+function offerPriceHint(){
+  var v=parseFloat($('o_price').value), m=$('o_cur').value, el=$('o_price_hint'); if(!el) return;
+  if(isNaN(v) || v<=0){ el.textContent = m==='USD' ? 'Los alumnos de Chile lo ven en pesos; el resto, en dólares.' : 'Los alumnos fuera de Chile lo ven en dólares.'; return; }
+  el.textContent = m==='USD'
+    ? 'En Chile se verá como '+MGL_PRECIO.fmtCLP(MGL_PRECIO.clp(v,'USD'))+' (dólar de hoy: '+MGL_PRECIO.fmtCLP(Math.round(MGL_PRECIO.tasa()))+').'
+    : 'Fuera de Chile se verá como '+MGL_PRECIO.fmtUSD(MGL_PRECIO.usd(v,'CLP'))+'.';
+}
+
 function openOffer(id){
   if(IS_NEW){ toast('Guarda tu perfil primero',true); return; }
   var o = id ? OFFERS.filter(function(x){ return x.id===id; })[0] : null;
   EDIT_OFFER = o;
-  var d = o || {kind:'analisis', title:'', description:'', price:'', analyses_included:1, duration_days:30, is_trial:false, is_active:true, max_videos:6,
+  var d = o || {kind:'analisis', title:'', description:'', price:'', currency:'USD', analyses_included:1, duration_days:30, is_trial:false, is_active:true, max_videos:6,
                 capture_requirements:{angulos:['frente','linea_de_tiro'], swings_por_angulo:3, palo:'libre', nota:''}};
   var cr = d.capture_requirements||{};
   var h = '<h3>'+(o?'Editar oferta':'Nueva oferta')+'</h3><div class="grid">'
     + '<div class="f"><label>Tipo</label><select id="o_kind" onchange="offerKind()">'
     +   optionList([['analisis',KINDS.analisis],['paquete',KINDS.paquete],['plan_mensual',KINDS.plan_mensual]], d.kind)
     + '</select><div class="hint">Las videollamadas llegan en la siguiente etapa.</div></div>'
-    + '<div class="f"><label>Precio (CLP)</label><input id="o_price" type="number" min="0" step="1000" value="'+esc(d.price)+'"></div>'
+    + '<div class="f"><label>Precio</label><div style="display:flex;gap:8px"><select id="o_cur" style="width:96px;flex:0 0 auto" onchange="offerPriceHint()">'+optionList([['USD','USD'],['CLP','CLP']], d.currency||'CLP')+'</select>'
+    +   '<input id="o_price" type="number" min="0" step="1" value="'+esc(d.price)+'" oninput="offerPriceHint()"></div><div class="hint" id="o_price_hint"></div></div>'
     + '<div class="f full"><label>Título</label><input id="o_title" maxlength="70" placeholder="Análisis completo de full swing" value="'+esc(d.title)+'"></div>'
     + '<div class="f full"><label>Qué incluye</label><textarea id="o_desc" placeholder="Video con mi voz analizando tu swing, 2 drills específicos y fecha para tu video de seguimiento.">'+esc(d.description)+'</textarea></div>'
     + '<div class="f" id="o_n_box"><label>Análisis incluidos</label><input id="o_n" type="number" min="1" max="30" value="'+d.analyses_included+'"></div>'
@@ -713,6 +731,7 @@ function openOffer(id){
   $('offerBody').querySelectorAll('.chip').forEach(function(c){ c.onclick=function(){ c.classList.toggle('on'); }; });
   $('offerModal').classList.add('on');
   offerKind();
+  offerPriceHint();
 }
 function offerKind(){
   var k=$('o_kind').value;
@@ -722,7 +741,9 @@ function offerKind(){
 function closeOffer(){ $('offerModal').classList.remove('on'); EDIT_OFFER=null; }
 
 async function saveOffer(){
-  var k=$('o_kind').value, price=parseInt($('o_price').value,10), trial=$('o_trial').checked;
+  var k=$('o_kind').value, cur=$('o_cur').value, trial=$('o_trial').checked;
+  // precios enteros (USD 40, $38.000): la columna price es numérica entera
+  var price = Math.round(parseFloat($('o_price').value));
   var title=$('o_title').value.trim();
   if(!title){ toast('Ponle un título a la oferta',true); return; }
   if(isNaN(price) || price<0){ toast('Revisa el precio',true); return; }
@@ -732,7 +753,7 @@ async function saveOffer(){
   var swings=parseInt($('o_swings').value,10)||1, maxv=parseInt($('o_max').value,10)||6;
   if(angles.length > maxv){ toast('El máximo de videos es menor que la cantidad de ángulos',true); return; }
   var d = {
-    coach_id: USER.id, kind:k, title:title, description:$('o_desc').value.trim(), price:price, currency:'CLP',
+    coach_id: USER.id, kind:k, title:title, description:$('o_desc').value.trim(), price:price, currency:cur,
     analyses_included: k==='analisis' ? 1 : Math.max(1, parseInt($('o_n').value,10)||1),
     duration_days: k==='plan_mensual' ? (parseInt($('o_days').value,10)||30) : null,
     is_trial: trial, max_videos: maxv,

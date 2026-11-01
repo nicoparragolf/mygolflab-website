@@ -161,6 +161,7 @@ function initialsOf(name){ var p=String(name||'?').trim().split(/\s+/); return (
 
 var IC = {
   players:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
+  lesson:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3"/></svg>',
   msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
   analyze:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 16L17 7"/><path d="M14 7h3v3"/><circle cx="9" cy="10" r="1.6"/></svg>',
   store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v2a3 3 0 01-6 0 3 3 0 01-6 0 3 3 0 01-6 0z"/><path d="M5 13v8h14v-8"/></svg>',
@@ -182,8 +183,8 @@ var IC = {
 // ============================================================
 function buildNav(){
   var items = IS_COACH
-    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing'],['/es/coachhub/vitrina.html','Mi vitrina']]
-    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing'],['/es/coachhub/vitrina.html','Mi vitrina']]
+    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
   var h='';
   items.forEach(function(it){ h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'"':'')+'>'+it[1]+'</a>'; });
   $('navLinks').innerHTML=h;
@@ -210,10 +211,12 @@ async function init(){
 
   // Datos en paralelo; cada uno puede fallar sin romper la página
   var tasks = [];
-  var stats = { alumnos:null, vinculados:null, unread:null, coaches:null };
+  var stats = { alumnos:null, vinculados:null, unread:null, coaches:null, clases:null };
 
   if(IS_COACH){
     tasks.push(sb.from('coach_profiles').select('*').eq('coach_id',USER.id).maybeSingle().then(function(r){ if(!r.error) CP=r.data; }));
+    tasks.push(sb.from('coach_lessons').select('id',{count:'exact',head:true}).eq('coach_id',USER.id).eq('status','pendiente')
+      .then(function(r){ if(!r.error) stats.clases=r.count||0; }));
     tasks.push(sb.from('players').select('id,user_id').eq('coach_id',USER.id).then(function(r){
       if(!r.error){ stats.alumnos=(r.data||[]).length; stats.vinculados=(r.data||[]).filter(function(p){ return p.user_id; }).length; }
     }));
@@ -282,6 +285,7 @@ function render(name, photo, st){
   h+='<h2 class="sec">General</h2><div class="grid">';
   if(IS_COACH){
     h+= tile('/es/coachhub/jugador.html','Mis jugadores','Perfiles, timeline, galería y notas de cada alumno.',IC.players)
+      + tile('/es/coachhub/clases.html','Clases','Las clases que te piden desde tu vitrina.',IC.lesson,st.clases)
       + tile('/es/coachhub/mensajes.html','Mensajes','Conversa con tus alumnos.',IC.msg,st.unread)
       + tile('/es/coachhub/analisis.html?from=dash','Analizar swing','Dibuja sobre el video, compara swings y graba tu explicación.',IC.analyze)
       + tile('/es/coachhub/vitrina.html','Mi vitrina','Tu perfil público, ofertas y clases online.',IC.store)
@@ -289,6 +293,7 @@ function render(name, photo, st){
       + (ROLE==='ambos' ? tile('/es/dashboard.html','Ir a MyGolfLab','Tu entrenamiento como jugador: Coach IA y Training Lab.',IC.ai) : tile('/es/coachhub/dashboard.html','Dashboard','Lo que necesita tu atención hoy.',IC.dash));
   } else {
     h+= tile('/es/coachhub/jugador.html','Mi perfil','Tu timeline, videos y notas de tu coach.',IC.user)
+      + tile('/es/coachhub/clases.html','Mis clases','Las clases que pediste y su estado.',IC.lesson)
       + tile('/es/coachhub/mensajes.html','Mensajes','Escríbele a tu coach.',IC.msg,st.unread)
       + tile('/es/coaches/','Coaches','Encuentra un coach y toma clases online.',IC.search)
       + tile('/es/dashboard.html','Ir a MyGolfLab','Coach IA, Biblioteca y Training Lab.',IC.ai);

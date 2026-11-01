@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
+<script src="/js/mgl-precios.js"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
@@ -283,18 +284,20 @@ async function init(){
   $('q_areas').innerHTML=qa;
   if(DEMO){
     ALL = DEMO_COACHES;
-    ALL.forEach(function(c){ PRICE[c.coach_id]={min:c._min, trial:c._trial}; LEVELS[c.coach_id]=['amateur','junior']; });
+    ALL.forEach(function(c){ PRICE[c.coach_id]={min:c._min, cur:'CLP', usd:c._min==null?null:MGL_PRECIO.usd(c._min,'CLP'), clpMin:c._min, trial:c._trial}; LEVELS[c.coach_id]=['amateur','junior']; });
     document.getElementById('demoBar').style.display='flex';
     renderFinder(); apply(); return;
   }
   var r = await sb.from('v_vitrina_coaches').select('*');
   if(r.error){ $('list').innerHTML='<div class="empty">No se pudieron cargar los coaches.</div>'; return; }
   ALL = r.data||[];
-  var ro = await sb.from('coach_offerings').select('coach_id,price,is_trial').eq('is_active',true);
+  var ro = await sb.from('coach_offerings').select('coach_id,price,currency,is_trial').eq('is_active',true);
+  // precios en USD o CLP: se comparan en dólares y se muestran según el país de quien mira
   (ro.data||[]).forEach(function(o){
-    var p = PRICE[o.coach_id] || (PRICE[o.coach_id]={min:null,trial:false});
-    if(o.is_trial){ if(o.price===0) p.trial=true; else if(p.min==null || o.price<p.min) p.min=o.price; }
-    else if(p.min==null || o.price<p.min) p.min=o.price;
+    var p = PRICE[o.coach_id] || (PRICE[o.coach_id]={min:null,cur:'CLP',usd:null,trial:false});
+    var u = MGL_PRECIO.usd(o.price, o.currency||'CLP');
+    if(o.is_trial && Number(o.price)===0){ p.trial=true; return; }
+    if(p.usd==null || u<p.usd){ p.usd=u; p.min=Number(o.price); p.cur=o.currency||'CLP'; p.clpMin=MGL_PRECIO.clp(o.price, o.currency||'CLP'); }
   });
   var lv = await sb.from('coach_profiles').select('coach_id,levels').eq('is_published',true);
   (lv.data||[]).forEach(function(x){ LEVELS[x.coach_id]=x.levels||[]; });
@@ -351,7 +354,7 @@ function matchScore(c, i){
   var s=Math.min(3,sp);
   if(i.nivel && lv.indexOf(i.nivel)>=0) s+=2;
   if((c.languages||[]).indexOf(i.idioma||'es')>=0) s+=1;
-  var pm=(PRICE[c.coach_id]||{}).min; if(!i.presupuesto || pm==null || pm<=i.presupuesto) s+=1;
+  var pm=(PRICE[c.coach_id]||{}).clpMin; if(!i.presupuesto || pm==null || pm<=i.presupuesto) s+=1;
   s+= (Number(c.rating_avg)*c.rating_count + 4.5*3)/(c.rating_count+3) - 3;
   if(c.response_sla_hours<=48) s+=1;
   if(c.is_verified) s+=0.5;
@@ -396,11 +399,11 @@ function apply(){
   var list = ALL.filter(function(c){
     if(SEL.length && !SEL.some(function(s){ return (c.specialties||[]).indexOf(s)>=0; })) return false;
     if(lang && (c.languages||[]).indexOf(lang)<0) return false;
-    var pm=(PRICE[c.coach_id]||{}).min; if(max && (pm==null || pm>max)) return false;
+    var pm=(PRICE[c.coach_id]||{}).clpMin; if(max && (pm==null || pm>max)) return false;
     return true;
   });
   list.sort(function(a,b){
-    if(sort==='price'){ var pa=(PRICE[a.coach_id]||{}).min, pb=(PRICE[b.coach_id]||{}).min; return (pa==null?1e12:pa)-(pb==null?1e12:pb); }
+    if(sort==='price'){ var pa=(PRICE[a.coach_id]||{}).usd, pb=(PRICE[b.coach_id]||{}).usd; return (pa==null?1e12:pa)-(pb==null?1e12:pb); }
     if(sort==='fast') return a.response_sla_hours-b.response_sla_hours || score(b)-score(a);
     return score(b)-score(a);
   });
@@ -419,7 +422,7 @@ function cardHTML(c, why, top){
   var ini=(c.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
   var rating = c.rating_count ? '<span class="stars">★</span> '+Number(c.rating_avg).toFixed(1)+' ('+c.rating_count+')' : 'Nuevo';
   var pr = PRICE[c.coach_id] || {};
-  var precio = pr.min!=null ? '<small>Clase desde</small><b>'+clp(pr.min)+'</b>'
+  var precio = pr.min!=null ? '<small>Clase desde</small><b>'+MGL_PRECIO.mostrar(pr.min, pr.cur)+'</b>'
              : (pr.trial ? '<small>Primera evaluación</small><b>Gratis</b>' : '<small>Clases</small><b>—</b>');
   var resp = c.response_sla_hours<=72 ? c.response_sla_hours+' h' : Math.round(c.response_sla_hours/24)+' días';
   return '<a class="cc'+(top?' top1':'')+'" href="'+(DEMO?'#':'/es/coaches/perfil.html?c='+encodeURIComponent(c.slug))+'"'+(DEMO?' onclick="return false"':'')+'>'
@@ -473,7 +476,14 @@ window.addEventListener('resize',function(){ document.querySelectorAll('.car-tra
     if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
   });
 })();
-init();
+// Los filtros de presupuesto se guardan en pesos; fuera de Chile se muestran en dólares
+function relabelPrecios(){
+  ['fPrice','q_pres'].forEach(function(id){
+    var sel=document.getElementById(id); if(!sel) return;
+    Array.prototype.forEach.call(sel.options,function(op){ if(op.value) op.textContent='Hasta '+MGL_PRECIO.mostrar(parseInt(op.value,10),'CLP'); });
+  });
+}
+MGL_PRECIO.listo(function(){ relabelPrecios(); init(); });
 </script>
 </body>
 </html>

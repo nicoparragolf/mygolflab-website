@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Clases · Coach Hub</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="/es/coachhub/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub"></script>
+<script src="/js/mgl-precios.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#141414; --card2:#1a1a1a;
+    --border:#262626; --border2:#333;
+    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
+    --red:#e06a6a; --green:#8fd19e; --blue:#8fb8e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  button,textarea{font-family:inherit;color:inherit}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+
+  /* header */
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
+  .brand span{color:var(--teal)}
+  .nav-links{display:flex;gap:20px;margin-left:auto}
+  .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--teal)}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:4px}
+  .hamburger span{width:24px;height:2px;background:var(--text);transition:transform .2s,opacity .2s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:#1C1709;overflow:hidden;flex:0 0 auto}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:28px 20px calc(70px + env(safe-area-inset-bottom))}
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .head h1{font-family:'Bebas Neue';font-size:44px;letter-spacing:1px;line-height:1}
+  .head p{color:var(--muted);margin-top:6px;font-size:15px}
+  .head .lnk{font-family:'Barlow Condensed';font-size:14px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:7px 14px;white-space:nowrap}
+  .head .lnk:hover{background:rgba(212,197,169,.08)}
+
+  .tabs{display:flex;gap:6px;margin:22px 0 16px;border-bottom:1px solid var(--border);overflow-x:auto}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-family:'Barlow Condensed';font-size:16px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+  .tab:hover{color:var(--text)}
+  .tab.on{color:var(--teal);border-bottom-color:var(--teal)}
+  .tab .n{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:6px;border-radius:10px;background:#222;color:var(--muted);font-size:12px}
+  .tab.on .n{background:rgba(212,197,169,.15);color:var(--teal)}
+  .tab .n.hot{background:var(--teal);color:#1C1709}
+
+  .list{display:flex;flex-direction:column;gap:10px}
+  .row{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;cursor:pointer;transition:border-color .2s,background .2s}
+  .row:hover{border-color:var(--teal-dim);background:#16150f}
+  .row.new{border-color:rgba(212,197,169,.4)}
+  .av{width:46px;height:46px;border-radius:50%;background:#2B2619;color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;font-size:17px;flex:0 0 auto;overflow:hidden}
+  .r-main{min-width:0}
+  .r-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .r-name{font-weight:600;font-size:16px}
+  .r-sub{color:var(--muted);font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .r-note{color:#cfcfcf;font-size:14px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .r-side{text-align:right;flex:0 0 auto}
+  .r-price{font-family:'Bebas Neue';font-size:26px;color:var(--teal);line-height:1;letter-spacing:.5px}
+  .r-date{color:var(--muted2);font-size:12.5px;margin-top:4px}
+  .st{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;border-radius:20px;padding:2px 9px;border:1px solid}
+  .st.pendiente{color:var(--teal);border-color:rgba(212,197,169,.5);background:rgba(212,197,169,.08)}
+  .st.aceptada{color:var(--blue);border-color:rgba(143,184,224,.4)}
+  .st.entregada{color:var(--green);border-color:rgba(143,209,158,.4)}
+  .st.rechazada,.st.cancelada{color:var(--muted);border-color:var(--border2)}
+  .tag{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(240,184,96,.35);border-radius:20px;padding:2px 9px}
+
+  .empty{background:var(--card);border:1px dashed var(--border2);border-radius:16px;padding:34px 24px;text-align:center;color:var(--muted);line-height:1.6}
+  .empty h3{font-family:'Bebas Neue';font-size:28px;letter-spacing:1px;color:var(--text);margin-bottom:6px}
+  .empty a{color:var(--teal);text-decoration:underline}
+  .setup{max-width:560px;margin:60px auto;text-align:center;color:var(--muted);line-height:1.6}
+  .setup h2{font-family:'Bebas Neue';font-size:32px;color:var(--text);letter-spacing:1px;margin-bottom:8px}
+  .setup code{background:#1a1a1a;border:1px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--teal);font-size:13px}
+  .loading{color:var(--muted);padding:60px 0;text-align:center}
+
+  /* detalle */
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;justify-content:flex-end}
+  .ov.on{display:flex}
+  .drawer{width:min(620px,100%);height:100%;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;padding:22px 24px calc(30px + env(safe-area-inset-bottom));animation:slide .22s ease}
+  @keyframes slide{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
+  .d-top{display:flex;align-items:center;gap:14px}
+  .d-top .x{margin-left:auto;background:none;border:1px solid var(--border2);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:20px;color:var(--muted)}
+  .d-name{font-family:'Bebas Neue';font-size:32px;letter-spacing:1px;line-height:1}
+  .d-mail{color:var(--muted);font-size:14px;margin-top:3px;word-break:break-all}
+  .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:14px}
+  .box h4{font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .box p{font-size:15px;line-height:1.55;white-space:pre-wrap;color:#ddd}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14.5px}
+  .kv span{color:var(--muted)}
+  .vids{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .vids video{width:100%;aspect-ratio:9/16;object-fit:cover;background:#000;border-radius:12px;border:1px solid var(--border)}
+  .vids .v-err{aspect-ratio:9/16;display:flex;align-items:center;justify-content:center;text-align:center;background:#111;border:1px dashed var(--border2);border-radius:12px;color:var(--muted);font-size:12.5px;padding:10px}
+  .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:11px;border:1px solid var(--border2);background:var(--card2);font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+  .btn:hover{border-color:var(--teal-dim)}
+  .btn.primary{background:var(--teal);color:#1C1709;border-color:var(--teal)}
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn.danger{color:var(--red);border-color:rgba(224,106,106,.35);background:transparent}
+  .btn:disabled{opacity:.5;cursor:default}
+  .btn.grow{flex:1 1 auto}
+  textarea.reply{width:100%;min-height:84px;resize:vertical;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:11px 13px;font-size:15px;line-height:1.45;outline:none;margin-top:4px}
+  textarea.reply:focus{border-color:var(--teal-dim)}
+  .hint{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.45}
+  .pay{font-size:13.5px;color:#e9cf9f;background:rgba(240,184,96,.08);border:1px solid rgba(240,184,96,.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
+
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){
+    .nav-links{display:none}
+    .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
+    .nav-links.mobile-open a{padding:15px 0;font-size:19px;border-bottom:1px solid var(--border)}
+    .nav-links.mobile-open a:last-child{border-bottom:none}
+    .hamburger{display:flex}
+    .nav-inner .avatar{margin-left:auto}
+  }
+  @media(max-width:620px){
+    .head h1{font-size:38px}
+    .row{grid-template-columns:auto 1fr;gap:12px;padding:14px}
+    .r-side{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:10px}
+    .r-price{font-size:22px}
+    .r-date{margin-top:0}
+    .drawer{padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
+    .vids{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <nav class="nav-links" id="navLinks"></nav>
+    <a class="avatar" id="navAvatar" href="/es/coachhub/cuenta.html" title="Mi cuenta">?</a>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="wrap" id="wrap"><div class="loading">Cargando clases…</div></div>
+
+<div class="ov" id="ov" onclick="if(event.target===this)closeDetail()"><div class="drawer" id="drawer"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+var USER=null, ROLE='jugador', IS_COACH=false;
+var LESSONS=[], TAB='pendiente', COACHES={}, CUR=null, BUSY=false;
+
+var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
+var ANGLE = {frente:'de frente',linea_de_tiro:'desde la línea de tiro',atras:'desde atrás del objetivo',resultado:'mostrando el vuelo de bola'};
+var CLUB = {libre:'el palo que quiera',driver:'driver',hierro_7:'hierro 7',wedge:'wedge',putter:'putter'};
+var ST = {pendiente:'Nueva',aceptada:'En curso',entregada:'Entregada',rechazada:'Rechazada',cancelada:'Cancelada'};
+var ST_ALUMNO = {pendiente:'Esperando al coach',aceptada:'En curso',entregada:'Entregada',rechazada:'No aceptada',cancelada:'Cancelada'};
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); },2800); }
+function initialsOf(name){ var p=String(name||'?').trim().split(/\s+/); return ((p[0]||'?').charAt(0)+((p[1]||'').charAt(0))).toUpperCase(); }
+function ago(iso){
+  if(!iso) return '';
+  var s=(Date.now()-new Date(iso).getTime())/1000;
+  if(s<3600) return 'hace '+Math.max(1,Math.round(s/60))+' min';
+  if(s<86400) return 'hace '+Math.round(s/3600)+' h';
+  var d=Math.round(s/86400); return d===1?'ayer':'hace '+d+' días';
+}
+function fmtDate(iso){ var d=new Date(iso), m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear()+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+function precioDe(l){
+  if(!Number(l.price)) return 'Gratis';
+  return (l.currency==='USD' ? MGL_PRECIO.fmtUSD(Number(l.price)) : MGL_PRECIO.fmtCLP(Number(l.price)));
+}
+function precioRef(l){
+  if(!Number(l.price)) return '';
+  if(l.currency==='USD') return '≈ '+MGL_PRECIO.fmtCLP(l.price_clp || MGL_PRECIO.clp(l.price,'USD'))+' CLP';
+  return '≈ '+MGL_PRECIO.fmtUSD(MGL_PRECIO.usd(l.price,'CLP'));
+}
+function isMissing(err){
+  var m=((err&&err.message)||'')+' '+((err&&err.code)||'');
+  return /coach_lessons|mgl_clase|42P01|PGRST205|PGRST202/.test(m);
+}
+
+// ============================================================
+// MENÚ SEGÚN ROL
+// ============================================================
+function buildNav(){
+  var items = IS_COACH
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing'],['/es/coachhub/vitrina.html','Mi vitrina']]
+    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
+  var h='';
+  items.forEach(function(it){ h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'"':'')+(it[2]==='clases'?' class="active"':'')+'>'+it[1]+'</a>'; });
+  $('navLinks').innerHTML=h;
+  var brand=document.querySelector('#siteHeader .brand');
+  if(brand) brand.href = IS_COACH ? '/es/coachhub/dashboard.html' : '/es/coachhub/jugador.html';
+}
+
+// ============================================================
+// INICIO
+// ============================================================
+async function init(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ window.location.href='/es/coachhub/entrar.html?volver='+encodeURIComponent('/es/coachhub/clases.html'); return; }
+  USER = s.data.session.user;
+
+  var meta = USER.user_metadata||{};
+  var av=$('navAvatar');
+  if(meta.avatar_url || meta.picture) av.innerHTML='<img src="'+esc(meta.avatar_url||meta.picture)+'" alt="">';
+  else av.textContent=(meta.first_name||meta.full_name||USER.email||'?').charAt(0).toUpperCase();
+
+  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  ROLE = (pr.data && pr.data.role) || 'jugador';
+  IS_COACH = (ROLE==='coach' || ROLE==='ambos');
+  buildNav();
+  document.title = (IS_COACH?'Clases':'Mis clases')+' · Coach Hub';
+
+  await load();
+  var qp=new URLSearchParams(window.location.search);
+  if(qp.get('clase')) openDetail(qp.get('clase'));
+  subscribe();
+}
+
+async function load(){
+  var col = IS_COACH ? 'coach_id' : 'student_id';
+  var r = await sb.from('coach_lessons').select('*').eq(col, USER.id).order('created_at',{ascending:false}).limit(500);
+  if(r.error){
+    if(isMissing(r.error)){ showSetup(); return; }
+    $('wrap').innerHTML='<div class="empty">No se pudieron cargar las clases.</div>'; return;
+  }
+  LESSONS = r.data||[];
+
+  // nombre de cada coach para la vista del alumno
+  if(!IS_COACH && LESSONS.length){
+    var ids = LESSONS.map(function(l){ return l.coach_id; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
+    var c = await sb.from('coach_profiles').select('coach_id,display_name,slug,photo_path').in('coach_id', ids);
+    (c.data||[]).forEach(function(x){ COACHES[x.coach_id]=x; });
+  }
+  if(!IS_COACH && TAB==='pendiente') TAB='todas';
+  MGL_PRECIO.listo(render);
+}
+
+// ============================================================
+// LISTA
+// ============================================================
+function inTab(l){
+  if(TAB==='todas') return true;
+  if(TAB==='cerradas') return l.status==='rechazada' || l.status==='cancelada';
+  return l.status===TAB;
+}
+function count(st){ return LESSONS.filter(function(l){ return st==='cerradas' ? (l.status==='rechazada'||l.status==='cancelada') : l.status===st; }).length; }
+
+function render(){
+  var h='';
+  if(IS_COACH){
+    h+='<div class="head"><div><h1>Clases</h1><p>Las clases que te piden tus alumnos desde tu vitrina.</p></div>'
+      + '<a class="lnk" href="/es/coachhub/vitrina.html">Editar mis ofertas</a></div>';
+    var nP=count('pendiente');
+    h+='<div class="tabs">'
+      + tabBtn('pendiente','Nuevas',nP,true)
+      + tabBtn('aceptada','En curso',count('aceptada'))
+      + tabBtn('entregada','Entregadas',count('entregada'))
+      + tabBtn('cerradas','Cerradas',count('cerradas'))
+      + '</div>';
+  } else {
+    h+='<div class="head"><div><h1>Mis clases</h1><p>Las clases que pediste a tus coaches.</p></div>'
+      + '<a class="lnk" href="/es/coaches/">Buscar coach</a></div>';
+    h+='<div class="tabs">'
+      + tabBtn('todas','Todas',LESSONS.length)
+      + tabBtn('pendiente','Esperando',count('pendiente'))
+      + tabBtn('aceptada','En curso',count('aceptada'))
+      + tabBtn('entregada','Entregadas',count('entregada'))
+      + '</div>';
+  }
+
+  var items = LESSONS.filter(inTab);
+  if(!items.length){
+    h+='<div class="empty">'+emptyText()+'</div>';
+  } else {
+    h+='<div class="list">';
+    items.forEach(function(l){ h+=rowHTML(l); });
+    h+='</div>';
+  }
+  $('wrap').innerHTML=h;
+}
+
+function tabBtn(id,label,n,hot){
+  return '<button class="tab'+(TAB===id?' on':'')+'" onclick="TAB=\''+id+'\';render()">'+label+'<span class="n'+(hot&&n?' hot':'')+'">'+n+'</span></button>';
+}
+
+function emptyText(){
+  if(!IS_COACH){
+    return LESSONS.length ? 'No hay clases en esta sección.'
+      : '<h3>Aún no pides clases</h3>Elige un coach en la vitrina, sube tu swing y recibe un análisis grabado con su voz.<br><br><a href="/es/coaches/">Ver coaches</a>';
+  }
+  if(TAB==='pendiente'){
+    return LESSONS.length ? '<h3>Todo al día</h3>No tienes clases nuevas por responder.'
+      : '<h3>Todavía no recibes clases</h3>Cuando un alumno pida una clase desde tu vitrina, aparece aquí con sus videos.<br><br>Asegúrate de tener tu <a href="/es/coachhub/vitrina.html">vitrina publicada y con ofertas</a>.';
+  }
+  return 'No hay clases en esta sección.';
+}
+
+function rowHTML(l){
+  var o=l.offering||{};
+  if(IS_COACH){
+    return '<div class="row'+(l.status==='pendiente'?' new':'')+'" onclick="openDetail(\''+l.id+'\')">'
+      + '<div class="av">'+esc(initialsOf(l.student_name))+'</div>'
+      + '<div class="r-main"><div class="r-top"><span class="r-name">'+esc(l.student_name||'Alumno')+'</span>'
+      +   '<span class="st '+l.status+'">'+ST[l.status]+'</span>'
+      +   (o.is_trial?'<span class="tag">Evaluación</span>':'')+'</div>'
+      +   '<div class="r-sub">'+esc(o.title||'Clase')+' · '+(l.video_paths||[]).length+' video'+((l.video_paths||[]).length===1?'':'s')+(l.student_country==='CL'?' · Chile':(l.student_country?' · Extranjero':''))+'</div>'
+      +   (l.student_note?'<div class="r-note">'+esc(l.student_note)+'</div>':'')
+      + '</div>'
+      + '<div class="r-side"><div class="r-price">'+precioDe(l)+'</div><div class="r-date">'+ago(l.created_at)+'</div></div>'
+      + '</div>';
+  }
+  var c=COACHES[l.coach_id]||{};
+  return '<div class="row" onclick="openDetail(\''+l.id+'\')">'
+    + '<div class="av">'+esc(initialsOf(c.display_name||'Coach'))+'</div>'
+    + '<div class="r-main"><div class="r-top"><span class="r-name">'+esc(o.title||'Clase')+'</span><span class="st '+l.status+'">'+ST_ALUMNO[l.status]+'</span></div>'
+    +   '<div class="r-sub">con '+esc(c.display_name||'tu coach')+'</div>'
+    + '</div>'
+    + '<div class="r-side"><div class="r-price">'+precioDe(l)+'</div><div class="r-date">'+ago(l.created_at)+'</div></div>'
+    + '</div>';
+}
+
+// ============================================================
+// DETALLE
+// ============================================================
+async function openDetail(id){
+  var l=LESSONS.filter(function(x){ return x.id===id; })[0];
+  if(!l) return;
+  CUR=l;
+  renderDetail();
+  $('ov').classList.add('on');
+  document.body.style.overflow='hidden';
+  loadVideos(l);
+}
+function closeDetail(){
+  if(BUSY) return;
+  $('ov').classList.remove('on'); document.body.style.overflow='';
+  document.querySelectorAll('#drawer video').forEach(function(v){ try{ v.pause(); }catch(e){} });
+  CUR=null;
+  if(window.history && window.history.replaceState) window.history.replaceState(null,'','/es/coachhub/clases.html');
+}
+
+function renderDetail(){
+  var l=CUR, o=l.offering||{}, cr=o.capture_requirements||{};
+  var ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
+  var c=COACHES[l.coach_id]||{};
+  var who = IS_COACH ? (l.student_name||'Alumno') : (c.display_name||'Tu coach');
+  var h='<div class="d-top"><div class="av">'+esc(initialsOf(who))+'</div><div><div class="d-name">'+esc(who)+'</div>'
+    + '<div class="d-mail">'+(IS_COACH?esc(l.student_email||''):'Tu coach')+'</div></div>'
+    + '<button class="x" onclick="closeDetail()" aria-label="Cerrar">×</button></div>';
+
+  h+='<div class="box"><div class="kv">'
+    + '<span>Clase</span><b>'+esc(o.title||'—')+(o.is_trial?' · Evaluación inicial':'')+'</b>'
+    + '<span>Tipo</span><div>'+esc(KIND[o.kind]||o.kind||'—')+(o.kind==='paquete'?' · '+o.analyses_included+' análisis':'')+(o.kind==='plan_mensual'?' · '+o.analyses_included+' análisis cada '+(o.duration_days||30)+' días':'')+'</div>'
+    + '<span>Precio</span><div><b>'+precioDe(l)+'</b> <span style="color:var(--muted);font-size:13px">'+esc(precioRef(l))+'</span></div>'
+    + '<span>Estado</span><div><span class="st '+l.status+'">'+(IS_COACH?ST[l.status]:ST_ALUMNO[l.status])+'</span></div>'
+    + '<span>Pedida</span><div>'+fmtDate(l.created_at)+'</div>'
+    + (IS_COACH && l.student_country ? '<span>Desde</span><div>'+(l.student_country==='CL'?'Chile':'Fuera de Chile')+'</div>' : '')
+    + (l.accepted_at?'<span>Aceptada</span><div>'+fmtDate(l.accepted_at)+'</div>':'')
+    + (l.delivered_at?'<span>Entregada</span><div>'+fmtDate(l.delivered_at)+'</div>':'')
+    + '</div></div>';
+
+  if(Number(l.price)>0 && (l.status==='pendiente' || l.status==='aceptada') && l.payment_status!=='pagado'){
+    h+='<div class="pay">'+(IS_COACH
+      ? 'El pago todavía no pasa por la plataforma: coordínalo con el alumno (por Mensajes) antes de entregar la clase.'
+      : 'Todavía no se cobra en la plataforma: tu coach te va a escribir para coordinar el pago.')+'</div>';
+  }
+
+  if(l.student_note) h+='<div class="box"><h4>'+(IS_COACH?'Lo que quiere trabajar':'Lo que le contaste')+'</h4><p>'+esc(l.student_note)+'</p></div>';
+  if(ang.length) h+='<div class="box"><h4>Qué se pidió grabar</h4><p>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'su palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</p></div>';
+
+  h+='<div class="box"><h4>Videos ('+(l.video_paths||[]).length+')</h4><div class="vids" id="vids">'
+    + ((l.video_paths||[]).length ? (l.video_paths||[]).map(function(){ return '<div class="v-err">Cargando…</div>'; }).join('') : '<div class="hint">Sin videos.</div>')
+    + '</div></div>';
+
+  if(l.coach_reply) h+='<div class="box"><h4>'+(IS_COACH?'Tu mensaje al alumno':'Mensaje de tu coach')+'</h4><p>'+esc(l.coach_reply)+'</p></div>';
+
+  h+=actionsHTML(l);
+  $('drawer').innerHTML=h;
+}
+
+function actionsHTML(l){
+  var h='';
+  if(IS_COACH){
+    if(l.status==='pendiente'){
+      h+='<div class="box"><h4>Responder</h4>'
+        + '<textarea class="reply" id="reply" maxlength="2000" placeholder="Ej: ¡Hola! Recibí tus videos. Te mando el análisis el jueves."></textarea>'
+        + '<div class="hint">Al aceptar, el alumno queda en <b>Mis jugadores</b> (se crea su ficha o se usa la que ya tenía) y le llega tu mensaje.</div>'
+        + '<div class="acts"><button class="btn primary grow" id="bAcc" onclick="aceptar()">Aceptar clase</button><button class="btn danger" id="bRej" onclick="rechazar()">Rechazar</button></div></div>';
+    } else if(l.status==='aceptada'){
+      var pid=l.player_id?encodeURIComponent(l.player_id):'';
+      h+='<div class="acts">'
+        + (pid?'<a class="btn primary grow" href="/es/coachhub/analisis.html?player='+pid+'&from=clase">Analizar swing</a>':'')
+        + (pid?'<a class="btn" href="/es/coachhub/mensajes.html?player='+pid+'">Escribir</a>':'')
+        + (pid?'<a class="btn" href="/es/coachhub/jugador.html?player='+pid+'">Ver ficha</a>':'')
+        + '</div>'
+        + '<div class="box"><h4>Entregar</h4><textarea class="reply" id="reply" maxlength="2000" placeholder="Opcional: un resumen para el alumno (ej. qué trabajar esta semana)."></textarea>'
+        + '<div class="hint">Graba tu análisis con <b>Analizar swing</b> y guárdalo en su ficha; después márcala como entregada.</div>'
+        + '<div class="acts"><button class="btn primary grow" id="bDel" onclick="entregar()">Marcar como entregada</button></div></div>';
+    } else if(l.status==='entregada' && l.player_id){
+      h+='<div class="acts"><a class="btn grow" href="/es/coachhub/jugador.html?player='+encodeURIComponent(l.player_id)+'">Ver ficha del alumno</a><a class="btn" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(l.player_id)+'">Escribir</a></div>';
+    }
+  } else {
+    var c=COACHES[l.coach_id]||{};
+    h+='<div class="acts">';
+    if(l.player_id) h+='<a class="btn primary grow" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(l.player_id)+'">Escribir a mi coach</a>';
+    if(l.status==='entregada' && l.player_id) h+='<a class="btn" href="/es/coachhub/jugador.html">Ver mi análisis</a>';
+    if(c.slug) h+='<a class="btn" href="/es/coaches/perfil.html?c='+encodeURIComponent(c.slug)+'">Perfil del coach</a>';
+    if(l.status==='pendiente') h+='<button class="btn danger" id="bCan" onclick="cancelar()">Cancelar solicitud</button>';
+    h+='</div>';
+  }
+  return h;
+}
+
+async function loadVideos(l){
+  var paths=l.video_paths||[]; if(!paths.length) return;
+  var r = await sb.storage.from('lesson-uploads').createSignedUrls(paths, 3600);
+  if(CUR!==l) return;
+  var box=$('vids'); if(!box) return;
+  if(r.error || !r.data){ box.innerHTML='<div class="hint">No se pudieron cargar los videos.</div>'; return; }
+  box.innerHTML = r.data.map(function(x){
+    return x.signedUrl
+      ? '<video src="'+esc(x.signedUrl)+'#t=0.5" controls playsinline preload="metadata"></video>'
+      : '<div class="v-err">No disponible</div>';
+  }).join('');
+}
+
+// ============================================================
+// ACCIONES
+// ============================================================
+function replyText(){ var t=$('reply'); return t ? t.value.trim() : ''; }
+function lock(on){ BUSY=on; document.querySelectorAll('#drawer .btn').forEach(function(b){ if(b.tagName==='BUTTON') b.disabled=on; }); }
+
+async function aceptar(){
+  var l=CUR, msg=replyText();
+  lock(true); $('bAcc').textContent='Aceptando…';
+  var r = await sb.rpc('mgl_clase_aceptar',{ p_id:l.id, p_reply:msg });
+  if(r.error){ lock(false); $('bAcc').textContent='Aceptar clase'; toast('No se pudo aceptar: '+r.error.message); return; }
+  var pid=r.data;
+  // el mensaje también llega a su bandeja de Mensajes (si está activada)
+  if(msg && pid){ try{ await sb.from('coach_messages').insert({ player_id:pid, sender_id:USER.id, body:msg }); }catch(e){} }
+  lock(false);
+  toast('Clase aceptada · el alumno ya está en Mis jugadores');
+  await reloadKeep(l.id);
+  if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+}
+async function rechazar(){
+  var l=CUR, msg=replyText();
+  if(!confirm('¿Rechazar esta clase?'+(msg?'':' Puedes escribir un motivo antes de rechazar.'))) return;
+  lock(true);
+  var r = await sb.rpc('mgl_clase_rechazar',{ p_id:l.id, p_reply:msg });
+  lock(false);
+  if(r.error){ toast('No se pudo rechazar: '+r.error.message); return; }
+  toast('Clase rechazada');
+  await reloadKeep(l.id);
+  if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+}
+async function entregar(){
+  var l=CUR, msg=replyText();
+  if(!confirm('¿Marcar esta clase como entregada?')) return;
+  lock(true);
+  var r = await sb.rpc('mgl_clase_entregar',{ p_id:l.id, p_reply:msg });
+  if(r.error){ lock(false); toast('No se pudo marcar: '+r.error.message); return; }
+  if(msg && l.player_id){ try{ await sb.from('coach_messages').insert({ player_id:l.player_id, sender_id:USER.id, body:msg }); }catch(e){} }
+  lock(false);
+  toast('Clase entregada');
+  await reloadKeep(l.id);
+}
+async function cancelar(){
+  var l=CUR;
+  if(!confirm('¿Cancelar esta solicitud?')) return;
+  lock(true);
+  var r = await sb.rpc('mgl_clase_cancelar',{ p_id:l.id });
+  lock(false);
+  if(r.error){ toast('No se pudo cancelar: '+r.error.message); return; }
+  if((l.video_paths||[]).length) sb.storage.from('lesson-uploads').remove(l.video_paths);
+  toast('Solicitud cancelada');
+  await reloadKeep(l.id);
+}
+async function reloadKeep(id){
+  await load();
+  var l=LESSONS.filter(function(x){ return x.id===id; })[0];
+  if(l && CUR){ CUR=l; renderDetail(); loadVideos(l); }
+}
+
+// ============================================================
+// TIEMPO REAL: clase nueva sin recargar
+// ============================================================
+function subscribe(){
+  try{
+    sb.channel('clases-'+USER.id)
+      .on('postgres_changes',{ event:'*', schema:'public', table:'coach_lessons' },function(p){
+        var n=p.new||{};
+        if(p.eventType==='INSERT' && IS_COACH && n.coach_id===USER.id) toast('Nueva clase de '+(n.student_name||'un alumno'));
+        if(p.eventType==='UPDATE' && !IS_COACH && n.student_id===USER.id && n.status && n.status!=='pendiente') toast('Tu clase cambió a: '+ST_ALUMNO[n.status]);
+        if(!BUSY){ var keep=CUR&&CUR.id; load().then(function(){ if(keep){ var l=LESSONS.filter(function(x){ return x.id===keep; })[0]; if(l){ CUR=l; renderDetail(); loadVideos(l); } } }); }
+        if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+      })
+      .subscribe();
+  }catch(e){ console.warn('realtime', e); }
+}
+
+function showSetup(){
+  $('wrap').innerHTML='<div class="setup"><h2>Falta un paso</h2>Para activar Clases hay que crear la tabla en Supabase: abre el <b>SQL Editor</b> y corre el archivo <code>sql/coach_hub_clases.sql</code> del repositorio. Después recarga esta página.</div>';
+}
+
+// ============================================================
+// MENÚ MOBILE
+// ============================================================
+(function(){
+  var btn=$('hamburgerBtn'), nav=$('navLinks');
+  function set(open){ btn.classList.toggle('open',open); nav.classList.toggle('mobile-open',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!nav.classList.contains('mobile-open')); });
+  nav.addEventListener('click',function(e){ if(e.target.tagName==='A') set(false); });
+  document.addEventListener('click',function(e){ if(nav.classList.contains('mobile-open') && !nav.contains(e.target)) set(false); });
+  window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
+})();
+document.addEventListener('keydown',function(e){ if(e.key==='Escape' && CUR) closeDetail(); });
+
+init();
+</script>
+</body>
+</html>

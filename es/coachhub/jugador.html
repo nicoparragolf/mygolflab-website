@@ -476,6 +476,7 @@
     <nav class="nav-links" id="navLinks">
       <a href="/es/coachhub/dashboard.html" id="navDash" style="display:none">Dashboard</a>
       <a href="/es/coachhub/jugador.html" id="navHub" class="active">Mi perfil</a>
+      <a href="/es/coachhub/clases.html" id="navCla" data-nav="clases">Clases</a>
       <a href="/es/coachhub/mensajes.html" id="navMsg" data-nav="mensajes">Mensajes</a>
       <a href="/es/coaches/" id="navCoaches" style="display:none">Coaches</a>
       <a href="/es/coachhub/analisis.html?from=dash" id="navAna" style="display:none">Analizar swing</a>
@@ -1111,6 +1112,7 @@ async function init(){
     if(!cpv.error && !cpv.data){ window.location.replace('vitrina.html?onboarding=1'); return; }
   } else {
     document.getElementById('navCoaches').style.display='';
+    document.getElementById('navCla').textContent='Mis clases';
   }
 
   var chip=document.getElementById('roleChip');
