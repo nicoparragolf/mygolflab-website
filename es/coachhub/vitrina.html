@@ -135,6 +135,17 @@
   .modal h3{font-family:'Barlow Condensed';font-weight:700;font-size:24px;margin-bottom:16px}
   .modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
   .modal .acts .l{margin-right:auto}
+  /* recortador de foto de perfil */
+  .modal.crop{max-width:440px}
+  .crop-stage{position:relative;width:100%;max-width:380px;aspect-ratio:1/1;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;touch-action:none;cursor:grab}
+  .crop-stage:active{cursor:grabbing}
+  .crop-stage canvas{width:100%;height:100%;display:block}
+  .crop-ring{position:absolute;inset:0;pointer-events:none;border-radius:16px;
+    background:radial-gradient(circle at center, transparent 0, transparent 69.5%, rgba(0,0,0,.6) 70%);}
+  .crop-hint{color:var(--muted);font-size:13px;text-align:center;margin-top:10px}
+  .crop-ctrl{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .crop-ctrl input[type=range]{flex:1;accent-color:var(--teal)}
+  .crop-ic{color:var(--muted);font-size:20px;width:16px;text-align:center}
   .tog{display:flex;gap:10px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:12px;cursor:pointer}
   .tog input{width:18px;height:18px;margin-top:2px;accent-color:var(--teal);flex:0 0 auto}
   .tog b{font-weight:600;font-size:14.5px;display:block}
@@ -205,6 +216,16 @@
 <div class="savebar" id="saveBar"><span>Tienes cambios sin guardar</span><button class="btn primary" onclick="saveProfile()">Guardar cambios</button></div>
 
 <div class="modal-bg" id="offerModal"><div class="modal" id="offerBody"></div></div>
+<div class="modal-bg" id="cropModal"><div class="modal crop">
+  <h3>Ajusta tu foto</h3>
+  <div class="crop-stage" id="cropStage"><canvas id="cropCanvas" width="640" height="640"></canvas><div class="crop-ring"></div></div>
+  <div class="crop-hint">Arrastra para mover · pellizca, usa la rueda o la barra para acercar</div>
+  <div class="crop-ctrl">
+    <span class="crop-ic">−</span><input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1"><span class="crop-ic">+</span>
+    <button class="btn ghost sm" type="button" id="cropRotate" title="Girar">↻ Girar</button>
+  </div>
+  <div class="acts"><button class="btn ghost" type="button" id="cropCancel">Cancelar</button><button class="btn primary" type="button" id="cropOk">Usar foto</button></div>
+</div></div>
 <input type="file" id="fileInput" style="display:none">
 <div class="toast" id="toast"></div>
 
@@ -603,12 +624,122 @@ function pickFile(field, accept){
 $('fileInput').addEventListener('change', function(){
   var f=this.files[0]; if(!f || !PICK_FIELD) return;
   var field=PICK_FIELD, isVideo=f.type.indexOf('video')===0;
+  // la foto de perfil pasa primero por el recortador (mover, acercar, girar)
+  if(field==='photo_path' && f.type.indexOf('image')===0){ openCrop(f); return; }
   if(f.size > 200*1024*1024){ toast('El archivo pesa más de 200 MB',true); return; }
   if(isVideo && /quicktime|hevc/i.test(f.type)) toast('Ojo: los .mov de iPhone pueden no verse en Chrome. Mejor graba en "Más compatible".');
   var ext=(f.name.split('.').pop()||'bin').toLowerCase();
   var path=USER.id+'/'+field.replace('_path','')+'-'+Date.now()+'.'+ext;
   upload(path,f,field);
 });
+
+// ============================================================
+// RECORTADOR DE FOTO DE PERFIL
+// ============================================================
+var CROP = null;
+function openCrop(file){
+  var url = URL.createObjectURL(file), img = new Image();
+  img.onload = function(){
+    CROP = { img:img, url:url, z:1, rot:0, x:0, y:0, ptrs:{}, pinch:null, drag:null };
+    $('cropZoom').value = 1;
+    cropFit(); cropDraw();
+    $('cropModal').classList.add('on');
+  };
+  img.onerror = function(){ URL.revokeObjectURL(url); toast('No se pudo abrir la imagen',true); };
+  img.src = url;
+}
+// tamaño base: la imagen cubre todo el cuadro con zoom 1
+function cropBase(){
+  var c=CROP, rw = (c.rot%180===0) ? c.img.width : c.img.height, rh = (c.rot%180===0) ? c.img.height : c.img.width;
+  return 640 / Math.min(rw, rh);
+}
+function cropFit(){ CROP.x=0; CROP.y=0; cropClamp(); }
+function cropClamp(){
+  var c=CROP, s=cropBase()*c.z;
+  var rw = (c.rot%180===0) ? c.img.width : c.img.height, rh = (c.rot%180===0) ? c.img.height : c.img.width;
+  var mx = Math.max(0,(rw*s-640)/2), my = Math.max(0,(rh*s-640)/2);
+  c.x = Math.max(-mx, Math.min(mx, c.x));
+  c.y = Math.max(-my, Math.min(my, c.y));
+}
+function cropPaint(ctx, size){
+  var c=CROP, k=size/640, s=cropBase()*c.z*k;
+  ctx.save();
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,size,size);
+  ctx.translate(size/2 + c.x*k, size/2 + c.y*k);
+  ctx.rotate(c.rot*Math.PI/180);
+  ctx.drawImage(c.img, -c.img.width*s/2, -c.img.height*s/2, c.img.width*s, c.img.height*s);
+  ctx.restore();
+}
+function cropDraw(){ if(CROP) cropPaint($('cropCanvas').getContext('2d'), 640); }
+function cropScale(){ var r=$('cropCanvas').getBoundingClientRect(); return 640 / (r.width||640); }
+function cropSetZoom(z, cx, cy){
+  var c=CROP, z0=c.z; z=Math.max(1, Math.min(4, z));
+  // acercar hacia el punto indicado (centro del cuadro si no hay)
+  cx = (cx==null) ? 0 : cx - 320; cy = (cy==null) ? 0 : cy - 320;
+  c.x = cx - (cx - c.x) * z / z0; c.y = cy - (cy - c.y) * z / z0;
+  c.z = z; $('cropZoom').value = z; cropClamp(); cropDraw();
+}
+function closeCrop(){
+  $('cropModal').classList.remove('on');
+  if(CROP){ URL.revokeObjectURL(CROP.url); CROP=null; }
+}
+(function(){
+  var st=$('cropStage');
+  function pos(e){ var r=st.getBoundingClientRect(), k=640/r.width; return [(e.clientX-r.left)*k, (e.clientY-r.top)*k]; }
+  st.addEventListener('pointerdown',function(e){
+    if(!CROP) return; e.preventDefault();
+    try{ st.setPointerCapture(e.pointerId); }catch(er){}
+    CROP.ptrs[e.pointerId]=pos(e);
+    var ids=Object.keys(CROP.ptrs);
+    if(ids.length===2){
+      var a=CROP.ptrs[ids[0]], b=CROP.ptrs[ids[1]];
+      CROP.pinch={ d0:Math.max(10,Math.hypot(a[0]-b[0],a[1]-b[1])), z0:CROP.z }; CROP.drag=null;
+    } else if(ids.length===1){
+      CROP.drag={ sx:CROP.ptrs[ids[0]][0], sy:CROP.ptrs[ids[0]][1], x0:CROP.x, y0:CROP.y };
+    }
+  });
+  st.addEventListener('pointermove',function(e){
+    if(!CROP || !CROP.ptrs[e.pointerId]) return; e.preventDefault();
+    CROP.ptrs[e.pointerId]=pos(e);
+    var ids=Object.keys(CROP.ptrs);
+    if(CROP.pinch && ids.length>=2){
+      var a=CROP.ptrs[ids[0]], b=CROP.ptrs[ids[1]];
+      cropSetZoom(CROP.pinch.z0*Math.hypot(a[0]-b[0],a[1]-b[1])/CROP.pinch.d0, (a[0]+b[0])/2, (a[1]+b[1])/2);
+    } else if(CROP.drag){
+      var p=CROP.ptrs[e.pointerId];
+      CROP.x=CROP.drag.x0+(p[0]-CROP.drag.sx); CROP.y=CROP.drag.y0+(p[1]-CROP.drag.sy);
+      cropClamp(); cropDraw();
+    }
+  });
+  function up(e){
+    if(!CROP) return; delete CROP.ptrs[e.pointerId];
+    var ids=Object.keys(CROP.ptrs);
+    if(ids.length<2) CROP.pinch=null;
+    if(ids.length===1){ var p=CROP.ptrs[ids[0]]; CROP.drag={ sx:p[0], sy:p[1], x0:CROP.x, y0:CROP.y }; }
+    if(!ids.length) CROP.drag=null;
+  }
+  st.addEventListener('pointerup',up); st.addEventListener('pointercancel',up);
+  st.addEventListener('wheel',function(e){
+    if(!CROP) return; e.preventDefault();
+    var p=pos(e); cropSetZoom(CROP.z*Math.exp(-e.deltaY*0.0022), p[0], p[1]);
+  },{passive:false});
+  $('cropZoom').addEventListener('input',function(){ if(CROP) cropSetZoom(parseFloat(this.value)); });
+  $('cropRotate').addEventListener('click',function(){ if(!CROP) return; CROP.rot=(CROP.rot+90)%360; cropFit(); cropDraw(); });
+  $('cropCancel').addEventListener('click',closeCrop);
+  $('cropModal').addEventListener('click',function(e){ if(e.target===this) closeCrop(); });
+  $('cropOk').addEventListener('click',function(){
+    if(!CROP) return;
+    // se exporta a 800×800 JPG
+    var out=document.createElement('canvas'); out.width=800; out.height=800;
+    cropPaint(out.getContext('2d'), 800);
+    out.toBlob(function(blob){
+      if(!blob){ toast('No se pudo preparar la foto',true); return; }
+      closeCrop();
+      var path=USER.id+'/photo-'+Date.now()+'.jpg';
+      upload(path, new File([blob],'foto.jpg',{type:'image/jpeg'}), 'photo_path');
+    },'image/jpeg',0.9);
+  });
+})();
 
 async function upload(path, file, field){
   var s = await sb.auth.getSession();
@@ -628,6 +759,11 @@ async function upload(path, file, field){
       var r=await sb.from('coach_profiles').update(upd).eq('coach_id',USER.id).select().single();
       if(r.error){ toast('Se subió pero no se guardó: '+r.error.message,true); return; }
       if(old) sb.storage.from(BUCKET).remove([old]);
+      if(field==='photo_path'){
+        // la misma foto pasa a ser el avatar de la cuenta (header de todas las páginas)
+        try{ await sb.auth.updateUser({ data:{ avatar_url: pubUrl(path) } }); }catch(e){}
+        var av=$('navAvatar'); if(av) av.innerHTML='<img src="'+esc(pubUrl(path))+'" alt="">';
+      }
       var keepDirty=DIRTY, snapshot=keepDirty?collect():null;
       P=r.data;
       if(keepDirty){ Object.keys(snapshot).forEach(function(k){ if(k.indexOf('_path')<0) P[k]=snapshot[k]; }); }

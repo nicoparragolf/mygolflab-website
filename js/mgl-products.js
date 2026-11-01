@@ -396,6 +396,41 @@
     } catch (e) { console.warn('avisos', e); }
   }
 
+  // ── 5. Foto de perfil en el avatar del header, en todas las páginas ──
+  //    Coach: la foto de su vitrina. Resto: la foto de su cuenta (Google, etc.).
+  function setupAvatar(sb, session, isCoach) {
+    var meta = session.user.user_metadata || {};
+    function apply(url) {
+      if (!url) return;
+      var els = document.querySelectorAll('#navAvatar, #siteHeader .nav-avatar');
+      for (var i = 0; i < els.length; i++) {
+        (function (el) {
+          function put() {
+            var img = el.querySelector('img');
+            if (img && img.getAttribute('src') === url) return;
+            el.innerHTML = '<img src="' + url.replace(/"/g, '&quot;') + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%">';
+          }
+          put();
+          // algunas páginas pintan las iniciales después: se vuelve a poner la foto
+          if (window.MutationObserver && !el._mglAv) {
+            el._mglAv = true;
+            new MutationObserver(function () { put(); }).observe(el, { childList: true });
+          }
+        })(els[i]);
+      }
+    }
+    var metaUrl = meta.avatar_url || meta.picture || '';
+    if (!isCoach) { apply(metaUrl); return; }
+    sb.from('coach_profiles').select('photo_path').eq('coach_id', session.user.id).maybeSingle().then(function (r) {
+      var path = r && r.data && r.data.photo_path;
+      if (!path) { apply(metaUrl); return; }
+      var url = SUPABASE_URL + '/storage/v1/object/public/coach-public/' + path.split('/').map(encodeURIComponent).join('/');
+      apply(url);
+      // la foto de la vitrina queda como foto de la cuenta (la usan Mensajes y MyGolfLab)
+      if (meta.avatar_url !== url) { try { sb.auth.updateUser({ data: { avatar_url: url } }); } catch (e) {} }
+    }, function () { apply(metaUrl); });
+  }
+
   async function decide() {
     try {
       if (!window.supabase || !window.supabase.createClient) {
@@ -414,6 +449,7 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
+      setupAvatar(sb, session, role === 'coach' || role === 'ambos');
       if (PRODUCT === 'hub') {
         setupNotifications(sb, uid, role === 'coach' || role === 'ambos');
         setupUnread(sb, uid, role === 'coach' || role === 'ambos');
