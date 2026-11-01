@@ -232,7 +232,22 @@
   // es redirigido directo a su perfil (jugador.html).
   const DEST = '/es/coachhub/dashboard.html';
 
-  function goToHub(){ window.location.href = DEST; }
+  // ?volver=/es/... → después de entrar o registrarse vuelve a esa página
+  // (se guarda porque el link de confirmación o Google pueden perder el parámetro)
+  (function(){
+    var v = new URLSearchParams(window.location.search).get('volver');
+    if(v && /^\/es\/[A-Za-z0-9_\-\/\.]*(\?[A-Za-z0-9_\-=&%\.]*)?$/.test(v)){
+      try{ localStorage.setItem('mgl_volver', JSON.stringify({ u:v, t:Date.now() })); }catch(e){}
+    }
+  })();
+  function goToHub(){
+    try{
+      var v = JSON.parse(localStorage.getItem('mgl_volver')||'null');
+      localStorage.removeItem('mgl_volver');
+      if(v && v.u && Date.now()-v.t < 86400000){ window.location.href = v.u; return; }
+    }catch(e){}
+    window.location.href = DEST;
+  }
 
   function showAuth(){
     document.getElementById('gate').style.display='none';

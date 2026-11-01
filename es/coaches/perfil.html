@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
+<script src="/js/mgl-precios.js"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
@@ -97,6 +98,37 @@
   .modal button{margin-top:18px;background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;cursor:pointer}
 
   .loading{color:var(--muted);padding:80px 0;text-align:center}
+  .offer .alt{font-size:13px;color:var(--muted);margin-bottom:2px}
+  .cur{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 4px}
+  .cur a{color:var(--teal);cursor:pointer;text-decoration:underline}
+
+  /* solicitud de clase */
+  .rq{max-width:560px;text-align:left;max-height:calc(100vh - 32px);overflow-y:auto}
+  .rq h3{text-align:left}
+  .rq .sub{color:var(--muted);font-size:14px;margin:-4px 0 14px}
+  .rq .pz{display:flex;justify-content:space-between;align-items:baseline;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+  .rq .pz b{font-family:'Bebas Neue';font-size:30px;color:var(--teal);font-weight:400;line-height:1}
+  .rq .pz small{color:var(--muted);font-size:12.5px;display:block}
+  .rq label.l{display:block;font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  .rq textarea{width:100%;min-height:96px;resize:vertical;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:11px 13px;color:var(--text);font-family:'Barlow';font-size:15px;line-height:1.45;outline:none}
+  .rq textarea:focus{border-color:var(--teal-dim)}
+  .rq .drop{border:1.5px dashed var(--border2);border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:14px;cursor:pointer}
+  .rq .drop:hover{border-color:var(--teal-dim);color:var(--text)}
+  .rq .files{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+  .rq .fl{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13.5px;position:relative;overflow:hidden}
+  .rq .fl span{flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rq .fl em{font-style:normal;color:var(--muted);font-size:12px}
+  .rq .fl i{position:absolute;left:0;bottom:0;height:3px;background:var(--teal);width:0;transition:width .2s}
+  .rq .fl button{margin:0;background:none;border:none;padding:0 4px;color:var(--muted);font-size:18px;cursor:pointer}
+  .rq .note{font-size:13px;color:#e9cf9f;background:rgba(240,184,96,.08);border:1px solid rgba(240,184,96,.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
+  .rq .err{font-size:13.5px;color:#f0a0a0;margin-top:10px;display:none}
+  .rq .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .rq .acts button{margin:0}
+  .rq .acts .go{background:var(--teal);color:#1C1709;border-color:var(--teal)}
+  .rq .acts .go:disabled{opacity:.5;cursor:default}
+  .rq.done{text-align:center}
+  .rq.done h3{text-align:center}
+  .rq.done a{display:inline-block;margin-top:16px;background:var(--teal);color:#1C1709;border-radius:10px;padding:11px 18px;font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 
   @media(max-width:900px){
     .hero{grid-template-columns:1fr;text-align:center;padding:24px 18px}
@@ -144,6 +176,9 @@
 </header>
 
 <div class="wrap" id="wrap"><div class="loading">Cargando perfil…</div></div>
+
+<div class="modal-bg" id="reqModal" onclick="if(event.target===this && !SENDING)this.classList.remove('on')"><div class="modal rq" id="reqBody"></div></div>
+<input type="file" id="reqFiles" accept="video/*" multiple style="display:none">
 
 <div class="modal-bg" id="soonModal" onclick="if(event.target===this)this.classList.remove('on')">
   <div class="modal"><h3>¡Muy pronto!</h3><p>Estamos activando los pagos con Mercado Pago. En unos días vas a poder comprar tu análisis directamente desde aquí.</p><button onclick="document.getElementById('soonModal').classList.remove('on')">Entendido</button></div>
@@ -195,7 +230,7 @@ async function init(){
   var rr = await sb.from('coach_reviews').select('rating,comment,created_at').eq('coach_id',C.coach_id).order('created_at',{ascending:false}).limit(20);
   REVIEWS = rr.data||[];
   document.title = C.display_name+' · Coach de golf online · Coach Hub';
-  render();
+  MGL_PRECIO.listo(function(){ render(); reabrirPedido(); });
   sb.rpc('mgl_registrar_visita',{p_slug:slug});
 }
 
@@ -260,25 +295,163 @@ function render(){
   OFFERS.forEach(function(o){
     var cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
     var per = o.kind==='plan_mensual' ? '<small>/ '+(o.duration_days||30)+' días</small>' : '';
+    var alt = MGL_PRECIO.otra(o.price, o.currency||'CLP');
     var inc = o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? o.analyses_included+' análisis por período' : '1 análisis en video');
     h+='<div class="offer'+(o.is_trial?' trial':'')+'">'
       + '<div class="k">'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+' · '+esc(inc)+'</div>'
       + '<h3>'+esc(o.title)+'</h3>'
-      + '<div class="pr">'+(o.price===0?'Gratis':clp(o.price))+per+'</div>'
+      + '<div class="pr">'+MGL_PRECIO.mostrar(o.price, o.currency||'CLP')+per+'</div>'
+      + (alt?'<div class="alt">'+esc(alt)+'</div>':'')
       + (o.description?'<p>'+esc(o.description)+'</p>':'')
       + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
-      + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(o.price===0?'Pedir evaluación':'Comprar')+'</button>'
+      + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
       + '</div>';
   });
+  if(OFFERS.some(function(o){ return Number(o.price)>0; })){
+    h+='<div class="cur">Precios en '+(MGL_PRECIO.esChile()?'pesos chilenos':'dólares (USD)')+' · <a onclick="cambiarMoneda()">ver en '+(MGL_PRECIO.esChile()?'USD':'CLP')+'</a></div>';
+  }
   h+='<div class="guar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>Si el coach no responde dentro de '+(C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+', te devolvemos el dinero. Tu análisis queda guardado para siempre en tu perfil.</span></div>';
   h+='</div></div>';
 
   $('wrap').innerHTML=h;
 }
 
-function buy(offerId){
-  // Etapa siguiente: Edge Function "crear-pago" + Mercado Pago.
-  $('soonModal').classList.add('on');
+function cambiarMoneda(){ MGL_PRECIO.cambiar(MGL_PRECIO.esChile()?'USD':'CLP'); render(); }
+
+// ============================================================
+// SOLICITAR UNA CLASE (sin pago por ahora; Mercado Pago después)
+// ============================================================
+var REQ = null, SENDING = false;
+function fmtMB(b){ return b>=1073741824 ? (b/1073741824).toFixed(1)+' GB' : Math.max(1,Math.round(b/1048576))+' MB'; }
+
+async function buy(offerId){
+  var o = OFFERS.filter(function(x){ return x.id===offerId; })[0];
+  if(!o) return;
+  var s = await sb.auth.getSession();
+  if(!s.data.session){
+    // se guarda qué quería pedir y vuelve acá después de crear su cuenta / entrar
+    try{ localStorage.setItem('mgl_pedir', JSON.stringify({ c:C.slug, o:offerId, t:Date.now() })); }catch(e){}
+    var volver = location.pathname + location.search;
+    location.href = '/es/coachhub/entrar.html?registro=alumno&volver=' + encodeURIComponent(volver);
+    return;
+  }
+  if(s.data.session.user.id === C.coach_id){ alert('Esta es tu propia vitrina: así la ven tus alumnos.'); return; }
+  REQ = { o:o, files:[], user:s.data.session.user, token:s.data.session.access_token };
+  renderReq();
+  $('reqModal').classList.add('on');
+}
+
+function renderReq(){
+  var o=REQ.o, cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
+  var maxv=o.max_videos||6, paid=Number(o.price)>0;
+  var h='<h3>'+(o.is_trial?'Pedir evaluación':'Pedir clase')+'</h3>'
+    + '<div class="sub">'+esc(o.title)+' · con '+esc(C.display_name)+'</div>'
+    + '<div class="pz"><div><small>'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+'</small>'+esc(o.title)+'</div>'
+    +   '<div style="text-align:right"><b>'+MGL_PRECIO.mostrar(o.price,o.currency||'CLP')+'</b><small>'+esc(MGL_PRECIO.otra(o.price,o.currency||'CLP'))+'</small></div></div>'
+    + (ang.length?'<div class="rec" style="margin-top:0"><b>Qué tienes que grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
+    + '<label class="l">Tus videos <span style="text-transform:none;letter-spacing:0;font-weight:500">(hasta '+maxv+')</span></label>'
+    + '<div class="drop" onclick="if(!SENDING)$(\'reqFiles\').click()">Toca para elegir tus videos del celular o computador</div>'
+    + '<div class="files" id="reqList"></div>'
+    + '<label class="l">¿Qué quieres trabajar?</label>'
+    + '<textarea id="reqNote" maxlength="2000" placeholder="Ej: le pego con slice al driver y pierdo distancia. Juego hace 3 años, hándicap 18."></textarea>'
+    + (paid?'<div class="note">Todavía no se cobra en la plataforma. Tu coach recibe la solicitud y te escribe para coordinar el pago antes de entregarte la clase.</div>':'')
+    + '<div class="err" id="reqErr"></div>'
+    + '<div class="acts"><button onclick="closeReq()" id="reqCancel">Cancelar</button><button class="go" id="reqGo" onclick="sendReq()">Enviar solicitud</button></div>';
+  $('reqBody').className='modal rq';
+  $('reqBody').innerHTML=h;
+  renderFiles();
+}
+function closeReq(){ if(SENDING) return; $('reqModal').classList.remove('on'); REQ=null; }
+function renderFiles(){
+  var box=$('reqList'); if(!box) return;
+  box.innerHTML = REQ.files.map(function(f,i){
+    return '<div class="fl"><span>'+esc(f.file.name)+'</span><em id="fp'+i+'">'+fmtMB(f.file.size)+'</em>'
+      + (SENDING?'':'<button onclick="REQ.files.splice('+i+',1);renderFiles()" aria-label="Quitar">×</button>')
+      + '<i id="fb'+i+'"></i></div>';
+  }).join('');
+}
+$('reqFiles').addEventListener('change', function(){
+  if(!REQ) return;
+  var maxv=REQ.o.max_videos||6;
+  Array.prototype.forEach.call(this.files, function(f){
+    if(REQ.files.length>=maxv) return;
+    if(f.size > 500*1024*1024){ showReqErr('"'+f.name+'" pesa más de 500 MB.'); return; }
+    REQ.files.push({ file:f });
+  });
+  this.value='';
+  renderFiles();
+});
+function showReqErr(m){ var e=$('reqErr'); if(!e) return; e.textContent=m; e.style.display=m?'block':'none'; }
+
+function uploadOne(path, file, i){
+  return new Promise(function(resolve, reject){
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST', SUPABASE_URL+'/storage/v1/object/lesson-uploads/'+path, true);
+    xhr.setRequestHeader('Authorization','Bearer '+REQ.token);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('x-upsert','false');
+    xhr.setRequestHeader('Content-Type', file.type||'application/octet-stream');
+    xhr.upload.onprogress=function(e){ if(e.lengthComputable){ var b=$('fb'+i), p=$('fp'+i), pc=Math.round(e.loaded/e.total*100); if(b) b.style.width=pc+'%'; if(p) p.textContent=pc+'%'; } };
+    xhr.onload=function(){
+      if(xhr.status>=200 && xhr.status<300) resolve(path);
+      else { var m=''; try{ m=JSON.parse(xhr.responseText).message; }catch(e){} reject(new Error(m||('Error '+xhr.status))); }
+    };
+    xhr.onerror=function(){ reject(new Error('Sin conexión')); };
+    xhr.send(file);
+  });
+}
+
+async function sendReq(){
+  if(!REQ || SENDING) return;
+  showReqErr('');
+  var note=$('reqNote').value.trim();
+  if(!REQ.files.length){ showReqErr('Sube al menos un video de tu swing.'); return; }
+  if(note.length<5){ showReqErr('Cuéntale brevemente al coach qué quieres trabajar.'); return; }
+  SENDING=true; renderFiles();
+  $('reqGo').disabled=true; $('reqGo').textContent='Subiendo videos…'; $('reqCancel').disabled=true;
+
+  var folder=Date.now().toString(36), paths=[];
+  try{
+    for(var i=0;i<REQ.files.length;i++){
+      var f=REQ.files[i].file, ext=(f.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'')||'mp4';
+      paths.push(await uploadOne(REQ.user.id+'/'+folder+'/'+(i+1)+'.'+ext, f, i));
+    }
+    $('reqGo').textContent='Enviando…';
+    var o=REQ.o;
+    var r = await sb.rpc('mgl_clase_pedir',{
+      p_offering:o.id, p_note:note, p_videos:paths,
+      p_country: MGL_PRECIO.esChile()?'CL':'XX',
+      p_price_clp: MGL_PRECIO.clp(o.price, o.currency||'CLP')
+    });
+    if(r.error) throw r.error;
+  }catch(e){
+    SENDING=false;
+    if(paths.length) sb.storage.from('lesson-uploads').remove(paths);
+    var m=(e && e.message)||'';
+    showReqErr(/mgl_clase_pedir|lesson-uploads|Bucket not found|PGRST202/i.test(m)
+      ? 'Las clases todavía no están activadas en la plataforma. Inténtalo más tarde.'
+      : 'No se pudo enviar: '+m);
+    $('reqGo').disabled=false; $('reqGo').textContent='Enviar solicitud'; $('reqCancel').disabled=false;
+    renderFiles();
+    return;
+  }
+  SENDING=false;
+  try{ localStorage.removeItem('mgl_pedir'); }catch(e){}
+  $('reqBody').className='modal rq done';
+  $('reqBody').innerHTML='<h3>¡Solicitud enviada!</h3><p>'+esc(C.display_name)+' recibió tus videos. Te va a responder en '
+    + (C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+' como máximo.</p>'
+    + '<a href="/es/coachhub/clases.html">Ver mis clases</a>';
+}
+
+// Si volvió de crear su cuenta para pedir una clase, se abre directo
+function reabrirPedido(){
+  try{
+    var p=JSON.parse(localStorage.getItem('mgl_pedir')||'null');
+    if(!p || p.c!==C.slug || Date.now()-p.t > 86400000) return;
+    sb.auth.getSession().then(function(r){
+      if(r.data && r.data.session && OFFERS.some(function(o){ return o.id===p.o; })) buy(p.o);
+    });
+  }catch(e){}
 }
 
 

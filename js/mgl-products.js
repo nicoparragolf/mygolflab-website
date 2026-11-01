@@ -129,27 +129,34 @@
   }
 
   // ── 3. Contador de mensajes sin leer (links con data-nav="mensajes") ──
-  var UNREAD = 0;
+  //    y de clases nuevas por responder (data-nav="clases", solo coaches)
+  var COUNTS = { mensajes: 0, clases: 0 };
   function paintUnread() {
-    var links = document.querySelectorAll('a[data-nav="mensajes"]');
-    for (var i = 0; i < links.length; i++) {
-      var a = links[i], b = a.querySelector('.nav-badge');
-      if (UNREAD > 0) {
-        if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; a.appendChild(b); }
-        var txt = UNREAD > 99 ? '99+' : String(UNREAD);
-        if (b.textContent !== txt) b.textContent = txt;
-      } else if (b) {
-        b.parentNode.removeChild(b);
+    Object.keys(COUNTS).forEach(function (k) {
+      var n = COUNTS[k], links = document.querySelectorAll('a[data-nav="' + k + '"]');
+      for (var i = 0; i < links.length; i++) {
+        var a = links[i], b = a.querySelector('.nav-badge');
+        if (n > 0) {
+          if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; a.appendChild(b); }
+          var txt = n > 99 ? '99+' : String(n);
+          if (b.textContent !== txt) b.textContent = txt;
+        } else if (b) {
+          b.parentNode.removeChild(b);
+        }
       }
-    }
+    });
   }
-  function setupUnread(sb, uid) {
+  function setupUnread(sb, uid, isCoach) {
     async function refresh() {
       try {
         var r = await sb.from('coach_messages').select('id', { count: 'exact', head: true })
           .neq('sender_id', uid).is('read_at', null);
-        if (r.error) return;           // la tabla aún no existe: no se muestra nada
-        UNREAD = r.count || 0;
+        if (!r.error) COUNTS.mensajes = r.count || 0;   // si la tabla no existe, no se muestra nada
+        if (isCoach) {
+          var c = await sb.from('coach_lessons').select('id', { count: 'exact', head: true })
+            .eq('coach_id', uid).eq('status', 'pendiente');
+          if (!c.error) COUNTS.clases = c.count || 0;
+        }
         paintUnread();
       } catch (e) {}
     }
@@ -160,7 +167,7 @@
     // Algunas páginas arman el menú con JS después: se vuelve a pintar el contador
     var hdr = document.getElementById('siteHeader');
     if (hdr && window.MutationObserver) {
-      new MutationObserver(function () { if (UNREAD > 0) paintUnread(); })
+      new MutationObserver(function () { if (COUNTS.mensajes > 0 || COUNTS.clases > 0) paintUnread(); })
         .observe(hdr, { childList: true, subtree: true });
     }
   }
@@ -183,7 +190,7 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
-      if (PRODUCT === 'hub') setupUnread(sb, uid);
+      if (PRODUCT === 'hub') setupUnread(sb, uid, role === 'coach' || role === 'ambos');
 
       var show = ALWAYS;
       var hubHref = '/es/coachhub/dashboard.html';
