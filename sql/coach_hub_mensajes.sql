@@ -1,7 +1,10 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Coach Hub · Mensajes (coach ↔ jugador)
 -- Archivo: sql/coach_hub_mensajes.sql
--- Versión: 1.0 · 2026-11-01
+-- Versión: 1.1 · 2026-11-01
+--   1.1: si ya existía una tabla coach_messages antigua (con otras columnas),
+--        se renombra a coach_messages_respaldo_YYYYMMDD (no se borra nada)
+--        y se crea la nueva.
 --
 -- Cómo correrlo: Supabase → SQL Editor → New query → pegar todo → Run.
 -- Es idempotente: se puede correr más de una vez sin romper nada.
@@ -11,6 +14,25 @@
 --   - el jugador vinculado   (players.user_id)
 -- Nadie más puede leer ni escribir en esa conversación (RLS).
 -- ═══════════════════════════════════════════════════════════════════════════
+
+-- 0. ¿Hay una coach_messages antigua con otra estructura? → respaldo
+do $$
+declare respaldo text := 'coach_messages_respaldo_' || to_char(now(), 'YYYYMMDD_HH24MI');
+begin
+  if to_regclass('public.coach_messages') is not null
+     and not exists (
+       select 1 from information_schema.columns
+       where table_schema = 'public' and table_name = 'coach_messages' and column_name = 'player_id'
+     ) then
+    -- sacarla de tiempo real antes de renombrar (si estaba)
+    if exists (select 1 from pg_publication_tables
+               where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'coach_messages') then
+      execute 'alter publication supabase_realtime drop table public.coach_messages';
+    end if;
+    execute format('alter table public.coach_messages rename to %I', respaldo);
+    raise notice 'Tabla coach_messages antigua renombrada a %', respaldo;
+  end if;
+end $$;
 
 -- 1. Tabla
 create table if not exists public.coach_messages (
