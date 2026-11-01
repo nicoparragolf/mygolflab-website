@@ -77,6 +77,12 @@
   .prow .act:hover{color:var(--text)}
   .prow .act svg{width:15px;height:15px;color:inherit}
   .chev{color:var(--muted2);flex:0 0 auto}
+  .pbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .pbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--border2);background:var(--card2);font-family:'Barlow Condensed';font-weight:700;font-size:14.5px;letter-spacing:.5px;text-transform:uppercase}
+  .pbtn svg{width:16px;height:16px}
+  .pbtn:hover{border-color:var(--teal-dim)}
+  .pbtn.primary{background:var(--teal);border-color:var(--teal);color:#1C1709}
+  .pbtn.primary:hover{filter:brightness(1.06)}
   .chev svg{width:26px;height:26px}
 
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
@@ -175,6 +181,7 @@ var IC = {
   link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
   copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
   ext:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
   chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>'
 };
 
@@ -183,7 +190,7 @@ var IC = {
 // ============================================================
 function buildNav(){
   var items = IS_COACH
-    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing'],['/es/coachhub/vitrina.html','Mi vitrina']]
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing']]
     : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
   var h='';
   items.forEach(function(it){ h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'"':'')+'>'+it[1]+'</a>'; });
@@ -261,10 +268,14 @@ function render(name, photo, st){
     +   (vitrinaUrl
           ? '<div class="prow">'+IC.link+'<a class="url" href="'+esc(vitrinaUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="u-long">'+esc(vitrinaUrl.replace('https://',''))+'</span><span class="u-short">Link de tu vitrina</span></a>'
             + '<button class="act" onclick="event.stopPropagation();copyLink(\''+esc(vitrinaUrl)+'\')">'+IC.copy+'Copiar</button>'
-            + '<a class="act" href="'+esc(vitrinaUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+IC.ext+'Ver perfil</a></div>'
+            + '</div>'
           : '')
+    +   (IS_COACH ? '<div class="pbtns">'
+          + '<a class="pbtn primary" href="/es/coachhub/vitrina.html" onclick="event.stopPropagation()">'+IC.edit+'Editar perfil</a>'
+          + (vitrinaUrl ? '<a class="pbtn" href="'+esc(vitrinaUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+IC.ext+'Ver como alumno</a>' : '')
+          + '</div>' : '')
     + '</div>'
-    + (linkCard ? '<div class="chev" title="Editar mi vitrina">'+IC.chev+'</div>' : '')
+    + (linkCard ? '<div class="chev" title="Editar perfil">'+IC.chev+'</div>' : '')
     + '</div>';
 
   // ── Números ──
@@ -288,7 +299,7 @@ function render(name, photo, st){
       + tile('/es/coachhub/clases.html','Clases','Las clases que te piden desde tu vitrina.',IC.lesson,st.clases)
       + tile('/es/coachhub/mensajes.html','Mensajes','Conversa con tus alumnos.',IC.msg,st.unread)
       + tile('/es/coachhub/analisis.html?from=dash','Analizar swing','Dibuja sobre el video, compara swings y graba tu explicación.',IC.analyze)
-      + tile('/es/coachhub/vitrina.html','Mi vitrina','Tu perfil público, ofertas y clases online.',IC.store)
+      + tile('/es/coachhub/vitrina.html#ofertas','Mis ofertas','Lo que vendes en tu vitrina: análisis, paquetes y planes.',IC.store)
       + tile('/es/coachhub/pricing.html','Suscripción','Tu plan de Coach Hub, alumnos incluidos y facturación.',IC.card)
       + (ROLE==='ambos' ? tile('/es/dashboard.html','Ir a MyGolfLab','Tu entrenamiento como jugador: Coach IA y Training Lab.',IC.ai) : tile('/es/coachhub/dashboard.html','Dashboard','Lo que necesita tu atención hoy.',IC.dash));
   } else {
