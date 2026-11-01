@@ -1096,6 +1096,8 @@ async function init(){
   USER = session.user;
 
   var av=document.getElementById('navAvatar');
+  // el avatar abre Mi cuenta
+  av.onclick=function(){ window.location.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
   var meta=USER.user_metadata||{};
   if(meta.avatar_url){ av.innerHTML='<img src="'+esc(meta.avatar_url)+'">'; }
   else { av.textContent=(meta.full_name||USER.email||'?').charAt(0).toUpperCase(); }

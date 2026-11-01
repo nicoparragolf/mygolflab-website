@@ -160,7 +160,7 @@
       <a href="/es/coachhub/analisis.html?from=dash">Analizar swing</a>
       <a href="/es/coachhub/vitrina.html">Mi vitrina</a>
     </nav>
-    <div class="avatar" id="navAvatar" title="Cerrar sesión">?</div>
+    <div class="avatar" id="navAvatar" title="Mi cuenta">?</div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
   </div>
 </header>
@@ -234,7 +234,8 @@ async function init(){
   var av=$('navAvatar');
   if(meta.avatar_url) av.innerHTML='<img src="'+esc(meta.avatar_url)+'" alt="">';
   else av.textContent=(meta.first_name||meta.full_name||USER.email||'?').charAt(0).toUpperCase();
-  av.onclick=async function(){ if(confirm('¿Cerrar sesión?')){ await sb.auth.signOut(); window.location.href='/es/coachhub/entrar.html'; } };
+  // el avatar abre Mi cuenta (cerrar sesión está ahí)
+  av.onclick=function(){ window.location.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
 
   var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
   var role = (pr.data && pr.data.role) || 'jugador';
