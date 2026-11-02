@@ -1,0 +1,75 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  App Coach Hub · Compilación de Android en la nube (GitHub Actions)
+#
+#  Genera un APK de prueba que se puede instalar en cualquier Android
+#  sin pasar por Google Play.
+#
+#  Cómo descargarlo: GitHub → pestaña Actions → "App Android" → la última
+#  ejecución con ✅ → abajo, en "Artifacts", descarga "coachhub-android".
+#  Es un .zip con el archivo .apk adentro: mándatelo al teléfono y ábrelo
+#  (Android pide permitir "instalar apps de origen desconocido").
+#
+#  Se ejecuta en cada PR que toque app-movil/, en cambios en main dentro de
+#  app-movil/ y con el botón "Run workflow".
+# ═══════════════════════════════════════════════════════════════════════════
+name: App Android
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'app-movil/**'
+      - '.github/workflows/app-android.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app-movil/**'
+
+concurrency:
+  group: app-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app-movil
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app-movil/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Preparar proyecto Android
+        run: npx cap sync android
+
+      - name: Compilar APK de prueba
+        working-directory: app-movil/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Renombrar APK
+        run: |
+          mkdir -p salida
+          cp android/app/build/outputs/apk/debug/app-debug.apk "salida/CoachHub-prueba-${{ github.run_number }}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coachhub-android
+          path: app-movil/salida/*.apk
+          retention-days: 30

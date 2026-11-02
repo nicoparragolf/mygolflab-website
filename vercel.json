@@ -12,5 +12,17 @@
     "api/pago-retorno.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/es/privacy.html",
+      "destination": "/es/privacidad.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacidad",
+      "destination": "/es/privacidad.html",
+      "permanent": true
+    }
+  ]
 }
