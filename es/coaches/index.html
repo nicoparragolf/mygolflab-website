@@ -131,6 +131,7 @@
   .cc-price{display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid var(--border)}
   .cc-price small{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-family:'Barlow Condensed';font-weight:600}
   .cc-price b{font-family:'Bebas Neue';font-size:34px;color:var(--teal);font-weight:400;line-height:1}
+  .cc-price .alt{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
   .cc-price .resp{color:var(--muted);font-size:12.5px;text-align:right}
   .cc-price .resp b{display:block;font-family:'Barlow';font-size:14px;color:var(--text);font-weight:600}
   @media(max-width:640px){ .cc{flex-basis:78vw} .car-btn{display:none} }
@@ -423,7 +424,8 @@ function cardHTML(c, why, top){
   var ini=(c.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
   var rating = c.rating_count ? '<span class="stars">★</span> '+Number(c.rating_avg).toFixed(1)+' ('+c.rating_count+')' : 'Nuevo';
   var pr = PRICE[c.coach_id] || {};
-  var precio = pr.min!=null ? '<small>Clase desde</small><b>'+MGL_PRECIO.mostrar(pr.min, pr.cur)+'</b>'
+  var otra = pr.min!=null ? MGL_PRECIO.otra(pr.min, pr.cur) : '';
+  var precio = pr.min!=null ? '<small>Clase desde</small><b>'+MGL_PRECIO.mostrar(pr.min, pr.cur)+'</b>'+(otra?'<span class="alt">'+esc(otra)+'</span>':'')
              : (pr.trial ? '<small>Primera evaluación</small><b>Gratis</b>' : '<small>Clases</small><b>—</b>');
   var resp = c.response_sla_hours<=72 ? c.response_sla_hours+' h' : Math.round(c.response_sla_hours/24)+' días';
   return '<a class="cc'+(top?' top1':'')+'" href="'+(DEMO?'#':'/es/coaches/perfil.html?c='+encodeURIComponent(c.slug))+'"'+(DEMO?' onclick="return false"':'')+'>'
