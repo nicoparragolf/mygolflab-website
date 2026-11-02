@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Selector de producto (MyGolfLab ↔ Coach Hub)
    Archivo: /js/mgl-products.js
-   Versión: 1.0 · 2026-11-01
+   Versión: 1.1 · 2026-11-02
+     1.1: menú compacto entre 901 y 1100 px (entra el link Contenido)
 
    Una cuenta, dos productos. Este script:
    1. Pinta el header con el acento de cada producto:
@@ -71,6 +72,9 @@
       +   'margin-left:6px;border-radius:9px;background:#D4C5A9;color:#1C1709;font-family:"Barlow Condensed",sans-serif;'
       +   'font-size:11px;font-weight:700;letter-spacing:0;line-height:1;vertical-align:2px}'
       + '@media (max-width:1180px){.brand-by{display:none}}'
+      // entre 901 y 1100 px el menú del coach (6 links + selector) queda justo: se compacta
+      + '@media (min-width:901px) and (max-width:1100px){#siteHeader .nav-links{gap:13px !important}'
+      +   '#siteHeader .nav-links a{font-size:14.5px !important;letter-spacing:.3px !important}#siteHeader .nav-inner{gap:12px !important}}'
       // campana de avisos
       + '.mgl-bell{position:relative;flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid #2a2a2a;background:#121212;'
       +   'color:#cfcfcf;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:6px;transition:border-color .2s,color .2s}'

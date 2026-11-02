@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Contenido exclusivo · Coach Hub by MyGolfLab</title>
+<meta name="description" content="Colecciones de tips de golf en video de coaches profesionales, en español. Pagas una vez y son tuyas para siempre.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
+<script src="/js/mgl-precios.js"></script>
+<!--
+  Coach Hub · Catálogo de contenido exclusivo
+  Archivo: /es/coaches/contenido.html
+  Versión: 1.0 · 2026-11-02
+
+  /es/coaches/contenido.html              → catálogo (filtro por tema)
+  /es/coaches/contenido.html?coach=<id>   → solo las colecciones de un coach
+  /es/coaches/contenido.html?c=<id>       → ficha de la colección: videos,
+                                             vista previa gratis, compra y
+                                             reproductor para quien la tiene
+  Sin template literals a propósito (el editor de GitHub los corrompe).
+-->
+<style>
+  :root{
+    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
+    --border:#262626; --border2:#333;
+    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
+    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666; --red:#e06a6a; --green:#8fd19e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;color:inherit}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0a}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  .nav-inner{max-width:1180px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+  .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
+  .brand span{color:var(--teal)}
+  .nav-links{display:flex;align-items:center;gap:22px;margin-left:auto}
+  .nav-links a{font-family:'Barlow Condensed';font-size:16px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a.active{color:var(--teal)}
+  .nav-sep{width:1px;height:18px;background:var(--border2)}
+  .nav-links a.nav-coach{color:var(--gold)}
+  .nav-links a.nav-btn{border:1px solid var(--border2);border-radius:8px;padding:7px 14px;color:var(--text)}
+  .nav-links a.nav-btn:hover{border-color:var(--teal);color:var(--teal)}
+  .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;margin-left:auto}
+  .hamburger span{width:24px;height:2px;background:var(--text);transition:transform .2s,opacity .2s}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+  .back{display:inline-flex;gap:6px;align-items:center;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:14px;margin-bottom:18px}
+  .back:hover{color:var(--text)}
+  .loading{color:var(--muted);padding:80px 0;text-align:center;line-height:1.6}
+  .loading a{color:var(--teal)}
+
+  /* catálogo */
+  .cat-hero{padding:10px 0 6px}
+  .cat-hero .k{font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}
+  .cat-hero h1{font-family:'Bebas Neue';font-size:56px;letter-spacing:1px;line-height:1;margin-top:6px}
+  .cat-hero p{color:#cfcfcf;font-size:17px;line-height:1.5;margin-top:10px;max-width:640px}
+  .coachbar{display:flex;align-items:center;gap:12px;margin-top:14px}
+  .coachbar .av{width:44px;height:44px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 18px}
+  .chip{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:7px 14px;font-size:14px;cursor:pointer}
+  .chip:hover{border-color:var(--teal-dim)}
+  .chip.on{border-color:var(--teal);color:var(--teal);background:rgba(212,197,169,.08)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+  .cc{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}
+  .cc:hover{border-color:var(--teal-dim);transform:translateY(-2px)}
+  .cover{position:relative;aspect-ratio:16/10;background:linear-gradient(145deg,#2B2619,#121212 70%);overflow:hidden}
+  .cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .cover .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--teal-dim)}
+  .cover .ph svg{width:46px;height:46px}
+  .cover .badge{position:absolute;left:10px;top:10px;font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;border-radius:20px;padding:3px 10px;background:var(--teal);color:#1C1709}
+  .cover .cnt{position:absolute;right:10px;bottom:10px;font-family:'Barlow Condensed';font-size:12px;font-weight:700;letter-spacing:.5px;background:rgba(0,0,0,.72);border-radius:6px;padding:2px 8px;color:#e8e8e8}
+  .cc .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1 1 auto}
+  .cc .ar{font-family:'Barlow Condensed';font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--gold)}
+  .cc h3{font-family:'Barlow Condensed';font-weight:700;font-size:21px;line-height:1.15}
+  .cc .by{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px}
+  .cc .ft{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:auto;padding-top:8px}
+  .cc .pr{font-family:'Bebas Neue';font-size:27px;color:var(--teal);line-height:1;letter-spacing:.5px}
+  .cc .alt{font-size:12.5px;color:var(--muted)}
+  .av{width:26px;height:26px;border-radius:50%;background:#2B2619;color:var(--teal);display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;font-size:11px;overflow:hidden;flex:0 0 auto}
+  .av img{width:100%;height:100%;object-fit:cover}
+  .empty{background:var(--card);border:1px dashed var(--border2);border-radius:16px;padding:34px 24px;text-align:center;color:var(--muted);line-height:1.6}
+  .empty h3{font-family:'Bebas Neue';font-size:28px;letter-spacing:1px;color:var(--text);margin-bottom:6px}
+  .empty a{color:var(--teal);text-decoration:underline}
+  .cur{font-size:13px;color:var(--muted);margin-top:18px}
+  .cur a{color:var(--teal);cursor:pointer;text-decoration:underline}
+
+  /* ficha */
+  .dh{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:26px;align-items:center;background:linear-gradient(145deg,#2B2619,#141414 65%);border:1px solid var(--teal-dim);border-radius:22px;padding:22px}
+  .dh .cover{border-radius:14px;border:1px solid var(--border)}
+  .dh .k{font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold)}
+  .dh h1{font-family:'Bebas Neue';font-size:46px;letter-spacing:1px;line-height:1;margin-top:6px}
+  .dh .coach{display:inline-flex;align-items:center;gap:10px;margin-top:14px;color:#ddd;font-size:15px}
+  .dh .coach .av{width:36px;height:36px;font-size:14px}
+  .dh .coach:hover b{color:var(--teal)}
+  .dh .meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;color:var(--muted);font-size:14.5px}
+  .dh .meta b{color:var(--text);font-weight:600}
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:22px;margin-top:22px;align-items:start}
+  .sec{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:18px}
+  .sec h2{font-family:'Barlow Condensed';font-weight:700;font-size:21px;letter-spacing:.3px;margin-bottom:12px}
+  .sec p.txt{color:#d6d6d6;font-size:15.5px;line-height:1.65;white-space:pre-line}
+
+  .stage{background:#000;border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:12px;position:relative}
+  .stage video{display:block;width:100%;max-height:72vh;aspect-ratio:16/9;object-fit:contain;background:#000}
+  .stage .lock{aspect-ratio:16/9;max-height:72vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;color:#ddd;background:linear-gradient(160deg,#1d1a12,#0b0b0b)}
+  .stage .lock svg{width:38px;height:38px;color:var(--teal)}
+  .stage .lock b{font-family:'Barlow Condensed';font-size:22px;letter-spacing:.3px}
+  .now{padding:2px 4px 16px}
+  .now h3{font-family:'Barlow Condensed';font-weight:700;font-size:22px}
+  .now p{color:#cfcfcf;font-size:15px;line-height:1.55;margin-top:6px;white-space:pre-line}
+
+  .pl{display:flex;flex-direction:column}
+  .pi{display:grid;grid-template-columns:28px 48px 1fr auto;gap:12px;align-items:center;padding:10px 8px;border-top:1px solid var(--border);cursor:pointer;border-radius:10px}
+  .pi:first-child{border-top:none}
+  .pi:hover{background:#1b1a14}
+  .pi.on{background:rgba(212,197,169,.08)}
+  .pi .n{font-family:'Bebas Neue';font-size:20px;color:var(--muted2);text-align:center}
+  .pi.on .n{color:var(--teal)}
+  .pi .th{width:48px;aspect-ratio:9/16;border-radius:7px;overflow:hidden;background:#000;border:1px solid var(--border2)}
+  .pi .th img{width:100%;height:100%;object-fit:cover;display:block}
+  .pi.locked .th img{filter:brightness(.45) blur(1px)}
+  .pi .t{min-width:0}
+  .pi .t b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pi .t small{font-size:12.5px;color:var(--muted)}
+  .pi .s{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+  .pi .s.free{color:var(--gold)}
+  .pi .s.seen{color:var(--green)}
+  .pi .s svg{width:16px;height:16px;color:var(--muted);vertical-align:-3px}
+
+  .side{position:sticky;top:84px}
+  .buybox{background:var(--card);border:1px solid var(--teal-dim);border-radius:18px;padding:20px}
+  .buybox .k{font-family:'Barlow Condensed';font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--gold)}
+  .buybox .pr{font-family:'Bebas Neue';font-size:44px;color:var(--teal);line-height:1;margin:8px 0 2px}
+  .buybox .alt{font-size:13px;color:var(--muted)}
+  .buybox ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .buybox li{display:flex;gap:9px;font-size:14.5px;color:#d6d6d6;line-height:1.4}
+  .buybox li::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:7px;flex:0 0 auto}
+  .buy{width:100%;margin-top:16px;background:var(--teal);border:none;border-radius:11px;padding:13px;font-family:'Barlow Condensed';font-weight:700;font-size:17px;letter-spacing:.5px;text-transform:uppercase;color:#1C1709;cursor:pointer;display:block;text-align:center}
+  .buy:hover{filter:brightness(1.08)}
+  .buy:disabled{opacity:.55;cursor:default}
+  .buy.ghost{background:transparent;color:var(--teal);border:1px solid var(--teal-dim)}
+  .owned{display:flex;gap:10px;align-items:center;font-size:15px;color:#cfe9d4;background:rgba(143,209,158,.08);border:1px solid rgba(143,209,158,.3);border-radius:12px;padding:12px}
+  .owned svg{width:22px;height:22px;color:var(--green);flex:0 0 auto}
+  .guar{display:flex;gap:10px;color:var(--muted);font-size:13px;line-height:1.45;padding:12px 6px 0}
+  .guar svg{width:18px;height:18px;flex:0 0 auto;color:var(--teal);margin-top:1px}
+  .mini{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-top:14px}
+  .mini .av{width:52px;height:52px;font-size:18px}
+  .mini b{display:block;font-family:'Barlow Condensed';font-size:18px}
+  .mini small{color:var(--muted);font-size:13.5px;display:block;line-height:1.4}
+  .mini a.l{font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--teal);margin-top:4px;display:inline-block}
+
+  /* modal de compra */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+  .modal-bg.on{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;max-width:480px;width:100%;padding:24px;max-height:calc(100vh - 32px);overflow-y:auto}
+  .modal h3{font-family:'Barlow Condensed';font-weight:700;font-size:24px;margin-bottom:4px}
+  .modal .sub{color:var(--muted);font-size:14px;margin-bottom:14px}
+  .desg{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+  .desg>div{display:flex;justify-content:space-between;padding:3px 0;color:#cfcfcf}
+  .desg .tot{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;color:var(--text);font-weight:600}
+  .desg .clp{display:block;color:var(--muted);font-size:12.5px;margin-top:6px}
+  .note{font-size:13.5px;color:#cfcfcf;background:rgba(212,197,169,.06);border:1px solid rgba(212,197,169,.25);border-radius:10px;padding:10px 12px;line-height:1.45}
+  .note.warn{color:#e9cf9f;background:rgba(240,184,96,.08);border-color:rgba(240,184,96,.3)}
+  .modal .err{font-size:13.5px;color:#f0a0a0;margin-top:10px;display:none}
+  .modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+  .modal .acts button,.modal .acts a{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:10px 18px;font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.4px;text-transform:uppercase;cursor:pointer}
+  .modal .acts .go{background:var(--teal);color:#1C1709;border-color:var(--teal)}
+  .modal .acts .go:disabled{opacity:.5;cursor:default}
+
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:300;max-width:calc(100vw - 32px)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:1000px){
+    .hamburger{display:flex}
+    .nav-links{display:none}
+    .nav-links.open{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:#0a0a0a;border-bottom:1px solid var(--border);padding:6px 20px 16px;margin:0;z-index:60}
+    .nav-links.open a{padding:14px 0;font-size:19px;border-bottom:1px solid var(--border)}
+    .nav-links.open .nav-sep{display:none}
+    .nav-links.open a.nav-btn{margin-top:12px;text-align:center;border:1px solid var(--border2)}
+  }
+  @media(max-width:900px){
+    .dh{grid-template-columns:1fr;padding:16px}
+    .dh h1{font-size:38px}
+    .cols{grid-template-columns:1fr}
+    .side{position:static}
+    .cols.buyfirst .side{order:-1}
+    .stage video,.stage .lock{aspect-ratio:auto;min-height:220px}
+    .stage video{max-height:68vh}
+  }
+  @media(max-width:560px){
+    .cat-hero h1{font-size:42px}
+    .wrap{padding:20px 14px 70px}
+    .pi{grid-template-columns:40px 1fr auto;gap:10px}
+    .pi .n{display:none}
+    .pi .th{width:40px}
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="nav-inner">
+    <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <nav class="nav-links" id="navLinks">
+      <a href="/es/coaches/">Coaches</a>
+      <a href="/es/coaches/contenido.html" class="active">Contenido</a>
+      <span class="nav-sep"></span>
+      <a href="/es/coachhub/index.html" class="nav-coach">Soy coach</a>
+      <a href="/es/coachhub/entrar.html" class="nav-btn" id="navAuthBtn">Iniciar sesión</a>
+    </nav>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="wrap" id="wrap"><div class="loading">Cargando…</div></div>
+
+<div class="modal-bg" id="buyModal" onclick="if(event.target===this && !PAYING)closeBuy()"><div class="modal" id="buyBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var BUCKET_VIDEO='coach-content', BUCKET_PUB='coach-public';
+
+var AREAS = [['full_swing','Full Swing'],['juego_corto','Juego Corto'],['putter','Putter'],['fisico','Físico'],['estrategia','Estrategia / Cancha']];
+var LEVELS = {todos:'Todos los niveles',iniciacion:'Iniciación',intermedio:'Intermedio',avanzado:'Avanzado'};
+function areaName(a){ for(var i=0;i<AREAS.length;i++) if(AREAS[i][0]===a) return AREAS[i][1]; return a||''; }
+
+var SESSION=null, QP=new URLSearchParams(location.search);
+var COLS=[], ITEMS={}, COACHES={}, MYP={}, FILTER='todas';
+var C=null, CI=[], URLS={}, ACCESS=false, CUR_ITEM=null, PAYING=false, FEE_PCT=5;
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); },3600); }
+function pubUrl(p){ return p ? SUPABASE_URL+'/storage/v1/object/public/'+BUCKET_PUB+'/'+p.split('/').map(encodeURIComponent).join('/') : ''; }
+function ini(n){ var p=String(n||'?').trim().split(/\s+/); return ((p[0]||'?').charAt(0)+((p[1]||'').charAt(0))).toUpperCase(); }
+function fmtDur(s){ s=Math.round(Number(s)||0); if(!s) return ''; var m=Math.floor(s/60), r=s%60; return m+':'+('0'+r).slice(-2); }
+function fmtTotal(s){ s=Math.round(Number(s)||0); if(!s) return ''; if(s<60) return s+' s'; var m=Math.round(s/60); if(m<60) return m+' min'; return Math.floor(m/60)+' h'+(m%60?' '+(m%60)+' min':''); }
+function avHTML(co, cls){
+  co=co||{};
+  return '<span class="av'+(cls?' '+cls:'')+'">'+(co.photo_path?'<img src="'+esc(pubUrl(co.photo_path))+'" alt="">':esc(ini(co.display_name||'Coach')))+'</span>';
+}
+var ICON_FILM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9l5 3-5 3z"/></svg>';
+var ICON_LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>';
+var ICON_OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>';
+var ICON_SHIELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>';
+
+function hasAccess(cid){
+  var col = cid===(C&&C.id) ? C : COLS.filter(function(x){ return x.id===cid; })[0];
+  if(SESSION && col && col.coach_id===SESSION.user.id) return true;
+  var p=MYP[cid]; return !!(p && (p.status==='pagado' || p.status==='otorgado'));
+}
+function coverHTML(c, items, badge){
+  var n=(items||[]).length, dur=(items||[]).reduce(function(a,i){ return a+(Number(i.duration_sec)||0); },0);
+  var first=(items||[]).filter(function(i){ return i.thumb_path; })[0];
+  var img = c.cover_path ? '<img src="'+esc(pubUrl(c.cover_path))+'" alt="" loading="lazy">'
+          : (first ? '<img src="'+esc(pubUrl(first.thumb_path))+'" alt="" loading="lazy">' : '<div class="ph">'+ICON_FILM+'</div>');
+  return '<div class="cover">'+img+(badge||'')+(n?'<span class="cnt">'+n+' video'+(n===1?'':'s')+(dur?' · '+fmtTotal(dur):'')+'</span>':'')+'</div>';
+}
+
+// ============================================================
+// INICIO
+// ============================================================
+async function init(){
+  var s=await sb.auth.getSession();
+  SESSION = s.data && s.data.session;
+  if(SESSION){ var a=$('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
+  sb.from('mgl_pagos_config').select('service_fee_pct').eq('id',1).maybeSingle().then(function(r){
+    if(r && r.data && r.data.service_fee_pct!=null) FEE_PCT=Number(r.data.service_fee_pct);
+  });
+  if(QP.get('c')) await loadDetail(QP.get('c'));
+  else await loadCatalog();
+}
+
+async function loadMine(ids){
+  MYP={};
+  if(!SESSION || !ids.length) return;
+  var r=await sb.from('content_purchases').select('id,collection_id,status').eq('student_id',SESSION.user.id).in('collection_id',ids);
+  (r.data||[]).forEach(function(p){ MYP[p.collection_id]=p; });
+}
+async function loadCoaches(ids){
+  ids=ids.filter(function(v,i,a){ return v && a.indexOf(v)===i && !COACHES[v]; });
+  if(!ids.length) return;
+  var r=await sb.from('coach_profiles').select('coach_id,display_name,slug,photo_path,headline').in('coach_id',ids);
+  (r.data||[]).forEach(function(x){ COACHES[x.coach_id]=x; });
+}
+
+// ============================================================
+// CATÁLOGO
+// ============================================================
+async function loadCatalog(){
+  var q=sb.from('coach_collections').select('*').eq('is_published',true).order('published_at',{ascending:false}).limit(300);
+  var coach=QP.get('coach');
+  if(coach) q=q.eq('coach_id',coach);
+  var r=await q;
+  if(r.error){
+    $('wrap').innerHTML='<div class="loading">El contenido exclusivo se está activando. Vuelve pronto.<br><br><a href="/es/coaches/">Ver coaches →</a></div>';
+    return;
+  }
+  COLS=r.data||[];
+  var ids=COLS.map(function(c){ return c.id; });
+  ITEMS={};
+  if(ids.length){
+    var ri=await sb.from('coach_collection_items').select('collection_id,duration_sec,thumb_path,sort_order').in('collection_id',ids).order('sort_order');
+    (ri.data||[]).forEach(function(i){ (ITEMS[i.collection_id]=ITEMS[i.collection_id]||[]).push(i); });
+  }
+  // solo colecciones con videos
+  COLS=COLS.filter(function(c){ return (ITEMS[c.id]||[]).length; });
+  await loadCoaches(COLS.map(function(c){ return c.coach_id; }).concat(coach?[coach]:[]));
+  await loadMine(ids);
+  MGL_PRECIO.listo(renderCatalog);
+}
+
+function renderCatalog(){
+  var coach=QP.get('coach'), co=coach?COACHES[coach]:null;
+  var h='';
+  if(coach) h+='<a class="back" href="'+(co&&co.slug?'/es/coaches/perfil.html?c='+encodeURIComponent(co.slug):'/es/coaches/')+'">‹ '+(co?esc(co.display_name):'Volver')+'</a>';
+  h+='<div class="cat-hero"><div class="k">Contenido exclusivo</div>'
+    + '<h1>'+(co?'Los tips de '+esc(co.display_name):'Aprende de los mejores coaches')+'</h1>'
+    + '<p>Colecciones de tips en video, grabadas por coaches profesionales. Pagas una vez y son tuyas para siempre: velas desde el celular, en la cancha o en el range.</p>'
+    + '</div>';
+  var areas=AREAS.filter(function(a){ return COLS.some(function(c){ return c.area===a[0]; }); });
+  if(areas.length>1){
+    h+='<div class="filters"><span class="chip'+(FILTER==='todas'?' on':'')+'" onclick="FILTER=\'todas\';renderCatalog()">Todos</span>'
+      + areas.map(function(a){ return '<span class="chip'+(FILTER===a[0]?' on':'')+'" onclick="FILTER=\''+a[0]+'\';renderCatalog()">'+a[1]+'</span>'; }).join('')+'</div>';
+  } else h+='<div style="height:22px"></div>';
+
+  var list=COLS.filter(function(c){ return FILTER==='todas' || c.area===FILTER; });
+  if(!list.length){
+    h+='<div class="empty"><h3>Muy pronto</h3>'+(co?esc(co.display_name)+' todavía no publica contenido.':'Los coaches están preparando sus primeras colecciones.')+'<br><br><a href="/es/coaches/">Mientras tanto, conoce a los coaches →</a></div>';
+  } else {
+    h+='<div class="grid">';
+    list.forEach(function(c){
+      var co2=COACHES[c.coach_id]||{}, mine=hasAccess(c.id);
+      var alt=mine?'':MGL_PRECIO.otra(c.price,c.currency);
+      h+='<a class="cc" href="/es/coaches/contenido.html?c='+encodeURIComponent(c.id)+'">'
+        + coverHTML(c, ITEMS[c.id], mine?'<span class="badge">Tuya</span>':'')
+        + '<div class="bd"><div class="ar">'+esc(areaName(c.area))+(c.level&&c.level!=='todos'?' · '+esc(LEVELS[c.level]||''):'')+'</div>'
+        + '<h3>'+esc(c.title)+'</h3>'
+        + '<div class="by">'+avHTML(co2)+'<span>'+esc(co2.display_name||'Coach')+'</span></div>'
+        + '<div class="ft"><span class="pr">'+(mine?'Ver':MGL_PRECIO.mostrar(c.price,c.currency))+'</span>'+(alt?'<span class="alt">'+esc(alt)+'</span>':'')+'</div></div></a>';
+    });
+    h+='</div>';
+    if(list.some(function(c){ return Number(c.price)>0; })) h+='<div class="cur">Precios en '+(MGL_PRECIO.esChile()?'pesos chilenos':'dólares (USD)')+' · <a onclick="cambiarMoneda()">ver en '+(MGL_PRECIO.esChile()?'USD':'CLP')+'</a></div>';
+  }
+  $('wrap').innerHTML=h;
+  document.title=(co?'Tips de '+co.display_name:'Contenido exclusivo')+' · Coach Hub';
+}
+function cambiarMoneda(){ MGL_PRECIO.cambiar(MGL_PRECIO.esChile()?'USD':'CLP'); if(C) renderDetail(); else renderCatalog(); }
+
+// ============================================================
+// FICHA DE LA COLECCIÓN
+// ============================================================
+async function loadDetail(id){
+  var r=await sb.from('coach_collections').select('*').eq('id',id).maybeSingle();
+  if(r.error || !r.data){
+    $('wrap').innerHTML='<div class="loading">No encontramos esta colección (o ya no está disponible).<br><br><a href="/es/coaches/contenido.html">Ver todo el contenido →</a></div>';
+    return;
+  }
+  C=r.data;
+  var ri=await sb.from('coach_collection_items').select('*').eq('collection_id',C.id).order('sort_order').order('created_at');
+  CI=ri.data||[];
+  await loadCoaches([C.coach_id]);
+  await loadMine([C.id]);
+  ACCESS=hasAccess(C.id);
+  await signUrls();
+  var co=COACHES[C.coach_id]||{};
+  document.title=C.title+' · '+(co.display_name||'Coach')+' · Coach Hub';
+  CUR_ITEM = pickStart();
+  MGL_PRECIO.listo(function(){
+    renderDetail();
+    afterPago();
+    reabrirCompra();
+  });
+}
+
+function playable(it){ return ACCESS || (it.is_preview && C.is_published); }
+async function signUrls(){
+  URLS={};
+  var paths=CI.filter(playable).map(function(i){ return i.video_path; });
+  if(!paths.length) return;
+  var r=await sb.storage.from(BUCKET_VIDEO).createSignedUrls(paths, 4*3600);
+  (r.data||[]).forEach(function(x){ if(x.signedUrl) URLS[x.path]=x.signedUrl; });
+}
+function seen(){ try{ return JSON.parse(localStorage.getItem('mgl_vistos_'+C.id)||'[]'); }catch(e){ return []; } }
+function markSeen(id){ try{ var s=seen(); if(s.indexOf(id)<0){ s.push(id); localStorage.setItem('mgl_vistos_'+C.id, JSON.stringify(s)); } }catch(e){} }
+function pickStart(){
+  if(!CI.length) return null;
+  if(ACCESS){ var s=seen(); var next=CI.filter(function(i){ return s.indexOf(i.id)<0; })[0]; return next||CI[0]; }
+  return CI.filter(function(i){ return i.is_preview; })[0] || CI[0];
+}
+
+function renderDetail(){
+  var co=COACHES[C.coach_id]||{}, mine=SESSION && C.coach_id===SESSION.user.id;
+  var dur=CI.reduce(function(a,i){ return a+(Number(i.duration_sec)||0); },0);
+  var nPrev=CI.filter(function(i){ return i.is_preview; }).length;
+  var h='<a class="back" href="/es/coaches/contenido.html">‹ Todo el contenido</a>';
+  if(!C.is_published) h+='<div class="sec" style="border-color:rgba(224,161,91,.4);color:#e0a15b;padding:14px 18px">'+(mine?'Vista previa: esta colección está en borrador y solo tú la ves.':'Esta colección ya no está a la venta, pero tú la tienes para siempre.')+'</div>';
+
+  h+='<div class="dh">'+coverHTML(C, CI, ACCESS&&!mine?'<span class="badge">Tuya</span>':'')
+    + '<div><div class="k">'+esc(areaName(C.area))+' · '+esc(LEVELS[C.level]||'Todos los niveles')+'</div>'
+    + '<h1>'+esc(C.title)+'</h1>'
+    + '<a class="coach" href="'+(co.slug?'/es/coaches/perfil.html?c='+encodeURIComponent(co.slug):'#')+'">'+avHTML(co)+'<span>con <b>'+esc(co.display_name||'Coach')+'</b></span></a>'
+    + '<div class="meta"><span><b>'+CI.length+'</b> video'+(CI.length===1?'':'s')+'</span>'+(dur?'<span><b>'+fmtTotal(dur)+'</b> en total</span>':'')+(nPrev&&!ACCESS?'<span><b>'+nPrev+'</b> gratis para ver ahora</span>':'')+'</div>'
+    + '</div></div>';
+
+  h+='<div class="cols'+(ACCESS||mine?'':' buyfirst')+'"><div>';
+  h+='<div class="stage" id="stage"></div><div class="now" id="now"></div>';
+  h+='<div class="sec"><h2>Contenido de la colección</h2><div class="pl" id="pl"></div></div>';
+  if(C.description) h+='<div class="sec"><h2>Qué vas a aprender</h2><p class="txt">'+esc(C.description)+'</p></div>';
+  h+='</div><div class="side">'+buyBoxHTML(co, mine, dur)+'</div></div>';
+  $('wrap').innerHTML=h;
+  renderStage(false);
+  renderPlaylist();
+}
+
+function buyBoxHTML(co, mine, dur){
+  var h='<div class="buybox">';
+  var p=MYP[C.id];
+  if(mine){
+    h+='<div class="owned">'+ICON_OK+'<span>Esta colección es tuya. Así la ven tus alumnos.</span></div>'
+      + '<a class="buy ghost" href="/es/coachhub/contenido.html?c='+encodeURIComponent(C.id)+'">Editar colección</a>';
+  } else if(ACCESS){
+    h+='<div class="owned">'+ICON_OK+'<span>Ya es tuya: tienes acceso para siempre a los '+CI.length+' videos.</span></div>'
+      + '<button class="buy" onclick="playFirstUnseen()">'+(seen().length?'Seguir viendo':'Empezar')+'</button>'
+      + '<a class="buy ghost" href="/es/coachhub/contenido.html">Mi contenido</a>';
+  } else {
+    var free=!Number(C.price), alt=MGL_PRECIO.otra(C.price,C.currency);
+    h+='<div class="k">'+(free?'Gratis':'Pago único')+'</div>'
+      + '<div class="pr">'+MGL_PRECIO.mostrar(C.price,C.currency)+'</div>'+(alt?'<div class="alt">'+esc(alt)+'</div>':'')
+      + '<ul><li>'+CI.length+' video'+(CI.length===1?'':'s')+(dur?' · '+fmtTotal(dur):'')+' de '+esc(co.display_name||'tu coach')+'</li>'
+      + '<li>Acceso para siempre, sin suscripción</li><li>Míralo desde el celular o el computador</li></ul>';
+    if(!C.is_published) h+='<button class="buy" disabled>No disponible</button>';
+    else if(p && (p.status==='por_pagar' || p.status==='fallido')) h+='<button class="buy" onclick="openBuy()">Terminar compra</button>';
+    else h+='<button class="buy" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar')+'</button>';
+    if(!free) h+='<div class="guar">'+ICON_SHIELD+'<span>Pago seguro con Flow: Webpay, tarjetas o transferencia.</span></div>';
+  }
+  h+='</div>';
+  if(!mine){
+    h+='<div class="mini">'+avHTML(co)+'<div><b>'+esc(co.display_name||'Coach')+'</b>'+(co.headline?'<small>'+esc(co.headline)+'</small>':'')
+      + (co.slug?'<a class="l" href="/es/coaches/perfil.html?c='+encodeURIComponent(co.slug)+'">Ver perfil y clases ›</a>':'')+'</div></div>';
+  }
+  return h;
+}
+
+function renderStage(autoplay){
+  var st=$('stage'), now=$('now'); if(!st) return;
+  var it=CUR_ITEM;
+  if(!it){ st.innerHTML='<div class="lock"><b>Esta colección aún no tiene videos</b></div>'; now.innerHTML=''; return; }
+  var url=URLS[it.video_path];
+  if(playable(it) && url){
+    var poster = it.thumb_path ? ' poster="'+esc(pubUrl(it.thumb_path))+'"' : '';
+    st.innerHTML='<video id="player" src="'+esc(url)+'"'+poster+' controls playsinline preload="metadata"></video>';
+    var v=$('player');
+    v.addEventListener('timeupdate',function(){ if(v.duration && v.currentTime/v.duration>0.8){ markSeen(it.id); paintSeen(); } });
+    v.addEventListener('ended',function(){ markSeen(it.id); paintSeen(); var nx=nextPlayable(it); if(nx){ CUR_ITEM=nx; renderStage(true); renderPlaylist(); } });
+    if(autoplay){ try{ var pp=v.play(); if(pp && pp.catch) pp.catch(function(){}); }catch(e){} }
+  } else if(playable(it) && !url){
+    st.innerHTML='<div class="lock"><b>No se pudo cargar el video</b><span style="color:var(--muted)">Recarga la página para intentarlo de nuevo.</span></div>';
+  } else {
+    var free=!Number(C.price);
+    st.innerHTML='<div class="lock">'+ICON_LOCK+'<b>'+(free?'Obtén la colección gratis para ver este video':'Compra la colección para ver este video')+'</b>'
+      + (C.is_published?'<button class="buy" style="width:auto;padding:11px 22px;margin:0" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar · '+esc(MGL_PRECIO.mostrar(C.price,C.currency)))+'</button>':'')+'</div>';
+  }
+  var idx=CI.indexOf(it)+1;
+  now.innerHTML='<h3>'+idx+'. '+esc(it.title)+'</h3>'+(it.description && playable(it)?'<p>'+esc(it.description)+'</p>':'');
+}
+function nextPlayable(it){ var i=CI.indexOf(it); for(var k=i+1;k<CI.length;k++) if(playable(CI[k])) return CI[k]; return null; }
+function playFirstUnseen(){ var s=seen(); CUR_ITEM=CI.filter(function(i){ return s.indexOf(i.id)<0; })[0]||CI[0]; renderStage(true); renderPlaylist(); var st=$('stage'); if(st) st.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+function renderPlaylist(){
+  var box=$('pl'); if(!box) return;
+  var s=seen();
+  box.innerHTML=CI.map(function(it,i){
+    var ok=playable(it), on=CUR_ITEM&&CUR_ITEM.id===it.id;
+    var tag = ACCESS ? (s.indexOf(it.id)>=0?'<span class="s seen">Visto</span>':'')
+            : (it.is_preview ? '<span class="s free">Gratis</span>' : '<span class="s">'+ICON_LOCK+'</span>');
+    return '<div class="pi'+(on?' on':'')+(ok?'':' locked')+'" data-id="'+it.id+'" onclick="pick(\''+it.id+'\')">'
+      + '<div class="n">'+(i+1)+'</div>'
+      + '<div class="th">'+(it.thumb_path?'<img src="'+esc(pubUrl(it.thumb_path))+'" alt="" loading="lazy">':'')+'</div>'
+      + '<div class="t"><b>'+esc(it.title)+'</b><small>'+(fmtDur(it.duration_sec)||'Video')+'</small></div>'
+      + tag+'</div>';
+  }).join('');
+}
+function paintSeen(){ if(ACCESS) renderPlaylist(); }
+function pick(id){
+  var it=CI.filter(function(x){ return x.id===id; })[0]; if(!it) return;
+  CUR_ITEM=it; renderStage(playable(it)); renderPlaylist();
+  if(window.innerWidth<900){ var st=$('stage'); if(st) st.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+
+// ============================================================
+// COMPRA
+// ============================================================
+function desglose(){
+  var cur=C.currency||'CLP', baseClp=MGL_PRECIO.clp(C.price,cur), feeClp=Math.round(baseClp*FEE_PCT/100), totClp=baseClp+feeClp;
+  var cl=MGL_PRECIO.esChile();
+  var bUsd = cur==='USD' ? Number(C.price) : MGL_PRECIO.usd(baseClp,'CLP');
+  var fUsd = Math.round(bUsd*FEE_PCT)/100, tUsd = Math.round((bUsd+fUsd)*100)/100;
+  function f(c,u){ return cl ? MGL_PRECIO.fmtCLP(c) : MGL_PRECIO.fmtUSD(u); }
+  return '<div class="desg">'
+    + '<div><span>Colección</span><span>'+f(baseClp,bUsd)+'</span></div>'
+    + '<div><span>Cargo por servicio ('+String(FEE_PCT).replace('.',',')+'%)</span><span>'+f(feeClp,fUsd)+'</span></div>'
+    + '<div class="tot"><span>Total</span><span>'+f(totClp,tUsd)+'</span></div>'
+    + (cl?'':'<div class="clp">Se cobra en pesos chilenos: <b>'+MGL_PRECIO.fmtCLP(totClp)+' CLP</b> aprox. Tu banco hace la conversión.</div>')
+    + '</div>';
+}
+
+async function openBuy(){
+  if(!C || !C.is_published) return;
+  var s=await sb.auth.getSession(); SESSION=s.data && s.data.session;
+  if(!SESSION){
+    try{ localStorage.setItem('mgl_comprar', JSON.stringify({ c:C.id, t:Date.now() })); }catch(e){}
+    location.href='/es/coachhub/entrar.html?registro=alumno&volver='+encodeURIComponent(location.pathname+'?c='+C.id);
+    return;
+  }
+  if(SESSION.user.id===C.coach_id){ toast('Esta colección es tuya'); return; }
+  var co=COACHES[C.coach_id]||{}, free=!Number(C.price);
+  var h='<h3>'+(free?'Obtener gratis':'Comprar colección')+'</h3><div class="sub">'+esc(C.title)+' · '+esc(co.display_name||'Coach')+'</div>'
+    + (free?'<div class="note">Es gratis: queda en <b>Mi contenido</b> y la puedes ver cuando quieras.</div>'
+           : desglose()+'<div class="note">Pagas una sola vez con <b>Flow</b> (Webpay, tarjetas o transferencia) y quedas con acceso para siempre a los '+CI.length+' videos.</div>')
+    + '<div class="err" id="buyErr"></div>'
+    + '<div class="acts"><button onclick="closeBuy()" id="bCancel">Cancelar</button><button class="go" id="bGo" onclick="doBuy()">'+(free?'Obtener':'Ir a pagar')+'</button></div>';
+  $('buyBody').innerHTML=h;
+  $('buyModal').classList.add('on');
+}
+function closeBuy(){ if(PAYING) return; $('buyModal').classList.remove('on'); }
+function buyErr(m){ var e=$('buyErr'); if(!e) return; e.innerHTML=m; e.style.display=m?'block':'none'; }
+
+async function doBuy(){
+  if(PAYING) return;
+  PAYING=true; buyErr(''); $('bGo').disabled=true; $('bCancel').disabled=true; $('bGo').textContent='Un momento…';
+  try{ localStorage.removeItem('mgl_comprar'); }catch(e){}
+  var r=await sb.rpc('mgl_contenido_comprar',{ p_collection:C.id, p_country: MGL_PRECIO.esChile()?'CL':'XX' });
+  if(r.error){ fail(r.error.message); return; }
+  var res=r.data||{};
+  if(res.status==='otorgado' || res.status==='pagado'){ PAYING=false; $('buyModal').classList.remove('on'); await refreshAccess(); toast('¡Listo! La colección ya es tuya'); playFirstUnseen(); return; }
+
+  $('bGo').textContent='Abriendo Flow…';
+  try{
+    var s=await sb.auth.getSession();
+    var resp=await fetch('/api/contenido-pagar',{ method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.data.session.access_token},
+      body:JSON.stringify({purchase_id:res.id}) });
+    var j=await resp.json().catch(function(){ return {}; });
+    if(resp.ok && j.url){ window.location.href=j.url; return; }
+    if(resp.status===503){
+      var co=COACHES[C.coach_id]||{};
+      PAYING=false;
+      $('buyBody').innerHTML='<h3>Pagos en línea muy pronto</h3>'
+        + '<div class="note warn" style="margin-top:10px">Estamos activando los pagos con Flow. Mientras tanto, escríbele a <b>'+esc(co.display_name||'el coach')+'</b> para coordinar el pago: apenas lo reciba, te da acceso directo a la colección.</div>'
+        + '<div class="acts">'+(co.slug?'<a href="/es/coaches/perfil.html?c='+encodeURIComponent(co.slug)+'" class="go" style="background:var(--teal);color:#1C1709">Ver perfil del coach</a>':'')+'<button onclick="closeBuy()">Entendido</button></div>';
+      MYP[C.id]={ id:res.id, collection_id:C.id, status:'por_pagar' };
+      return;
+    }
+    throw new Error(j.error||'No se pudo abrir el pago');
+  }catch(e){ fail(e.message); }
+}
+function fail(m){
+  PAYING=false;
+  buyErr(/mgl_contenido|PGRST202|42883/i.test(m)?'El contenido exclusivo se está activando. Inténtalo más tarde.':esc(m));
+  var g=$('bGo'); if(g){ g.disabled=false; g.textContent=Number(C.price)?'Ir a pagar':'Obtener'; }
+  var c=$('bCancel'); if(c) c.disabled=false;
+}
+
+async function refreshAccess(){
+  await loadMine([C.id]);
+  ACCESS=hasAccess(C.id);
+  await signUrls();
+  if(!CUR_ITEM) CUR_ITEM=pickStart();
+  renderDetail();
+}
+
+// vuelta desde Flow: ?c=...&pago=pagado|pendiente|fallido
+async function afterPago(){
+  var pago=QP.get('pago'); if(!pago) return;
+  if(history.replaceState) history.replaceState(null,'','/es/coaches/contenido.html?c='+encodeURIComponent(C.id));
+  if(pago==='fallido'){ toast('El pago no se completó. Puedes intentarlo de nuevo.'); return; }
+  if(ACCESS){ toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); return; }
+  toast('Estamos confirmando tu pago…');
+  for(var i=0;i<6 && !ACCESS;i++){
+    await new Promise(function(r){ setTimeout(r,2500); });
+    await loadMine([C.id]); ACCESS=hasAccess(C.id);
+  }
+  if(ACCESS){ await refreshAccess(); toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); }
+  else toast('Tu pago se está procesando. Te aparecerá en Mi contenido en unos minutos.');
+}
+// volvió de crear su cuenta para comprar: se abre directo
+function reabrirCompra(){
+  try{
+    var p=JSON.parse(localStorage.getItem('mgl_comprar')||'null');
+    if(!p || p.c!==C.id || Date.now()-p.t>86400000 || !SESSION || ACCESS) return;
+    openBuy();
+  }catch(e){}
+}
+
+// menú principal
+(function(){
+  var btn=$('hamburgerBtn'), nav=$('navLinks');
+  btn.addEventListener('click',function(e){ e.stopPropagation(); btn.classList.toggle('open'); nav.classList.toggle('open'); });
+  document.addEventListener('click',function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.classList.remove('open'); } });
+})();
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeBuy(); });
+init();
+</script>
+</body>
+</html>

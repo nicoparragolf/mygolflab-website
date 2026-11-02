@@ -90,6 +90,19 @@
   .rv p{margin-top:6px;color:#d6d6d6;font-size:15px;line-height:1.55}
   .empty{color:var(--muted);font-size:14.5px}
 
+  /* contenido exclusivo del coach */
+  .colgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .colc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s}
+  .colc:hover{border-color:var(--teal-dim)}
+  .colc .cv{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,#2B2619,#121212 70%)}
+  .colc .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .colc .cv span{position:absolute;right:8px;bottom:8px;font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.4px;background:rgba(0,0,0,.72);border-radius:6px;padding:2px 7px;color:#e8e8e8}
+  .colc .cb{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;flex:1 1 auto}
+  .colc .ca{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold)}
+  .colc b{font-family:'Barlow Condensed';font-weight:700;font-size:17px;line-height:1.15}
+  .colc .cp{font-family:'Bebas Neue';font-size:22px;color:var(--teal);margin-top:auto;padding-top:4px;letter-spacing:.5px}
+  .sec .more{display:inline-block;margin-top:12px;font-family:'Barlow Condensed';font-weight:700;font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--teal)}
+
   .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
   .modal-bg.on{display:flex}
   .modal{background:var(--card);border:1px solid var(--border2);border-radius:18px;max-width:440px;width:100%;padding:24px;text-align:center}
@@ -172,6 +185,7 @@
     <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
       <a href="/es/coaches/" class="active">Coaches</a>
+      <a href="/es/coaches/contenido.html">Contenido</a>
       <span class="nav-sep"></span>
       <a href="/es/coachhub/index.html" class="nav-coach">Soy coach</a>
       <a href="/es/coachhub/entrar.html" class="nav-btn" id="navAuthBtn">Iniciar sesión</a>
@@ -219,7 +233,8 @@ function handleLink(net, v){
 }
 function fmtDate(iso){ var d=new Date(iso); var m=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']; return d.getDate()+' '+m[d.getMonth()]+' '+d.getFullYear(); }
 
-var C=null, OFFERS=[], REVIEWS=[];
+var C=null, OFFERS=[], REVIEWS=[], COLS=[], COL_ITEMS={};
+var CAREA = {full_swing:'Full Swing',juego_corto:'Juego Corto',putter:'Putter',fisico:'Físico',estrategia:'Estrategia / Cancha'};
 
 async function init(){
   var slug = new URLSearchParams(location.search).get('c');
@@ -234,6 +249,16 @@ async function init(){
   OFFERS = ro.data||[];
   var rr = await sb.from('coach_reviews').select('rating,comment,created_at').eq('coach_id',C.coach_id).order('created_at',{ascending:false}).limit(20);
   REVIEWS = rr.data||[];
+  // contenido exclusivo publicado (si la tabla aún no existe, no se muestra nada)
+  try{
+    var rc = await sb.from('coach_collections').select('*').eq('coach_id',C.coach_id).eq('is_published',true).order('sort_order').order('created_at');
+    COLS = rc.data||[];
+    if(COLS.length){
+      var ric = await sb.from('coach_collection_items').select('collection_id,duration_sec,thumb_path,sort_order').in('collection_id',COLS.map(function(c){ return c.id; })).order('sort_order');
+      (ric.data||[]).forEach(function(i){ (COL_ITEMS[i.collection_id]=COL_ITEMS[i.collection_id]||[]).push(i); });
+      COLS = COLS.filter(function(c){ return (COL_ITEMS[c.id]||[]).length; });
+    }
+  }catch(e){ COLS=[]; }
   document.title = C.display_name+' · Coach de golf online · Coach Hub';
   MGL_PRECIO.listo(function(){ render(); reabrirPedido(); });
   sb.rpc('mgl_registrar_visita',{p_slug:slug});
@@ -260,6 +285,8 @@ function render(){
   if(C.intro_video_path) h+='<div class="sec"><h2>Preséntate</h2><video class="vid" src="'+pubUrl(C.intro_video_path)+'#t=0.5" controls playsinline preload="metadata"></video></div>';
   if(C.bio) h+='<div class="sec"><h2>Sobre mí</h2><p class="txt">'+esc(C.bio)+'</p></div>';
   if(C.philosophy) h+='<div class="sec"><h2>Mi forma de enseñar</h2><p class="txt">'+esc(C.philosophy)+'</p></div>';
+
+  if(COLS.length) h+=coleccionesHTML();
 
   var spec=(C.specialties||[]), lev=(C.levels||[]);
   if(spec.length||lev.length){
@@ -319,6 +346,20 @@ function render(){
   h+='</div></div>';
 
   $('wrap').innerHTML=h;
+}
+
+function coleccionesHTML(){
+  var h='<div class="sec"><h2>Contenido exclusivo</h2><p class="txt" style="color:var(--muted);font-size:14px;margin-bottom:12px">Colecciones de tips en video. Pagas una vez y son tuyas para siempre.</p><div class="colgrid">';
+  COLS.slice(0,6).forEach(function(c){
+    var it=COL_ITEMS[c.id]||[], dur=it.reduce(function(a,i){ return a+(Number(i.duration_sec)||0); },0);
+    var th=c.cover_path || ((it.filter(function(i){ return i.thumb_path; })[0]||{}).thumb_path);
+    var min=Math.round(dur/60);
+    h+='<a class="colc" href="/es/coaches/contenido.html?c='+encodeURIComponent(c.id)+'"><div class="cv">'+(th?'<img src="'+pubUrl(th)+'" alt="" loading="lazy">':'')
+      + '<span>'+it.length+' video'+(it.length===1?'':'s')+(min?' · '+min+' min':'')+'</span></div>'
+      + '<div class="cb"><div class="ca">'+esc(CAREA[c.area]||'')+'</div><b>'+esc(c.title)+'</b><div class="cp">'+MGL_PRECIO.mostrar(c.price,c.currency||'USD')+'</div></div></a>';
+  });
+  h+='</div>'+(COLS.length>6?'<a class="more" href="/es/coaches/contenido.html?coach='+encodeURIComponent(C.coach_id)+'">Ver todo su contenido ›</a>':'')+'</div>';
+  return h;
 }
 
 function cambiarMoneda(){ MGL_PRECIO.cambiar(MGL_PRECIO.esChile()?'USD':'CLP'); render(); }
