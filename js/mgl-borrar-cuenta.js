@@ -19,6 +19,8 @@
     '.mbc-zona p{color:#8a8a8a;font-size:14.5px;line-height:1.5;margin:0 0 14px;max-width:560px}' +
     '.mbc-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(224,106,106,.45);color:#e06a6a;border-radius:10px;padding:10px 18px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:14.5px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:background .2s}' +
     '.mbc-btn:hover{background:rgba(224,106,106,.08)}' +
+    '.mbc-zona p.mbc-legal{margin:22px 0 0;font-size:14px}' +
+    '.mbc-legal a{color:#8a8a8a;text-decoration:underline}' +
     '.mbc-bg{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}' +
     '.mbc-bg.on{display:flex}' +
     '.mbc-box{width:100%;max-width:440px;background:#141414;border:1px solid #333;border-radius:20px;padding:28px 26px;color:#f5f5f5;font-family:"Barlow",sans-serif}' +
@@ -59,6 +61,7 @@
     var btn = el('button', 'mbc-btn', 'Eliminar mi cuenta');
     btn.type = 'button';
     zona.appendChild(btn);
+    zona.appendChild(el('p', 'mbc-legal', '<a href="/es/privacidad.html">Política de privacidad</a>'));
     contenedor.appendChild(zona);
 
     var bg = el('div', 'mbc-bg',
