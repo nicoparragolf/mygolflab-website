@@ -76,12 +76,15 @@ Antes de cada nueva versión, sube el número en:
 
 ## Cambiar ícono o splash
 
-Reemplaza `assets/icon-only.png` (1024×1024) y `assets/splash.png` (2732×2732) y corre:
+El ícono es Órbitas "Coach + alumno" en dorado; el original está en `assets/icon.svg`.
+Para cambiarlo, reemplaza `assets/icon-only.png` (1024×1024) y `assets/splash.png` (2732×2732) y corre:
 
 ```bash
 npm run iconos
 npx cap sync
 ```
+
+Ojo: en Android el generador deja el dibujo muy al borde y el círculo del ícono puede cortarlo. Pídele a Claude que ajuste las capas `ic_launcher_foreground` para que queden dentro de la zona segura.
 
 ## Cómo se comporta la web dentro de la app
 
