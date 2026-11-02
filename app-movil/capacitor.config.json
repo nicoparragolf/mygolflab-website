@@ -1,0 +1,36 @@
+{
+  "appId": "golf.mygolflab.coachhub",
+  "appName": "Coach Hub",
+  "webDir": "www",
+  "backgroundColor": "#0a0a0a",
+  "appendUserAgent": "CoachHubApp",
+  "server": {
+    "url": "https://mygolflab.golf/es/coachhub/entrar.html",
+    "errorPath": "offline.html",
+    "allowNavigation": [
+      "mygolflab.golf",
+      "*.mygolflab.golf",
+      "yulpqupmftdjbepqiscs.supabase.co"
+    ]
+  },
+  "ios": {
+    "contentInset": "never",
+    "scheme": "Coach Hub"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#0a0a0a",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0a0a0a",
+      "overlaysWebView": true
+    }
+  }
+}

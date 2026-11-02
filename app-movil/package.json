@@ -1,0 +1,25 @@
+{
+  "name": "coachhub-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App de Coach Hub (iOS y Android) hecha con Capacitor. Carga la web de mygolflab.golf.",
+  "scripts": {
+    "sync": "cap sync",
+    "ios": "cap sync ios && cap open ios",
+    "android": "cap sync android && cap open android",
+    "iconos": "capacitor-assets generate --ios --android --iconBackgroundColor '#0a0a0a' --iconBackgroundColorDark '#0a0a0a' --splashBackgroundColor '#0a0a0a' --splashBackgroundColorDark '#0a0a0a'"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.0.0"
+  }
+}
