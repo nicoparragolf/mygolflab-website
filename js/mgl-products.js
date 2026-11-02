@@ -24,6 +24,13 @@
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
 
   var script = document.currentScript;
+
+  // Ajustes para cuando la web corre dentro de la app (no hace nada en el navegador)
+  if (!window.MGLApp && !document.querySelector('script[src="/js/mgl-app.js"]')) {
+    var sApp = document.createElement('script');
+    sApp.src = '/js/mgl-app.js';
+    (document.head || document.documentElement).appendChild(sApp);
+  }
   var PRODUCT = (script && script.getAttribute('data-product')) === 'hub' ? 'hub' : 'mgl';
   var ALWAYS = !!(script && script.getAttribute('data-switch') === 'always');
 

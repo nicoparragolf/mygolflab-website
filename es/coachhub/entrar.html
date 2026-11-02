@@ -18,6 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-app.js"></script>
 <style>
   :root{
     --teal:#D4C5A9; --teal-dark:#B9A982; --gold:#F0B860;
@@ -322,6 +323,11 @@
 
   async function oauthSignIn(provider, guardarRol){
     if(guardarRol) localStorage.setItem('mgl_pending_role', selectedRole);
+    // Dentro de la app: el login se abre en el navegador del sistema
+    if(window.MGLApp && MGLApp.esNativo()){
+      MGLApp.oauth(sb, provider, showError);
+      return;
+    }
     const { error } = await sb.auth.signInWithOAuth({
       provider: provider,
       options: { redirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html' }
