@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
+<script src="/js/mgl-borrar-cuenta.js"></script>
 <style>
   :root{
     --bg:#0a0a0a; --bg2:#111; --card:#141414; --card2:#1a1a1a;
@@ -316,8 +317,10 @@ function render(name, photo, st){
   }
   h+= '<button class="tile danger" onclick="logout()"><div><h3>Cerrar sesión</h3><p>Salir de tu cuenta en este dispositivo.</p></div><div class="ic">'+IC.logout+'</div></button>';
   h+='</div>';
+  h+='<div id="zonaCuenta"></div>';
 
   $('wrap').innerHTML=h;
+  if(window.MGLBorrarCuenta) MGLBorrarCuenta.montar($('zonaCuenta'), { sb:sb, volverA:'/es/coachhub/entrar.html' });
 }
 
 function tile(href, title, desc, icon, badge){
