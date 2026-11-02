@@ -1,0 +1,135 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  App Coach Hub · Compilación de iPhone en la nube (GitHub Actions)
+#
+#  Un Mac de GitHub compila la app que está en app-movil/.
+#
+#  · En cada PR que toque app-movil/: compila de prueba (sin firmar) para
+#    confirmar que la app no se rompió.
+#  · Botón "Run workflow" (pestaña Actions) o cambio en main dentro de
+#    app-movil/: si ya están las llaves de Apple, firma la app y la sube
+#    a TestFlight. Si faltan, solo compila de prueba.
+#
+#  Llaves (GitHub → Settings → Secrets and variables → Actions):
+#    APPLE_TEAM_ID         Team ID de la cuenta Apple Developer (10 letras/números)
+#    ASC_KEY_ID            Key ID de la llave de App Store Connect
+#    ASC_ISSUER_ID         Issuer ID de App Store Connect
+#    ASC_KEY_P8            Contenido completo del archivo AuthKey_XXXX.p8
+# ═══════════════════════════════════════════════════════════════════════════
+name: App iOS
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'app-movil/**'
+      - '.github/workflows/app-ios.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app-movil/**'
+
+concurrency:
+  group: app-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    runs-on: macos-26
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app-movil
+    env:
+      TIENE_LLAVES: ${{ secrets.ASC_KEY_P8 != '' && secrets.APPLE_TEAM_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app-movil/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Preparar proyecto iOS
+        run: npx cap sync ios
+
+      - name: Versión de Xcode
+        run: xcodebuild -version
+
+      # ── Compilación de prueba (sin firmar) ──
+      - name: Compilar de prueba
+        if: github.event_name == 'pull_request' || env.TIENE_LLAVES != 'true'
+        run: |
+          xcodebuild build \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO | tail -n 40
+          exit ${PIPESTATUS[0]}
+
+      # ── Firmar y subir a TestFlight ──
+      - name: Llave de App Store Connect
+        if: github.event_name != 'pull_request' && env.TIENE_LLAVES == 'true'
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Compilar y firmar (archive)
+        if: github.event_name != 'pull_request' && env.TIENE_LLAVES == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcodebuild archive \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} | tail -n 40
+          exit ${PIPESTATUS[0]}
+
+      - name: Subir a TestFlight
+        if: github.event_name != 'pull_request' && env.TIENE_LLAVES == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_${ASC_KEY_ID}.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          echo "✅ Subida a TestFlight. En unos minutos aparece en la app TestFlight del iPhone."
