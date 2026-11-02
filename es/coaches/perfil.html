@@ -339,9 +339,6 @@ function render(){
       + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
       + '</div>';
   });
-  if(OFFERS.some(function(o){ return Number(o.price)>0; })){
-    h+='<div class="cur">Precios en '+(MGL_PRECIO.esChile()?'pesos chilenos':'dólares (USD)')+' · <a onclick="cambiarMoneda()">ver en '+(MGL_PRECIO.esChile()?'USD':'CLP')+'</a></div>';
-  }
   h+='<div class="guar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>Si el coach no responde dentro de '+(C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+', te devolvemos el dinero. Tu análisis queda guardado para siempre en tu perfil.</span></div>';
   h+='</div></div>';
 

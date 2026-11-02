@@ -361,7 +361,6 @@ function renderCatalog(){
         + '<div class="ft"><span class="pr">'+(mine?'Ver':MGL_PRECIO.mostrar(c.price,c.currency))+'</span>'+(alt?'<span class="alt">'+esc(alt)+'</span>':'')+'</div></div></a>';
     });
     h+='</div>';
-    if(list.some(function(c){ return Number(c.price)>0; })) h+='<div class="cur">Precios en '+(MGL_PRECIO.esChile()?'pesos chilenos':'dólares (USD)')+' · <a onclick="cambiarMoneda()">ver en '+(MGL_PRECIO.esChile()?'USD':'CLP')+'</a></div>';
   }
   $('wrap').innerHTML=h;
   document.title=(co?'Tips de '+co.display_name:'Contenido exclusivo')+' · Coach Hub';
