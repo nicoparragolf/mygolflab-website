@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Pagos de clases con Flow — utilidades compartidas
    Archivo: /api/_pagos.js   (el "_" hace que Vercel no lo publique como ruta)
-   Versión: 1.0 · 2026-11-01
+   Versión: 1.1 · 2026-11-02
+     1.1: también confirma compras de contenido exclusivo (content_purchases)
 
    Variables de entorno (Vercel → Settings → Environment Variables):
      FLOW_API_KEY               apiKey de tu cuenta Flow
@@ -152,7 +153,8 @@ export async function confirmarPago(cfg, token) {
 
   var lr = await db(cfg, 'coach_lessons?id=eq.' + encodeURIComponent(lessonId) + '&select=*');
   var l = lr.data && lr.data[0];
-  if (!l) return { estado: estado, lessonId: lessonId };
+  // si no es una clase, puede ser la compra de una colección de contenido
+  if (!l) return confirmarCompraContenido(cfg, st, estado, lessonId);
   if (l.payment_status === 'pagado' || l.payment_status === 'reembolso_pendiente' || l.payment_status === 'reembolsado') {
     return { estado: 'pagado', lessonId: lessonId };
   }
@@ -216,4 +218,77 @@ export async function confirmarPago(cfg, token) {
     }
   });
   return { estado: 'pagado', lessonId: lessonId };
+}
+
+// ── Contenido exclusivo: compra de una colección de videos ──
+// Misma lógica que las clases: el monto tiene que calzar, comisión escalonada
+// según las ventas de contenido del coach en el mes, 0% con alumnos propios.
+// Es idempotente: si ya estaba pagada no hace nada.
+async function confirmarCompraContenido(cfg, st, estado, purchaseId) {
+  var base = { estado: estado, lessonId: null, purchaseId: purchaseId, collectionId: null, tipo: 'contenido' };
+  var pr;
+  try {
+    pr = await db(cfg, 'content_purchases?id=eq.' + encodeURIComponent(purchaseId) + '&select=*');
+  } catch (e) { return { estado: estado, lessonId: null }; }   // la tabla aún no existe
+  var p = pr.data && pr.data[0];
+  if (!p) return { estado: estado, lessonId: null };
+  base.collectionId = p.collection_id;
+
+  if (p.status === 'pagado' || p.status === 'otorgado' || p.status === 'reembolsado') {
+    base.estado = 'pagado';
+    return base;
+  }
+  if (estado === 'fallido') {
+    await db(cfg, 'content_purchases?id=eq.' + p.id, { method: 'PATCH', body: { status: 'fallido' } });
+    return base;
+  }
+  if (estado !== 'pagado') return base;
+
+  if (Number(st.amount) !== Number(p.amount_clp)) {
+    console.error('Pago de contenido con monto distinto', p.id, st.amount, p.amount_clp);
+    await db(cfg, 'content_purchases?id=eq.' + p.id, { method: 'PATCH', body: { status: 'fallido' } });
+    base.estado = 'fallido';
+    return base;
+  }
+
+  var conf = await pagosConfig(cfg);
+
+  // ¿alumno propio? ya tenía ficha con este coach antes de comprar
+  var own = false;
+  try {
+    var fichas = [];
+    var pu = await db(cfg, 'players?coach_id=eq.' + p.coach_id + '&user_id=eq.' + p.student_id + '&select=created_at');
+    fichas = fichas.concat(pu.data || []);
+    if (p.student_email) {
+      var pe = await db(cfg, 'players?coach_id=eq.' + p.coach_id + '&email=ilike.' + encodeURIComponent(p.student_email) + '&select=created_at');
+      fichas = fichas.concat(pe.data || []);
+    }
+    own = fichas.some(function (f) { return f.created_at && new Date(f.created_at) < new Date(p.created_at); });
+  } catch (e) { console.warn('own student contenido', e.message); }
+
+  var desde = inicioMesChile();
+  var cnt = await db(cfg, 'content_purchases?coach_id=eq.' + p.coach_id + '&status=eq.pagado&paid_at=gte.' +
+    encodeURIComponent(desde) + '&select=id', { prefer: 'count=exact' });
+  var n = (cnt.count || 0) + 1;
+  var pct = own ? Number(conf.own_student_pct) : tierPct(conf.tiers, n);
+  var baseClp = Number(p.base_clp) || 0;
+  var commission = Math.round(baseClp * pct / 100);
+
+  var media = (st.paymentData && st.paymentData.media) || null;
+  await db(cfg, 'content_purchases?id=eq.' + p.id + '&status=neq.pagado', {
+    method: 'PATCH',
+    body: {
+      status: 'pagado',
+      paid_at: new Date().toISOString(),
+      payment_method: media,
+      flow_order: st.flowOrder || p.flow_order,
+      is_own_student: own,
+      commission_pct: pct,
+      commission_clp: commission,
+      coach_payout_clp: baseClp - commission,
+      payout_status: 'por_liquidar'
+    }
+  });
+  base.estado = 'pagado';
+  return base;
 }

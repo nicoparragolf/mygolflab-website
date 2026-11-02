@@ -171,6 +171,7 @@ function pubUrl(path){ return path ? SUPABASE_URL+'/storage/v1/object/public/'+B
 function initialsOf(name){ var p=String(name||'?').trim().split(/\s+/); return ((p[0]||'?').charAt(0)+((p[1]||'').charAt(0))).toUpperCase(); }
 
 var IC = {
+  content:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   players:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
   lesson:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3"/></svg>',
   msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
@@ -196,8 +197,8 @@ var IC = {
 // ============================================================
 function buildNav(){
   var items = IS_COACH
-    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing']]
-    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/contenido.html','Contenido','contenido'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing']]
+    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/contenido.html','Mi contenido','contenido'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
   var h='';
   items.forEach(function(it){ h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'"':'')+'>'+it[1]+'</a>'; });
   $('navLinks').innerHTML=h;
@@ -303,6 +304,7 @@ function render(name, photo, st){
   if(IS_COACH){
     h+= tile('/es/coachhub/jugador.html','Mis jugadores','Perfiles, timeline, galería y notas de cada alumno.',IC.players)
       + tile('/es/coachhub/clases.html','Clases','Las clases que te piden desde tu vitrina.',IC.lesson,st.clases)
+      + tile('/es/coachhub/contenido.html','Contenido','Vende colecciones de videos con tus tips.',IC.content)
       + tile('/es/coachhub/mensajes.html','Mensajes','Conversa con tus alumnos.',IC.msg,st.unread)
       + tile('/es/coachhub/analisis.html?from=dash','Analizar swing','Dibuja sobre el video, compara swings y graba tu explicación.',IC.analyze)
       + tile('/es/coachhub/vitrina.html#ofertas','Mis ofertas','Lo que vendes en tu vitrina: análisis, paquetes y planes.',IC.store)
@@ -311,6 +313,7 @@ function render(name, photo, st){
   } else {
     h+= tile('/es/coachhub/jugador.html','Mi perfil','Tu timeline, videos y notas de tu coach.',IC.user)
       + tile('/es/coachhub/clases.html','Mis clases','Las clases que pediste y su estado.',IC.lesson)
+      + tile('/es/coachhub/contenido.html','Mi contenido','Las colecciones de tips que compraste.',IC.content)
       + tile('/es/coachhub/mensajes.html','Mensajes','Escríbele a tu coach.',IC.msg,st.unread)
       + tile('/es/coaches/','Coaches','Encuentra un coach y toma clases online.',IC.search)
       + tile('/es/dashboard.html','Ir a MyGolfLab','Coach IA, Biblioteca y Training Lab.',IC.ai);

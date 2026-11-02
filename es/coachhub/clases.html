@@ -223,8 +223,8 @@ function isMissing(err){
 // ============================================================
 function buildNav(){
   var items = IS_COACH
-    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing']]
-    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
+    ? [['/es/coachhub/dashboard.html','Dashboard'],['/es/coachhub/jugador.html','Mis jugadores'],['/es/coachhub/clases.html','Clases','clases'],['/es/coachhub/contenido.html','Contenido','contenido'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coachhub/analisis.html?from=dash','Analizar swing']]
+    : [['/es/coachhub/jugador.html','Mi perfil'],['/es/coachhub/clases.html','Mis clases','clases'],['/es/coachhub/contenido.html','Mi contenido','contenido'],['/es/coachhub/mensajes.html','Mensajes','mensajes'],['/es/coaches/','Coaches']];
   var h='';
   items.forEach(function(it){ h+='<a href="'+it[0]+'"'+(it[2]?' data-nav="'+it[2]+'"':'')+(it[2]==='clases'?' class="active"':'')+'>'+it[1]+'</a>'; });
   $('navLinks').innerHTML=h;

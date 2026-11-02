@@ -1,11 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Regreso del alumno desde Flow
    Archivo: /api/pago-retorno.js
-   Versión: 1.0 · 2026-11-01
+   Versión: 1.1 · 2026-11-02
+     1.1: si el pago era de una colección de contenido, vuelve a la colección
 
    Flow envía al alumno de vuelta a esta URL (urlReturn) con POST token=...
    Se confirma el pago (por si la notificación aún no llega) y se redirige a
-   "Mis clases" mostrando el resultado.
+   "Mis clases" (o a la colección comprada) mostrando el resultado.
    ═══════════════════════════════════════════════════════════════════════════ */
 import { config, confirmarPago, SITE_URL } from './_pagos.js';
 
@@ -17,7 +18,12 @@ export default async function handler(req, res) {
     var token = body.token || (req.query && req.query.token);
     if (cfg.ok && token) {
       var r = await confirmarPago(cfg, String(token));
-      destino += '?pago=' + encodeURIComponent(r.estado) + (r.lessonId ? '&clase=' + encodeURIComponent(r.lessonId) : '');
+      if (r.tipo === 'contenido') {
+        destino = SITE_URL + '/es/coaches/contenido.html?pago=' + encodeURIComponent(r.estado)
+          + (r.collectionId ? '&c=' + encodeURIComponent(r.collectionId) : '');
+      } else {
+        destino += '?pago=' + encodeURIComponent(r.estado) + (r.lessonId ? '&clase=' + encodeURIComponent(r.lessonId) : '');
+      }
     } else {
       destino += '?pago=pendiente';
     }
