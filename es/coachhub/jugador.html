@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-paises.js"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
 <style>
   :root{
@@ -555,27 +556,7 @@
       <div class="field"><label>Ciudad</label><input id="np_city" placeholder="Ej: Santiago" autocomplete="off"></div>
       <div class="field">
         <label>País</label>
-        <select id="np_country">
-          <option value="Chile" selected>Chile</option>
-          <option value="Argentina">Argentina</option>
-          <option value="Bolivia">Bolivia</option>
-          <option value="Brasil">Brasil</option>
-          <option value="Colombia">Colombia</option>
-          <option value="Costa Rica">Costa Rica</option>
-          <option value="Ecuador">Ecuador</option>
-          <option value="España">España</option>
-          <option value="Estados Unidos">Estados Unidos</option>
-          <option value="Guatemala">Guatemala</option>
-          <option value="México">México</option>
-          <option value="Panamá">Panamá</option>
-          <option value="Paraguay">Paraguay</option>
-          <option value="Perú">Perú</option>
-          <option value="Puerto Rico">Puerto Rico</option>
-          <option value="República Dominicana">República Dominicana</option>
-          <option value="Uruguay">Uruguay</option>
-          <option value="Venezuela">Venezuela</option>
-          <option value="Otro">Otro</option>
-        </select>
+        <select id="np_country"></select>
       </div>
     </div>
     <div class="modal-actions">
@@ -2125,7 +2106,7 @@ function renderProfile(){
     +   '<span class="badge cat">'+esc(CAT_LABEL[p.category]||p.category)+'</span>'
     +   '<span class="badge tier">Stats: '+esc(TIER_LABEL[p.stats_tier]||p.stats_tier)+'</span>'
     +   '<span class="badge hcp">HCP '+hcp+'</span>'
-    +   ((p.city||p.country) ? '<span class="badge hcp">'+esc([p.city, p.country==='Otro'?'':p.country].filter(Boolean).join(', '))+'</span>' : '')
+    +   ((p.city||p.country) ? '<span class="badge hcp">'+esc([p.city, p.country==='Otro'?'':(window.MGL_PAISES?MGL_PAISES.nombre(p.country):p.country)].filter(Boolean).join(', '))+'</span>' : '')
     +   linkBadge
     +   '<a class="badge msgbtn" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(p.id)+'">'+(IS_COACH?'Enviar mensaje':'Escribir a mi coach')+'</a>'
     + '</div></div>'
@@ -2583,14 +2564,14 @@ function buildChart(pts,milestones,def){
 // MODAL: NUEVO JUGADOR (coach)
 // ============================================================
 var NP_EDIT=null;   // id de la ficha que se está editando (null = jugador nuevo)
+// países del mundo (se guarda el código ISO: CL, AR, US…; el nombre sale en el idioma de la página)
 function setCountry(v){
   var sel=document.getElementById('np_country');
-  v=v||'Chile';
-  if(!Array.prototype.some.call(sel.options,function(o){ return o.value===v; })){
-    var op=document.createElement('option'); op.value=v; op.textContent=v; sel.insertBefore(op, sel.lastElementChild);
-  }
-  sel.value=v;
+  var code=(window.MGL_PAISES && MGL_PAISES.codigo(v)) || 'CL';
+  if(!sel.options.length && window.MGL_PAISES) sel.innerHTML=MGL_PAISES.opciones(code);
+  sel.value=code;
 }
+setCountry('CL');
 document.getElementById('btnNewPlayer').addEventListener('click',function(){
   NP_EDIT=null;
   document.getElementById('np_title').textContent='Nuevo jugador';
@@ -2598,7 +2579,7 @@ document.getElementById('btnNewPlayer').addEventListener('click',function(){
   ['np_first','np_last','np_hcp','np_city','np_email'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('np_cat').value='amateur';
   document.getElementById('np_tier').value='basico';
-  setCountry('Chile');
+  setCountry('CL');
   document.getElementById('np_since').value=todayISO();
   openModal('ovPlayer');
 });
@@ -2620,7 +2601,7 @@ async function editarJugador(){
   document.getElementById('np_hcp').value=p.handicap_index!=null?p.handicap_index:'';
   document.getElementById('np_since').value=p.coaching_since?String(p.coaching_since).slice(0,10):todayISO();
   document.getElementById('np_city').value=p.city||'';
-  setCountry(p.country||'Chile');
+  setCountry(p.country||'CL');
   openModal('ovPlayer');
 }
 document.getElementById('np_save').addEventListener('click',async function(){
@@ -2665,7 +2646,7 @@ document.getElementById('np_save').addEventListener('click',async function(){
     return;
   }
   ['np_first','np_last','np_hcp','np_city','np_email'].forEach(function(id){document.getElementById(id).value='';});
-  document.getElementById('np_country').value='Chile';
+  setCountry('CL');
   toast(r.data.user_id ? 'Jugador creado y cuenta vinculada' : 'Jugador creado');
   await loadPlayers();
   selectPlayer(r.data.id);
