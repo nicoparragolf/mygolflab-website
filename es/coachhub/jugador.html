@@ -570,6 +570,11 @@
 <div class="overlay" id="ovEvent">
   <div class="modal">
     <h2 id="ne_heading">Registrar evento</h2>
+    <!-- Jugador: solo el coach, al crear un evento nuevo (acceso rápido desde el dashboard) -->
+    <div class="field" id="ne_playerWrap" style="display:none">
+      <label>Jugador</label>
+      <select id="ne_player"></select>
+    </div>
     <div class="field">
       <label>Tipo de evento</label>
       <select id="ne_type"></select>
@@ -1151,6 +1156,13 @@ async function init(){
     } else {
       showEmptyCoachPanel();
     }
+    // acceso rápido desde el dashboard: abre directo la ventana de nuevo evento
+    if(qp.get('nuevo')==='evento'){
+      openEventModal();
+      qp.delete('nuevo');
+      var qs=qp.toString();
+      history.replaceState(null,'',window.location.pathname+(qs?'?'+qs:''));
+    }
   }
   else { await initModoJugador(); }
 }
@@ -1158,7 +1170,9 @@ async function init(){
 function showEmptyCoachPanel(){
   document.getElementById('mainPanel').innerHTML=
     '<div class="empty-hero"><h2>Selecciona un jugador</h2>'
-    +'<p>Elige un jugador de la lista para ver su historial completo, o agrega uno nuevo para empezar a construir su perfil desde el primer día.</p></div>';
+    +'<p>Elige un jugador de la lista para ver su historial completo, o agrega uno nuevo para empezar a construir su perfil desde el primer día.</p>'
+    +(PLAYERS.length?'<button class="btn-primary" style="margin-top:18px" onclick="openEventModal()">+ Registrar evento</button>':'')
+    +'</div>';
 }
 
 // ---------- MODO JUGADOR ----------
@@ -2732,8 +2746,47 @@ function resetEventModal(){
   renderExistingMedia();
 }
 
+// ---------- selector de jugador (solo coach, eventos nuevos) ----------
+// Permite crear el evento sin entrar antes al perfil del alumno: útil para
+// registrar rápido durante la clase desde el dashboard.
+function fillPlayerPick(){
+  var wrap=document.getElementById('ne_playerWrap');
+  var sel=document.getElementById('ne_player');
+  if(!IS_COACH){ wrap.style.display='none'; return; }
+  var h = SEL ? '' : '<option value="">'+(PLAYERS.length?'Elige un jugador…':'Aún no tienes jugadores')+'</option>';
+  PLAYERS.forEach(function(p){
+    h+='<option value="'+p.id+'"'+(SEL&&SEL.id===p.id?' selected':'')+'>'+esc(((p.first_name||'')+' '+(p.last_name||'')).trim())+'</option>';
+  });
+  sel.innerHTML=h;
+  sel.disabled=false;
+  wrap.style.display='block';
+}
+function hidePlayerPick(){ document.getElementById('ne_playerWrap').style.display='none'; }
+
+// carga el perfil del jugador elegido detrás de la ventana (SEL, COACH_ID, eventos)
+var NE_SWITCHING=null;
+async function switchNePlayer(id){
+  if(!id || (SEL && SEL.id===id)) return;
+  var sel=document.getElementById('ne_player');
+  sel.disabled=true;
+  NE_SWITCHING = selectPlayer(id);
+  await NE_SWITCHING;
+  NE_SWITCHING=null;
+  sel.disabled=false;
+  // el selector ya no necesita la opción vacía
+  var vacia=sel.querySelector('option[value=""]');
+  if(vacia) vacia.remove();
+  sel.value=id;
+  syncAreaField();
+  // las métricas disponibles dependen del nivel de estadísticas del jugador
+  Array.prototype.forEach.call(document.querySelectorAll('#ne_metricRows .metric-input-row select'),function(s){
+    var v=s.value; s.innerHTML=metricOptions(); s.value=v; if(s.value!==v) s.value='';
+  });
+}
+
 function openEventModal(){
   resetEventModal();
+  fillPlayerPick();
   document.getElementById('ne_type').innerHTML=typeOptions(null);
   document.getElementById('ne_heading').textContent = IS_COACH ? 'Registrar evento' : 'Agregar a mi timeline';
   document.getElementById('ne_save').textContent='Guardar evento';
@@ -2754,6 +2807,7 @@ async function openEditEvent(id){
   if(!(IS_COACH || e.created_by===USER.id)){ toast('Solo puedes editar lo que registraste tú',true); return; }
 
   resetEventModal();
+  hidePlayerPick();
   EDIT_ID=id;
 
   document.getElementById('ne_type').innerHTML=typeOptions(e.event_type);
@@ -2880,7 +2934,7 @@ function renderPending(){
 
 function metricOptions(){
   var tierRank={basico:1,intermedio:2,avanzado:3};
-  var max=tierRank[SEL.stats_tier]||1;
+  var max=tierRank[SEL && SEL.stats_tier]||1;   // sin jugador elegido aún: nivel básico
   var html='<option value="">— métrica —</option>';
   METRIC_DEFS.forEach(function(m){
     if((tierRank[m.min_tier]||1)<=max)
@@ -2899,12 +2953,23 @@ function addMetricRow(key,value){
 }
 document.getElementById('ne_addMetric').addEventListener('click',function(){ addMetricRow(); });
 
+document.getElementById('ne_player').addEventListener('change',function(){
+  switchNePlayer(this.value);
+});
+
 // Metas y Planes son opciones del selector de eventos, pero tienen su propio
 // modal (con métrica objetivo / tareas). Al elegirlas, saltamos ahí.
-document.getElementById('ne_type').addEventListener('change',function(){
+document.getElementById('ne_type').addEventListener('change',async function(){
   syncAreaField();
   if(EDIT_ID) return;
   var cfg=EVENT_TYPES[this.value]||{};
+  // Meta y Plan se abren en su propio modal y necesitan el jugador ya elegido
+  if((cfg.special==='meta' || cfg.special==='plan') && IS_COACH){
+    var pid=document.getElementById('ne_player').value;
+    if(!pid){ toast('Primero elige el jugador',true); this.selectedIndex=0; syncAreaField(); return; }
+    if(NE_SWITCHING) await NE_SWITCHING;
+    if(!SEL || SEL.id!==pid) await switchNePlayer(pid);
+  }
   if(cfg.special==='meta'){ closeModal('ovEvent'); openGoalModal(); }
   if(cfg.special==='plan'){ closeModal('ovEvent'); openPlanModal(); }
 });
@@ -2913,9 +2978,17 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   var btn=this;
   var title=document.getElementById('ne_title').value.trim();
   var type=document.getElementById('ne_type').value;
+  var pidSel = (IS_COACH && !EDIT_ID) ? document.getElementById('ne_player').value : null;
+  if(IS_COACH && !EDIT_ID && !pidSel){ toast('Elige el jugador del evento',true); return; }
   if(!title){ toast('Ponle un título al evento',true); return; }
 
   btn.disabled=true;
+  // si el perfil del jugador elegido aún se está cargando, esperarlo
+  if(pidSel){
+    if(NE_SWITCHING) await NE_SWITCHING;
+    if(!SEL || SEL.id!==pidSel) await selectPlayer(pidSel);
+    if(!SEL || SEL.id!==pidSel){ toast('No se pudo cargar el jugador',true); btn.disabled=false; return; }
+  }
   var fail=document.getElementById('ne_upfail'); fail.className='upfail';
 
   var fecha=document.getElementById('ne_date').value||todayISO();
@@ -3729,6 +3802,6 @@ window.onRondaGuardada = async function(){
 
 init();
 </script>
-<script src="/es/coachhub/rondas.js"></script>
+<script src="/es/coachhub/ronda.js"></script>
 </body>
 </html>
