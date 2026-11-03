@@ -483,7 +483,7 @@ window.addEventListener('resize',function(){ document.querySelectorAll('.car-tra
 function relabelPrecios(){
   ['fPrice','q_pres'].forEach(function(id){
     var sel=document.getElementById(id); if(!sel) return;
-    Array.prototype.forEach.call(sel.options,function(op){ if(op.value) op.textContent='Hasta '+MGL_PRECIO.mostrar(parseInt(op.value,10),'CLP'); });
+    Array.prototype.forEach.call(sel.options,function(op){ if(op.value) op.textContent='Hasta '+MGL_PRECIO.local(parseInt(op.value,10),'CLP'); });
   });
 }
 MGL_PRECIO.listo(function(){ relabelPrecios(); init(); });

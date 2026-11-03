@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Precios en USD / CLP
    Archivo: /js/mgl-precios.js
-   Versión: 1.0 · 2026-11-01
+   Versión: 1.1 · 2026-11-03
 
    - Las ofertas guardan precio + moneda ('USD' o 'CLP').
-   - Quien navega desde Chile ve pesos; el resto ve dólares.
+   - El precio se muestra en la moneda que fijó el coach (sin convertir);
+     al lado va la equivalencia en la moneda de quien mira (Chile → CLP).
    - El dólar del día sale de mindicador.cl (dólar observado) y se guarda
      12 horas en el navegador. Si no responde, se usa un valor de respaldo.
    - Al pagar (cuando esté Mercado Pago) se cobra siempre en CLP; ese cálculo
@@ -101,15 +102,24 @@
     usd: usd,
     fmtCLP: fmtCLP,
     fmtUSD: fmtUSD,
-    // Precio como lo ve este visitante ('Gratis' si es 0)
+    // Precio en la moneda que fijó el coach, sin convertir ('Gratis' si es 0).
+    // Ej: un coach que cobra USD 40 se ve "USD 40" también desde Chile.
     mostrar: function (precio, moneda) {
+      if (!Number(precio)) return 'Gratis';
+      return (moneda || 'CLP') === 'USD' ? fmtUSD(Number(precio)) : fmtCLP(Math.round(Number(precio)));
+    },
+    // Precio convertido a la moneda de quien mira (para filtros de presupuesto)
+    local: function (precio, moneda) {
       if (!Number(precio)) return 'Gratis';
       return esChile() ? fmtCLP(clp(precio, moneda)) : fmtUSD(usd(precio, moneda));
     },
-    // Texto chico con la otra moneda, para dar contexto
+    // Texto chico con la equivalencia en la moneda de quien mira.
+    // Vacío si el precio ya está en su moneda.
     otra: function (precio, moneda) {
       if (!Number(precio)) return '';
-      return esChile() ? '≈ ' + fmtUSD(usd(precio, moneda)) : '≈ ' + fmtCLP(clp(precio, moneda)) + ' CLP';
+      moneda = moneda || 'CLP';
+      if (esChile()) return moneda === 'CLP' ? '' : '≈ ' + fmtCLP(clp(precio, moneda)) + ' CLP';
+      return moneda === 'USD' ? '' : '≈ ' + fmtUSD(usd(precio, moneda));
     },
     cambiar: function (m) { try { localStorage.setItem('mgl_moneda', m); } catch (e) {} }
   };
