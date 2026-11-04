@@ -187,6 +187,14 @@
   .ch-row:hover{border-color:var(--teal-dim)}
   .ch-av{width:38px;height:38px;border-radius:50%;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:var(--gold);overflow:hidden;flex:0 0 auto}
   .ch-av img{width:100%;height:100%;object-fit:cover}
+  .svp .ch-search{width:100%;margin:0 0 8px}
+  .svp-list{max-height:230px;overflow-y:auto}
+  .svp .ch-row{cursor:pointer;padding:8px 10px}
+  .svp-sel{border-color:var(--teal-dim)}
+  .svp-empty{color:var(--muted);font-size:13.5px;padding:8px 2px}
+  .trwrap{position:relative}
+  .trmsg{position:absolute;left:0;right:0;top:0;bottom:14px;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);font-size:14px;line-height:1.5;pointer-events:none}
+  .trmsg.on{display:flex}
 
   @media(max-width:600px){
     .tool{width:38px;height:38px}
@@ -294,7 +302,7 @@
   <div class="sheet">
     <h3>Recortar video</h3>
     <div class="sub">Deja solo el tramo del swing. Así el análisis es más ágil y, si guardas el original, sube mucho más liviano.</div>
-    <video class="preview" id="trVid" playsinline muted preload="auto"></video>
+    <div class="trwrap"><video class="preview" id="trVid" playsinline webkit-playsinline muted preload="auto"></video><div class="trmsg" id="trMsg"></div></div>
     <div class="trbar" id="trBar"><div class="rail"></div><div class="trsel" id="trSel"></div><div class="trhead" id="trHead"></div><div class="trh" id="trA"></div><div class="trh" id="trB"></div></div>
     <div class="trtimes"><span id="trTa">0:00.00</span><span>Tramo: <b id="trLen">0:00</b></span><span id="trTb">0:00.00</span></div>
     <div class="actions" style="flex-wrap:wrap">
@@ -309,8 +317,13 @@
 <div class="ov" id="ovSave">
   <div class="sheet">
     <h3>Tu análisis</h3>
-    <div class="sub">Revísalo y guárdalo en el timeline del alumno como <b>Video Análisis</b>.</div>
+    <div class="sub" id="sv_sub">Revísalo y guárdalo en el timeline del alumno como <b>Video Análisis</b>.</div>
     <video class="preview" id="recPreview" controls playsinline></video>
+    <div class="field svp">
+      <label>Agregar al perfil de</label>
+      <div class="ch-row svp-sel" id="sv_pSel" style="display:none"><span class="ch-av" id="sv_pAv"></span><span id="sv_pName" style="flex:1"></span><button class="lnk" id="sv_pChange" type="button">Cambiar</button></div>
+      <div id="sv_pPick" style="display:none"><input class="ch-search" id="sv_pSearch" placeholder="Buscar alumno…" autocomplete="off"><div class="ch-list svp-list" id="sv_pList"></div></div>
+    </div>
     <div class="field"><label>Título</label><input id="sv_title"></div>
     <div class="field"><label>Área</label><div class="chips" id="sv_areas"></div></div>
     <div class="field"><label>Comentario para el alumno (opcional)</label><textarea id="sv_note" placeholder="Ej: Fíjate en cómo se pierde la inclinación en la bajada…"></textarea></div>
@@ -390,7 +403,7 @@ function errMsg(e){ if(!e) return 'error desconocido'; return e.message||e.error
 function params(){ return new URLSearchParams(window.location.search); }
 function fromDash(){ return params().get('from')==='dash'; }
 function backUrl(){
-  if(fromDash()) return 'dashboard.html';
+  if(fromDash() || !PLAYER) return 'dashboard.html';
   return 'jugador.html' + (PLAYER ? '?player='+encodeURIComponent(PLAYER.id) : '');
 }
 
@@ -414,15 +427,18 @@ async function init(){
     return;
   }
 
+  // Con ?player= (desde el perfil o una clase) el alumno viene fijado.
+  // Sin él, se parte directo en el video y el alumno se elige solo al guardar.
   var pid = params().get('player');
-  if(!pid){ await choosePlayer(); return; }
-  var rp = await sb.from('players').select('id,first_name,last_name,coach_id').eq('id',pid).maybeSingle();
-  if(rp.error || !rp.data){
-    $('gate').innerHTML='<p>No se encontró el jugador o no tienes acceso a su perfil.</p><a class="pill" href="jugador.html">Volver</a>';
-    return;
+  if(pid){
+    var rp = await sb.from('players').select('id,first_name,last_name,coach_id,photo_url').eq('id',pid).maybeSingle();
+    if(rp.error || !rp.data){
+      $('gate').innerHTML='<p>No se encontró el jugador o no tienes acceso a su perfil.</p><a class="pill" href="jugador.html">Volver</a>';
+      return;
+    }
+    PLAYER = rp.data;
   }
-  PLAYER = rp.data;
-  $('playerName').textContent = (PLAYER.first_name||'')+' '+(PLAYER.last_name||'');
+  setPlayerLabel();
   $('gate').style.display='none';
 
   PANES.A.el = $('vidA'); PANES.B.el = $('vidB');
@@ -430,7 +446,7 @@ async function init(){
   buildTools(); buildSpeeds(); renderLanes(); syncPlayBtn();
   requestAnimationFrame(loop);
 
-  await loadVideos();
+  if(PLAYER) await loadVideos();
 
   var mid = params().get('media');
   var m = mid ? VIDEOS.filter(function(v){ return v.id===mid; })[0] : null;
@@ -438,40 +454,25 @@ async function init(){
   else openPicker('A');
 }
 
-// Entrando desde el dashboard: primero se elige el alumno
-async function choosePlayer(){
-  var r = await sb.from('players').select('id,first_name,last_name,photo_url,status').eq('coach_id',USER.id);
+function playerFullName(p){ return p ? ((p.first_name||'')+' '+(p.last_name||'')).trim() : ''; }
+function playerIni(p){ return ((p.first_name||'?').charAt(0)+(p.last_name||'').charAt(0)).toUpperCase(); }
+function setPlayerLabel(){
+  $('playerName').textContent = PLAYER ? playerFullName(PLAYER) : 'Sin alumno';
+}
+
+// Alumnos del coach: se cargan solo cuando hace falta (al guardar)
+var ROSTER = null;
+async function loadRoster(){
+  if(ROSTER) return ROSTER;
+  var r = await sb.from('players').select('id,first_name,last_name,photo_url,status,coach_id').eq('coach_id',USER.id);
   var list = (r.data||[]).filter(function(p){ return p.status!=='archivado'; });
-  list.sort(function(a,b){ return ((a.first_name||'')+(a.last_name||'')).localeCompare((b.first_name||'')+(b.last_name||'')); });
-  var g=$('gate');
-  g.className='gate chooser';
-  var h='<div class="ch-head"><a class="iconbtn" href="dashboard.html" title="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></a>'
-    + '<div><b>Analizar swing</b><small>¿A qué alumno vas a analizar?</small></div></div>';
-  if(!list.length){
-    h+='<p style="margin-top:30px">Todavía no tienes alumnos. Agrégalos desde Mis jugadores.</p><a class="pill" href="jugador.html">Mis jugadores</a>';
-  } else {
-    h+='<input class="ch-search" id="chSearch" placeholder="Buscar alumno…" autocomplete="off"><div class="ch-list" id="chList"></div>';
-  }
-  g.innerHTML=h;
-  if(!list.length) return;
-  function draw(q){
-    q=(q||'').toLowerCase();
-    var out='';
-    list.forEach(function(p){
-      var n=((p.first_name||'')+' '+(p.last_name||'')).trim();
-      if(q && n.toLowerCase().indexOf(q)<0) return;
-      var ini=((p.first_name||'?').charAt(0)+(p.last_name||'').charAt(0)).toUpperCase();
-      out+='<a class="ch-row" href="analisis.html?player='+encodeURIComponent(p.id)+'&from=dash">'
-        + '<span class="ch-av">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="">':esc(ini))+'</span>'
-        + '<span>'+esc(n)+'</span></a>';
-    });
-    $('chList').innerHTML = out || '<p style="padding:16px 4px">Sin resultados.</p>';
-  }
-  draw('');
-  $('chSearch').addEventListener('input',function(){ draw(this.value); });
+  list.sort(function(a,b){ return playerFullName(a).localeCompare(playerFullName(b)); });
+  ROSTER = list;
+  return ROSTER;
 }
 
 async function loadVideos(){
+  if(!PLAYER){ VIDEOS=[]; EVENT_TITLE={}; return; }
   var r = await sb.from('player_media').select('*').eq('player_id',PLAYER.id).eq('media_type','video').order('created_at',{ascending:false});
   VIDEOS = r.data || [];
   var re = await sb.from('player_events').select('id,title,event_date').eq('player_id',PLAYER.id);
@@ -573,18 +574,60 @@ $('camIn').addEventListener('change', onPickedFile);
 // sobre el video original (máxima calidad para el cuadro a cuadro) y el
 // tramo se re-codifica únicamente si se guarda el original en el perfil.
 var TR = null;
+// Siempre se abre el recortador apenas se elige el video (antes esperaba la
+// metadata con la ventana oculta y en iPhone a veces no llegaba, o el video
+// quedaba en negro porque Safari no pinta el primer cuadro hasta reproducir).
+function trMsg(txt){ var m=$('trMsg'); m.textContent=txt||''; m.className='trmsg'+(txt?' on':''); }
+function trReady(on){ $('trOk').disabled=!on; $('trPlay').disabled=!on; }
 function openTrim(k, f){
   var v=$('trVid');
-  TR = {k:k, f:f, url:URL.createObjectURL(f), dur:0, a:0, b:0, watch:null, seeking:false, want:null};
-  v.src=TR.url;
-  v.onloadedmetadata=function(){
-    TR.dur = isFinite(v.duration) ? v.duration : 0;
-    if(!TR.dur || TR.dur<=6){ useTrim(false); return; }   // videos cortos: directo
-    TR.a=0; TR.b=TR.dur; drawTrim();
-    openOv('ovTrim');
+  TR = {k:k, f:f, url:URL.createObjectURL(f), dur:0, a:0, b:0, watch:null, seeking:false, want:null, ready:false, to:null};
+  trMsg('Cargando video…'); trReady(false);
+  $('trA').style.left='0%'; $('trB').style.left='100%'; $('trSel').style.left='0%'; $('trSel').style.width='100%';
+  $('trTa').textContent=fmtT(0); $('trTb').textContent=fmtT(0); $('trLen').textContent=fmtT(0);
+  openOv('ovTrim');
+  var t=TR;
+  v.onloadedmetadata=function(){ trGotDuration(t); };
+  v.ondurationchange=function(){ trGotDuration(t); };
+  v.onloadeddata=function(){ trGotDuration(t); };
+  v.onerror=function(){
+    if(TR!==t) return;
+    clearTimeout(t.to);
+    trMsg('Este navegador no puede mostrar este video (suele pasar con videos HEVC del iPhone fuera de Safari). Puedes usarlo completo o grabar en Ajustes → Cámara → Formatos → "Más compatible".');
   };
-  v.onerror=function(){ useTrim(false); };
-  v.onseeked=function(){ TR.seeking=false; if(TR.want!=null){ var t=TR.want; TR.want=null; trSeek(t); } };
+  v.onseeked=function(){ if(!TR) return; TR.seeking=false; if(TR.want!=null){ var w=TR.want; TR.want=null; trSeek(w); } };
+  // "#t=0.001" hace que Safari muestre el primer cuadro en vez de negro
+  v.src=t.url+'#t=0.001';
+  try{ v.load(); }catch(e){}
+  t.to=setTimeout(function(){
+    if(TR===t && !t.ready) trMsg('El video está tardando en cargar. Puedes esperar o usarlo completo.');
+  }, 9000);
+}
+function trGotDuration(t){
+  if(TR!==t) return;
+  var v=$('trVid'), d=v.duration;
+  if(!isFinite(d) || !d){
+    // algunos archivos reportan duración infinita hasta que se busca el final
+    if(d===Infinity && !t.fixInf){ t.fixInf=true; try{ v.currentTime=1e7; }catch(e){} }
+    return;
+  }
+  if(t.ready){ if(Math.abs(d-t.dur)>0.05){ var eraFin=t.b>=t.dur-0.05; t.dur=d; if(eraFin||t.b>d) t.b=d; if(t.a>t.b) t.a=0; drawTrim(); } return; }
+  t.ready=true; clearTimeout(t.to);
+  t.dur=d; t.a=0; t.b=d;
+  trMsg(''); trReady(true);
+  drawTrim();
+  trPrime(t);
+}
+// Fuerza a pintar un cuadro: play/pause silencioso (permitido en iOS por ir
+// sin audio) y luego se posiciona al inicio del tramo.
+function trPrime(t){
+  var v=$('trVid');
+  function irAlInicio(){ if(TR!==t) return; try{ v.pause(); }catch(e){} t.seeking=false; trSeek(Math.min(0.05, t.dur/2)); }
+  try{
+    var p=v.play();
+    if(p && p.then) p.then(irAlInicio).catch(irAlInicio);
+    else irAlInicio();
+  }catch(e){ irAlInicio(); }
 }
 function trSeek(t){
   if(!TR) return;
@@ -593,7 +636,7 @@ function trSeek(t){
   TR.seeking=true; try{ v.currentTime=t; }catch(e){ TR.seeking=false; }
 }
 function drawTrim(){
-  if(!TR || !TR.dur) return;
+  if(!TR || !TR.ready || !TR.dur) return;
   var pa=TR.a/TR.dur*100, pb=TR.b/TR.dur*100;
   $('trA').style.left=pa+'%'; $('trB').style.left=pb+'%';
   $('trSel').style.left=pa+'%'; $('trSel').style.width=(pb-pa)+'%';
@@ -605,7 +648,7 @@ function drawTrim(){
   var bar=$('trBar'), which=null;
   function tAt(e){ var r=bar.getBoundingClientRect(); return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*(TR?TR.dur:0); }
   bar.addEventListener('pointerdown', function(e){
-    if(!TR) return;
+    if(!TR || !TR.ready) return;
     var t=tAt(e);
     which = Math.abs(t-TR.a) <= Math.abs(t-TR.b) ? 'a' : 'b';
     bar.setPointerCapture(e.pointerId); move(e);
@@ -624,7 +667,7 @@ function drawTrim(){
   $('trVid').addEventListener('timeupdate', drawTrim);
 })();
 $('trPlay').onclick=function(){
-  if(!TR) return;
+  if(!TR || !TR.ready) return;
   var v=$('trVid');
   v.currentTime=TR.a; v.play();
   clearInterval(TR.watch);
@@ -633,11 +676,15 @@ $('trPlay').onclick=function(){
 function useTrim(conRecorte){
   if(!TR) return;
   var t=TR; TR=null;
-  clearInterval(t.watch);
-  var v=$('trVid'); v.pause(); v.removeAttribute('src'); try{ v.load(); }catch(e){}
+  clearInterval(t.watch); clearTimeout(t.to);
+  var v=$('trVid'); v.pause();
+  v.onloadedmetadata=v.ondurationchange=v.onloadeddata=v.onerror=v.onseeked=null;
+  v.removeAttribute('src'); try{ v.load(); }catch(e){}
   URL.revokeObjectURL(t.url);
+  trMsg('');
   closeOv('ovTrim');
-  if(conRecorte) loadFromFile(t.k, t.f, t.a, t.b);
+  var recortado = t.ready && t.dur>0 && (t.a>0.05 || t.b<t.dur-0.05);
+  if(conRecorte && recortado) loadFromFile(t.k, t.f, t.a, t.b);
   else loadFromFile(t.k, t.f);
 }
 $('trOk').onclick=function(){ useTrim(true); };
@@ -653,6 +700,7 @@ function openPicker(k){
   var n = VIDEOS.length;
   $('pickProfileSub').textContent = n ? (n===1 ? '1 video en su perfil' : n+' videos en su perfil') : 'Todavía no tiene videos en su perfil';
   $('pickFromProfile').disabled = !n;
+  $('pickFromProfile').style.display = PLAYER ? '' : 'none';
   showPickMenu();
   openOv('ovPick');
 }
@@ -1215,12 +1263,52 @@ function openSaveSheet(){
   // área por defecto: la del video original, si tenía
   SAVE_AREA = (PANES.A.media && PANES.A.media.area) || null;
   renderSaveAreas();
+  renderSavePlayer(false);
   var hayLocal = activeKeys().some(function(k){ return PANES[k].file; });
   $('sv_origRow').style.display = hayLocal ? 'flex' : 'none';
   $('sv_prog').className='progress'; $('sv_bar').style.width='0';
   $('sv_save').disabled=false; $('sv_discard').disabled=false;
   openOv('ovSave');
 }
+// Alumno al que se guarda el análisis (opcional: también se puede solo descargar)
+function renderSavePlayer(forcePick){
+  $('sv_sub').innerHTML = 'Guárdalo en el timeline de un alumno como <b>Video Análisis</b>, o solo descárgalo si fue para el momento.';
+  if(PLAYER && !forcePick){
+    $('sv_pSel').style.display='flex'; $('sv_pPick').style.display='none';
+    $('sv_pName').textContent = playerFullName(PLAYER);
+    $('sv_pAv').innerHTML = PLAYER.photo_url ? '<img src="'+esc(PLAYER.photo_url)+'" alt="">' : esc(playerIni(PLAYER));
+    return;
+  }
+  $('sv_pSel').style.display='none'; $('sv_pPick').style.display='block';
+  $('sv_pSearch').value='';
+  $('sv_pList').innerHTML='<div class="svp-empty">Cargando alumnos…</div>';
+  loadRoster().then(function(){ drawSavePlayers(''); });
+}
+function drawSavePlayers(q){
+  var box=$('sv_pList'); box.innerHTML='';
+  if(!ROSTER || !ROSTER.length){ box.innerHTML='<div class="svp-empty">Todavía no tienes alumnos. Puedes descargar el análisis.</div>'; return; }
+  q=(q||'').toLowerCase();
+  var n=0;
+  ROSTER.forEach(function(p){
+    var nm=playerFullName(p);
+    if(q && nm.toLowerCase().indexOf(q)<0) return;
+    n++;
+    var row=document.createElement('div');
+    row.className='ch-row';
+    row.innerHTML='<span class="ch-av">'+(p.photo_url?'<img src="'+esc(p.photo_url)+'" alt="">':esc(playerIni(p)))+'</span><span>'+esc(nm)+'</span>';
+    row.onclick=function(){
+      var cambio = !PLAYER || PLAYER.id!==p.id;
+      PLAYER=p; setPlayerLabel(); renderSavePlayer(false);
+      $('sv_stat').textContent='';
+      if(cambio) loadVideos();
+    };
+    box.appendChild(row);
+  });
+  if(!n) box.innerHTML='<div class="svp-empty">Sin resultados.</div>';
+}
+$('sv_pSearch').addEventListener('input', function(){ drawSavePlayers(this.value); });
+$('sv_pChange').onclick=function(){ renderSavePlayer(true); };
+
 function renderSaveAreas(){
   var box=$('sv_areas'); box.innerHTML='';
   AREAS.forEach(function(a){
@@ -1331,6 +1419,12 @@ function setProg(txt, p){
 
 $('sv_save').onclick=async function(){
   if(!REC_BLOB) return;
+  if(!PLAYER){
+    $('sv_stat').textContent='Elige el alumno al que quieres agregar este análisis.';
+    if($('sv_pPick').style.display!=='block') renderSavePlayer(true);
+    try{ $('sv_pSearch').focus(); }catch(e){}
+    return;
+  }
   var title=$('sv_title').value.trim() || 'Análisis de swing';
   var note=$('sv_note').value.replace(/\s+$/,'') || null;
   $('sv_save').disabled=true; $('sv_discard').disabled=true;
