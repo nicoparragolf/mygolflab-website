@@ -118,7 +118,7 @@
   .shell.coachmode .roster{max-height:calc(100vh - 112px - env(safe-area-inset-top));max-height:calc(100dvh - 112px - env(safe-area-inset-top));display:flex;flex-direction:column}
   @media(max-width:900px){
     .shell.coachmode:not(.viewing){padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
-    .shell.coachmode .roster{height:calc(100vh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom));height:calc(100dvh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:none}
+    .shell.coachmode .roster{height:calc(100vh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--mgl-tab-h,0px));height:calc(100dvh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--mgl-tab-h,0px));max-height:none}
   }
   .shell.coachmode .roster-head,.shell.coachmode .roster-search{flex:0 0 auto}
   .shell.coachmode #rosterList{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
