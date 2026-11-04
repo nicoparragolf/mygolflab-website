@@ -124,9 +124,10 @@
       // ── menú inferior (solo teléfono / app) ──
       + '.mgl-tabs,.mgl-tabspace{display:none}'
       + '@media (max-width:900px){'
-      +   'html.mgl-has-tabs{--mgl-tab-h:calc(78px + env(safe-area-inset-bottom))}'
+      // la barra baja casi hasta el borde: se mete en la zona de la rayita de inicio del iPhone (sin taparla del todo)
+      +   'html.mgl-has-tabs{--mgl-tab-b:max(6px, calc(env(safe-area-inset-bottom) - 20px));--mgl-tab-h:calc(70px + var(--mgl-tab-b))}'
       +   'html.mgl-has-tabs .mgl-tabspace{display:block;flex:0 0 auto;height:var(--mgl-tab-h)}'
-      +   '.mgl-tabs{display:flex;position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:38;'
+      +   '.mgl-tabs{display:flex;position:fixed;left:10px;right:10px;bottom:var(--mgl-tab-b);z-index:38;'
       +     'background:rgba(20,20,20,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid #2a2a2a;'
       +     'border-radius:26px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.55);justify-content:space-between;gap:2px}'
       +   '.mgl-tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;'
@@ -444,7 +445,7 @@
   }
 
   // ── 6. Menú inferior (teléfono / app) ──
-  //    Coach: Inicio, Jugadores, Analizar, Mensajes y Perfil (su foto).
+  //    Coach: Inicio, Jugadores, Clases, Mensajes y Perfil (su foto). Analizar queda en el Inicio y en el menú de tres rayas.
   //    Jugador: Mi perfil, Clases, Mensajes, Coaches y Perfil.
   //    Los links con data-nav reciben el contador de no leídos igual que el header.
   var TAB_IC = {
@@ -461,7 +462,7 @@
     var items = isCoach
       ? [['/es/coachhub/dashboard.html', 'Inicio', 'home', ''],
          ['/es/coachhub/jugador.html', 'Jugadores', 'users', ''],
-         ['/es/coachhub/analisis.html?from=dash', 'Analizar', 'swing', ''],
+         ['/es/coachhub/clases.html', 'Clases', 'cal', 'clases'],
          ['/es/coachhub/mensajes.html', 'Mensajes', 'chat', 'mensajes'],
          ['/es/coachhub/cuenta.html', 'Perfil', 'me', '']]
       : [['/es/coachhub/jugador.html', 'Mi perfil', 'flag', ''],
