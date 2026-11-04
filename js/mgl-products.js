@@ -582,6 +582,14 @@
       if (PRODUCT === 'hub') {
         setupNotifications(sb, uid, role === 'coach' || role === 'ambos');
         setupUnread(sb, uid, role === 'coach' || role === 'ambos');
+        // asistente IA (esfera flotante): solo para coaches
+        if (role === 'coach' || role === 'ambos') {
+          window.MGL_SB = sb;
+          var as = document.createElement('script');
+          as.src = '/js/mgl-asistente.js?v=1';
+          as.async = true;
+          document.body.appendChild(as);
+        }
       }
 
       var show = ALWAYS;
