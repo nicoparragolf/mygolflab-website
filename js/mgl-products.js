@@ -1,8 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Selector de producto (MyGolfLab ↔ Coach Hub)
    Archivo: /js/mgl-products.js
-   Versión: 1.1 · 2026-11-02
+   Versión: 1.2 · 2026-11-04
      1.1: menú compacto entre 901 y 1100 px (entra el link Contenido)
+     1.2: Coach Hub en teléfono / app: menú inferior con las páginas
+          principales y la foto de perfil (estilo app)
 
    Una cuenta, dos productos. Este script:
    1. Pinta el header con el acento de cada producto:
@@ -118,7 +120,33 @@
       + '.mgl-toast .tx span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;color:#bbb;margin-top:2px}'
       + '.mgl-toast .x{background:none;border:none;color:#777;font-size:18px;cursor:pointer;padding:0 2px;line-height:1}'
       + '@keyframes mglIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}'
-      + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}';
+      + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}'
+      // ── menú inferior (solo teléfono / app) ──
+      + '.mgl-tabs,.mgl-tabspace{display:none}'
+      + '@media (max-width:900px){'
+      +   'html.mgl-has-tabs{--mgl-tab-h:calc(78px + env(safe-area-inset-bottom))}'
+      +   'html.mgl-has-tabs .mgl-tabspace{display:block;flex:0 0 auto;height:var(--mgl-tab-h)}'
+      +   '.mgl-tabs{display:flex;position:fixed;left:10px;right:10px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:38;'
+      +     'background:rgba(20,20,20,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid #2a2a2a;'
+      +     'border-radius:26px;padding:6px;box-shadow:0 10px 30px rgba(0,0,0,.55);justify-content:space-between;gap:2px}'
+      +   '.mgl-tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;'
+      +     'height:56px;border-radius:20px;color:#8a8a8a;text-decoration:none;font-family:"Barlow Condensed",sans-serif;font-size:12.5px;'
+      +     'font-weight:600;letter-spacing:.2px;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s}'
+      +   '.mgl-tabs a span.mgl-tl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 2px}'
+      +   '.mgl-tabs a .ic{position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center}'
+      +   '.mgl-tabs a .ic svg{width:23px;height:23px}'
+      +   '.mgl-tabs a.on{color:#D4C5A9;background:rgba(212,197,169,.12)}'
+      +   '.mgl-tabs a:active{background:rgba(255,255,255,.05)}'
+      +   '.mgl-tabs .mgl-tab-av{width:26px;height:26px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;'
+      +     'border:1.5px solid #3a3a3a;background:#1c1c1c}'
+      +   '.mgl-tabs a.on .mgl-tab-av{border-color:#D4C5A9}'
+      +   '.mgl-tabs .mgl-tab-av svg{width:16px;height:16px}'
+      +   '.mgl-tabs .nav-badge{position:absolute;top:-6px;left:15px;margin:0;vertical-align:0;border:2px solid #141414;height:20px;min-width:20px;border-radius:10px}'
+      // con el teclado abierto el menú se esconde (si no, queda flotando sobre el teclado)
+      +   'html.mgl-kb .mgl-tabs{display:none}html.mgl-kb .mgl-tabspace{height:0}'
+      // los avisos flotantes de cada página suben para no quedar detrás del menú
+      +   'html.mgl-has-tabs .toast{bottom:calc(var(--mgl-tab-h) + 16px) !important}'
+      + '}';
   }
 
   var style = document.createElement('style');
@@ -415,13 +443,83 @@
     } catch (e) { console.warn('avisos', e); }
   }
 
+  // ── 6. Menú inferior (teléfono / app) ──
+  //    Coach: Inicio, Jugadores, Analizar, Mensajes y Perfil (su foto).
+  //    Jugador: Mi perfil, Clases, Mensajes, Coaches y Perfil.
+  //    Los links con data-nav reciben el contador de no leídos igual que el header.
+  var TAB_IC = {
+    home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 018 14h2a5.5 5.5 0 015.5 5.5v.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8"/><path d="M18 14.2a5.5 5.5 0 013.5 5.3v.5"/></svg>',
+    swing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="14" height="14" rx="2.5"/><path d="M16.5 10l5-3v10l-5-3"/><path d="M6 15.5l3.5-5 3 3"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.6L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg>',
+    cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
+    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V3.5"/><path d="M6 4h11l-2.5 4L17 12H6"/></svg>',
+    me: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>'
+  };
+  function setupTabs(isCoach) {
+    if (PRODUCT !== 'hub' || document.querySelector('.mgl-tabs')) return;
+    var items = isCoach
+      ? [['/es/coachhub/dashboard.html', 'Inicio', 'home', ''],
+         ['/es/coachhub/jugador.html', 'Jugadores', 'users', ''],
+         ['/es/coachhub/analisis.html?from=dash', 'Analizar', 'swing', ''],
+         ['/es/coachhub/mensajes.html', 'Mensajes', 'chat', 'mensajes'],
+         ['/es/coachhub/cuenta.html', 'Perfil', 'me', '']]
+      : [['/es/coachhub/jugador.html', 'Mi perfil', 'flag', ''],
+         ['/es/coachhub/clases.html', 'Clases', 'cal', 'clases'],
+         ['/es/coachhub/mensajes.html', 'Mensajes', 'chat', 'mensajes'],
+         ['/es/coaches/', 'Coaches', 'users', ''],
+         ['/es/coachhub/cuenta.html', 'Perfil', 'me', '']];
+    var path = location.pathname.replace(/\/index\.html$/, '/');
+    var nav = document.createElement('nav');
+    nav.className = 'mgl-tabs';
+    nav.setAttribute('aria-label', 'Menú principal');
+    items.forEach(function (it) {
+      var href = it[0].split('?')[0];
+      var on = path === href || (href === '/es/coaches/' && path.indexOf('/es/coaches/') === 0);
+      var a = document.createElement('a');
+      a.href = it[0];
+      if (it[3]) a.setAttribute('data-nav', it[3]);
+      if (on) { a.className = 'on'; a.setAttribute('aria-current', 'page'); }
+      var ic = it[2] === 'me'
+        ? '<span class="ic"><span class="mgl-tab-av">' + TAB_IC.me + '</span></span>'
+        : '<span class="ic">' + TAB_IC[it[2]] + '</span>';
+      a.innerHTML = ic + '<span class="mgl-tl">' + it[1] + '</span>';
+      // el contador de no leídos va sobre el ícono, no al lado del texto
+      if (it[3] && window.MutationObserver) {
+        new MutationObserver(function () {
+          var b = a.querySelector(':scope > .nav-badge'), icEl = a.querySelector('.ic');
+          if (b && icEl) icEl.appendChild(b);
+        }).observe(a, { childList: true });
+      }
+      nav.appendChild(a);
+    });
+    var space = document.createElement('div');
+    space.className = 'mgl-tabspace';
+    document.body.appendChild(space);
+    document.body.appendChild(nav);
+    document.documentElement.classList.add('mgl-has-tabs');
+    paintUnread();
+
+    // teclado abierto (input o textarea con foco): se esconde el menú
+    function isField(el) {
+      if (!el || !el.tagName) return false;
+      var t = el.tagName;
+      if (t === 'TEXTAREA' || t === 'SELECT' || el.isContentEditable) return true;
+      return t === 'INPUT' && !/^(checkbox|radio|button|submit|file|range|color)$/i.test(el.type || '');
+    }
+    document.addEventListener('focusin', function (e) { if (isField(e.target)) document.documentElement.classList.add('mgl-kb'); });
+    document.addEventListener('focusout', function () {
+      setTimeout(function () { if (!isField(document.activeElement)) document.documentElement.classList.remove('mgl-kb'); }, 60);
+    });
+  }
+
   // ── 5. Foto de perfil en el avatar del header, en todas las páginas ──
   //    Coach: la foto de su vitrina. Resto: la foto de su cuenta (Google, etc.).
   function setupAvatar(sb, session, isCoach) {
     var meta = session.user.user_metadata || {};
     function apply(url) {
       if (!url) return;
-      var els = document.querySelectorAll('#navAvatar, #siteHeader .nav-avatar');
+      var els = document.querySelectorAll('#navAvatar, #siteHeader .nav-avatar, .mgl-tabs .mgl-tab-av');
       for (var i = 0; i < els.length; i++) {
         (function (el) {
           function put() {
@@ -468,6 +566,7 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
+      setupTabs(role === 'coach' || role === 'ambos');
       setupAvatar(sb, session, role === 'coach' || role === 'ambos');
       if (PRODUCT === 'hub') {
         setupNotifications(sb, uid, role === 'coach' || role === 'ambos');
