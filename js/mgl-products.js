@@ -142,6 +142,15 @@
       +     'border:1.5px solid #3a3a3a;background:#1c1c1c}'
       +   '.mgl-tabs a.on .mgl-tab-av{border-color:#D4C5A9}'
       +   '.mgl-tabs .mgl-tab-av svg{width:16px;height:16px}'
+      // botón central (Analizar): círculo dorado que sobresale por encima de la barra, con relieve
+      +   '.mgl-tabs a.fab{overflow:visible;justify-content:flex-end;padding-bottom:11px;color:#D4C5A9}'
+      +   '.mgl-tabs a.fab,.mgl-tabs a.fab.on,.mgl-tabs a.fab:active{background:none}'
+      +   '.mgl-tabs a.fab .ic{position:absolute;top:-30px;left:50%;width:60px;height:60px;margin-left:-30px;border-radius:50%;color:#141414;'
+      +     'background:radial-gradient(circle at 32% 26%,#F3E8D2 0%,#D9CAAB 42%,#A9966F 100%);border:4px solid #0b0b0b;'
+      +     'box-shadow:0 10px 20px rgba(0,0,0,.65),0 2px 0 rgba(212,197,169,.25),inset 0 2px 1px rgba(255,255,255,.55),inset 0 -4px 8px rgba(0,0,0,.28);'
+      +     'transition:transform .15s}'
+      +   '.mgl-tabs a.fab .ic svg{width:27px;height:27px;stroke-width:2.1}'
+      +   '.mgl-tabs a.fab:active .ic{transform:translateY(2px) scale(.96)}'
       +   '.mgl-tabs .nav-badge{position:absolute;top:-6px;left:15px;margin:0;vertical-align:0;border:2px solid #141414;height:20px;min-width:20px;border-radius:10px}'
       // con el teclado abierto el menú se esconde (si no, queda flotando sobre el teclado)
       +   'html.mgl-kb .mgl-tabs{display:none}html.mgl-kb .mgl-tabspace{height:0}'
@@ -445,7 +454,7 @@
   }
 
   // ── 6. Menú inferior (teléfono / app) ──
-  //    Coach: Inicio, Jugadores, Clases, Mensajes y Perfil (su foto). Analizar queda en el Inicio y en el menú de tres rayas.
+  //    Coach: Jugadores, Clases, Analizar (botón central elevado), Mensajes y Perfil (su foto). El Inicio se abre desde el logo.
   //    Jugador: Mi perfil, Clases, Mensajes, Coaches y Perfil.
   //    Los links con data-nav reciben el contador de no leídos igual que el header.
   var TAB_IC = {
@@ -460,9 +469,9 @@
   function setupTabs(isCoach) {
     if (PRODUCT !== 'hub' || document.querySelector('.mgl-tabs')) return;
     var items = isCoach
-      ? [['/es/coachhub/dashboard.html', 'Inicio', 'home', ''],
-         ['/es/coachhub/jugador.html', 'Jugadores', 'users', ''],
+      ? [['/es/coachhub/jugador.html', 'Jugadores', 'users', ''],
          ['/es/coachhub/clases.html', 'Clases', 'cal', 'clases'],
+         ['/es/coachhub/analisis.html?from=dash', 'Analizar', 'swing', '', 'fab'],
          ['/es/coachhub/mensajes.html', 'Mensajes', 'chat', 'mensajes'],
          ['/es/coachhub/cuenta.html', 'Perfil', 'me', '']]
       : [['/es/coachhub/jugador.html', 'Mi perfil', 'flag', ''],
@@ -481,6 +490,7 @@
       a.href = it[0];
       if (it[3]) a.setAttribute('data-nav', it[3]);
       if (on) { a.className = 'on'; a.setAttribute('aria-current', 'page'); }
+      if (it[4]) a.classList.add(it[4]);
       var ic = it[2] === 'me'
         ? '<span class="ic"><span class="mgl-tab-av">' + TAB_IC.me + '</span></span>'
         : '<span class="ic">' + TAB_IC[it[2]] + '</span>';
