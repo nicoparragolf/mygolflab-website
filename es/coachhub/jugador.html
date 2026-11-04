@@ -113,6 +113,17 @@
   .pr-name{font-family:'Barlow Condensed';font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pr-meta{font-size:12px;color:var(--muted)}
   .roster-empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
+  /* computador: la lista queda fija al costado y se desplaza por dentro */
+  @media(min-width:901px){
+    .roster{max-height:calc(100vh - 112px);display:flex;flex-direction:column}
+    #rosterList{flex:1;min-height:0;overflow-y:auto;margin-right:-10px;padding-right:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) var(--card)}
+    #rosterList::-webkit-scrollbar{width:8px}
+    #rosterList::-webkit-scrollbar-track{background:var(--card)}
+    #rosterList::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:8px;border:2px solid var(--card)}
+  }
+  /* volver a la lista (solo teléfono) */
+  .backbar{display:none;align-items:center;gap:6px;background:none;border:none;color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:17px;letter-spacing:.3px;cursor:pointer;padding:2px 2px 4px;justify-self:start}
+  .backbar svg{width:20px;height:20px}
 
   .main{min-width:0}
   .empty-hero{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:64px 32px;text-align:center}
@@ -463,6 +474,10 @@
     .gal-grid{grid-template-columns:repeat(2,1fr);gap:10px}
     .shell{grid-template-columns:1fr}
     .roster{position:static}
+    /* teléfono: o se ve la lista, o se ve el perfil del alumno elegido */
+    .shell.coachmode:not(.viewing) .main{display:none}
+    .shell.coachmode.viewing .roster{display:none}
+    .shell.coachmode.viewing .backbar{display:flex}
     .nav-links{display:none}
     .hamburger{display:flex}
     .mnav{display:none !important}
@@ -506,6 +521,8 @@
     <input class="roster-search" id="rosterSearch" placeholder="Buscar...">
     <div id="rosterList"><div class="loading">Cargando...</div></div>
   </aside>
+
+  <button class="backbar" id="backBar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Mis jugadores</button>
 
   <main class="main" id="mainPanel">
     <div class="loading">Cargando...</div>
@@ -1146,11 +1163,13 @@ async function init(){
   await loadMetricDefs();
 
   if(IS_COACH){
+    document.getElementById('shell').classList.add('coachmode');
     await loadPlayers();
     var qp=new URLSearchParams(window.location.search);
     var pid=qp.get('player');
     if(pid && PLAYERS.some(function(p){ return p.id===pid; })){
-      await selectPlayer(pid);
+      await selectPlayer(pid, {noHistory:true});
+      history.replaceState({player:pid},'',window.location.href);
       var vw=qp.get('view');
       if(vw==='galeria' || vw==='notas'){ VIEW=vw; renderProfile(); }
     } else {
@@ -1333,9 +1352,43 @@ function marcarRevisado(playerId){
     .then(function(r){ if(r.error) console.warn('reviewed_at media',r.error.message); });
 }
 
-async function selectPlayer(id){
-  SEL = PLAYERS.filter(function(p){return p.id===id;})[0];
-  if(!SEL) return;
+// En el teléfono, elegir un alumno abre su perfil solo (la lista se oculta)
+// y "‹ Mis jugadores" o el gesto de volver del iPhone regresan a la lista
+// en el mismo punto donde estaba.
+var LIST_SCROLL=0, HIST_PUSHED=false;
+function isPhone(){ return window.innerWidth<=900; }
+function showList(){
+  var sh=document.getElementById('shell');
+  if(!sh.classList.contains('viewing')) return;
+  sh.classList.remove('viewing');
+  // después de un cuadro, para que el navegador no lo pise al volver
+  if(isPhone()){ var y=LIST_SCROLL; window.scrollTo(0,y); requestAnimationFrame(function(){ window.scrollTo(0,y); }); }
+}
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+document.getElementById('backBar').onclick=function(){
+  if(HIST_PUSHED && history.state && history.state.player){ history.back(); return; }
+  showList();
+  history.replaceState({},'',window.location.pathname);
+};
+window.addEventListener('popstate', function(e){
+  var st=e.state||{};
+  if(st.player && PLAYERS.some(function(p){ return p.id===st.player; })) selectPlayer(st.player, {noHistory:true});
+  else showList();
+});
+
+async function selectPlayer(id, opts){
+  opts=opts||{};
+  var nuevo = PLAYERS.filter(function(p){return p.id===id;})[0];
+  if(!nuevo) return;
+  var sh=document.getElementById('shell');
+  if(!sh.classList.contains('viewing')) LIST_SCROLL=window.scrollY||0;
+  sh.classList.add('viewing');
+  if(isPhone()) window.scrollTo(0,0);
+  if(!opts.noHistory && !(history.state && history.state.player===id)){
+    history.pushState({player:id},'',window.location.pathname+'?player='+encodeURIComponent(id));
+    HIST_PUSHED=true;
+  }
+  SEL = nuevo;
   COACH_ID = USER.id;
   VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all'; GAL_AREA='all'; GAL_KIND='all';
   marcarRevisado(id);
