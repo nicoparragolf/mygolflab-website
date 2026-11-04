@@ -142,12 +142,12 @@
       +     'border:1.5px solid #3a3a3a;background:#1c1c1c}'
       +   '.mgl-tabs a.on .mgl-tab-av{border-color:#D4C5A9}'
       +   '.mgl-tabs .mgl-tab-av svg{width:16px;height:16px}'
-      // botón central (Analizar): círculo dorado que sobresale por encima de la barra, con relieve
+      // botón central (Analizar): aro dorado con centro oscuro que sobresale por encima de la barra, con relieve
       +   '.mgl-tabs a.fab{overflow:visible;justify-content:flex-end;padding-bottom:11px;color:#D4C5A9}'
       +   '.mgl-tabs a.fab,.mgl-tabs a.fab.on,.mgl-tabs a.fab:active{background:none}'
-      +   '.mgl-tabs a.fab .ic{position:absolute;top:-30px;left:50%;width:60px;height:60px;margin-left:-30px;border-radius:50%;color:#141414;'
-      +     'background:radial-gradient(circle at 32% 26%,#F3E8D2 0%,#D9CAAB 42%,#A9966F 100%);border:4px solid #0b0b0b;'
-      +     'box-shadow:0 10px 20px rgba(0,0,0,.65),0 2px 0 rgba(212,197,169,.25),inset 0 2px 1px rgba(255,255,255,.55),inset 0 -4px 8px rgba(0,0,0,.28);'
+      +   '.mgl-tabs a.fab .ic{position:absolute;top:-30px;left:50%;width:60px;height:60px;margin-left:-30px;border-radius:50%;color:#D4C5A9;'
+      +     'background:radial-gradient(circle at 35% 28%,#2e2a22,#121212 70%);border:2px solid #D4C5A9;box-sizing:border-box;'
+      +     'box-shadow:0 0 0 5px #0b0b0b,0 10px 22px rgba(0,0,0,.7),0 0 18px rgba(212,197,169,.3),inset 0 2px 2px rgba(255,255,255,.12);'
       +     'transition:transform .15s}'
       +   '.mgl-tabs a.fab .ic svg{width:27px;height:27px;stroke-width:2.1}'
       +   '.mgl-tabs a.fab:active .ic{transform:translateY(2px) scale(.96)}'
