@@ -413,14 +413,10 @@ function render(){
 
     + '<div class="sec" id="secMsg"></div>'
     + '<div class="sec" id="secPend"></div>'
-    + '<div class="grid2">'
-    +   '<div class="sec" id="secInact"></div>'
-    +   '<div class="sec" id="secGoals"></div>'
-    + '</div>'
     + '<div class="sec" id="secStats"></div>';
 
   $('wrap').innerHTML = html;
-  renderMessages(); renderPending(); renderInactive(); renderGoals(); renderStats();
+  renderMessages(); renderPending(); renderStats();
 }
 
 // ── Mensajes: conversaciones recientes, primero las que tienen mensajes sin leer ──
