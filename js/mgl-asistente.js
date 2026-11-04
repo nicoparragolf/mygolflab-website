@@ -341,30 +341,153 @@
   });
   btnEnv.addEventListener('click', enviar);
 
-  // dictado por voz (Safari y Chrome; en la app nativa puede no existir)
-  (function () {
-    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
-    btnMic.style.display = '';
-    var rec = null, base = '';
-    btnMic.addEventListener('click', function () {
-      if (rec) { try { rec.stop(); } catch (e) {} return; }
-      try {
-        rec = new SR();
-        rec.lang = 'es-CL'; rec.interimResults = true; rec.continuous = false;
-        base = input.value ? input.value.replace(/\s+$/, '') + ' ' : '';
-        rec.onresult = function (ev) {
-          var t = '';
-          for (var i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
-          input.value = base + t; crecer();
-        };
-        rec.onend = function () { rec = null; btnMic.classList.remove('on'); input.focus(); };
-        rec.onerror = function () { rec = null; btnMic.classList.remove('on'); };
-        rec.start();
-        btnMic.classList.add('on');
-      } catch (e) { rec = null; btnMic.classList.remove('on'); }
-    });
-  })();
+  // ── Dictado por voz ──
+  // El iPhone NO permite el reconocimiento de voz del navegador en apps
+  // agregadas a la pantalla de inicio ni dentro de apps (WKWebView): el
+  // botón existe pero no hace nada. Por eso se graba el audio (eso sí
+  // funciona en todos lados, igual que en el analizador de swing) y se
+  // transcribe en el servidor (/api/transcribir). Si el servidor no tiene
+  // configurada la transcripción, en Safari/Chrome normal se usa el dictado
+  // del navegador como respaldo.
+  var VOZ = { rec: null, chunks: [], stream: null, t0: 0, timer: null, sinServidor: false, sr: null };
+  var MAX_SEG = 90;
+
+  function placeholderNormal() { input.placeholder = S.busy ? NOMBRE + ' está trabajando…' : 'Pídele algo a ' + NOMBRE + '…'; }
+  function micEstado(on, texto) {
+    btnMic.classList.toggle('on', !!on);
+    if (texto) input.placeholder = texto; else placeholderNormal();
+  }
+  function pegarTexto(t) {
+    t = String(t || '').trim();
+    if (!t) return;
+    input.value = (input.value ? input.value.replace(/\s+$/, '') + ' ' : '') + t;
+    crecer();
+    try { input.focus(); input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+  }
+  function avisoVoz(t) { agregar({ k: 'err', t: t }); }
+
+  var puedeGrabar = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var esStandalone = (window.navigator.standalone === true) ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+    !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  if (puedeGrabar || (SR && !esStandalone)) btnMic.style.display = '';
+
+  function mimeGrabacion() {
+    var ops = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+    for (var i = 0; i < ops.length; i++) { try { if (MediaRecorder.isTypeSupported(ops[i])) return ops[i]; } catch (e) {} }
+    return '';
+  }
+
+  async function empezarGrabacion() {
+    try {
+      VOZ.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    } catch (e) {
+      micEstado(false);
+      avisoVoz('No tengo permiso para usar el micrófono. Actívalo en Ajustes del teléfono → Safari (o la app) → Micrófono, y vuelve a intentar.');
+      return;
+    }
+    var mime = mimeGrabacion();
+    try { VOZ.rec = mime ? new MediaRecorder(VOZ.stream, { mimeType: mime, audioBitsPerSecond: 48000 }) : new MediaRecorder(VOZ.stream); }
+    catch (e) { VOZ.rec = new MediaRecorder(VOZ.stream); }
+    VOZ.chunks = [];
+    VOZ.rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) VOZ.chunks.push(ev.data); };
+    VOZ.rec.onstop = terminarGrabacion;
+    VOZ.rec.start(1000);
+    VOZ.t0 = Date.now();
+    micEstado(true, 'Grabando… toca el micrófono para terminar');
+    VOZ.timer = setInterval(function () {
+      var s = Math.round((Date.now() - VOZ.t0) / 1000);
+      input.placeholder = 'Grabando 0:' + (s < 10 ? '0' : '') + s + ' · toca el micrófono para terminar';
+      if (s >= MAX_SEG) pararGrabacion();
+    }, 500);
+  }
+
+  function pararGrabacion() {
+    clearInterval(VOZ.timer);
+    try { if (VOZ.rec && VOZ.rec.state !== 'inactive') VOZ.rec.stop(); } catch (e) { terminarGrabacion(); }
+  }
+
+  function soltarMic() {
+    try { VOZ.stream && VOZ.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+    VOZ.stream = null; VOZ.rec = null;
+  }
+
+  async function terminarGrabacion() {
+    var tipo = (VOZ.rec && VOZ.rec.mimeType) || (VOZ.chunks[0] && VOZ.chunks[0].type) || 'audio/mp4';
+    var blob = new Blob(VOZ.chunks, { type: tipo });
+    var dur = (Date.now() - VOZ.t0) / 1000;
+    soltarMic();
+    if (dur < 0.8 || blob.size < 1500) { micEstado(false); return; }
+    micEstado(false, 'Transcribiendo…');
+    btnMic.disabled = true;
+    try {
+      var b64 = await new Promise(function (res, rej) {
+        var fr = new FileReader();
+        fr.onload = function () { res(String(fr.result).split(',')[1] || ''); };
+        fr.onerror = rej;
+        fr.readAsDataURL(blob);
+      });
+      var tk = await token();
+      var r = await fetch('/api/transcribir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk },
+        body: JSON.stringify({ audio: b64, mime: tipo, nombres: S.roster.slice(0, 60).map(nombreDe) })
+      });
+      var d = await r.json().catch(function () { return null; });
+      if (r.ok && d && typeof d.texto === 'string') {
+        if (d.texto.trim()) pegarTexto(d.texto);
+        else avisoVoz('No alcancé a escuchar nada. Intenta de nuevo, más cerca del teléfono.');
+      } else if (d && d.codigo === 'sin_clave') {
+        VOZ.sinServidor = true;
+        if (SR && !esStandalone) avisoVoz('La transcripción del servidor aún no está activada. Usaré el dictado del navegador: toca el micrófono de nuevo.');
+        else avisoVoz('La transcripción de voz aún no está activada en el servidor. Mientras tanto puedes usar el micrófono del teclado del teléfono.');
+      } else {
+        avisoVoz((d && d.error) || 'No pude transcribir el audio. Inténtalo de nuevo.');
+      }
+    } catch (e) {
+      avisoVoz('No pude transcribir el audio. Revisa tu internet.');
+    } finally {
+      btnMic.disabled = false;
+      micEstado(false);
+    }
+  }
+
+  // respaldo: dictado del navegador (solo funciona en Safari/Chrome normal)
+  function dictadoNavegador() {
+    if (VOZ.sr) { try { VOZ.sr.stop(); } catch (e) {} return; }
+    var base = input.value ? input.value.replace(/\s+$/, '') + ' ' : '';
+    try {
+      var rec = new SR();
+      rec.lang = 'es-CL'; rec.interimResults = true; rec.continuous = false;
+      rec.onresult = function (ev) {
+        var t = '';
+        for (var i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
+        input.value = base + t; crecer();
+      };
+      rec.onend = function () { VOZ.sr = null; micEstado(false); };
+      rec.onerror = function (ev) {
+        VOZ.sr = null; micEstado(false);
+        var e = ev && ev.error;
+        if (e === 'not-allowed') avisoVoz('El navegador no tiene permiso para el micrófono.');
+        else if (e === 'service-not-allowed') avisoVoz('El dictado del navegador está desactivado. Activa Siri o Dictado en Ajustes, o usa el micrófono del teclado.');
+        else if (e && e !== 'no-speech' && e !== 'aborted') avisoVoz('El dictado falló (' + e + '). Usa el micrófono del teclado del teléfono.');
+      };
+      VOZ.sr = rec;
+      rec.start();
+      micEstado(true, 'Te escucho…');
+    } catch (e) { VOZ.sr = null; micEstado(false); }
+  }
+
+  btnMic.addEventListener('click', function () {
+    if (VOZ.rec) { pararGrabacion(); return; }
+    if (VOZ.sr) { dictadoNavegador(); return; }
+    if (puedeGrabar && !VOZ.sinServidor) { empezarGrabacion(); return; }
+    if (SR && !esStandalone) { dictadoNavegador(); return; }
+    avisoVoz('El dictado no está disponible aquí. Usa el micrófono del teclado del teléfono.');
+  });
+  // si se cierra el panel grabando, se corta la grabación
+  $('mglAsisCerrar').addEventListener('click', function () { if (VOZ.rec) pararGrabacion(); });
 
   // ═════════════════════════════════════════════════════════════════════
   // PINTAR LA CONVERSACIÓN
