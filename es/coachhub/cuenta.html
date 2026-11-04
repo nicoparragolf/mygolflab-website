@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Mi cuenta · Coach Hub</title>
+<title>Mi cuenta · CoachFly</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<meta name="apple-mobile-web-app-title" content="CoachFly">
 <link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,7 +140,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>FLY</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks"></nav>
     <a class="avatar" id="navAvatar" href="/es/coachhub/cuenta.html" title="Mi cuenta">?</a>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
@@ -193,7 +193,7 @@ var IC = {
 };
 
 // ============================================================
-// MENÚ SEGÚN ROL (igual que el resto de Coach Hub)
+// MENÚ SEGÚN ROL (igual que el resto de CoachFly)
 // ============================================================
 function buildNav(){
   var items = IS_COACH
@@ -308,7 +308,7 @@ function render(name, photo, st){
       + tile('/es/coachhub/mensajes.html','Mensajes','Conversa con tus alumnos.',IC.msg,st.unread)
       + tile('/es/coachhub/analisis.html?from=dash','Analizar swing','Dibuja sobre el video, compara swings y graba tu explicación.',IC.analyze)
       + tile('/es/coachhub/vitrina.html#ofertas','Mis ofertas','Lo que vendes en tu vitrina: análisis, paquetes y planes.',IC.store)
-      + tile('/es/coachhub/pricing.html','Suscripción','Tu plan de Coach Hub, alumnos incluidos y facturación.',IC.card)
+      + tile('/es/coachhub/pricing.html','Suscripción','Tu plan de CoachFly, alumnos incluidos y facturación.',IC.card)
       + (ROLE==='ambos' ? tile('/es/dashboard.html','Ir a MyGolfLab','Tu entrenamiento como jugador: Coach IA y Training Lab.',IC.ai) : tile('/es/coachhub/dashboard.html','Dashboard','Lo que necesita tu atención hoy.',IC.dash));
   } else {
     h+= tile('/es/coachhub/jugador.html','Mi perfil','Tu timeline, videos y notas de tu coach.',IC.user)

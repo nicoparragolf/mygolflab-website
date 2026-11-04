@@ -1,6 +1,6 @@
 {
   "appId": "golf.mygolflab.coachhub",
-  "appName": "Coach Hub",
+  "appName": "CoachFly",
   "webDir": "www",
   "backgroundColor": "#0a0a0a",
   "appendUserAgent": "CoachHubApp",
@@ -15,7 +15,7 @@
   },
   "ios": {
     "contentInset": "never",
-    "scheme": "Coach Hub"
+    "scheme": "CoachFly"
   },
   "android": {
     "allowMixedContent": false

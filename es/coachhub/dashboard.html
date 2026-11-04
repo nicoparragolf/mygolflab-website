@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Dashboard · Coach Hub</title>
+<title>Dashboard · CoachFly</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<meta name="apple-mobile-web-app-title" content="CoachFly">
 <link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -161,7 +161,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>FLY</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
       <a href="/es/coachhub/dashboard.html" class="active">Dashboard</a>
       <a href="/es/coachhub/jugador.html">Mis jugadores</a>
@@ -385,7 +385,7 @@ function render(){
 
   var html =
       '<div class="hello"><h1>'+esc(saludo+(nombre?', '+nombre:''))+'</h1>'
-    + '<p>'+(PLAYERS.length ? PLAYERS.length+(PLAYERS.length===1?' alumno':' alumnos')+' en tu Coach Hub' : 'Todavía no tienes alumnos. Agrega el primero desde Mis jugadores.')+'</p></div>'
+    + '<p>'+(PLAYERS.length ? PLAYERS.length+(PLAYERS.length===1?' alumno':' alumnos')+' en tu CoachFly' : 'Todavía no tienes alumnos. Agrega el primero desde Mis jugadores.')+'</p></div>'
 
     + '<div class="actions">'
     +   '<div class="act primary" onclick="window.location.href=\'analisis.html?from=dash\'">'

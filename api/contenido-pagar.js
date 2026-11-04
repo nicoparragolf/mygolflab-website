@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       var cp = await db(cfg, 'coach_profiles?coach_id=eq.' + p.coach_id + '&select=display_name');
       if (cp.data && cp.data[0] && cp.data[0].display_name) coach = cp.data[0].display_name;
     } catch (e) {}
-    var subject = ('Coach Hub · ' + (p.title || col.title || 'Contenido') + ' · ' + coach).slice(0, 200);
+    var subject = ('CoachFly · ' + (p.title || col.title || 'Contenido') + ' · ' + coach).slice(0, 200);
 
     var fo = await flowPost(cfg, 'payment/create', {
       commerceOrder: p.id,

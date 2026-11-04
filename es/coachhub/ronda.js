@@ -1,5 +1,5 @@
 /* ============================================================
-   MyGolfLab Coach Hub · Rondas y Strokes Gained
+   MyGolfLab CoachFly · Rondas y Strokes Gained
    ------------------------------------------------------------
    Este archivo es independiente a propósito: el baseline de SG
    se va a ir ajustando con el tiempo (la idea es reemplazarlo

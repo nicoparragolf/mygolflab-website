@@ -1,4 +1,4 @@
-# App de Coach Hub (iOS y Android)
+# App de CoachFly (iOS y Android)
 
 La app está hecha con **Capacitor**: es un "envoltorio" nativo que carga la web
 `https://mygolflab.golf/es/coachhub/entrar.html`. Todo lo que subas a la web

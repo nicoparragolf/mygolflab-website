@@ -1,6 +1,6 @@
 {
-  "name": "Coach Hub — MyGolfLab",
-  "short_name": "Coach Hub",
+  "name": "CoachFly — MyGolfLab",
+  "short_name": "CoachFly",
   "description": "Tu historial de entrenamiento, videos y métricas con tu coach.",
   "start_url": "/es/coachhub/entrar.html",
   "scope": "/es/coachhub/",

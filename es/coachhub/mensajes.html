@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-<title>Mensajes · Coach Hub</title>
+<title>Mensajes · CoachFly</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<meta name="apple-mobile-web-app-title" content="CoachFly">
 <link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,7 +142,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>FLY</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks"></nav>
     <div class="avatar" id="navAvatar" title="Mi cuenta">?</div>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
@@ -334,7 +334,7 @@ function renderList(){
   if(!CONVS.length){
     $('convs').innerHTML = IS_COACH
       ? '<div class="list-empty">Todavía no tienes alumnos. Agrégalos desde <a href="/es/coachhub/jugador.html">Mis jugadores</a> y aquí aparecerá una conversación con cada uno.</div>'
-      : '<div class="list-empty">Aún no tienes un coach en Coach Hub. Cuando tu coach agregue tu email (<b>'+esc(USER.email)+'</b>) a tu ficha, podrás escribirle aquí.<br><br>¿Buscas coach? <a href="/es/coaches/">Mira la vitrina</a>.</div>';
+      : '<div class="list-empty">Aún no tienes un coach en CoachFly. Cuando tu coach agregue tu email (<b>'+esc(USER.email)+'</b>) a tu ficha, podrás escribirle aquí.<br><br>¿Buscas coach? <a href="/es/coaches/">Mira la vitrina</a>.</div>';
     return;
   }
 

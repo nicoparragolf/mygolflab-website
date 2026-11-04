@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Clases · Coach Hub</title>
+<title>Clases · CoachFly</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<meta name="apple-mobile-web-app-title" content="CoachFly">
 <link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -159,7 +159,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>FLY</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks"></nav>
     <a class="avatar" id="navAvatar" href="/es/coachhub/cuenta.html" title="Mi cuenta">?</a>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
@@ -249,7 +249,7 @@ async function init(){
   ROLE = (pr.data && pr.data.role) || 'jugador';
   IS_COACH = (ROLE==='coach' || ROLE==='ambos');
   buildNav();
-  document.title = (IS_COACH?'Clases':'Mis clases')+' · Coach Hub';
+  document.title = (IS_COACH?'Clases':'Mis clases')+' · CoachFly';
 
   try{ var pc=await sb.from('mgl_pagos_config').select('*').eq('id',1).maybeSingle(); if(pc.data) PCONF=pc.data; }catch(e){}
   await load();
@@ -350,7 +350,7 @@ function resumenMes(){
     + '<div class="mi"><div class="n">'+String(pct).replace('.',',')+'%</div><div class="l">Tu comisión ahora</div>'
     +   (nx ? '<div class="sub">Te faltan '+nx.faltan+' clase'+(nx.faltan===1?'':'s')+' para bajar a '+String(nx.pct).replace('.',',')+'%</div>' : '<div class="sub">Estás en la comisión más baja</div>')
     + '</div></div>'
-    + '<div class="hint" style="margin:-2px 0 6px">Con alumnos que ya eran tuyos antes de Coach Hub no pagas comisión. La comisión vuelve a partir cada mes.</div>';
+    + '<div class="hint" style="margin:-2px 0 6px">Con alumnos que ya eran tuyos antes de CoachFly no pagas comisión. La comisión vuelve a partir cada mes.</div>';
 }
 
 function tabBtn(id,label,n,hot){
