@@ -94,14 +94,38 @@
   .zoomreset{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:6;display:none;background:rgba(17,17,17,.88);border:1px solid var(--border2);color:#fff;border-radius:20px;padding:6px 14px;font-family:'Barlow Condensed';font-weight:700;font-size:14px;letter-spacing:.4px;cursor:pointer}
   .zoomreset.on{display:block}
 
-  /* recorte */
-  .trbar{position:relative;height:46px;margin:4px 0 6px;touch-action:none;cursor:pointer}
-  .trbar .rail{position:absolute;left:0;right:0;top:19px;height:8px;border-radius:5px;background:#2a2a2a}
-  .trsel{position:absolute;top:19px;height:8px;background:var(--teal);border-radius:5px}
-  .trh{position:absolute;top:5px;width:20px;height:36px;margin-left:-10px;border-radius:7px;background:var(--teal);border:3px solid #1C1709;box-shadow:0 1px 6px rgba(0,0,0,.6)}
-  .trhead{position:absolute;top:2px;width:2px;height:42px;margin-left:-1px;background:#fff;opacity:.85;pointer-events:none}
-  .trtimes{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:14px}
-  .trtimes b{color:var(--teal);font-family:'Barlow Condensed';font-size:17px}
+  /* quitar el video que se está analizando */
+  .vclose{position:absolute;left:12px;top:12px;z-index:7;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;transition:background .15s}
+  .vclose:hover{background:rgba(0,0,0,.65)}
+  .vclose svg{width:18px;height:18px}
+  .vclose.on{display:flex}
+
+  /* recorte dentro del analizador (tira de cuadros con bordes dorados) */
+  .trimpanel{display:none}
+  .app.trimming .trimpanel{display:block}
+  .app.trimming #lanes,.app.trimming .mainrow,.app.trimming .tools{display:none}
+  .app.trimming #btnCompare,.app.trimming #btnRec{opacity:.35;pointer-events:none}
+  .trtitle{display:flex;align-items:baseline;gap:8px;margin:2px 2px 8px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .trtitle b{font-family:'Barlow Condensed';font-weight:700;font-size:16px;letter-spacing:.4px;text-transform:uppercase;color:var(--teal)}
+  .trrow{display:flex;align-items:stretch;gap:8px;margin-bottom:6px}
+  .trplay{width:46px;flex:0 0 auto;border-radius:10px;background:var(--card2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .trplay svg{width:20px;height:20px}
+  .trstrip{flex:1;min-width:0;height:58px;padding:0 18px;touch-action:none;cursor:pointer}
+  .trtrack{position:relative;height:100%}
+  .trfilm{position:absolute;left:0;right:0;top:4px;bottom:4px;overflow:hidden;background:#1c1c1c}
+  .trfilm canvas{display:block;width:100%;height:100%}
+  .trdim{position:absolute;top:4px;bottom:4px;background:rgba(0,0,0,.62);pointer-events:none}
+  #trDimL{left:0} #trDimR{right:0}
+  .trframe{position:absolute;top:0;bottom:0;border-top:4px solid var(--teal);border-bottom:4px solid var(--teal);pointer-events:none}
+  .trgrip{position:absolute;top:-4px;bottom:-4px;width:18px;background:var(--teal);color:#1C1709;display:flex;align-items:center;justify-content:center}
+  .trgrip svg{width:12px;height:12px}
+  .trgrip.l{left:-18px;border-radius:8px 0 0 8px}
+  .trgrip.r{right:-18px;border-radius:0 8px 8px 0}
+  .trph{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:#fff;border-radius:3px;box-shadow:0 0 5px rgba(0,0,0,.75);pointer-events:none}
+  .trinfo{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin:0 2px 10px 56px;min-height:20px}
+  .trinfo b{color:var(--teal);font-family:'Barlow Condensed';font-size:16px}
+  .tractions{display:flex;gap:10px;justify-content:space-between}
+  .tractions .btn{padding:11px 16px}
 
   .jogrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
   .fbtn{background:var(--card2);border:1px solid var(--border2);border-radius:9px;width:40px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
@@ -192,9 +216,6 @@
   .svp .ch-row{cursor:pointer;padding:8px 10px}
   .svp-sel{border-color:var(--teal-dim)}
   .svp-empty{color:var(--muted);font-size:13.5px;padding:8px 2px}
-  .trwrap{position:relative}
-  .trmsg{position:absolute;left:0;right:0;top:0;bottom:14px;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);font-size:14px;line-height:1.5;pointer-events:none}
-  .trmsg.on{display:flex}
 
   @media(max-width:600px){
     .tool{width:38px;height:38px}
@@ -223,6 +244,7 @@
   <div class="stagewrap drawing" id="stageWrap">
     <canvas id="stage" width="720" height="1280"></canvas>
     <div class="recbadge" id="recBadge">● REC 0:00</div>
+    <button class="vclose" id="btnClose" title="Quitar video y elegir otro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <button class="zoomreset" id="zoomReset">Quitar zoom</button>
     <div class="placeholder" id="placeholder">
       <h2>Elige un video</h2>
@@ -249,6 +271,29 @@
   </div>
 
   <div class="controls" id="controls">
+    <!-- recorte: aparece apenas se elige un video, sin salir del analizador -->
+    <div class="trimpanel" id="trimPanel">
+      <div class="trtitle"><b>Recortar</b><span>Arrastra los bordes para dejar solo el swing</span></div>
+      <div class="trrow">
+        <button class="trplay" id="trPlay" title="Ver tramo"></button>
+        <div class="trstrip" id="trStrip">
+          <div class="trtrack" id="trTrack">
+            <div class="trfilm" id="trFilmBox"><canvas id="trFilm"></canvas></div>
+            <div class="trdim" id="trDimL"></div><div class="trdim" id="trDimR"></div>
+            <div class="trframe" id="trFrame">
+              <span class="trgrip l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></span>
+              <span class="trgrip r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></span>
+            </div>
+            <div class="trph" id="trHead"></div>
+          </div>
+        </div>
+      </div>
+      <div class="trinfo" id="trInfo"><span id="trTa">0:00.00</span><span>Tramo: <b id="trLen">0:00.00</b></span><span id="trTb">0:00.00</span></div>
+      <div class="tractions">
+        <button class="btn" id="trFull">Usar completo</button>
+        <button class="btn primary" id="trOk">Listo</button>
+      </div>
+    </div>
     <div id="lanes"></div>
     <div class="mainrow">
       <button class="playbtn" id="btnPlay" title="Reproducir / pausar"></button>
@@ -258,7 +303,7 @@
   </div>
 </div>
 
-<div class="hidden-videos"><video id="vidA" playsinline muted preload="auto"></video><video id="vidB" playsinline muted preload="auto"></video></div>
+<div class="hidden-videos" id="hiddenVids"><video id="vidA" playsinline muted preload="auto"></video><video id="vidB" playsinline muted preload="auto"></video></div>
 <input type="file" id="fileIn" accept="video/*" hidden>
 <input type="file" id="camIn" accept="video/*" capture="environment" hidden>
 
@@ -293,22 +338,6 @@
     <div class="actions" style="margin-top:14px">
       <button class="btn danger" id="pickRemove" style="display:none;margin-right:auto">Quitar comparación</button>
       <button class="btn" onclick="closeOv('ovPick')">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Recortar video subido desde el teléfono -->
-<div class="ov" id="ovTrim">
-  <div class="sheet">
-    <h3>Recortar video</h3>
-    <div class="sub">Deja solo el tramo del swing. Así el análisis es más ágil y, si guardas el original, sube mucho más liviano.</div>
-    <div class="trwrap"><video class="preview" id="trVid" playsinline webkit-playsinline muted preload="auto"></video><div class="trmsg" id="trMsg"></div></div>
-    <div class="trbar" id="trBar"><div class="rail"></div><div class="trsel" id="trSel"></div><div class="trhead" id="trHead"></div><div class="trh" id="trA"></div><div class="trh" id="trB"></div></div>
-    <div class="trtimes"><span id="trTa">0:00.00</span><span>Tramo: <b id="trLen">0:00</b></span><span id="trTb">0:00.00</span></div>
-    <div class="actions" style="flex-wrap:wrap">
-      <button class="btn" id="trFull" style="margin-right:auto">Usar completo</button>
-      <button class="btn" id="trPlay">Ver tramo</button>
-      <button class="btn primary" id="trOk">Usar este tramo</button>
     </div>
   </div>
 </div>
@@ -488,8 +517,11 @@ async function signUrl(path, secs){
 // ============================================================
 // CARGAR VIDEOS EN LOS PANELES
 // ============================================================
-function rA(k){ return PANES[k].a||0; }
-function rB(k){ var p=PANES[k], d=p.el.duration||0; return (p.b!=null && p.b<d) ? p.b : d; }
+// Mientras se recorta, el rango de reproducción es el que marcan los bordes
+// dorados (así "ver tramo" y el arrastre de los bordes funcionan solos).
+function trimOn(k){ return TRIM && TRIM.k===k && TRIM.ready; }
+function rA(k){ if(trimOn(k)) return TRIM.a; return PANES[k].a||0; }
+function rB(k){ if(trimOn(k)) return TRIM.b; var p=PANES[k], d=p.el.duration||0; return (p.b!=null && p.b<d) ? p.b : d; }
 function isTrimmed(k){ var p=PANES[k], d=p.el.duration||0; return d>0 && (rA(k)>0.05 || rB(k)<d-0.05); }
 
 function setupVideoEvents(k){
@@ -498,7 +530,9 @@ function setupVideoEvents(k){
     p.ready = true;
     seekPane(k, rA(k)+0.001);
     computeLayout(); renderLanes();
+    if(TRIM && TRIM.k===k) trimPrepare();
   });
+  v.addEventListener('durationchange', function(){ if(TRIM && TRIM.k===k) trimPrepare(); });
   v.addEventListener('timeupdate', updateLanes);
   // Encadena los saltos: si mientras el video buscaba un cuadro el dedo ya
   // pidió otro, se va directo al último pedido en vez de hacer cola.
@@ -514,6 +548,7 @@ function setupVideoEvents(k){
   v.addEventListener('ended', function(){ if(!anyPlaying()){ PLAYING=false; syncPlayBtn(); } });
   v.addEventListener('error', function(){
     if(!v.getAttribute('src')) return;
+    if(TRIM && TRIM.k===k) exitTrim(false);
     toast('Este navegador no puede reproducir el video '+k+' (probablemente HEVC de iPhone). Pruébalo en Safari o graba en "Más compatible".', true);
   });
 }
@@ -545,7 +580,38 @@ function setSource(k, url, file, media, a, b){
   v.playbackRate = SPEED;
   v.load();
   $('placeholder').style.display='none';
+  syncClose();
 }
+
+// Saca un video del escenario (sin tocar el otro)
+function clearPane(k){
+  var p=PANES[k], v=p.el;
+  if(TRIM && TRIM.k===k) cancelTrim();
+  v.pause(); v.removeAttribute('src'); try{ v.load(); }catch(e){}
+  if(p.file && p.src) URL.revokeObjectURL(p.src);
+  p.src=null; p.file=null; p.media=null; p.ready=false; p.a=0; p.b=null; p.target=null; p.seeking=false;
+}
+
+// X del escenario: quita el/los videos y deja elegir otro sin salir
+function clearAll(){
+  pauseAll();
+  clearPane('A'); clearPane('B');
+  COMPARE=false; $('btnCompare').classList.remove('on');
+  LAYOUT=[]; SHAPES=[]; REDO=[]; CUR=null; ANGLE_WAIT=null;
+  resetZoom();
+  $('lanes').innerHTML='';
+  $('placeholder').style.display='flex';
+  syncClose();
+}
+function syncClose(){
+  $('btnClose').classList.toggle('on', !!(PANES.A.src || PANES.B.src) && !REC);
+}
+$('btnClose').onclick=function(){
+  if(REC){ toast('Termina la grabación antes de quitar el video',true); return; }
+  if(SHAPES.length && !confirm('Se borrarán los dibujos. ¿Quitar el video?')) return;
+  clearAll();
+  openPicker('A');
+};
 
 async function loadFromMedia(k, m){
   var u = await signUrl(m.storage_path, 7200);
@@ -564,131 +630,227 @@ function onPickedFile(){
   closeOv('ovPick');
   if(!f) return;
   if((f.type||'').indexOf('video')!==0 && !/\.(mp4|mov|m4v|webm)$/i.test(f.name||'')){ toast('Elige un archivo de video',true); return; }
-  openTrim(PICK_TARGET, f);
+  if(TRIM) cancelTrim();
+  // El video entra directo al escenario y abajo aparece la tira para recortarlo
+  loadFromFile(PICK_TARGET, f);
+  enterTrim(PICK_TARGET);
 }
 $('fileIn').addEventListener('change', onPickedFile);
 $('camIn').addEventListener('change', onPickedFile);
 
-// ---------- RECORTE al subir desde el teléfono ----------
-// No re-codifica nada al elegir: solo marca el tramo. El análisis trabaja
-// sobre el video original (máxima calidad para el cuadro a cuadro) y el
-// tramo se re-codifica únicamente si se guarda el original en el perfil.
-var TR = null;
-// Siempre se abre el recortador apenas se elige el video (antes esperaba la
-// metadata con la ventana oculta y en iPhone a veces no llegaba, o el video
-// quedaba en negro porque Safari no pinta el primer cuadro hasta reproducir).
-function trMsg(txt){ var m=$('trMsg'); m.textContent=txt||''; m.className='trmsg'+(txt?' on':''); }
-function trReady(on){ $('trOk').disabled=!on; $('trPlay').disabled=!on; }
-function openTrim(k, f){
-  var v=$('trVid');
-  TR = {k:k, f:f, url:URL.createObjectURL(f), dur:0, a:0, b:0, watch:null, seeking:false, want:null, ready:false, to:null};
-  trMsg('Cargando video…'); trReady(false);
-  $('trA').style.left='0%'; $('trB').style.left='100%'; $('trSel').style.left='0%'; $('trSel').style.width='100%';
-  $('trTa').textContent=fmtT(0); $('trTb').textContent=fmtT(0); $('trLen').textContent=fmtT(0);
-  openOv('ovTrim');
-  var t=TR;
-  v.onloadedmetadata=function(){ trGotDuration(t); };
-  v.ondurationchange=function(){ trGotDuration(t); };
-  v.onloadeddata=function(){ trGotDuration(t); };
-  v.onerror=function(){
-    if(TR!==t) return;
-    clearTimeout(t.to);
-    trMsg('Este navegador no puede mostrar este video (suele pasar con videos HEVC del iPhone fuera de Safari). Puedes usarlo completo o grabar en Ajustes → Cámara → Formatos → "Más compatible".');
-  };
-  v.onseeked=function(){ if(!TR) return; TR.seeking=false; if(TR.want!=null){ var w=TR.want; TR.want=null; trSeek(w); } };
-  // "#t=0.001" hace que Safari muestre el primer cuadro en vez de negro
-  v.src=t.url+'#t=0.001';
-  try{ v.load(); }catch(e){}
-  t.to=setTimeout(function(){
-    if(TR===t && !t.ready) trMsg('El video está tardando en cargar. Puedes esperar o usarlo completo.');
-  }, 9000);
+// ---------- RECORTE dentro del analizador ----------
+// Igual que en Fotos del iPhone: el video se ve en el escenario y abajo hay
+// una tira de cuadros con bordes dorados. Al arrastrar un borde el escenario
+// muestra ese cuadro. No re-codifica nada: solo marca el tramo; se re-codifica
+// únicamente si al guardar se sube también el original al perfil.
+var TRIM = null;   // {k, a, b, dur, ready, film, tok, fixInf}
+
+function enterTrim(k){
+  var p=PANES[k];
+  if(!p.src) return;
+  pauseAll();
+  var a0=p.a||0, b0=p.b;
+  TRIM={k:k, a:a0, b:b0, dur:0, ready:false, film:null, tok:{}};
+  p.a=0; p.b=null;           // durante el recorte se puede recorrer todo el video
+  $('app').classList.add('trimming');
+  syncPlayBtn();
+  clearFilm();
+  trimPrepare();
+  // iPhone: si a los 1,5 s no llegó la metadata, un play/pause silencioso la destraba
+  var t=TRIM;
+  setTimeout(function(){
+    if(TRIM!==t || t.ready) return;
+    var v=PANES[k].el;
+    try{ var pr=v.play(); var stop=function(){ try{ v.pause(); }catch(e){} }; if(pr && pr.then) pr.then(stop).catch(stop); else stop(); }catch(e){}
+  }, 1500);
 }
-function trGotDuration(t){
-  if(TR!==t) return;
-  var v=$('trVid'), d=v.duration;
-  if(!isFinite(d) || !d){
-    // algunos archivos reportan duración infinita hasta que se busca el final
-    if(d===Infinity && !t.fixInf){ t.fixInf=true; try{ v.currentTime=1e7; }catch(e){} }
+
+function trimPrepare(){
+  if(!TRIM) return;
+  var t=TRIM, p=PANES[t.k], v=p.el, d=v.duration;
+  if(!p.ready || !isFinite(d) || !d){
+    // algunos archivos dicen "duración infinita" hasta que se busca el final
+    if(p.ready && d===Infinity && !t.fixInf){ t.fixInf=true; try{ v.currentTime=1e7; }catch(e){} }
+    trimInfo('Cargando video…');
     return;
   }
-  if(t.ready){ if(Math.abs(d-t.dur)>0.05){ var eraFin=t.b>=t.dur-0.05; t.dur=d; if(eraFin||t.b>d) t.b=d; if(t.a>t.b) t.a=0; drawTrim(); } return; }
-  t.ready=true; clearTimeout(t.to);
-  t.dur=d; t.a=0; t.b=d;
-  trMsg(''); trReady(true);
-  drawTrim();
-  trPrime(t);
+  if(!t.ready){
+    t.ready=true; t.dur=d;
+    if(t.b==null || t.b>d) t.b=d;
+    if(t.a>=t.b) t.a=0;
+    trimInfo('');
+    buildFilm();
+    seekPane(t.k, t.a+0.001);
+  } else if(Math.abs(d-t.dur)>0.05){
+    var eraFin=t.b>=t.dur-0.05;
+    t.dur=d; if(eraFin || t.b>d) t.b=d; if(t.a>=t.b) t.a=0;
+    buildFilm();
+  }
+  drawTrimUI();
 }
-// Fuerza a pintar un cuadro: play/pause silencioso (permitido en iOS por ir
-// sin audio) y luego se posiciona al inicio del tramo.
-function trPrime(t){
-  var v=$('trVid');
-  function irAlInicio(){ if(TR!==t) return; try{ v.pause(); }catch(e){} t.seeking=false; trSeek(Math.min(0.05, t.dur/2)); }
-  try{
-    var p=v.play();
-    if(p && p.then) p.then(irAlInicio).catch(irAlInicio);
-    else irAlInicio();
-  }catch(e){ irAlInicio(); }
+
+function trimInfo(msg){
+  var box=$('trInfo');
+  if(msg){ box.innerHTML='<span>'+esc(msg)+'</span>'; box._msg=true; return; }
+  if(box._msg){ box.innerHTML='<span id="trTa">0:00.00</span><span>Tramo: <b id="trLen">0:00.00</b></span><span id="trTb">0:00.00</span>'; box._msg=false; }
 }
-function trSeek(t){
-  if(!TR) return;
-  var v=$('trVid');
-  if(TR.seeking){ TR.want=t; return; }
-  TR.seeking=true; try{ v.currentTime=t; }catch(e){ TR.seeking=false; }
+
+function drawTrimUI(){
+  if(!TRIM || !TRIM.ready || !TRIM.dur) return;
+  var d=TRIM.dur, pa=TRIM.a/d*100, pb=TRIM.b/d*100;
+  $('trFrame').style.left=pa+'%'; $('trFrame').style.width=(pb-pa)+'%';
+  $('trDimL').style.width=pa+'%'; $('trDimR').style.width=(100-pb)+'%';
+  var t=Math.max(TRIM.a, Math.min(TRIM.b, paneTime(TRIM.k)));
+  $('trHead').style.left=(t/d*100)+'%';
+  if($('trTa')){ $('trTa').textContent=fmtT(TRIM.a); $('trTb').textContent=fmtT(TRIM.b); $('trLen').textContent=fmtT(TRIM.b-TRIM.a); }
 }
-function drawTrim(){
-  if(!TR || !TR.ready || !TR.dur) return;
-  var pa=TR.a/TR.dur*100, pb=TR.b/TR.dur*100;
-  $('trA').style.left=pa+'%'; $('trB').style.left=pb+'%';
-  $('trSel').style.left=pa+'%'; $('trSel').style.width=(pb-pa)+'%';
-  $('trTa').textContent=fmtT(TR.a); $('trTb').textContent=fmtT(TR.b);
-  $('trLen').textContent=fmtT(TR.b-TR.a);
-  $('trHead').style.left=($('trVid').currentTime/TR.dur*100)+'%';
+
+// Tira de cuadros: un segundo <video> oculto salta a N momentos del clip y
+// pinta cada cuadro en el canvas. Si el navegador no coopera, la tira queda
+// en gris y el recorte igual funciona.
+function clearFilm(){
+  var cv=$('trFilm'), c=cv.getContext('2d');
+  c.clearRect(0,0,cv.width,cv.height);
 }
+function killFilm(t){
+  if(!t || !t.film) return;
+  var f=t.film; t.film=null;
+  clearTimeout(f.to);
+  var fv=f.v;
+  fv.onloadeddata=fv.onseeked=fv.onerror=null;
+  try{ fv.pause(); }catch(e){}
+  fv.removeAttribute('src'); try{ fv.load(); }catch(e){}
+  if(fv.parentNode) fv.parentNode.removeChild(fv);
+}
+function buildFilm(){
+  var t=TRIM; if(!t || !t.ready) return;
+  killFilm(t);
+  var p=PANES[t.k], pv=p.el, box=$('trFilmBox'), cv=$('trFilm');
+  var W=box.clientWidth, H=box.clientHeight;
+  if(!W || !H || !p.src) return;
+  var dpr=Math.min(2, window.devicePixelRatio||1);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+  var c=cv.getContext('2d');
+  c.fillStyle='#1c1c1c'; c.fillRect(0,0,cv.width,cv.height);
+  var vw=pv.videoWidth||720, vh=pv.videoHeight||1280;
+  var tw=cv.height*vw/vh, n=Math.max(1, Math.min(24, Math.ceil(cv.width/tw)));
+  tw=cv.width/n;   // cuadros parejos de borde a borde
+  var fv=document.createElement('video');
+  fv.muted=true; fv.setAttribute('muted',''); fv.playsInline=true; fv.setAttribute('playsinline',''); fv.setAttribute('webkit-playsinline','');
+  fv.preload='auto';
+  if(!p.file) fv.crossOrigin='anonymous';
+  $('hiddenVids').appendChild(fv);
+  var film={v:fv, to:null}; t.film=film;
+  var i=0, dur=t.dur;
+  function alive(){ return TRIM===t && t.film===film; }
+  function paint(){
+    // recorta al centro para que cada cuadro llene su espacio sin deformarse
+    var sw=fv.videoWidth, sh=fv.videoHeight; if(!sw || !sh) return;
+    var want=tw/cv.height, sx=0, sy=0, cw=sw, ch=sh;
+    if(sw/sh > want){ cw=sh*want; sx=(sw-cw)/2; } else { ch=sw/want; sy=(sh-ch)/2; }
+    c.drawImage(fv, sx, sy, cw, ch, Math.round(i*tw), 0, Math.ceil(tw)+1, cv.height);
+  }
+  function next(){
+    if(!alive()) return;
+    if(i>=n){ killFilm(t); return; }
+    fv.onseeked=function(){
+      if(!alive()) return;
+      requestAnimationFrame(function(){
+        if(!alive()) return;
+        try{ paint(); }catch(e){ killFilm(t); return; }
+        i++; next();
+      });
+    };
+    try{ fv.currentTime=Math.min(dur-0.05, (i+0.5)*dur/n); }catch(e){ killFilm(t); }
+  }
+  fv.onloadeddata=function(){
+    fv.onloadeddata=null;
+    if(!alive()) return;
+    // Safari no entrega cuadros hasta reproducir: play/pause silencioso
+    var go=function(){ try{ fv.pause(); }catch(e){} next(); };
+    try{ var pr=fv.play(); if(pr && pr.then) pr.then(go).catch(go); else go(); }catch(e){ go(); }
+  };
+  fv.onerror=function(){ killFilm(t); };
+  film.to=setTimeout(function(){ killFilm(t); }, 20000);
+  fv.src=p.src;
+  try{ fv.load(); }catch(e){}
+}
+var _filmResize=null;
+window.addEventListener('resize', function(){
+  clearTimeout(_filmResize);
+  _filmResize=setTimeout(function(){ if(TRIM && TRIM.ready) buildFilm(); }, 250);
+});
+
+// Arrastre en la tira: cerca de un borde dorado mueve ese borde; en el medio
+// mueve la línea blanca (el escenario muestra ese cuadro).
 (function(){
-  var bar=$('trBar'), which=null;
-  function tAt(e){ var r=bar.getBoundingClientRect(); return Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*(TR?TR.dur:0); }
-  bar.addEventListener('pointerdown', function(e){
-    if(!TR || !TR.ready) return;
-    var t=tAt(e);
-    which = Math.abs(t-TR.a) <= Math.abs(t-TR.b) ? 'a' : 'b';
-    bar.setPointerCapture(e.pointerId); move(e);
+  var strip=$('trStrip'), mode=null;
+  function geo(e){
+    var r=$('trTrack').getBoundingClientRect();
+    var x=e.clientX-r.left;
+    return {x:x, w:r.width, t:Math.max(0,Math.min(1,x/r.width))*(TRIM?TRIM.dur:0)};
+  }
+  strip.addEventListener('pointerdown', function(e){
+    if(!TRIM || !TRIM.ready) return;
+    e.preventDefault();
+    var g=geo(e), xa=TRIM.a/TRIM.dur*g.w, xb=TRIM.b/TRIM.dur*g.w;
+    var nearA = g.x>=xa-28 && g.x<=xa+10, nearB = g.x>=xb-10 && g.x<=xb+28;
+    if(nearA && nearB) mode = Math.abs(g.x-xa)<=Math.abs(g.x-xb) ? 'a' : 'b';
+    else mode = nearA ? 'a' : (nearB ? 'b' : 'head');
+    pauseAll();
+    try{ strip.setPointerCapture(e.pointerId); }catch(err){}
+    move(e);
   });
   function move(e){
-    if(!which || !TR) return;
-    var t=tAt(e), gap=Math.min(0.5, TR.dur/10);
-    if(which==='a') TR.a=Math.min(t, TR.b-gap); else TR.b=Math.max(t, TR.a+gap);
-    $('trVid').pause();
-    trSeek(which==='a'?TR.a:TR.b);
-    drawTrim();
+    if(!mode || !TRIM || !TRIM.ready) return;
+    var t=geo(e).t, gap=Math.min(0.3, TRIM.dur/10);
+    if(mode==='a'){ TRIM.a=Math.max(0, Math.min(t, TRIM.b-gap)); seekPane(TRIM.k, TRIM.a); }
+    else if(mode==='b'){ TRIM.b=Math.min(TRIM.dur, Math.max(t, TRIM.a+gap)); seekPane(TRIM.k, TRIM.b); }
+    else seekPane(TRIM.k, t);
+    drawTrimUI();
   }
-  bar.addEventListener('pointermove', move);
-  bar.addEventListener('pointerup', function(){ which=null; });
-  bar.addEventListener('pointercancel', function(){ which=null; });
-  $('trVid').addEventListener('timeupdate', drawTrim);
+  strip.addEventListener('pointermove', move);
+  function up(){ mode=null; }
+  strip.addEventListener('pointerup', up);
+  strip.addEventListener('pointercancel', up);
 })();
-$('trPlay').onclick=function(){
-  if(!TR || !TR.ready) return;
-  var v=$('trVid');
-  v.currentTime=TR.a; v.play();
-  clearInterval(TR.watch);
-  TR.watch=setInterval(function(){ if(!TR){ return; } drawTrim(); if(v.paused || v.currentTime>=TR.b){ v.pause(); clearInterval(TR.watch); } }, 50);
-};
-function useTrim(conRecorte){
-  if(!TR) return;
-  var t=TR; TR=null;
-  clearInterval(t.watch); clearTimeout(t.to);
-  var v=$('trVid'); v.pause();
-  v.onloadedmetadata=v.ondurationchange=v.onloadeddata=v.onerror=v.onseeked=null;
-  v.removeAttribute('src'); try{ v.load(); }catch(e){}
-  URL.revokeObjectURL(t.url);
-  trMsg('');
-  closeOv('ovTrim');
-  var recortado = t.ready && t.dur>0 && (t.a>0.05 || t.b<t.dur-0.05);
-  if(conRecorte && recortado) loadFromFile(t.k, t.f, t.a, t.b);
-  else loadFromFile(t.k, t.f);
+
+function trimTogglePlay(){
+  if(!TRIM || !TRIM.ready) return;
+  if(PLAYING){ pauseAll(); return; }
+  var k=TRIM.k, p=PANES[k], v=p.el;
+  p.target=null; p.seeking=false;
+  if(v.ended || v.currentTime>=rB(k)-0.05 || v.currentTime<rA(k)) v.currentTime=rA(k);
+  v.playbackRate=SPEED;
+  var pr=v.play(); if(pr && pr.catch) pr.catch(function(err){ console.warn(err); });
+  PLAYING=true; syncPlayBtn();
 }
-$('trOk').onclick=function(){ useTrim(true); };
-$('trFull').onclick=function(){ useTrim(false); };
+$('trPlay').onclick=trimTogglePlay;
+
+// Sale del recorte. conRecorte=true aplica el tramo; false usa el video completo.
+function exitTrim(conRecorte){
+  if(!TRIM) return;
+  var t=TRIM; TRIM=null;
+  killFilm(t);
+  pauseAll();
+  var p=PANES[t.k];
+  if(conRecorte && t.ready){
+    p.a = t.a>0.05 ? t.a : 0;
+    p.b = t.b<t.dur-0.05 ? t.b : null;
+  } else { p.a=0; p.b=null; }
+  $('app').classList.remove('trimming');
+  renderLanes();
+  if(p.ready) seekPane(t.k, rA(t.k)+0.001);
+}
+// Cancela sin tocar nada más (se usa al quitar el video)
+function cancelTrim(){
+  if(!TRIM) return;
+  var t=TRIM; TRIM=null;
+  killFilm(t);
+  $('app').classList.remove('trimming');
+}
+$('trOk').onclick=function(){ exitTrim(true); };
+$('trFull').onclick=function(){ exitTrim(false); };
 
 // ============================================================
 // SELECTOR DE VIDEO
@@ -732,9 +894,7 @@ $('pickFromProfile').onclick=showPickGrid;
 $('pickBack').onclick=showPickMenu;
 $('pickRemove').onclick=function(){
   closeOv('ovPick');
-  var v=PANES.B.el; v.pause(); v.removeAttribute('src'); v.load();
-  if(PANES.B.file && PANES.B.src) URL.revokeObjectURL(PANES.B.src);
-  PANES.B.src=null; PANES.B.file=null; PANES.B.media=null; PANES.B.ready=false;
+  clearPane('B');
   COMPARE=false; $('btnCompare').classList.remove('on');
   computeLayout(); renderLanes();
 };
@@ -799,9 +959,11 @@ function loop(){
   if(LAYOUT.length>1){
     LAYOUT.forEach(function(L){
       if(VIEWS[L.k].z>1.01) return;
-      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(L.x+10, 10, 30, 26);
+      // etiqueta A/B abajo a la izquierda (arriba queda la X para quitar el video)
+      var ly=L.h-36;
+      ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(L.x+10, ly, 30, 26);
       ctx.fillStyle='#D4C5A9'; ctx.font='bold 18px Barlow, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(L.k, L.x+25, 23);
+      ctx.fillText(L.k, L.x+25, ly+13);
     });
   }
   // fin del tramo recortado: se detiene ahí
@@ -933,7 +1095,7 @@ function cancelStroke(){
 }
 
 canvas.addEventListener('pointerdown', function(e){
-  if(!LAYOUT.length) return;
+  if(!LAYOUT.length || TRIM) return;
   e.preventDefault();
   try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
   PTRS[e.pointerId]=canvasPx(e);
@@ -1049,7 +1211,7 @@ document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
 // REPRODUCCIÓN
 // ============================================================
 function anyPlaying(){ return activeKeys().some(function(k){ var v=PANES[k].el; return PANES[k].src && !v.paused && !v.ended; }); }
-function syncPlayBtn(){ $('btnPlay').innerHTML = PLAYING ? SVG_PAUSE : SVG_PLAY; }
+function syncPlayBtn(){ var h = PLAYING ? SVG_PAUSE : SVG_PLAY; $('btnPlay').innerHTML = h; $('trPlay').innerHTML = h; }
 
 $('btnPlay').onclick=function(){
   var keys=activeKeys().filter(function(k){ return PANES[k].src; });
@@ -1108,6 +1270,7 @@ function renderLanes(){
       +   '<button class="fbtn" title="Cuadro anterior" id="prev'+k+'">'+SVG_BACK+'</button>'
       +   '<div class="jog" id="jog'+k+'" title="Desliza para avanzar o retroceder cuadro a cuadro"></div>'
       +   '<button class="fbtn" title="Cuadro siguiente" id="next'+k+'">'+SVG_FWD+'</button>'
+      +   '<button class="fbtn" title="Recortar este video" id="cut'+k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg></button>'
       +   '<button class="fbtn" title="Cambiar este video" id="chg'+k+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h13l-3-3"/><path d="M20 17H7l3 3"/></svg></button>'
       + '</div>';
     box.appendChild(lane);
@@ -1116,6 +1279,7 @@ function renderLanes(){
     $('prev'+k).onclick=function(){ stepFrames(k,-1); };
     $('next'+k).onclick=function(){ stepFrames(k,1); };
     $('chg'+k).onclick=function(){ if(REC){ toast('Termina la grabación antes de cambiar el video',true); return; } openPicker(k); };
+    $('cut'+k).onclick=function(){ if(REC){ toast('Termina la grabación antes de recortar',true); return; } enterTrim(k); };
     setupJog(k);
   });
   updateLanes();
@@ -1146,6 +1310,7 @@ function setupScrub(k){
 }
 
 function updateLanes(){
+  if(TRIM) drawTrimUI();
   ['A','B'].forEach(function(k){
     var bar=$('scrub'+k), tm=$('time'+k), p=PANES[k], v=p.el;
     if(!bar || !v.duration || p.drag) return;
@@ -1223,6 +1388,7 @@ async function startRec(){
 
   $('btnRec').classList.add('live'); $('recLabel').textContent='Detener';
   $('recBadge').classList.add('on');
+  syncClose();
   REC.timer=setInterval(function(){
     var s=(Date.now()-REC.start)/1000;
     $('recBadge').textContent='● REC '+fmtClock(s);
@@ -1241,6 +1407,7 @@ function stopRec(){
 function onRecStop(){
   if(!REC) return;
   var r=REC; REC=null;
+  syncClose();
   if(r.mic) r.mic.getTracks().forEach(function(t){ t.stop(); });
   pauseAll();
   REC_MIME = (r.mime||'video/webm').split(';')[0];
