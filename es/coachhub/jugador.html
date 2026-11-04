@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Perfil del Jugador · MyGolfLab Coach Hub</title>
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="theme-color" content="#0a0a0a">
@@ -39,7 +39,7 @@
   ::-webkit-scrollbar-corner{background:#0a0a0a}
 
   /* ---------- HEADER ---------- */
-  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
   .nav-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
   .brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--text)}
   .brand span{color:var(--teal)}
@@ -113,10 +113,17 @@
   .pr-name{font-family:'Barlow Condensed';font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pr-meta{font-size:12px;color:var(--muted)}
   .roster-empty{text-align:center;color:var(--muted);padding:24px 8px;font-size:14px}
-  /* computador: la lista queda fija al costado y se desplaza por dentro */
-  @media(min-width:901px){
-    .roster{max-height:calc(100vh - 112px);display:flex;flex-direction:column}
-    #rosterList{flex:1;min-height:0;overflow-y:auto;margin-right:-10px;padding-right:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) var(--card)}
+  /* la lista tiene alto fijo y se desplaza por dentro (en computador al costado,
+     en el teléfono ocupa la pantalla bajo el header) */
+  .shell.coachmode .roster{max-height:calc(100vh - 112px - env(safe-area-inset-top));max-height:calc(100dvh - 112px - env(safe-area-inset-top));display:flex;flex-direction:column}
+  @media(max-width:900px){
+    .shell.coachmode:not(.viewing){padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+    .shell.coachmode .roster{height:calc(100vh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom));height:calc(100dvh - 94px - env(safe-area-inset-top) - env(safe-area-inset-bottom));max-height:none}
+  }
+  .shell.coachmode .roster-head,.shell.coachmode .roster-search{flex:0 0 auto}
+  .shell.coachmode #rosterList{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  @media(min-width:0px){
+    .shell.coachmode #rosterList{flex:1;min-height:0;overflow-y:auto;margin-right:-10px;padding-right:10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) var(--card)}
     #rosterList::-webkit-scrollbar{width:8px}
     #rosterList::-webkit-scrollbar-track{background:var(--card)}
     #rosterList::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:8px;border:2px solid var(--card)}
@@ -1362,7 +1369,10 @@ function showList(){
   if(!sh.classList.contains('viewing')) return;
   sh.classList.remove('viewing');
   // después de un cuadro, para que el navegador no lo pise al volver
-  if(isPhone()){ var y=LIST_SCROLL; window.scrollTo(0,y); requestAnimationFrame(function(){ window.scrollTo(0,y); }); }
+  // la lista se desplaza por dentro: se devuelve al mismo alumno
+  var rl=document.getElementById('rosterList'), y=LIST_SCROLL;
+  window.scrollTo(0,0); rl.scrollTop=y;
+  requestAnimationFrame(function(){ rl.scrollTop=y; });
 }
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 document.getElementById('backBar').onclick=function(){
@@ -1381,7 +1391,7 @@ async function selectPlayer(id, opts){
   var nuevo = PLAYERS.filter(function(p){return p.id===id;})[0];
   if(!nuevo) return;
   var sh=document.getElementById('shell');
-  if(!sh.classList.contains('viewing')) LIST_SCROLL=window.scrollY||0;
+  if(!sh.classList.contains('viewing')) LIST_SCROLL=document.getElementById('rosterList').scrollTop||0;
   sh.classList.add('viewing');
   if(isPhone()) window.scrollTo(0,0);
   if(!opts.noHistory && !(history.state && history.state.player===id)){
