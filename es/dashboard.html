@@ -251,7 +251,7 @@
     border-radius: 16px; overflow: hidden; margin-bottom: 24px;
   }
   .celda { background: var(--bg-card); padding: 32px; transition: background 0.3s; }
-  /* Puente a Coach Hub (dorado = color de Coach Hub) */
+  /* Puente a CoachFly (dorado = color de CoachFly) */
   .celda.ch-puente { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
     background: linear-gradient(135deg, rgba(212,197,169,0.09), rgba(212,197,169,0.015)), var(--bg-card);
     box-shadow: inset 0 0 0 1px rgba(212,197,169,0.28); }
@@ -1087,7 +1087,7 @@ async function cargar(){
     S.perfilOK = true;
   }
 
-  /* ¿Tiene ficha con un coach en Coach Hub? Decide qué dice la tarjeta del puente. */
+  /* ¿Tiene ficha con un coach en CoachFly? Decide qué dice la tarjeta del puente. */
   try{
     var fc = await S.sb.from('players').select('id').eq('user_id', uid).limit(1);
     S.fichaCoach = !!(fc.data && fc.data.length);
@@ -2599,19 +2599,19 @@ function bloqueIndice(){
    6.6 · Cuatro filas: aviso de área desatendida, cifras del período,
    reparto por área y cobertura + extremos. Todo rendimiento, sin cruzar
    con la técnica del swing. */
-/* ── Puente a Coach Hub ──
+/* ── Puente a CoachFly ──
    Si el jugador ya tiene coach, lo lleva a su ficha; si no, a la vitrina. */
 function bloqueCoachHub(){
   var con = S.fichaCoach;
   return '<div class="rejilla reveal"><div class="celda ch-puente">' +
-    '<div class="ch-txt"><span class="ch-eyebrow">Coach Hub</span>' +
+    '<div class="ch-txt"><span class="ch-eyebrow">CoachFly</span>' +
     '<div class="ch-t">' + (con ? 'Tu coach te está esperando' : '¿Quieres un coach de verdad?') + '</div>' +
     '<div class="ch-d">' + (con
-      ? 'Los videos, notas y planes que te deja tu coach están en tu Coach Hub.'
+      ? 'Los videos, notas y planes que te deja tu coach están en tu CoachFly.'
       : 'Elige un coach, mándale tu swing y recibe un análisis grabado con su voz, drills y seguimiento.') +
     '</div></div>' +
     '<a class="ch-btn" href="' + (con ? '/es/coachhub/dashboard.html' : '/es/coaches/') + '">' +
-    (con ? 'Ir a mi Coach Hub' : 'Ver coaches') + ' \u203A</a>' +
+    (con ? 'Ir a mi CoachFly' : 'Ver coaches') + ' \u203A</a>' +
     '</div></div>';
 }
 

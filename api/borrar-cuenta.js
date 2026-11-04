@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab / Coach Hub · Eliminar cuenta
+   MyGolfLab / CoachFly · Eliminar cuenta
    Archivo: /api/borrar-cuenta.js
    Versión: 1.0 · 2026-11-02
 

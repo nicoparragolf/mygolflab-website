@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab / Coach Hub · Ajustes cuando la web corre dentro de la app
+   MyGolfLab / CoachFly · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
    Versión: 1.0 · 2026-11-02
 
-   La app de Coach Hub (carpeta app-movil/, hecha con Capacitor) carga esta
+   La app de CoachFly (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
 
    Dentro de la app:
