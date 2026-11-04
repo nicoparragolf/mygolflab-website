@@ -586,7 +586,7 @@
         if (role === 'coach' || role === 'ambos') {
           window.MGL_SB = sb;
           var as = document.createElement('script');
-          as.src = '/js/mgl-asistente.js?v=1';
+          as.src = '/js/mgl-asistente.js?v=2';
           as.async = true;
           document.body.appendChild(as);
         }
