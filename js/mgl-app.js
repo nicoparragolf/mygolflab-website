@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab / Coach Hub · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
-   Versión: 1.0 · 2026-11-02
+   Versión: 1.1 · 2026-11-07 (descargas nativas en la app)
 
    La app de Coach Hub (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
@@ -129,10 +129,92 @@
     }
   }
 
+  // ── 4. Descargas dentro de la app ──
+  // El WebView de iOS ignora <a download>, así que en la app el archivo se
+  // baja de forma nativa a la caché y se abre la hoja de compartir del
+  // teléfono ("Guardar video", "Guardar en Archivos", WhatsApp, etc.).
+  // Plugins: @capacitor/file-transfer, @capacitor/filesystem, @capacitor/share
+  // (vienen desde la versión de la app con descargas; las anteriores caen al
+  // plan B: abrir el archivo en el navegador interno con Browser).
+
+  function nombreSeguro(nombre) {
+    var n = String(nombre || 'archivo').replace(/[\/\\:*?"<>|#%]+/g, '-').trim();
+    return n || 'archivo';
+  }
+
+  function cancelado(e) {
+    var m = String((e && (e.message || e.errorMessage)) || e || '').toLowerCase();
+    return m.indexOf('cancel') > -1;
+  }
+
+  async function compartirArchivo(uri, nombre) {
+    var Share = plugin('Share');
+    try {
+      await Share.share({ title: nombre, files: [uri] });
+    } catch (e) {
+      if (!cancelado(e)) throw e;
+    }
+  }
+
+  function puedeGuardarNativo() {
+    return nativo && !!plugin('Filesystem') && !!plugin('Share');
+  }
+
+  // Devuelve true si la app se encargó de la descarga (o del plan B).
+  // false = no estamos en la app; la página sigue con su <a download> normal.
+  async function guardarDesdeUrl(url, nombre) {
+    if (!nativo) return false;
+    nombre = nombreSeguro(nombre);
+    var FileTransfer = plugin('FileTransfer');
+
+    if (!puedeGuardarNativo() || !FileTransfer) {
+      var Browser = plugin('Browser');
+      if (Browser) { await Browser.open({ url: url, presentationStyle: 'popover' }); return true; }
+      window.open(url, '_blank');
+      return true;
+    }
+
+    var Filesystem = plugin('Filesystem');
+    try { await Filesystem.deleteFile({ path: nombre, directory: 'CACHE' }); } catch (e) {}
+    var dest = await Filesystem.getUri({ path: nombre, directory: 'CACHE' });
+    // La URL firmada de Supabase ya viene codificada: no volver a codificarla
+    var r = await FileTransfer.downloadFile({ url: url, path: dest.uri, shouldEncodeUrlParams: false });
+    await compartirArchivo((r && r.path) || dest.uri, nombre);
+    return true;
+  }
+
+  function blobABase64(blob) {
+    return new Promise(function (ok, mal) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var s = String(fr.result || '');
+        ok(s.slice(s.indexOf(',') + 1));
+      };
+      fr.onerror = function () { mal(fr.error || new Error('No se pudo leer el archivo')); };
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  // Para archivos generados en la página (ej. la grabación del analizador)
+  async function guardarBlob(blob, nombre) {
+    if (!nativo) return false;
+    nombre = nombreSeguro(nombre);
+    if (!puedeGuardarNativo()) {
+      throw new Error('Actualiza la app para poder guardar archivos.');
+    }
+    var Filesystem = plugin('Filesystem');
+    var data = await blobABase64(blob);
+    var w = await Filesystem.writeFile({ path: nombre, data: data, directory: 'CACHE' });
+    await compartirArchivo(w.uri, nombre);
+    return true;
+  }
+
   window.MGLApp = {
     esApp: function () { return esApp; },
     esNativo: function () { return nativo; },
     plataforma: function () { return plataforma; },
-    oauth: oauth
+    oauth: oauth,
+    guardarDesdeUrl: guardarDesdeUrl,
+    guardarBlob: guardarBlob
   };
 })();

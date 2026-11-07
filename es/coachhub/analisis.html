@@ -1491,9 +1491,18 @@ $('sv_discard').onclick=function(){
 };
 $('sv_dl').onclick=function(){
   if(!REC_BLOB) return;
+  var nombre='analisis-'+todayISO()+(REC_MIME.indexOf('mp4')>=0?'.mp4':'.webm');
+  // En la app el <a download> no funciona: hoja de compartir nativa
+  if(window.MGLApp && MGLApp.esNativo()){
+    toast('Preparando video…');
+    MGLApp.guardarBlob(REC_BLOB,nombre).catch(function(e){
+      toast('No se pudo guardar: '+((e&&e.message)||e),true);
+    });
+    return;
+  }
   var a=document.createElement('a');
   a.href=URL.createObjectURL(REC_BLOB);
-  a.download='analisis-'+todayISO()+(REC_MIME.indexOf('mp4')>=0?'.mp4':'.webm');
+  a.download=nombre;
   document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); }, 1500);
 };
 
