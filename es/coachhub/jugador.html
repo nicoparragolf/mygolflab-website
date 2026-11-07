@@ -2102,6 +2102,14 @@ async function downloadMedia(id,ev){
   var name=m.file_name||((m.media_type==='video'?'video-':'foto-')+String(id).slice(0,8)+'.'+ext);
   var r=await sb.storage.from(BUCKET).createSignedUrl(m.storage_path,600,{download:name});
   if(r.error||!r.data){ showError('No se pudo preparar la descarga',errMsg(r.error)); return; }
+  // Dentro de la app (iPhone/Android) el <a download> no funciona: se baja
+  // de forma nativa y se abre la hoja de compartir para "Guardar video".
+  if(window.MGLApp && MGLApp.esNativo()){
+    toast('Preparando '+name+'…');
+    try{ await MGLApp.guardarDesdeUrl(r.data.signedUrl,name); }
+    catch(e){ showError('No se pudo descargar',errMsg(e)); }
+    return;
+  }
   var a=document.createElement('a');
   a.href=r.data.signedUrl; a.download=name; a.rel='noopener';
   document.body.appendChild(a); a.click();
