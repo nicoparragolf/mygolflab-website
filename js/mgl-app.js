@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab / Coach Hub · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
-   Versión: 1.1 · 2026-11-07 (descargas nativas en la app)
+   Versión: 1.2 · 2026-11-09 (descargas: se comparte el archivo, no la ruta)
 
    La app de Coach Hub (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
@@ -147,8 +147,17 @@
     return m.indexOf('cancel') > -1;
   }
 
+  // iOS solo reconoce el archivo (y ofrece "Guardar video") si recibe una URL
+  // file://. FileTransfer devuelve la ruta sin el "file://": se lo agregamos.
+  function aUrlArchivo(uri) {
+    uri = String(uri || '');
+    if (uri.charAt(0) === '/') return 'file://' + uri;
+    return uri;
+  }
+
   async function compartirArchivo(uri, nombre) {
     var Share = plugin('Share');
+    uri = aUrlArchivo(uri);
     try {
       await Share.share({ title: nombre, files: [uri] });
     } catch (e) {
@@ -165,6 +174,11 @@
   async function guardarDesdeUrl(url, nombre) {
     if (!nativo) return false;
     nombre = nombreSeguro(nombre);
+    // Sin extensión iOS no sabe que es un video: se toma la de la URL
+    if (!/\.[a-z0-9]{2,5}$/i.test(nombre)) {
+      var m = String(url || '').split('?')[0].match(/\.([a-z0-9]{2,5})$/i);
+      nombre += '.' + (m ? m[1].toLowerCase() : 'mp4');
+    }
     var FileTransfer = plugin('FileTransfer');
 
     if (!puedeGuardarNativo() || !FileTransfer) {
@@ -179,7 +193,8 @@
     var dest = await Filesystem.getUri({ path: nombre, directory: 'CACHE' });
     // La URL firmada de Supabase ya viene codificada: no volver a codificarla
     var r = await FileTransfer.downloadFile({ url: url, path: dest.uri, shouldEncodeUrlParams: false });
-    await compartirArchivo((r && r.path) || dest.uri, nombre);
+    // dest.uri ya viene como file://…; r.path es la misma ruta sin el prefijo
+    await compartirArchivo(dest.uri || (r && r.path), nombre);
     return true;
   }
 
