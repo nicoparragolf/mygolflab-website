@@ -134,6 +134,8 @@
       +     'height:56px;border-radius:20px;color:var(--c8a8a8a,#8a8a8a);text-decoration:none;font-family:"Barlow Condensed",sans-serif;font-size:12.5px;'
       +     'font-weight:600;letter-spacing:.2px;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s}'
       +   '.mgl-tabs a span.mgl-tl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 2px}'
+      // en portugués "Mensagens" no cabe con el tamaño normal
+      +   'html[lang="pt"] .mgl-tabs a span.mgl-tl{font-size:11px;letter-spacing:0;padding:0}'
       +   '.mgl-tabs a .ic{position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center}'
       +   '.mgl-tabs a .ic svg{width:23px;height:23px}'
       +   '.mgl-tabs a.on{color:var(--cd4c5a9,#D4C5A9);background:rgba(var(--r212_197_169,212,197,169),.12)}'
