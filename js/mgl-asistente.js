@@ -432,7 +432,7 @@
       var r = await fetch('/api/transcribir', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk },
-        body: JSON.stringify({ audio: b64, mime: tipo, nombres: S.roster.slice(0, 60).map(nombreDe) })
+        body: JSON.stringify({ audio: b64, mime: tipo, nombres: S.roster.slice(0, 60).map(nombreDe), idioma: (window.MGLi18n && MGLi18n.lang) || 'es' })
       });
       var d = await r.json().catch(function () { return null; });
       if (r.ok && d && typeof d.texto === 'string') {
@@ -563,6 +563,7 @@
       coach: S.coach,
       hoy: new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
       hoy_iso: hoyISO(),
+      idioma: (window.MGLi18n && MGLi18n.lang) || 'es',
       pagina: (document.title || '') + ' (' + location.pathname + ')',
       jugadores: S.roster.map(function (p) { return { id: p.id, nombre: nombreDe(p), categoria: p.category || '' }; })
     };

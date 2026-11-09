@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script src="/js/mgl-tema.js"></script>
+<script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mi cuenta · Coach Hub</title>
 <meta name="robots" content="noindex">
@@ -116,6 +117,7 @@
   .tema button.on{background:rgba(var(--r212_197_169,212,197,169),.12);border-color:var(--teal-dim);color:var(--teal)}
   .tema .sw{width:46px;height:30px;border-radius:8px;border:1px solid var(--border2);overflow:hidden;display:flex}
   .tema .sw i{flex:1;display:block}
+  .tema .sw.idi{align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.5px;color:var(--text)}
   .tema-nota{color:var(--muted);font-size:14px;margin-top:10px}
   .tile.soon{cursor:default}
   .tile.soon:hover{transform:none}
@@ -330,6 +332,7 @@ function render(name, photo, st){
   h+= '<button class="tile danger" onclick="logout()"><div><h3>Cerrar sesión</h3><p>Salir de tu cuenta en este dispositivo.</p></div><div class="ic">'+IC.logout+'</div></button>';
   h+='</div>';
   h+='<h2 class="sec">Apariencia</h2>'+temaHTML();
+  h+='<h2 class="sec">Idioma</h2>'+idiomaHTML();
   h+='<div id="zonaCuenta"></div>';
 
   $('wrap').innerHTML=h;
@@ -349,6 +352,20 @@ function temaHTML(){
   });
   h+='</div><p class="tema-nota">Automático sigue el modo claro u oscuro de tu teléfono o computador.</p>';
   return h;
+}
+function idiomaHTML(){
+  var cur = window.MGLi18n ? MGLi18n.lang : 'es';
+  var ops = [['es','Español','ES'],['en','English','EN']];
+  var h='<div class="tema notranslate" id="idiomaSel">';
+  ops.forEach(function(o){
+    h+='<button type="button" data-idioma="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'" onclick="elegirIdioma(\''+o[0]+'\')"><span class="sw idi">'+o[2]+'</span>'+o[1]+'</button>';
+  });
+  h+='</div>';
+  return h;
+}
+function elegirIdioma(v){
+  if(!window.MGLi18n || MGLi18n.lang===v) return;
+  MGLi18n.set(v);
 }
 function elegirTema(v){
   if(window.MGLTema) MGLTema.set(v);

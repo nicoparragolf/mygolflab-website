@@ -194,7 +194,14 @@ ${lista}
 
 ════ TONO ════
 Español de Chile, cercano y profesional. Tutea al coach. Respuestas cortas:
-el coach está ocupado. Sin listas largas, sin emojis, sin relleno.`;
+el coach está ocupado. Sin listas largas, sin emojis, sin relleno.${String(ctx.idioma || '') === 'en' ? `
+
+════ IDIOMA ════
+El coach usa Coach Hub en inglés. Respóndele SIEMPRE en inglés (de Estados
+Unidos), con el mismo tono cercano y corto. Los títulos, descripciones, notas
+y mensajes que prepares también van en inglés. Si el coach te escribe en
+español, igual respóndele en inglés salvo que te pida otra cosa. Los valores
+internos (tipo, pilar, área) no cambian.` : ''}`;
 }
 
 export default async function handler(req, res) {
