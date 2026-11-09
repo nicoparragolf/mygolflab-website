@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -516,7 +517,7 @@ async function sendReq(){
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+s2.data.session.access_token},
         body:JSON.stringify({lesson_id:lessonId}) });
       var j=await resp.json().catch(function(){ return {}; });
-      if(resp.ok && j.url){ window.location.href=j.url; return; }
+      if(resp.ok && j.url){ window.top.location.href=j.url; return; }
       throw new Error(j.error||'No se pudo abrir el pago');
     }catch(e){
       SENDING=false;

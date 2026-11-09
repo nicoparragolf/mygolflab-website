@@ -36,6 +36,8 @@
   function set(v) {
     if (!IDIOMAS[v]) return;
     try { localStorage.setItem(KEY, v); } catch (e) {}
+    // Dentro del marco de la app se recargan todas las pestañas
+    try { if (window.MGL_EN_MARCO && window.parent !== window) { window.parent.location.reload(); return; } } catch (e) {}
     location.reload();
   }
 

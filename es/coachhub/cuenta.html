@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -273,8 +274,8 @@ function render(name, photo, st){
   // ── Tarjeta de perfil ──
   var vitrinaUrl = (IS_COACH && CP && CP.slug) ? 'https://mygolflab.golf/es/coaches/perfil.html?c='+encodeURIComponent(CP.slug) : '';
   var linkCard = IS_COACH;
-  h+='<div class="pcard'+(linkCard?' link':'')+'"'+(linkCard?' onclick="location.href=\'/es/coachhub/vitrina.html\'"':'')+'>'
-    + '<div class="pphoto"'+(IS_COACH?' title="Cambiar foto" onclick="event.stopPropagation();location.href=\'/es/coachhub/vitrina.html#foto\'"':'')+'>'+(photo?'<img src="'+esc(photo)+'" alt="">':esc(initialsOf(name)))+(IS_COACH?'<span class="pcam">'+IC.cam+'</span>':'')+'</div>'
+  h+='<div class="pcard'+(linkCard?' link':'')+'"'+(linkCard?' onclick="MGLnav.href=\'/es/coachhub/vitrina.html\'"':'')+'>'
+    + '<div class="pphoto"'+(IS_COACH?' title="Cambiar foto" onclick="event.stopPropagation();MGLnav.href=\'/es/coachhub/vitrina.html#foto\'"':'')+'>'+(photo?'<img src="'+esc(photo)+'" alt="">':esc(initialsOf(name)))+(IS_COACH?'<span class="pcam">'+IC.cam+'</span>':'')+'</div>'
     + '<div class="pinfo">'
     +   '<div class="pname">'+esc(name)+'</div>'
     +   '<div class="prole">'
