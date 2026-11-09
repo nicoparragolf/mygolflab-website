@@ -40,7 +40,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'auth-checking';
     overlay.style.cssText = `
-      position:fixed;inset:0;background:#0a0a0a;
+      position:fixed;inset:0;background:var(--c0a0a0a,#0a0a0a);
       display:flex;align-items:center;justify-content:center;
       z-index:99999;
     `;

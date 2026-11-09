@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recuperar contraseña · MyGolfLab</title>
 <meta name="robots" content="noindex">
@@ -12,20 +13,20 @@
 <script src="/js/mgl-app.js"></script>
 <style>
   :root {
-    --bg: #0a0a0a;
+    --bg: var(--c0a0a0a,#0a0a0a);
     --card: #131313;
-    --line: rgba(255,255,255,.08);
+    --line: rgba(var(--r255_255_255,255,255,255),.08);
     --text: #f2f2f2;
-    --muted: rgba(255,255,255,.55);
-    --teal: #2dd4bf;
-    --gold: #D4C5A9;
-    --error: #f87171;
+    --muted: rgba(var(--r255_255_255,255,255,255),.55);
+    --teal: var(--c2dd4bf,#2dd4bf);
+    --gold: var(--cd4c5a9,#D4C5A9);
+    --error: var(--cf87171,#f87171);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scrollbar-color: rgba(255,255,255,.09) var(--bg); }
+  html { scrollbar-color: rgba(var(--r255_255_255,255,255,255),.09) var(--bg); }
   ::-webkit-scrollbar { width: 10px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.09); border-radius: 10px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(var(--r255_255_255,255,255,255),.09); border-radius: 10px; border: 2px solid var(--bg); }
   body {
     background: var(--bg);
     color: var(--text);
@@ -60,15 +61,15 @@
     cursor: pointer; padding: 6px 8px;
   }
   .btn {
-    width: 100%; background: var(--teal); color: #0a0a0a; border: none; border-radius: 12px;
+    width: 100%; background: var(--teal); color:#0a0a0a; border: none; border-radius: 12px;
     font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 1.5px;
     text-transform: uppercase; padding: 15px; cursor: pointer; transition: opacity .15s;
   }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
   .msg { display: none; border-radius: 12px; padding: 13px 15px; font-size: 14px; line-height: 1.45; margin-bottom: 18px; }
   .msg.show { display: block; }
-  .msg.ok { background: rgba(45,212,191,.08); border: 1px solid rgba(45,212,191,.3); color: var(--teal); }
-  .msg.err { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.3); color: var(--error); }
+  .msg.ok { background: rgba(var(--r45_212_191,45,212,191),.08); border: 1px solid rgba(var(--r45_212_191,45,212,191),.3); color: var(--teal); }
+  .msg.err { background: rgba(var(--r248_113_113,248,113,113),.08); border: 1px solid rgba(var(--r248_113_113,248,113,113),.3); color: var(--error); }
   .hint { color: var(--muted); font-size: 13px; margin-top: -8px; margin-bottom: 18px; }
   .back { display: block; text-align: center; margin-top: 22px; color: var(--muted); font-size: 14px; text-decoration: none; }
   .back:hover { color: var(--gold); }

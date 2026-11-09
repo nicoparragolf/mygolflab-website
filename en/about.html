@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About the Coach | MyGolfLab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9,17 +10,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
+            --primary: var(--c2dd4bf,#2dd4bf);
+            --primary-dark: var(--c14b8a6,#14b8a6);
+            --primary-glow: rgba(var(--r45_212_191,45,212,191), 0.3);
+            --bg-dark: var(--c0a0a0a,#0a0a0a);
+            --bg-card: var(--c111111,#111111);
+            --bg-elevated: var(--c1a1a1a,#1a1a1a);
             --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --text-secondary: var(--ca3a3a3,#a3a3a3);
+            --text-muted: var(--c737373,#737373);
+            --border: var(--c262626,#262626);
+            --gradient-1: linear-gradient(135deg, var(--c2dd4bf,#2dd4bf) 0%, var(--c14b8a6,#14b8a6) 50%, var(--c0d9488,#0d9488) 100%);
             --font-display: 'Bebas Neue', sans-serif;
             --font-heading: 'Barlow Condensed', sans-serif;
             --font-body: 'Barlow', sans-serif;
@@ -44,7 +45,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(10, 10, 10, 0.85);
+            background: rgba(var(--r10_10_10,10,10,10), 0.85);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
@@ -214,7 +215,7 @@
         .page-header {
             padding: 8rem 2rem 4rem;
             text-align: center;
-            background: linear-gradient(180deg, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+            background: linear-gradient(180deg, rgba(var(--r45_212_191,45,212,191), 0.05) 0%, transparent 50%);
         }
         .page-header h1 {
             font-family: var(--font-display);
