@@ -356,7 +356,7 @@ function temaHTML(){
 }
 function idiomaHTML(){
   var cur = window.MGLi18n ? MGLi18n.lang : 'es';
-  var ops = [['es','Español','ES'],['en','English','EN']];
+  var ops = [['es','Español','ES'],['en','English','EN'],['pt','Português','PT']];
   var h='<div class="tema notranslate" id="idiomaSel">';
   ops.forEach(function(o){
     h+='<button type="button" data-idioma="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'" onclick="elegirIdioma(\''+o[0]+'\')"><span class="sw idi">'+o[2]+'</span>'+o[1]+'</button>';

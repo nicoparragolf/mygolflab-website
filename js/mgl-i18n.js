@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Idiomas (español / inglés)
+   Coach Hub · Idiomas (español / inglés / portugués)
    Archivo: /js/mgl-i18n.js
    Versión: 1.0 · 2026-11-09
 
@@ -14,22 +14,23 @@
    traduce un texto si calza con una frase del diccionario.
    Para que algo no se traduzca nunca: class="notranslate" o translate="no".
 
-   Preferencia en localStorage 'mgl-idioma': 'es' | 'en'. Sin preferencia,
-   se usa el idioma del teléfono o computador (inglés → en, resto → es).
+   Preferencia en localStorage 'mgl-idioma': 'es' | 'en' | 'pt'. Sin preferencia,
+   se usa el idioma del teléfono o computador (inglés → en, portugués → pt,
+   resto → es). Diccionarios: /js/i18n/en.js y /js/i18n/pt.js.
    API: MGLi18n.lang, MGLi18n.set('en'), MGLi18n.t('Texto en español')
    Va en el <head>, justo después de mgl-tema.js. Sin template literals.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   if (window.MGLi18n) return;
   var KEY = 'mgl-idioma';
-  var IDIOMAS = { es: 1, en: 1 };
+  var IDIOMAS = { es: 1, en: 1, pt: 1 };
 
   function detectar() {
     var v = null;
     try { v = localStorage.getItem(KEY); } catch (e) {}
     if (v && IDIOMAS[v]) return v;
     var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'es';
-    return /^en/i.test(nav) ? 'en' : 'es';
+    return /^en/i.test(nav) ? 'en' : /^pt/i.test(nav) ? 'pt' : 'es';
   }
   var lang = detectar();
 
@@ -41,7 +42,7 @@
     location.reload();
   }
 
-  var api = { lang: lang, set: set, t: function (s) { return s; }, idiomas: ['es', 'en'] };
+  var api = { lang: lang, set: set, t: function (s) { return s; }, idiomas: ['es', 'en', 'pt'] };
   window.MGLi18n = api;
   document.documentElement.setAttribute('lang', lang);
 
@@ -52,7 +53,7 @@
       var el = els[i];
       el.classList.add('notranslate');
       el.innerHTML = '';
-      [['es', 'Español'], ['en', 'English']].forEach(function (o, j) {
+      [['es', 'Español'], ['en', 'English'], ['pt', 'Português']].forEach(function (o, j) {
         if (j) el.appendChild(document.createTextNode(' · '));
         var a = document.createElement('a');
         a.href = '#'; a.textContent = o[1];
@@ -66,13 +67,14 @@
 
   // ── Diccionario ─────────────────────────────────────────────────────────
   // Se carga de forma síncrona para que la página no parpadee en español.
-  if (!window.MGL_I18N_EN) {
+  var VAR = 'MGL_I18N_' + lang.toUpperCase();
+  if (!window[VAR]) {
     document.write('<script src="/js/i18n/' + lang + '.js?v=1"><\/script>');
   }
   var D = null, LARGAS = null;
   function dic() {
     if (D) return D;
-    D = window.MGL_I18N_EN || {};
+    D = window[VAR] || {};
     // Frases largas para reemplazo dentro de un texto (ej. "Buenas tardes, Nicolás")
     LARGAS = [];
     for (var k in D) if (k.length >= 10) LARGAS.push(k);
@@ -81,56 +83,74 @@
   }
 
   // ── Reglas con partes variables ─────────────────────────────────────────
-  var MES = { ene: 'Jan', feb: 'Feb', mar: 'Mar', abr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', ago: 'Aug', sep: 'Sep', sept: 'Sep', oct: 'Oct', nov: 'Nov', dic: 'Dec' };
-  var MESL = { enero: 'January', febrero: 'February', marzo: 'March', abril: 'April', mayo: 'May', junio: 'June', julio: 'July', agosto: 'August', septiembre: 'September', setiembre: 'September', octubre: 'October', noviembre: 'November', diciembre: 'December' };
-  var DIA = { lun: 'Mon', mar: 'Tue', 'mié': 'Wed', mie: 'Wed', jue: 'Thu', vie: 'Fri', 'sáb': 'Sat', sab: 'Sat', dom: 'Sun' };
-  var DIAL = { lunes: 'Monday', martes: 'Tuesday', 'miércoles': 'Wednesday', jueves: 'Thursday', viernes: 'Friday', 'sábado': 'Saturday', domingo: 'Sunday' };
+  var EN = lang === 'en';
+  var MES = EN
+    ? { ene: 'Jan', feb: 'Feb', mar: 'Mar', abr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', ago: 'Aug', sep: 'Sep', sept: 'Sep', oct: 'Oct', nov: 'Nov', dic: 'Dec' }
+    : { ene: 'jan', feb: 'fev', mar: 'mar', abr: 'abr', may: 'mai', jun: 'jun', jul: 'jul', ago: 'ago', sep: 'set', sept: 'set', oct: 'out', nov: 'nov', dic: 'dez' };
+  var MESL = EN
+    ? { enero: 'January', febrero: 'February', marzo: 'March', abril: 'April', mayo: 'May', junio: 'June', julio: 'July', agosto: 'August', septiembre: 'September', setiembre: 'September', octubre: 'October', noviembre: 'November', diciembre: 'December' }
+    : { enero: 'janeiro', febrero: 'fevereiro', marzo: 'março', abril: 'abril', mayo: 'maio', junio: 'junho', julio: 'julho', agosto: 'agosto', septiembre: 'setembro', setiembre: 'setembro', octubre: 'outubro', noviembre: 'novembro', diciembre: 'dezembro' };
+  var DIA = EN
+    ? { lun: 'Mon', mar: 'Tue', 'mié': 'Wed', mie: 'Wed', jue: 'Thu', vie: 'Fri', 'sáb': 'Sat', sab: 'Sat', dom: 'Sun' }
+    : { lun: 'seg', mar: 'ter', 'mié': 'qua', mie: 'qua', jue: 'qui', vie: 'sex', 'sáb': 'sáb', sab: 'sáb', dom: 'dom' };
+  var DIAL = EN
+    ? { lunes: 'Monday', martes: 'Tuesday', 'miércoles': 'Wednesday', jueves: 'Thursday', viernes: 'Friday', 'sábado': 'Saturday', domingo: 'Sunday' }
+    : { lunes: 'segunda-feira', martes: 'terça-feira', 'miércoles': 'quarta-feira', jueves: 'quinta-feira', viernes: 'sexta-feira', 'sábado': 'sábado', domingo: 'domingo' };
+  // Palabras y frases cortas de las reglas: [singular, plural]
+  var W = EN ? {
+    alumno: ['student', 'students'], jugador: ['player', 'players'], evento: ['event', 'events'], video: ['video', 'videos'], foto: ['photo', 'photos'], clase: ['lesson', 'lessons'], dia: ['day', 'days'], nota: ['note', 'notes'], mensaje: ['message', 'messages'], meta: ['goal', 'goals'], tarea: ['task', 'tasks'], coleccion: ['collection', 'collections'], coach: ['coach', 'coaches'], analisis: ['analysis', 'analyses'], semana: ['week', 'weeks'], mes: ['month', 'months'], hora: ['hour', 'hours'], minuto: ['minute', 'minutes'], archivo: ['file', 'files'], resena: ['review', 'reviews'], venta: ['sale', 'sales'], compra: ['purchase', 'purchases'], hoyo: ['hole', 'holes'], golpe: ['shot', 'shots'], tip: ['tip', 'tips'], ano: ['year', 'years'],
+    hace: '{n} {u} ago', de: '{a} of {b}', sinLeer: '{n} unread', enHub: '{n} {u} in your Coach Hub', faltan: '{n} more {u} to drop to {x}', notas: 'Notes ({n})', esteMes: '{x} this month', hoy: '{x} today', pend: '{n} pending', nuevas: '{n} new', entrenando: '{n} {u} training'
+  } : {
+    alumno: ['aluno', 'alunos'], jugador: ['jogador', 'jogadores'], evento: ['evento', 'eventos'], video: ['vídeo', 'vídeos'], foto: ['foto', 'fotos'], clase: ['aula', 'aulas'], dia: ['dia', 'dias'], nota: ['nota', 'notas'], mensaje: ['mensagem', 'mensagens'], meta: ['meta', 'metas'], tarea: ['tarefa', 'tarefas'], coleccion: ['coleção', 'coleções'], coach: ['coach', 'coaches'], analisis: ['análise', 'análises'], semana: ['semana', 'semanas'], mes: ['mês', 'meses'], hora: ['hora', 'horas'], minuto: ['minuto', 'minutos'], archivo: ['arquivo', 'arquivos'], resena: ['avaliação', 'avaliações'], venta: ['venda', 'vendas'], compra: ['compra', 'compras'], hoyo: ['buraco', 'buracos'], golpe: ['tacada', 'tacadas'], tip: ['dica', 'dicas'], ano: ['ano', 'anos'],
+    hace: 'há {n} {u}', de: '{a} de {b}', sinLeer: '{n} não lidas', enHub: '{n} {u} no seu Coach Hub', faltan: 'Faltam {n} {u} para baixar para {x}', notas: 'Notas ({n})', esteMes: '{x} este mês', hoy: '{x} hoje', pend: '{n} pendentes', nuevas: '{n} novas', entrenando: '{n} {u} treinando'
+  };
+  function fmt(t, o) { return t.replace(/\{(\w)\}/g, function (_, k) { return o[k]; }); }
+  function pal(clave, n) { var w = W[clave]; return w ? (+n === 1 ? w[0] : w[1]) : null; }
+  function sinTilde(s) { return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s; }
   var REGLAS = [];
   function regla(re, fn) { REGLAS.push([re, fn]); }
-  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   // Fechas
   regla(/^(\d{1,2})\s+(ene|feb|mar|abr|may|jun|jul|ago|sept?|oct|nov|dic)\.?(?:\s+(\d{4}))?$/i, function (m) {
-    return MES[m[2].toLowerCase()] + ' ' + m[1] + (m[3] ? ', ' + m[3] : '');
+    var mm = MES[m[2].toLowerCase()];
+    return EN ? mm + ' ' + m[1] + (m[3] ? ', ' + m[3] : '') : m[1] + ' ' + mm + (m[3] ? ' ' + m[3] : '');
   });
   regla(/^(\d{1,2})\s+de\s+([a-zé]+)(?:\s+de\s+(\d{4}))?$/i, function (m) {
     var mm = MESL[m[2].toLowerCase()]; if (!mm) return null;
-    return mm + ' ' + m[1] + (m[3] ? ', ' + m[3] : '');
+    return EN ? mm + ' ' + m[1] + (m[3] ? ', ' + m[3] : '') : m[1] + ' de ' + mm + (m[3] ? ' de ' + m[3] : '');
   });
   regla(/^([a-záéíóú]+),?\s+(\d{1,2})\s+de\s+([a-zé]+)(?:\s+de\s+(\d{4}))?$/i, function (m) {
     var d = DIAL[m[1].toLowerCase()], mm = MESL[m[3].toLowerCase()]; if (!d || !mm) return null;
-    return d + ', ' + mm + ' ' + m[2] + (m[4] ? ', ' + m[4] : '');
+    return EN ? d + ', ' + mm + ' ' + m[2] + (m[4] ? ', ' + m[4] : '') : d + ', ' + m[2] + ' de ' + mm + (m[4] ? ' de ' + m[4] : '');
   });
   regla(/^([a-zé]+)(?:\s+de)?\s+(\d{4})$/i, function (m) {
-    var mm = MESL[m[1].toLowerCase()]; return mm ? mm + ' ' + m[2] : null;
+    var mm = MESL[m[1].toLowerCase()]; return mm ? (EN ? mm + ' ' + m[2] : mm + ' de ' + m[2]) : null;
   });
-  regla(/^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)$/i, function (m) { return MESL[m[1].toLowerCase()]; });
+  regla(/^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)$/i, function (m) { var x = MESL[m[1].toLowerCase()]; return m[1].charAt(0) === m[1].charAt(0).toUpperCase() ? x.charAt(0).toUpperCase() + x.slice(1) : x; });
   regla(/^(lun|mar|mié|mie|jue|vie|sáb|sab|dom)\.?$/i, function (m) { return DIA[m[1].toLowerCase()]; });
   regla(/^(lunes|martes|miércoles|jueves|viernes|sábado|domingo)$/i, function (m) { return DIAL[m[1].toLowerCase()]; });
   regla(/^(lun|mar|mié|mie|jue|vie|sáb|sab|dom)\.?\s+(\d{1,2})$/i, function (m) { return DIA[m[1].toLowerCase()] + ' ' + m[2]; });
   // Tiempos relativos y cantidades
   regla(/^hace\s+(\d+)\s+(min|minutos?|h|horas?|d|días?|semanas?|mes(?:es)?|años?)$/i, function (m) {
     var n = +m[1], u = m[2].toLowerCase();
-    var U = /^min/.test(u) ? 'min' : /^h/.test(u) ? (u === 'h' ? 'h' : (n === 1 ? 'hour' : 'hours')) : /^d/.test(u) ? (u === 'd' ? 'd' : (n === 1 ? 'day' : 'days')) : /^sem/.test(u) ? (n === 1 ? 'week' : 'weeks') : /^mes/.test(u) ? (n === 1 ? 'month' : 'months') : (n === 1 ? 'year' : 'years');
-    return n + ' ' + U + ' ago';
+    var U = /^min/.test(u) ? 'min' : u === 'h' ? 'h' : u === 'd' ? 'd' : /^h/.test(u) ? pal('hora', n) : /^d/.test(u) ? pal('dia', n) : /^sem/.test(u) ? pal('semana', n) : /^mes/.test(u) ? pal('mes', n) : pal('ano', n);
+    return fmt(W.hace, { n: n, u: U });
   });
   regla(/^(\d+)\s+(alumnos?|jugadores?|eventos?|videos?|fotos?|clases?|días?|notas?|mensajes?|metas?|tareas?|colecciones?|coaches|coach|análisis|semanas?|meses|mes|horas?|minutos?|archivos?|reseñas?|ventas?|compras?|hoyos?|golpes?|tips?)$/i, function (m) {
-    var n = +m[1], w = m[2].toLowerCase();
-    var T = { alumno: ['student', 'students'], jugador: ['player', 'players'], evento: ['event', 'events'], video: ['video', 'videos'], foto: ['photo', 'photos'], clase: ['lesson', 'lessons'], 'día': ['day', 'days'], dia: ['day', 'days'], nota: ['note', 'notes'], mensaje: ['message', 'messages'], meta: ['goal', 'goals'], tarea: ['task', 'tasks'], 'colección': ['collection', 'collections'], coleccion: ['collection', 'collections'], coach: ['coach', 'coaches'], 'análisis': ['analysis', 'analyses'], semana: ['week', 'weeks'], mes: ['month', 'months'], hora: ['hour', 'hours'], minuto: ['minute', 'minutes'], archivo: ['file', 'files'], 'reseña': ['review', 'reviews'], venta: ['sale', 'sales'], compra: ['purchase', 'purchases'], hoyo: ['hole', 'holes'], golpe: ['shot', 'shots'], tip: ['tip', 'tips'] };
-    var base = w.replace(/(es|s)$/, '');
-    var t = T[w] || T[base] || T[w.replace(/s$/, '')] || (w === 'meses' ? T.mes : w === 'coaches' ? T.coach : w === 'colecciones' ? T['colección'] : null);
-    if (!t) return null;
-    return n + ' ' + (n === 1 ? t[0] : t[1]);
+    var n = +m[1], w = sinTilde(m[2].toLowerCase()).replace('ñ', 'n');
+    var k = W[w] ? w : W[w.replace(/es$/, '')] ? w.replace(/es$/, '') : W[w.replace(/s$/, '')] ? w.replace(/s$/, '') : (w === 'colecciones' ? 'coleccion' : w === 'coaches' ? 'coach' : w === 'meses' ? 'mes' : w === 'resenas' ? 'resena' : null);
+    if (!k || !W[k] || typeof W[k] === 'string') return null;
+    return n + ' ' + pal(k, n);
   });
-  regla(/^(\d+)\s+de\s+(\d+)$/, function (m) { return m[1] + ' of ' + m[2]; });
-  regla(/^(\d+)\s+sin leer$/i, function (m) { return m[1] + ' unread'; });
-  regla(/^(\d+)\s+alumnos?\s+en tu Coach Hub$/i, function (m) { return m[1] + (+m[1] === 1 ? ' student' : ' students') + ' in your Coach Hub'; });
-  regla(/^Te faltan\s+(\d+)\s+clases?\s+para bajar a\s+(.+)$/i, function (m) { return m[1] + (+m[1] === 1 ? ' more lesson' : ' more lessons') + ' to drop to ' + m[2]; });
-  regla(/^Notas\s*\((\d+)\)$/i, function (m) { return 'Notes (' + m[1] + ')'; });
-  regla(/^(.+)\s+este mes$/i, function (m) { return /^[+\-\d]/.test(m[1]) ? m[1] + " this month" : null; });
-  regla(/^(.+)\s+hoy$/i, function (m) { return /^[+\-\d]/.test(m[1]) ? m[1] + ' today' : null; });
-  regla(/^(\d+)\s+pendientes?$/i, function (m) { return m[1] + ' pending'; });
-  regla(/^(\d+)\s+nuevas?$/i, function (m) { return m[1] + ' new'; });
-  regla(/^(\d+)\s+(días?|d)\s+entrenando$/i, function (m) { return m[1] + (+m[1] === 1 ? ' day' : ' days') + ' training'; });
+  regla(/^(\d+)\s+de\s+(\d+)$/, function (m) { return fmt(W.de, { a: m[1], b: m[2] }); });
+  regla(/^(\d+)\s+sin leer$/i, function (m) { return fmt(W.sinLeer, { n: m[1] }); });
+  regla(/^(\d+)\s+alumnos?\s+en tu Coach Hub$/i, function (m) { return fmt(W.enHub, { n: m[1], u: pal('alumno', m[1]) }); });
+  regla(/^Te faltan\s+(\d+)\s+clases?\s+para bajar a\s+(.+)$/i, function (m) { return fmt(W.faltan, { n: m[1], u: pal('clase', m[1]), x: m[2] }); });
+  regla(/^Notas\s*\((\d+)\)$/i, function (m) { return fmt(W.notas, { n: m[1] }); });
+  regla(/^(.+)\s+este mes$/i, function (m) { return /^[+\-\d]/.test(m[1]) ? fmt(W.esteMes, { x: m[1] }) : null; });
+  regla(/^(.+)\s+hoy$/i, function (m) { return /^[+\-\d]/.test(m[1]) ? fmt(W.hoy, { x: m[1] }) : null; });
+  regla(/^(\d+)\s+pendientes?$/i, function (m) { return fmt(W.pend, { n: m[1] }); });
+  regla(/^(\d+)\s+nuevas?$/i, function (m) { return fmt(W.nuevas, { n: m[1] }); });
+  regla(/^(\d+)\s+(días?|d)\s+entrenando$/i, function (m) { return fmt(W.entrenando, { n: m[1], u: pal('dia', m[1]) }); });
 
   function regl(s) {
     for (var i = 0; i < REGLAS.length; i++) {
@@ -265,7 +285,8 @@
   window.prompt = function (m, d) { return _prompt.call(window, tr(String(m == null ? '' : m)), d); };
 
   // ── Fechas: los formatos en español pasan a inglés ──────────────────────
-  function loc(l) { return (typeof l === 'string' && /^es/i.test(l)) || l == null ? 'en-US' : l; }
+  var LOC = EN ? 'en-US' : 'pt-BR';
+  function loc(l) { return (typeof l === 'string' && /^es/i.test(l)) || l == null ? LOC : l; }
   ['toLocaleDateString', 'toLocaleTimeString', 'toLocaleString'].forEach(function (fn) {
     var orig = Date.prototype[fn];
     Date.prototype[fn] = function (l, o) { return orig.call(this, loc(l), o); };

@@ -201,7 +201,14 @@ El coach usa Coach Hub en inglés. Respóndele SIEMPRE en inglés (de Estados
 Unidos), con el mismo tono cercano y corto. Los títulos, descripciones, notas
 y mensajes que prepares también van en inglés. Si el coach te escribe en
 español, igual respóndele en inglés salvo que te pida otra cosa. Los valores
-internos (tipo, pilar, área) no cambian.` : ''}`;
+internos (tipo, pilar, área) no cambian.` : String(ctx.idioma || '') === 'pt' ? `
+
+════ IDIOMA ════
+El coach usa Coach Hub en portugués. Respóndele SIEMPRE en portugués de
+Brasil (trato de "você"), con el mismo tono cercano y corto. Los títulos,
+descripciones, notas y mensajes que prepares también van en portugués. Si el
+coach te escribe en español, igual respóndele en portugués salvo que te pida
+otra cosa. Los valores internos (tipo, pilar, área) no cambian.` : ''}`;
 }
 
 export default async function handler(req, res) {
