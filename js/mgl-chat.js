@@ -193,7 +193,7 @@
 
     estado.instalado = true;
     console.log('%c 💬 MGL CHAT v1.1 — INSTALADO CORRECTAMENTE ',
-                'background:#2dd4bf;color:#06251f;font-weight:bold');
+                'background:var(--c2dd4bf,#2dd4bf);color:var(--c06251f,#06251f);font-weight:bold');
     console.log('Las conversaciones con el coach se guardarán en la nube. '+
                 'Escribe MGL_CHAT_TEST() para revisar el estado.');
   }
@@ -224,7 +224,7 @@
     t('Guardados en esta pestaña', true, estado.guardados + ' mensajes');
     t('Sin errores', !estado.ultimoError, estado.ultimoError || 'ninguno');
 
-    console.log('%c MGL CHAT — AUTOTEST ', 'background:#2dd4bf;color:#06251f;font-weight:bold');
+    console.log('%c MGL CHAT — AUTOTEST ', 'background:var(--c2dd4bf,#2dd4bf);color:var(--c06251f,#06251f);font-weight:bold');
     console.table(r);
     var f = r.filter(function(x){ return x.resultado === 'REVISAR'; });
     if(!f.length) console.log('%c Todo correcto. ', 'background:#22c55e;color:#04210e');

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Coach · Coach Hub by MyGolfLab</title>
 <meta name="description" content="Clases de golf online con coaches profesionales en español. Análisis de swing en video.">
@@ -15,21 +16,21 @@
 <script src="/js/mgl-precios.js"></script>
 <style>
   :root{
-    --bg:#0a0a0a; --bg2:#111; --card:#161616; --card2:#1c1c1c;
-    --border:#262626; --border2:#333;
-    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
-    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666; --red:#e06a6a;
+    --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
+    --border:var(--c262626,#262626); --border2:var(--c333333,#333);
+    --teal:var(--cd4c5a9,#D4C5A9); --teal-dim:var(--c7d7259,#7D7259); --gold:var(--cf0b860,#F0B860);
+    --text:var(--cf5f5f5,#f5f5f5); --muted:var(--c8a8a8a,#8a8a8a); --muted2:var(--c666666,#666); --red:var(--ce06a6a,#e06a6a);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit;color:inherit}
-  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  html{scrollbar-width:thin;scrollbar-color:rgba(var(--r255_255_255,255,255,255),.09) var(--c0a0a0a,#0a0a0a)}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-track{background:#0a0a0a}
-  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+  ::-webkit-scrollbar-track{background:var(--c0a0a0a,#0a0a0a)}
+  ::-webkit-scrollbar-thumb{background:rgba(var(--r255_255_255,255,255,255),.09);border-radius:10px;border:3px solid var(--c0a0a0a,#0a0a0a)}
 
-  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(var(--r10_10_10,10,10,10),.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
   .nav-inner{max-width:1100px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
   .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
   .brand span{color:var(--teal)}
@@ -42,12 +43,12 @@
   .back{display:inline-flex;gap:6px;align-items:center;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:14px;margin-bottom:18px}
   .back:hover{color:var(--text)}
 
-  .hero{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;background:linear-gradient(145deg,#2B2619,#141414 65%);border:1px solid var(--teal-dim);border-radius:22px;padding:28px}
+  .hero{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;background:linear-gradient(145deg,var(--c2b2619,#2B2619),var(--c141414,#141414) 65%);border:1px solid var(--teal-dim);border-radius:22px;padding:28px}
   .ph{width:132px;height:132px;border-radius:50%;background:var(--card2);border:2px solid var(--teal-dim);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:52px;color:var(--gold)}
   .ph img{width:100%;height:100%;object-fit:cover}
   .hero h1{font-family:'Bebas Neue';font-size:48px;letter-spacing:1px;line-height:1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .ver{font-family:'Barlow Condensed';font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;background:var(--teal);color:#1C1709;border-radius:20px;padding:3px 10px}
-  .hero .hl{color:#cfcfcf;font-size:17px;margin-top:8px;line-height:1.4}
+  .hero .hl{color:var(--ccfcfcf,#cfcfcf);font-size:17px;margin-top:8px;line-height:1.4}
   .meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;color:var(--muted);font-size:14.5px}
   .meta b{color:var(--text);font-weight:600}
   .stars{color:var(--gold);letter-spacing:1px}
@@ -55,13 +56,13 @@
   .cols{display:grid;grid-template-columns:1fr 380px;gap:22px;margin-top:22px;align-items:start}
   .sec{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:18px}
   .sec h2{font-family:'Barlow Condensed';font-weight:700;font-size:21px;letter-spacing:.3px;margin-bottom:12px}
-  .sec p.txt{color:#d6d6d6;font-size:15.5px;line-height:1.65;white-space:pre-line}
+  .sec p.txt{color:var(--cd6d6d6,#d6d6d6);font-size:15.5px;line-height:1.65;white-space:pre-line}
   .vid{width:100%;border-radius:14px;background:#000;display:block;max-height:560px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
   .chip{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:6px 12px;font-size:14px}
   .chip.t{border-color:var(--teal-dim);color:var(--teal)}
   ul.list{list-style:none;display:flex;flex-direction:column;gap:9px}
-  ul.list li{display:flex;gap:10px;font-size:15px;line-height:1.45;color:#d6d6d6}
+  ul.list li{display:flex;gap:10px;font-size:15px;line-height:1.45;color:var(--cd6d6d6,#d6d6d6)}
   ul.list li::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold);margin-top:8px;flex:0 0 auto}
   .lbl{font-family:'Barlow Condensed';font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:16px 0 8px}
   .lbl:first-child{margin-top:0}
@@ -71,13 +72,13 @@
 
   .side{position:sticky;top:84px}
   .offer{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:14px}
-  .offer.trial{border-color:rgba(240,184,96,.5);background:linear-gradient(160deg,rgba(240,184,96,.08),var(--card) 60%)}
+  .offer.trial{border-color:rgba(var(--r240_184_96,240,184,96),.5);background:linear-gradient(160deg,rgba(var(--r240_184_96,240,184,96),.08),var(--card) 60%)}
   .offer .k{font-family:'Barlow Condensed';font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--gold)}
   .offer h3{font-family:'Barlow Condensed';font-weight:700;font-size:22px;margin-top:4px;line-height:1.15}
   .offer .pr{font-family:'Bebas Neue';font-size:38px;color:var(--teal);line-height:1;margin:10px 0 2px}
   .offer .pr small{font-family:'Barlow';font-size:14px;color:var(--muted);margin-left:4px}
   .offer p{color:var(--muted);font-size:14px;line-height:1.5;margin-top:8px;white-space:pre-line}
-  .rec{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px;font-size:13.5px;color:#cfcfcf;line-height:1.5}
+  .rec{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px;font-size:13.5px;color:var(--ccfcfcf,#cfcfcf);line-height:1.5}
   .rec b{display:block;font-family:'Barlow Condensed';font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
   .buy{width:100%;margin-top:14px;background:var(--teal);border:none;border-radius:11px;padding:13px;font-family:'Barlow Condensed';font-weight:700;font-size:17px;letter-spacing:.5px;text-transform:uppercase;color:#1C1709;cursor:pointer}
   .buy:hover{filter:brightness(1.08)}
@@ -87,16 +88,16 @@
   .rv{border-top:1px solid var(--border);padding:14px 0}
   .rv:first-of-type{border-top:none;padding-top:0}
   .rv .h{display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--muted)}
-  .rv p{margin-top:6px;color:#d6d6d6;font-size:15px;line-height:1.55}
+  .rv p{margin-top:6px;color:var(--cd6d6d6,#d6d6d6);font-size:15px;line-height:1.55}
   .empty{color:var(--muted);font-size:14.5px}
 
   /* contenido exclusivo del coach */
   .colgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
   .colc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s}
   .colc:hover{border-color:var(--teal-dim)}
-  .colc .cv{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,#2B2619,#121212 70%)}
+  .colc .cv{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,var(--c2b2619,#2B2619),var(--c121212,#121212) 70%)}
   .colc .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-  .colc .cv span{position:absolute;right:8px;bottom:8px;font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.4px;background:rgba(0,0,0,.72);border-radius:6px;padding:2px 7px;color:#e8e8e8}
+  .colc .cv span{position:absolute;right:8px;bottom:8px;font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.4px;background:rgba(0,0,0,.72);border-radius:6px;padding:2px 7px;color:var(--ce8e8e8,#e8e8e8)}
   .colc .cb{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;flex:1 1 auto}
   .colc .ca{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold)}
   .colc b{font-family:'Barlow Condensed';font-weight:700;font-size:17px;line-height:1.15}
@@ -133,11 +134,11 @@
   .rq .fl em{font-style:normal;color:var(--muted);font-size:12px}
   .rq .fl i{position:absolute;left:0;bottom:0;height:3px;background:var(--teal);width:0;transition:width .2s}
   .rq .fl button{margin:0;background:none;border:none;padding:0 4px;color:var(--muted);font-size:18px;cursor:pointer}
-  .rq .note{font-size:13px;color:#e9cf9f;background:rgba(240,184,96,.08);border:1px solid rgba(240,184,96,.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
-  .rq .err{font-size:13.5px;color:#f0a0a0;margin-top:10px;display:none}
-  .rq .note.pay{color:#cfcfcf;background:rgba(212,197,169,.06);border-color:rgba(212,197,169,.25)}
+  .rq .note{font-size:13px;color:var(--ce9cf9f,#e9cf9f);background:rgba(var(--r240_184_96,240,184,96),.08);border:1px solid rgba(var(--r240_184_96,240,184,96),.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
+  .rq .err{font-size:13.5px;color:var(--cf0a0a0,#f0a0a0);margin-top:10px;display:none}
+  .rq .note.pay{color:var(--ccfcfcf,#cfcfcf);background:rgba(var(--r212_197_169,212,197,169),.06);border-color:rgba(var(--r212_197_169,212,197,169),.25)}
   .desg{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
-  .desg>div{display:flex;justify-content:space-between;padding:3px 0;color:#cfcfcf}
+  .desg>div{display:flex;justify-content:space-between;padding:3px 0;color:var(--ccfcfcf,#cfcfcf)}
   .desg .tot{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;color:var(--text);font-weight:600}
   .desg .clp{display:block;color:var(--muted);font-size:12.5px;margin-top:6px}
   .rq .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
@@ -171,7 +172,7 @@
   @media(max-width:1000px){
     .hamburger{display:flex}
     .nav-links{display:none}
-    .nav-links.open{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:#0a0a0a;border-bottom:1px solid var(--border);padding:6px 20px 16px;margin:0;z-index:60}
+    .nav-links.open{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:var(--c0a0a0a,#0a0a0a);border-bottom:1px solid var(--border);padding:6px 20px 16px;margin:0;z-index:60}
     .nav-links.open a{padding:14px 0;font-size:19px;border-bottom:1px solid var(--border)}
     .nav-links.open .nav-sep{display:none}
     .nav-links.open a.nav-btn{margin-top:12px;text-align:center;border:1px solid var(--border2)}
@@ -268,7 +269,7 @@ function render(){
   var ini = (C.display_name||'?').split(' ').map(function(w){ return w.charAt(0); }).slice(0,2).join('').toUpperCase();
   var draft = !C.is_published;
   var h = '<a class="back" href="/es/coaches/">‹ Todos los coaches</a>';
-  if(draft) h+='<div class="sec" style="border-color:rgba(224,161,91,.4);color:#e0a15b;padding:14px 18px">Vista previa: tu vitrina está en borrador y solo tú puedes verla.</div>';
+  if(draft) h+='<div class="sec" style="border-color:rgba(var(--r224_161_91,224,161,91),.4);color:var(--ce0a15b,#e0a15b);padding:14px 18px">Vista previa: tu vitrina está en borrador y solo tú puedes verla.</div>';
 
   h += '<div class="hero"><div class="ph">'+(C.photo_path?'<img src="'+pubUrl(C.photo_path)+'" alt="">':esc(ini))+'</div><div>'
      + '<h1>'+esc(C.display_name)+(C.is_verified?'<span class="ver">Verificado</span>':'')+'</h1>'
