@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
+<script src="/js/mgl-tema.js"></script>
+<script src="/js/mgl-i18n.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<link rel="manifest" href="/es/coachhub/manifest.json">
+<link rel="apple-touch-icon" href="/es/coachhub/icon-192.png">
+<link rel="preconnect" href="https://yulpqupmftdjbepqiscs.supabase.co">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Coach Hub</title>
+<!--
+  Coach Hub · Marco de la app (teléfono)
+  Cada pestaña del menú vive en su propio iframe y no se recarga al cambiar.
+  La lógica de qué página va en qué pestaña está en /js/mgl-marco.js.
+  Sin template literals.
+-->
+<style>
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--c0a0a0a,#0a0a0a);overscroll-behavior:none}
+  .mrc{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px);
+       width:100%;height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+       border:0;display:block;visibility:hidden;background:var(--c0a0a0a,#0a0a0a);z-index:1}
+  .mrc.on{visibility:visible;z-index:2}
+  .mrc.on.entra{animation:mrcIn .16s ease-out}
+  @keyframes mrcIn{from{opacity:.55}to{opacity:1}}
+  /* el analizador de swing usa la pantalla completa */
+  .mrc[data-tab="analisis"]{top:0;bottom:0;height:100%}
+  .carga{position:fixed;left:50%;top:45%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+         border:2px solid rgba(var(--r212_197_169,212,197,169),.25);border-top-color:var(--cd4c5a9,#D4C5A9);
+         animation:gira .8s linear infinite;z-index:0}
+  @keyframes gira{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="carga" aria-hidden="true"></div>
+<script>
+(function () {
+  var ROL = '';
+  try { ROL = localStorage.getItem('mgl-rol') || ''; } catch (e) {}
+  var esCoach = ROL !== 'jugador';
+  var RAIZ = {
+    dashboard: '/es/coachhub/dashboard.html',
+    jugador: '/es/coachhub/jugador.html',
+    clases: '/es/coachhub/clases.html',
+    analisis: '/es/coachhub/analisis.html?from=dash',
+    mensajes: '/es/coachhub/mensajes.html',
+    cuenta: '/es/coachhub/cuenta.html',
+    coaches: '/es/coaches/'
+  };
+  // Pestañas que se precargan en segundo plano después de la primera
+  var PRECARGA = esCoach ? ['jugador', 'clases', 'mensajes', 'cuenta', 'dashboard']
+                         : ['jugador', 'clases', 'mensajes', 'coaches', 'cuenta'];
+  var marcos = {}, ultima = {}, activa = null, previa = null;
+
+  function tabDe(path) { return window.MGLMarco ? MGLMarco.tabDe(path, ROL) : null; }
+  function mismaPagina(a, b) {
+    try { var x = new URL(a, location.href), y = new URL(b, location.href); return x.pathname === y.pathname && x.search === y.search; }
+    catch (e) { return false; }
+  }
+  function crear(tab, url) {
+    var f = document.createElement('iframe');
+    f.className = 'mrc';
+    f.setAttribute('data-tab', tab);
+    f.setAttribute('allow', 'camera; microphone; fullscreen; clipboard-write; autoplay');
+    f.setAttribute('title', tab);
+    f.src = url || RAIZ[tab];
+    document.body.appendChild(f);
+    marcos[tab] = f;
+    return f;
+  }
+  function mostrar(tab) {
+    if (activa === tab) return;
+    var f = marcos[tab];
+    if (!f) return;
+    previa = activa;
+    for (var k in marcos) if (k !== tab) marcos[k].classList.remove('on', 'entra');
+    f.classList.add('on'); f.classList.remove('entra'); void f.offsetWidth; f.classList.add('entra');
+    activa = tab;
+    var ruta = ultima[tab] || f.src;
+    try { history.replaceState(null, '', '#' + encodeURIComponent(new URL(ruta, location.href).pathname + new URL(ruta, location.href).search)); } catch (e) {}
+    try { f.contentWindow.dispatchEvent(new Event('mgl-pestana-visible')); } catch (e) {}
+  }
+
+  window.MGLShell = {
+    // Destino de un link: id de pestaña, o 'fuera'
+    destino: function (u) {
+      if (u.origin !== location.origin) return 'fuera';
+      return tabDe(u.pathname) || 'fuera';
+    },
+    abrir: function (url, via) {
+      var u; try { u = new URL(url, location.href); } catch (e) { return; }
+      var tab = this.destino(u);
+      if (tab === 'fuera') { location.href = u.href; return; }
+      // al salir del analizador hacia el inicio, se vuelve a la pestaña donde estaba
+      if (activa === 'analisis' && tab === 'dashboard' && previa && previa !== 'analisis' && mismaPagina(u.href, RAIZ.dashboard)) { mostrar(previa); return; }
+      var f = marcos[tab];
+      if (!f) { crear(tab, u.href); mostrar(tab); return; }
+      // el analizador siempre parte limpio
+      if (tab === 'analisis' && activa !== 'analisis') { try { f.contentWindow.location.href = u.href; } catch (e) { f.src = u.href; } mostrar(tab); return; }
+      // tocar una pestaña del menú: mostrar lo que ya está cargado, sin recargar
+      var raizTab = mismaPagina(u.href, RAIZ[tab]) || (via === 'tab' && new URL(RAIZ[tab], location.href).pathname === u.pathname);
+      if (!(via === 'tab' && raizTab) && !mismaPagina(u.href, ultima[tab] || f.src)) {
+        try { f.contentWindow.location.href = u.href; } catch (e) { f.src = u.href; }
+      }
+      mostrar(tab);
+    },
+    // Cada página avisa al cargar dentro de un marco
+    llegue: function (win, tab) {
+      var path = win.location.pathname;
+      var t = tabDe(path);
+      if (!t) { location.href = win.location.href; return 'fuera'; }
+      if (t !== tab) {
+        var url = win.location.href;
+        // la pestaña de origen vuelve a lo que tenía
+        var f = marcos[tab];
+        setTimeout(function () { if (f) f.src = ultima[tab] || RAIZ[tab]; }, 0);
+        this.abrir(url, 'link');
+        return 'movido';
+      }
+      ultima[tab] = win.location.href;
+      if (activa === tab) { try { history.replaceState(null, '', '#' + encodeURIComponent(path + win.location.search)); } catch (e) {} }
+      return 'ok';
+    },
+    activa: function () { return activa; },
+    recargarTodo: function () { location.reload(); }
+  };
+
+  // Página inicial: la del link (#/es/coachhub/clases.html) o la de inicio según el rol
+  var inicial = '';
+  try { inicial = decodeURIComponent(location.hash.slice(1)); } catch (e) {}
+  if (!inicial || inicial.charAt(0) !== '/' || !tabDe(inicial.split('?')[0].split('#')[0])) inicial = esCoach ? RAIZ.dashboard : RAIZ.jugador;
+  var t0 = tabDe(inicial.split('?')[0].split('#')[0]);
+  var f0 = crear(t0, inicial);
+  mostrar(t0);
+
+  // Precarga del resto apenas termina la primera, de a una para no competir
+  f0.addEventListener('load', function () {
+    var cola = PRECARGA.filter(function (t) { return !marcos[t]; });
+    (function sig() {
+      var t = cola.shift();
+      if (!t) return;
+      setTimeout(function () { var f = crear(t); f.addEventListener('load', sig); }, 400);
+    })();
+  }, { once: true });
+})();
+</script>
+</body>
+</html>

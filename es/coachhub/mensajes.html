@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
@@ -245,7 +246,7 @@ async function init(){
   if(meta.avatar_url || meta.picture) av.innerHTML='<img src="'+esc(meta.avatar_url||meta.picture)+'" alt="">';
   else av.textContent=(meta.first_name||meta.full_name||USER.email||'?').charAt(0).toUpperCase();
   // el avatar abre Mi cuenta (cerrar sesión está ahí)
-  av.onclick=function(){ window.location.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
+  av.onclick=function(){ MGLnav.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
 
   var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
   ROLE = (pr.data && pr.data.role) || 'jugador';

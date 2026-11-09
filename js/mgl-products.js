@@ -577,6 +577,13 @@
       var pr = await sb.from('profiles').select('role').eq('id', uid).maybeSingle();
       var role = (pr && pr.data && pr.data.role) || 'jugador';
       window.MGL_ROLE = role;
+      // El marco de la app usa el rol para saber qué pestañas armar
+      try {
+        var rolAntes = localStorage.getItem('mgl-rol');
+        localStorage.setItem('mgl-rol', role === 'jugador' ? 'jugador' : 'coach');
+        var rolNuevo = localStorage.getItem('mgl-rol');
+        if (window.MGL_EN_MARCO && rolAntes && rolAntes !== rolNuevo) { window.parent.location.reload(); return; }
+      } catch (e) {}
       setupTabs(role === 'coach' || role === 'ambos');
       setupAvatar(sb, session, role === 'coach' || role === 'ambos');
       if (PRODUCT === 'hub') {

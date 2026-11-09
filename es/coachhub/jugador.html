@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -1139,7 +1140,7 @@ async function init(){
 
   var av=document.getElementById('navAvatar');
   // el avatar abre Mi cuenta
-  av.onclick=function(){ window.location.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
+  av.onclick=function(){ MGLnav.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
   var meta=USER.user_metadata||{};
   if(meta.avatar_url){ av.innerHTML='<img src="'+esc(meta.avatar_url)+'">'; }
   else { av.textContent=(meta.full_name||USER.email||'?').charAt(0).toUpperCase(); }
@@ -2262,7 +2263,7 @@ function galleryItems(){
 function abrirAnalisis(mediaId){
   var u='analisis.html?player='+encodeURIComponent(SEL.id);
   if(mediaId) u+='&media='+encodeURIComponent(mediaId);
-  window.location.href=u;
+  MGLnav.href=u;
 }
 
 function setGalArea(a){ GAL_AREA=a; renderGallery(); }

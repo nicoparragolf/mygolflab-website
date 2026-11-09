@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>Análisis de Swing · Coach Hub</title>
@@ -905,7 +906,7 @@ $('btnCompare').onclick=function(){
 };
 $('btnBack').onclick=function(){
   if(REC && !confirm('Estás grabando. ¿Salir sin guardar?')) return;
-  window.location.href=backUrl();
+  MGLnav.href=backUrl();
 };
 
 // ============================================================
@@ -1669,7 +1670,7 @@ $('sv_save').onclick=async function(){
   }
   setProg('¡Listo! Guardado en el timeline de '+(PLAYER.first_name||'el alumno')+'.', 1);
   REC_BLOB=null;
-  setTimeout(function(){ window.location.href='jugador.html?player='+encodeURIComponent(PLAYER.id); }, 900);
+  setTimeout(function(){ MGLnav.href='jugador.html?player='+encodeURIComponent(PLAYER.id); }, 900);
 };
 
 window.addEventListener('beforeunload', function(e){
