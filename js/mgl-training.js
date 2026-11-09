@@ -160,26 +160,26 @@
     if (document.getElementById('mgl-niveles-css')) return;
     var css = [
       /* Pastillas de nivel en las tarjetas de la biblioteca */
-      '.lvl-dot.beginner{color:#5eead4;border-color:rgba(45,212,191,.22);background:rgba(45,212,191,.05)}',
-      '.lvl-dot.beginner:hover{background:rgba(45,212,191,.14)}',
-      '.lvl-dot.intermediate{color:#5eead4;border-color:rgba(45,212,191,.45);background:rgba(45,212,191,.10)}',
-      '.lvl-dot.intermediate:hover{background:rgba(45,212,191,.20)}',
-      '.lvl-dot.advanced{color:#99f6e4;border-color:rgba(45,212,191,.70);background:rgba(45,212,191,.16)}',
-      '.lvl-dot.advanced:hover{background:rgba(45,212,191,.26)}',
-      '.lvl-dot.expert{color:#08090a;border-color:#2dd4bf;background:#2dd4bf;font-weight:700}',
-      '.lvl-dot.expert:hover{background:#4ee6d3}',
+      '.lvl-dot.beginner{color:var(--c5eead4,#5eead4);border-color:rgba(var(--r45_212_191,45,212,191),.22);background:rgba(var(--r45_212_191,45,212,191),.05)}',
+      '.lvl-dot.beginner:hover{background:rgba(var(--r45_212_191,45,212,191),.14)}',
+      '.lvl-dot.intermediate{color:var(--c5eead4,#5eead4);border-color:rgba(var(--r45_212_191,45,212,191),.45);background:rgba(var(--r45_212_191,45,212,191),.10)}',
+      '.lvl-dot.intermediate:hover{background:rgba(var(--r45_212_191,45,212,191),.20)}',
+      '.lvl-dot.advanced{color:var(--c99f6e4,#99f6e4);border-color:rgba(var(--r45_212_191,45,212,191),.70);background:rgba(var(--r45_212_191,45,212,191),.16)}',
+      '.lvl-dot.advanced:hover{background:rgba(var(--r45_212_191,45,212,191),.26)}',
+      '.lvl-dot.expert{color:#08090a;border-color:var(--c2dd4bf,#2dd4bf);background:var(--c2dd4bf,#2dd4bf);font-weight:700}',
+      '.lvl-dot.expert:hover{background:var(--c4ee6d3,#4ee6d3)}',
 
       /* Etiquetas de nivel dentro de un plan generado */
-      '.ex-level.beginner{color:#5eead4;border-color:rgba(45,212,191,.28);background:rgba(45,212,191,.05)}',
-      '.ex-level.intermediate{color:#5eead4;border-color:rgba(45,212,191,.48);background:rgba(45,212,191,.10)}',
-      '.ex-level.advanced{color:#99f6e4;border-color:rgba(45,212,191,.72);background:rgba(45,212,191,.16)}',
-      '.ex-level.expert{color:#08090a;border-color:#2dd4bf;background:#2dd4bf}',
+      '.ex-level.beginner{color:var(--c5eead4,#5eead4);border-color:rgba(var(--r45_212_191,45,212,191),.28);background:rgba(var(--r45_212_191,45,212,191),.05)}',
+      '.ex-level.intermediate{color:var(--c5eead4,#5eead4);border-color:rgba(var(--r45_212_191,45,212,191),.48);background:rgba(var(--r45_212_191,45,212,191),.10)}',
+      '.ex-level.advanced{color:var(--c99f6e4,#99f6e4);border-color:rgba(var(--r45_212_191,45,212,191),.72);background:rgba(var(--r45_212_191,45,212,191),.16)}',
+      '.ex-level.expert{color:#08090a;border-color:var(--c2dd4bf,#2dd4bf);background:var(--c2dd4bf,#2dd4bf)}',
 
       /* Insignia del modal */
-      '.modal-badge.beginner{color:#5eead4;border:1px solid rgba(45,212,191,.28);background:rgba(45,212,191,.10)}',
-      '.modal-badge.intermediate{color:#5eead4;border:1px solid rgba(45,212,191,.48);background:rgba(45,212,191,.16)}',
-      '.modal-badge.advanced{color:#99f6e4;border:1px solid rgba(45,212,191,.72);background:rgba(45,212,191,.24)}',
-      '.modal-badge.expert{color:#08090a;border:1px solid #2dd4bf;background:#2dd4bf}'
+      '.modal-badge.beginner{color:var(--c5eead4,#5eead4);border:1px solid rgba(var(--r45_212_191,45,212,191),.28);background:rgba(var(--r45_212_191,45,212,191),.10)}',
+      '.modal-badge.intermediate{color:var(--c5eead4,#5eead4);border:1px solid rgba(var(--r45_212_191,45,212,191),.48);background:rgba(var(--r45_212_191,45,212,191),.16)}',
+      '.modal-badge.advanced{color:var(--c99f6e4,#99f6e4);border:1px solid rgba(var(--r45_212_191,45,212,191),.72);background:rgba(var(--r45_212_191,45,212,191),.24)}',
+      '.modal-badge.expert{color:#08090a;border:1px solid var(--c2dd4bf,#2dd4bf);background:var(--c2dd4bf,#2dd4bf)}'
     ].join('');
     var el = document.createElement('style');
     el.id = 'mgl-niveles-css';
@@ -359,25 +359,25 @@
       '.mgl-c input{background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;' +
         'padding:11px 12px;color:var(--text);font-family:"Barlow",sans-serif;' +
         'font-size:14px;outline:none;width:100%;transition:border-color .2s}' +
-      '.mgl-c input:focus{border-color:var(--teal,#2dd4bf)}' +
+      '.mgl-c input:focus{border-color:var(--teal,var(--c2dd4bf,#2dd4bf))}' +
       '.mgl-guardar{width:100%;margin-top:14px;padding:14px;border:none;border-radius:10px;' +
-        'background:var(--teal,#2dd4bf);color:#08090a;font-family:"Barlow Condensed",sans-serif;' +
+        'background:var(--teal,var(--c2dd4bf,#2dd4bf));color:#08090a;font-family:"Barlow Condensed",sans-serif;' +
         'font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;' +
         'transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}' +
-      '.mgl-guardar:hover{background:#4ee6d3}' +
+      '.mgl-guardar:hover{background:var(--c4ee6d3,#4ee6d3)}' +
       '.mgl-guardar:disabled{opacity:.5;cursor:wait}' +
       '.mgl-guardar.hecho{background:#10b981}' +
       '.mgl-msg{font-size:13px;line-height:1.6;margin-top:12px;color:var(--text-muted)}' +
       '.mgl-pista{font-size:12.5px;line-height:1.6;color:var(--text-muted);margin-bottom:14px;opacity:.85}' +
       /* Estrella de favorito */
       '.mgl-fav{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:10px 16px;' +
-        'border-radius:10px;border:1px solid var(--border-mid,rgba(255,255,255,.11));' +
-        'background:transparent;color:var(--text-muted,#7d827f);cursor:pointer;' +
+        'border-radius:10px;border:1px solid var(--border-mid,rgba(var(--r255_255_255,255,255,255),.11));' +
+        'background:transparent;color:var(--text-muted,var(--c7d827f,#7d827f));cursor:pointer;' +
         'font-family:"Barlow Condensed",sans-serif;font-size:13px;font-weight:600;' +
         'letter-spacing:1px;text-transform:uppercase;transition:all .2s}' +
-      '.mgl-fav:hover{border-color:var(--gold,#D4C5A9);color:var(--gold,#D4C5A9)}' +
-      '.mgl-fav.on{border-color:var(--gold,#D4C5A9);color:var(--gold,#D4C5A9);' +
-        'background:rgba(212,197,169,.10)}' +
+      '.mgl-fav:hover{border-color:var(--gold,var(--cd4c5a9,#D4C5A9));color:var(--gold,var(--cd4c5a9,#D4C5A9))}' +
+      '.mgl-fav.on{border-color:var(--gold,var(--cd4c5a9,#D4C5A9));color:var(--gold,var(--cd4c5a9,#D4C5A9));' +
+        'background:rgba(var(--r212_197_169,212,197,169),.10)}' +
       '.mgl-fav svg{width:16px;height:16px;flex-shrink:0}' +
       '.mgl-fav:disabled{opacity:.6;cursor:wait}' +
       '@media(max-width:600px){.mgl-c{min-width:calc(50% - 5px)}}';
@@ -618,10 +618,10 @@
 
     estado.instalado = true;
 
-    console.log('%c════════════════════════════════════════════', 'color:#2dd4bf');
+    console.log('%c════════════════════════════════════════════', 'color:var(--c2dd4bf,#2dd4bf)');
     console.log('%c  MyGolfLab · TRAINING v' + VERSION + ' — INSTALADO',
-                'color:#2dd4bf;font-weight:bold;font-size:13px');
-    console.log('%c════════════════════════════════════════════', 'color:#2dd4bf');
+                'color:var(--c2dd4bf,#2dd4bf);font-weight:bold;font-size:13px');
+    console.log('%c════════════════════════════════════════════', 'color:var(--c2dd4bf,#2dd4bf)');
 
     (async function () {
       /* 1 · Plan real y cierre del switch de pruebas */
@@ -658,7 +658,7 @@
 
       await cargarFoco();
       window.MGL_TRAINING_OK = !!(estado.tablaOK);
-      console.log('%c  Escribe MGL_TRAINING_TEST() para revisar el estado.', 'color:#888');
+      console.log('%c  Escribe MGL_TRAINING_TEST() para revisar el estado.', 'color:var(--c888888,#888)');
     })();
   }
 
@@ -722,10 +722,10 @@
     t('Sin errores', !estado.ultimoError, estado.ultimoError || 'ninguno');
 
     console.log('%c MGL TRAINING v' + VERSION + ' — AUTOTEST ',
-                'background:#2dd4bf;color:#08090a;font-weight:bold');
+                'background:var(--c2dd4bf,#2dd4bf);color:#08090a;font-weight:bold');
     console.table(r);
     var mal = r.filter(function (x) { return x.resultado === 'REVISAR'; });
-    if (!mal.length) console.log('%c Todo correcto. ', 'background:#22c55e;color:#04210e');
+    if (!mal.length) console.log('%c Todo correcto. ', 'background:#22c55e;color:var(--c04210e,#04210e)');
     else console.warn('Revisar: ' + mal.map(function (x) { return x.prueba; }).join(', '));
     return r;
   };

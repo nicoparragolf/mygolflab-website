@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Quienes Somos | MyGolfLab</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,20 +12,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
+            --primary: var(--c2dd4bf,#2dd4bf);
+            --primary-dark: var(--c14b8a6,#14b8a6);
+            --primary-glow: rgba(var(--r45_212_191,45,212,191), 0.3);
+            --bg-dark: var(--c0a0a0a,#0a0a0a);
+            --bg-card: var(--c111111,#111111);
+            --bg-elevated: var(--c1a1a1a,#1a1a1a);
             --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --border-mid: rgba(255,255,255,0.12);
-            --teal-dim: rgba(45,212,191,0.12);
+            --text-secondary: var(--ca3a3a3,#a3a3a3);
+            --text-muted: var(--c737373,#737373);
+            --border: var(--c262626,#262626);
+            --border-mid: rgba(var(--r255_255_255,255,255,255),0.12);
+            --teal-dim: rgba(var(--r45_212_191,45,212,191),0.12);
             --nav-height: 68px;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
+            --gradient-1: linear-gradient(135deg, var(--c2dd4bf,#2dd4bf) 0%, var(--c14b8a6,#14b8a6) 50%, var(--c0d9488,#0d9488) 100%);
             --font-display: 'Bebas Neue', sans-serif;
             --font-heading: 'Barlow Condensed', sans-serif;
             --font-body: 'Barlow', sans-serif;
@@ -51,7 +52,7 @@
             align-items: center;
             column-gap: 24px;
             padding: 0 32px;
-            background: rgba(10,10,10,0.9);
+            background: rgba(var(--r10_10_10,10,10,10),0.9);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
@@ -138,11 +139,11 @@
         }
         .btn-outline:hover { border-color: var(--text-secondary); }
         .btn-primary {
-            color: #0a0a0a;
+            color:#0a0a0a;
             background: var(--primary);
             border: 1px solid var(--primary);
         }
-        .btn-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
+        .btn-primary:hover { background: var(--c4ee0cf,#4ee0cf); border-color: var(--c4ee0cf,#4ee0cf); }
 
         .hamburger {
             grid-column: 3;
@@ -172,7 +173,7 @@
                 flex-direction: column;
                 position: fixed;
                 top: var(--nav-height); left: 0; right: 0;
-                background: rgba(10,10,10,0.98);
+                background: rgba(var(--r10_10_10,10,10,10),0.98);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 border-bottom: 1px solid transparent;
@@ -207,7 +208,7 @@
         .page-header {
             padding: calc(var(--nav-height) + 3rem) 2rem 4rem;
             text-align: center;
-            background: linear-gradient(180deg, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+            background: linear-gradient(180deg, rgba(var(--r45_212_191,45,212,191), 0.05) 0%, transparent 50%);
         }
         .page-header h1 {
             font-family: var(--font-display);
@@ -394,7 +395,7 @@
 
     <main class="content">
         <div class="coach-intro">
-            <div class="coach-photo" style="background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border:1px solid #262626;position:relative;overflow:hidden;">
+            <div class="coach-photo" style="background:linear-gradient(135deg,var(--c111111,#111) 0%,var(--c1a1a1a,#1a1a1a) 100%);border:1px solid var(--c262626,#262626);position:relative;overflow:hidden;">
               <!-- Avatar SVG placeholder con estética de marca hasta tener foto real -->
               <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;">
                 <defs>
@@ -435,7 +436,7 @@
         </div>
 
         <div class="coach-intro" style="margin-bottom:4rem;">
-            <div class="coach-photo" style="background:linear-gradient(135deg,#111 0%,#1a1a1a 100%);border:1px solid #262626;position:relative;overflow:hidden;">
+            <div class="coach-photo" style="background:linear-gradient(135deg,var(--c111111,#111) 0%,var(--c1a1a1a,#1a1a1a) 100%);border:1px solid var(--c262626,#262626);position:relative;overflow:hidden;">
               <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;">
                 <defs>
                   <radialGradient id="bgGrad2" cx="50%" cy="30%" r="60%">
@@ -518,10 +519,10 @@
         </div>
 
         <!-- CTA -->
-        <div style="margin-top:3rem;text-align:center;padding:3rem 2rem;background:linear-gradient(135deg,rgba(45,212,191,0.05) 0%,transparent 60%);border:1px solid var(--border);border-radius:20px;">
+        <div style="margin-top:3rem;text-align:center;padding:3rem 2rem;background:linear-gradient(135deg,rgba(var(--r45_212_191,45,212,191),0.05) 0%,transparent 60%);border:1px solid var(--border);border-radius:20px;">
           <p style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:1rem;">Conoce la metodología en acción</p>
           <h3 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;margin-bottom:1.5rem;">Analiza tu swing con Coach IA</h3>
-          <a href="/es/coach-ai.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#2dd4bf,#14b8a6);color:#0a0a0a;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <a href="/es/coach-ai.html" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,var(--c2dd4bf,#2dd4bf),var(--c14b8a6,#14b8a6));color:#0a0a0a;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
             Probar Gratis
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>

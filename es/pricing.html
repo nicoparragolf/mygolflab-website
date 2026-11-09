@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Precios | MyGolfLab</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,21 +12,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
+            --primary: var(--c2dd4bf,#2dd4bf);
+            --primary-dark: var(--c14b8a6,#14b8a6);
+            --primary-glow: rgba(var(--r45_212_191,45,212,191), 0.3);
+            --bg-dark: var(--c0a0a0a,#0a0a0a);
+            --bg-card: var(--c111111,#111111);
+            --bg-elevated: var(--c1a1a1a,#1a1a1a);
             --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --border-mid: rgba(255,255,255,0.12);
-            --teal-dim: rgba(45,212,191,0.12);
+            --text-secondary: var(--ca3a3a3,#a3a3a3);
+            --text-muted: var(--c737373,#737373);
+            --border: var(--c262626,#262626);
+            --border-mid: rgba(var(--r255_255_255,255,255,255),0.12);
+            --teal-dim: rgba(var(--r45_212_191,45,212,191),0.12);
             --nav-height: 68px;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
-            --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+            --gradient-1: linear-gradient(135deg, var(--c2dd4bf,#2dd4bf) 0%, var(--c14b8a6,#14b8a6) 50%, var(--c0d9488,#0d9488) 100%);
+            --gradient-subtle: linear-gradient(180deg, rgba(var(--r45_212_191,45,212,191), 0.08) 0%, transparent 50%);
             --font-display: 'Bebas Neue', sans-serif;
             --font-heading: 'Barlow Condensed', sans-serif;
             --font-body: 'Barlow', sans-serif;
@@ -52,7 +53,7 @@
             align-items: center;
             column-gap: 24px;
             padding: 0 32px;
-            background: rgba(10,10,10,0.9);
+            background: rgba(var(--r10_10_10,10,10,10),0.9);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
@@ -139,11 +140,11 @@
         }
         .btn-outline:hover { border-color: var(--text-secondary); }
         .btn-primary {
-            color: #0a0a0a;
+            color:#0a0a0a;
             background: var(--primary);
             border: 1px solid var(--primary);
         }
-        .btn-primary:hover { background: #4ee0cf; border-color: #4ee0cf; }
+        .btn-primary:hover { background: var(--c4ee0cf,#4ee0cf); border-color: var(--c4ee0cf,#4ee0cf); }
 
         .hamburger {
             grid-column: 3;
@@ -173,7 +174,7 @@
                 flex-direction: column;
                 position: fixed;
                 top: var(--nav-height); left: 0; right: 0;
-                background: rgba(10,10,10,0.98);
+                background: rgba(var(--r10_10_10,10,10,10),0.98);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 border-bottom: 1px solid transparent;
@@ -271,7 +272,7 @@
         .toggle-switch.yearly::after { transform: translateX(26px); }
 
         .save-badge {
-            background: rgba(45, 212, 191, 0.15);
+            background: rgba(var(--r45_212_191,45,212,191), 0.15);
             color: var(--primary);
             font-family: var(--font-heading);
             font-size: 0.8rem;
@@ -305,11 +306,11 @@
             transition: all 0.3s ease;
             position: relative;
         }
-        .pricing-card:hover { border-color: rgba(45, 212, 191, 0.3); transform: translateY(-4px); }
+        .pricing-card:hover { border-color: rgba(var(--r45_212_191,45,212,191), 0.3); transform: translateY(-4px); }
         .pricing-card.featured {
             border-color: var(--primary);
             border-width: 2px;
-            background: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, var(--bg-card) 30%);
+            background: linear-gradient(180deg, rgba(var(--r45_212_191,45,212,191), 0.08) 0%, var(--bg-card) 30%);
         }
 
         .popular-badge {
@@ -386,7 +387,7 @@
             border-top: 1px solid var(--border);
             margin-bottom: 1.25rem;
         }
-        .featured .plan-divider { border-color: rgba(45, 212, 191, 0.2); }
+        .featured .plan-divider { border-color: rgba(var(--r45_212_191,45,212,191), 0.2); }
 
         /* feature list */
         .plan-features {
@@ -538,9 +539,9 @@
     <header class="page-header">
         <h1>Elige Tu Plan</h1>
         <p>Acceso completo a la metodología de los 4 Pilares. Sin depender de horarios ni agendas.</p>
-        <div style="margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.25);border-radius:100px;padding:8px 20px;">
+        <div style="margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:rgba(var(--r45_212_191,45,212,191),0.1);border:1px solid rgba(var(--r45_212_191,45,212,191),0.25);border-radius:100px;padding:8px 20px;">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#2dd4bf" stroke-width="1.2"/><path d="M8 4v4l2.5 2.5" stroke="#2dd4bf" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#2dd4bf;">Plan Básico · 7 días gratis · Cancela cuando quieras</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--c2dd4bf,#2dd4bf);">Plan Básico · 7 días gratis · Cancela cuando quieras</span>
         </div>
     </header>
 

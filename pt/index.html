@@ -2,6 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyGolfLab | Seu Melhor Swing, Não Uma Cópia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9,18 +10,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-glow: rgba(45, 212, 191, 0.3);
-            --bg-dark: #0a0a0a;
-            --bg-card: #111111;
-            --bg-elevated: #1a1a1a;
+            --primary: var(--c2dd4bf,#2dd4bf);
+            --primary-dark: var(--c14b8a6,#14b8a6);
+            --primary-glow: rgba(var(--r45_212_191,45,212,191), 0.3);
+            --bg-dark: var(--c0a0a0a,#0a0a0a);
+            --bg-card: var(--c111111,#111111);
+            --bg-elevated: var(--c1a1a1a,#1a1a1a);
             --text-primary: #ffffff;
-            --text-secondary: #a3a3a3;
-            --text-muted: #737373;
-            --border: #262626;
-            --gradient-1: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%);
-            --gradient-subtle: linear-gradient(180deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+            --text-secondary: var(--ca3a3a3,#a3a3a3);
+            --text-muted: var(--c737373,#737373);
+            --border: var(--c262626,#262626);
+            --gradient-1: linear-gradient(135deg, var(--c2dd4bf,#2dd4bf) 0%, var(--c14b8a6,#14b8a6) 50%, var(--c0d9488,#0d9488) 100%);
+            --gradient-subtle: linear-gradient(180deg, rgba(var(--r45_212_191,45,212,191), 0.08) 0%, transparent 50%);
             --font-display: 'Bebas Neue', sans-serif;
             --font-heading: 'Barlow Condensed', sans-serif;
             --font-body: 'Barlow', sans-serif;
@@ -45,7 +46,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(10, 10, 10, 0.85);
+            background: rgba(var(--r10_10_10,10,10,10), 0.85);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
@@ -286,7 +287,7 @@
         /* App Banner */
         .app-banner {
             padding: 3rem 2rem;
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.1) 0%, transparent 50%);
+            background: linear-gradient(135deg, rgba(var(--r45_212_191,45,212,191), 0.1) 0%, transparent 50%);
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
         }
@@ -362,7 +363,7 @@
         .ps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
         .ps-card { padding: 2rem; border-radius: 20px; border: 1px solid var(--border); }
         .ps-card.problem { background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 50%); }
-        .ps-card.solution { background: linear-gradient(135deg, rgba(45, 212, 191, 0.08) 0%, transparent 50%); border-color: rgba(45, 212, 191, 0.3); }
+        .ps-card.solution { background: linear-gradient(135deg, rgba(var(--r45_212_191,45,212,191), 0.08) 0%, transparent 50%); border-color: rgba(var(--r45_212_191,45,212,191), 0.3); }
         .ps-card-icon {
             width: 48px; height: 48px;
             border-radius: 12px;
@@ -373,7 +374,7 @@
         }
         .ps-card.problem .ps-card-icon { background: rgba(239, 68, 68, 0.1); }
         .ps-card.problem .ps-card-icon svg { color: #ef4444; }
-        .ps-card.solution .ps-card-icon { background: rgba(45, 212, 191, 0.15); }
+        .ps-card.solution .ps-card-icon { background: rgba(var(--r45_212_191,45,212,191), 0.15); }
         .ps-card.solution .ps-card-icon svg { color: var(--primary); }
         .ps-card-icon svg { width: 24px; height: 24px; }
         .ps-card h3 {
@@ -461,7 +462,7 @@
         .feature-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
         .feature-icon {
             width: 56px; height: 56px;
-            background: linear-gradient(135deg, rgba(45, 212, 191, 0.15) 0%, rgba(45, 212, 191, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(var(--r45_212_191,45,212,191), 0.15) 0%, rgba(var(--r45_212_191,45,212,191), 0.05) 100%);
             border-radius: 14px;
             display: flex;
             align-items: center;

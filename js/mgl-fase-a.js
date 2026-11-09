@@ -159,7 +159,7 @@
       '.diagnosis-chip{display:inline-flex;align-items:center;gap:6px;' +
         'font-family:var(--font-heading),sans-serif;font-size:.75rem;font-weight:600;' +
         'text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:100px;' +
-        'border:1px solid currentColor;background:rgba(255,255,255,.03)}' +
+        'border:1px solid currentColor;background:rgba(var(--r255_255_255,255,255,255),.03)}' +
       '.diagnosis-chip.muted{color:var(--text-muted);border-color:var(--border-light)}' +
       '.eval-summary{font-family:var(--font-heading),sans-serif;font-size:.82rem;' +
         'letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);' +
@@ -779,10 +779,10 @@
       result.score = Math.max(1, Math.min(100, parseInt(result.score, 10) || 50));
       window.__ultimo = result;
 
-      console.log('%c[MGL] Evaluación de los 8 componentes', 'color:#2dd4bf;font-weight:bold');
+      console.log('%c[MGL] Evaluación de los 8 componentes', 'color:var(--c2dd4bf,#2dd4bf);font-weight:bold');
       console.table(result.evaluacion);
 
-      console.log('%c[MGL] Diagnósticos narrados', 'color:#2dd4bf;font-weight:bold');
+      console.log('%c[MGL] Diagnósticos narrados', 'color:var(--c2dd4bf,#2dd4bf);font-weight:bold');
       console.table(result.diagnosticos.map(function (d) {
         return {
           titulo:     d.titulo,
@@ -798,7 +798,7 @@
       var firma = window.MGL_TAX.componentes.map(function (k) {
         return k.slice(0, 4) + ':' + result.evaluacion[k].slice(0, 3);
       }).join(' | ');
-      console.log('%c[MGL] Firma → ' + firma, 'color:#8a8a8a');
+      console.log('%c[MGL] Firma → ' + firma, 'color:var(--c8a8a8a,#8a8a8a)');
 
       $('analysisLoading').classList.remove('visible');
       renderResults(result);
@@ -1328,10 +1328,10 @@
     /* ── Reporte ── */
     var linea = '════════════════════════════════════════════';
     if (errores.length === 0) {
-      console.log('%c' + linea, 'color:#2dd4bf');
+      console.log('%c' + linea, 'color:var(--c2dd4bf,#2dd4bf)');
       console.log('%c  MyGolfLab · FASE A v' + VERSION + ' — INSTALADA CORRECTAMENTE',
-                  'color:#2dd4bf;font-weight:bold;font-size:13px');
-      console.log('%c' + linea, 'color:#2dd4bf');
+                  'color:var(--c2dd4bf,#2dd4bf);font-weight:bold;font-size:13px');
+      console.log('%c' + linea, 'color:var(--c2dd4bf,#2dd4bf)');
       console.log('%c  ✅ Taxonomía cargada (8 componentes · 4 pilares · 10 errores)', 'color:#10b981');
       console.log('%c  ✅ Tabla fija componente → pilar activa',                       'color:#10b981');
       console.log('%c  ✅ normalizeFinding() disponible',                                'color:#10b981');
@@ -1341,7 +1341,7 @@
       console.log('%c  ✅ 6 de 6 tests internos pasaron',                                'color:#10b981');
       console.log('%c  ✅ Viñetas cortas activas',                                       'color:#10b981');
       avisos.forEach(function (a) { console.warn('  ⚠️ ' + a); });
-      console.log('%c' + linea, 'color:#2dd4bf');
+      console.log('%c' + linea, 'color:var(--c2dd4bf,#2dd4bf)');
       window.MGL_FASE_A_OK = true;
     } else {
       console.log('%c' + linea, 'color:#ef4444');
@@ -1397,7 +1397,7 @@
                     CACHE.length + ' análisis guardados',
                     'color:#10b981;font-weight:bold');
         console.log('%c  Ya puedes analizar un swing. Deja esta consola abierta.',
-                    'color:#8a8a8a');
+                    'color:var(--c8a8a8a,#8a8a8a)');
         window.MGL_FASE_B_OK = true;
       } else {
         console.warn('%c  ⚠️ No se pudo leer de Supabase. ¿Corriste el SQL de la Fase B?',
