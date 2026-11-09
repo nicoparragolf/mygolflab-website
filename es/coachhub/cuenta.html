@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mi cuenta · Coach Hub</title>
 <meta name="robots" content="noindex">
@@ -20,23 +21,23 @@
 <script src="/js/mgl-borrar-cuenta.js"></script>
 <style>
   :root{
-    --bg:#0a0a0a; --bg2:#111; --card:#141414; --card2:#1a1a1a;
-    --border:#262626; --border2:#333;
-    --teal:#D4C5A9; --teal-dim:#7D7259; --gold:#F0B860;
-    --text:#f5f5f5; --muted:#8a8a8a; --muted2:#666;
-    --red:#e06a6a;
+    --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c141414,#141414); --card2:var(--c1a1a1a,#1a1a1a);
+    --border:var(--c262626,#262626); --border2:var(--c333333,#333);
+    --teal:var(--cd4c5a9,#D4C5A9); --teal-dim:var(--c7d7259,#7D7259); --gold:var(--cf0b860,#F0B860);
+    --text:var(--cf5f5f5,#f5f5f5); --muted:var(--c8a8a8a,#8a8a8a); --muted2:var(--c666666,#666);
+    --red:var(--ce06a6a,#e06a6a);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit;color:inherit}
-  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.09) #0a0a0a}
+  html{scrollbar-width:thin;scrollbar-color:rgba(var(--r255_255_255,255,255,255),.09) var(--c0a0a0a,#0a0a0a)}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-track{background:#0a0a0a}
-  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:10px;border:3px solid #0a0a0a}
+  ::-webkit-scrollbar-track{background:var(--c0a0a0a,#0a0a0a)}
+  ::-webkit-scrollbar-thumb{background:rgba(var(--r255_255_255,255,255,255),.09);border-radius:10px;border:3px solid var(--c0a0a0a,#0a0a0a)}
 
   /* header */
-  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+  #siteHeader{position:sticky;top:0;z-index:50;background:rgba(var(--r10_10_10,10,10,10),.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
   .nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
   .brand{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px}
   .brand span{color:var(--teal)}
@@ -58,8 +59,8 @@
   /* tarjeta de perfil */
   .pcard{display:flex;align-items:center;gap:28px;background:var(--card);border:1px solid var(--border);border-radius:22px;padding:30px 32px;position:relative}
   .pcard.link{cursor:pointer;transition:border-color .2s,background .2s}
-  .pcard.link:hover{border-color:var(--teal-dim);background:#16150f}
-  .pphoto{width:112px;height:112px;border-radius:50%;flex:0 0 auto;background:#2B2619;color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:44px;letter-spacing:1px;overflow:hidden;box-shadow:0 0 0 3px #0a0a0a,0 0 0 4px rgba(212,197,169,.5)}
+  .pcard.link:hover{border-color:var(--teal-dim);background:var(--c16150f,#16150f)}
+  .pphoto{width:112px;height:112px;border-radius:50%;flex:0 0 auto;background:var(--c2b2619,#2B2619);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:44px;letter-spacing:1px;overflow:hidden;box-shadow:0 0 0 3px var(--c0a0a0a,#0a0a0a),0 0 0 4px rgba(var(--r212_197_169,212,197,169),.5)}
   .pphoto img{width:100%;height:100%;object-fit:cover}
   .pphoto{position:relative;cursor:pointer;overflow:visible}
   .pphoto img{border-radius:50%}
@@ -69,9 +70,9 @@
   .pname{font-family:'Bebas Neue';font-size:40px;letter-spacing:1px;line-height:1}
   .prole{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
   .chip{font-family:'Barlow Condensed';font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-radius:20px;padding:3px 11px;border:1px solid var(--border2);color:var(--muted)}
-  .chip.gold{color:var(--teal);border-color:rgba(212,197,169,.45);background:rgba(212,197,169,.07)}
-  .chip.ok{color:#8fd19e;border-color:rgba(143,209,158,.35)}
-  .chip.warn{color:var(--gold);border-color:rgba(240,184,96,.4)}
+  .chip.gold{color:var(--teal);border-color:rgba(var(--r212_197_169,212,197,169),.45);background:rgba(var(--r212_197_169,212,197,169),.07)}
+  .chip.ok{color:var(--c8fd19e,#8fd19e);border-color:rgba(var(--r143_209_158,143,209,158),.35)}
+  .chip.warn{color:var(--gold);border-color:rgba(var(--r240_184_96,240,184,96),.4)}
   .headline{color:var(--muted);font-size:15px;margin-top:10px;line-height:1.45}
   .prow{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--muted);font-size:15px;flex-wrap:wrap}
   .prow svg{width:18px;height:18px;flex:0 0 auto;color:var(--muted2)}
@@ -100,23 +101,31 @@
   /* tarjetas */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .tile{display:flex;justify-content:space-between;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 26px 30px;min-height:150px;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;text-align:left;width:100%}
-  .tile:hover{border-color:var(--teal-dim);background:#16150f;transform:translateY(-1px)}
+  .tile:hover{border-color:var(--teal-dim);background:var(--c16150f,#16150f);transform:translateY(-1px)}
   .tile h3{font-family:'Barlow Condensed';font-size:24px;font-weight:700;letter-spacing:.3px;line-height:1.1}
   .tile p{color:var(--muted);font-size:15px;line-height:1.45;margin-top:8px}
-  .tile .ic{flex:0 0 auto;width:46px;height:46px;border-radius:13px;background:rgba(212,197,169,.09);color:var(--teal);display:flex;align-items:center;justify-content:center;position:relative}
+  .tile .ic{flex:0 0 auto;width:46px;height:46px;border-radius:13px;background:rgba(var(--r212_197_169,212,197,169),.09);color:var(--teal);display:flex;align-items:center;justify-content:center;position:relative}
   .tile .ic svg{width:24px;height:24px}
   .tile .badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;padding:0 6px;background:var(--teal);color:#1C1709;font-family:'Barlow Condensed';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
-  .tile.danger .ic{background:rgba(224,106,106,.1);color:var(--red)}
-  .tile.danger:hover{border-color:rgba(224,106,106,.45);background:#171010}
+  .tile.danger .ic{background:rgba(var(--r224_106_106,224,106,106),.1);color:var(--red)}
+  .tile.danger:hover{border-color:rgba(var(--r224_106_106,224,106,106),.45);background:var(--c171010,#171010)}
+  /* apariencia */
+  .tema{display:flex;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:6px;max-width:520px}
+  .tema button{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:1px solid transparent;border-radius:12px;padding:14px 8px;cursor:pointer;font-family:'Barlow Condensed';font-weight:700;font-size:16px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);transition:background .15s,color .15s,border-color .15s}
+  .tema button:hover{color:var(--text)}
+  .tema button.on{background:rgba(var(--r212_197_169,212,197,169),.12);border-color:var(--teal-dim);color:var(--teal)}
+  .tema .sw{width:46px;height:30px;border-radius:8px;border:1px solid var(--border2);overflow:hidden;display:flex}
+  .tema .sw i{flex:1;display:block}
+  .tema-nota{color:var(--muted);font-size:14px;margin-top:10px}
   .tile.soon{cursor:default}
   .tile.soon:hover{transform:none}
 
-  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:#222;border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--c222222,#222);border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   @media(max-width:900px){
     .nav-links{display:none}
-    .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(10,10,10,.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
+    .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(var(--r10_10_10,10,10,10),.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
     .nav-links.mobile-open a{padding:15px 0;font-size:19px;border-bottom:1px solid var(--border)}
     .nav-links.mobile-open a:last-child{border-bottom:none}
     .hamburger{display:flex}
@@ -320,10 +329,31 @@ function render(name, photo, st){
   }
   h+= '<button class="tile danger" onclick="logout()"><div><h3>Cerrar sesión</h3><p>Salir de tu cuenta en este dispositivo.</p></div><div class="ic">'+IC.logout+'</div></button>';
   h+='</div>';
+  h+='<h2 class="sec">Apariencia</h2>'+temaHTML();
   h+='<div id="zonaCuenta"></div>';
 
   $('wrap').innerHTML=h;
   if(window.MGLBorrarCuenta) MGLBorrarCuenta.montar($('zonaCuenta'), { sb:sb, volverA:'/es/coachhub/entrar.html' });
+}
+
+function temaHTML(){
+  var cur = window.MGLTema ? MGLTema.get() : 'oscuro';
+  var ops = [
+    ['oscuro','Oscuro','<i style="background:#0a0a0a"></i><i style="background:#1c1c1c"></i>'],
+    ['claro','Claro','<i style="background:#f6f4ef"></i><i style="background:#ffffff"></i>'],
+    ['auto','Automático','<i style="background:#0a0a0a"></i><i style="background:#f6f4ef"></i>']
+  ];
+  var h='<div class="tema" id="temaSel">';
+  ops.forEach(function(o){
+    h+='<button type="button" data-tema="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'" onclick="elegirTema(\''+o[0]+'\')"><span class="sw">'+o[2]+'</span>'+o[1]+'</button>';
+  });
+  h+='</div><p class="tema-nota">Automático sigue el modo claro u oscuro de tu teléfono o computador.</p>';
+  return h;
+}
+function elegirTema(v){
+  if(window.MGLTema) MGLTema.set(v);
+  var bs=document.querySelectorAll('#temaSel button');
+  for(var i=0;i<bs.length;i++) bs[i].classList.toggle('on', bs[i].getAttribute('data-tema')===v);
 }
 
 function tile(href, title, desc, icon, badge){
