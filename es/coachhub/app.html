@@ -141,6 +141,46 @@
   var f0 = crear(t0, inicial);
   mostrar(t0);
 
+  // ── Avisos push (solo dentro de la app) ─────────────────────────────────
+  // Se pide permiso una vez, se guarda el token del teléfono en Supabase
+  // (push_tokens) y al tocar un aviso se abre la pestaña que corresponde.
+  (function push() {
+    var CAP = window.Capacitor;
+    var PN = CAP && CAP.isNativePlatform && CAP.isNativePlatform() && CAP.Plugins && CAP.Plugins.PushNotifications;
+    if (!PN) return;
+    var SB_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+    var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+    function sesion() {
+      try { var j = JSON.parse(localStorage.getItem('sb-yulpqupmftdjbepqiscs-auth-token') || 'null'); return j && j.access_token ? j : null; }
+      catch (e) { return null; }
+    }
+    function guardar(token) {
+      var s = sesion(); if (!s) return;
+      var lang = 'es'; try { lang = localStorage.getItem('mgl-idioma') || (window.MGLi18n && MGLi18n.lang) || 'es'; } catch (e) {}
+      fetch(SB_URL + '/rest/v1/rpc/mgl_push_registrar', {
+        method: 'POST',
+        headers: { apikey: ANON, Authorization: 'Bearer ' + s.access_token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_token: token, p_platform: (CAP.getPlatform && CAP.getPlatform()) || 'ios', p_lang: lang })
+      }).catch(function () {});
+    }
+    PN.addListener('registration', function (t) { if (t && t.value) guardar(t.value); });
+    PN.addListener('registrationError', function (e) { console.warn('push', e); });
+    PN.addListener('pushNotificationActionPerformed', function (a) {
+      var url = a && a.notification && a.notification.data && a.notification.data.url;
+      if (url && url.charAt(0) === '/') window.MGLShell.abrir(url, 'link');
+    });
+    if (!sesion()) return;
+    // Se pide después de que carga la primera pestaña, no encima del arranque
+    setTimeout(function () {
+      PN.checkPermissions().then(function (p) {
+        if (p.receive === 'granted') return PN.register();
+        if (p.receive === 'prompt' || p.receive === 'prompt-with-rationale') {
+          return PN.requestPermissions().then(function (r) { if (r.receive === 'granted') return PN.register(); });
+        }
+      }).catch(function (e) { console.warn('push', e); });
+    }, 2500);
+  })();
+
   // Precarga del resto apenas termina la primera, de a una para no competir
   f0.addEventListener('load', function () {
     var cola = PRECARGA.filter(function (t) { return !marcos[t]; });
