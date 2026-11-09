@@ -74,7 +74,7 @@ export default async function handler(req, res) {
       var fd = new FormData();
       fd.append('file', new Blob([buf], { type: mime }), 'voz.' + ext);
       fd.append('model', modelo);
-      fd.append('language', 'es');
+      fd.append('language', (body && body.idioma === 'en') ? 'en' : 'es');
       fd.append('prompt', prompt.slice(0, 900));
       fd.append('response_format', 'json');
       var r = await fetch('https://api.openai.com/v1/audio/transcriptions', {
