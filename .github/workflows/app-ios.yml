@@ -103,6 +103,20 @@ jobs:
             CURRENT_PROJECT_VERSION=${{ github.run_number }} | tail -n 40
           exit ${PIPESTATUS[0]}
 
+      # El archive sale sin firma y por lo tanto sin "entitlements" (permisos
+      # como los avisos push). Se le pone una firma provisoria (ad-hoc) con el
+      # archivo App.entitlements para que la firma de Apple al exportar los
+      # conserve.
+      - name: Agregar permisos (entitlements) al archive
+        if: github.event_name != 'pull_request' && env.TIENE_LLAVES == 'true'
+        run: |
+          APP="$RUNNER_TEMP/App.xcarchive/Products/Applications/App.app"
+          if [ -d "$APP/Frameworks" ]; then
+            for f in "$APP"/Frameworks/*; do codesign --force --sign - "$f"; done
+          fi
+          codesign --force --sign - --entitlements ios/App/App/App.entitlements --generate-entitlement-der "$APP"
+          codesign -d --entitlements - "$APP" | head -20
+
       - name: Firmar y subir a TestFlight
         if: github.event_name != 'pull_request' && env.TIENE_LLAVES == 'true'
         env:
