@@ -1650,5 +1650,18 @@ window.MGL_I18N_EN = {
 "Cargando tu reporte…": "Loading your report…",
 "Ver en Mi reporte": "See in My report",
 "Mes anterior": "Previous month",
-"Mes siguiente": "Next month"
+"Mes siguiente": "Next month",
+"Video de demostración (opcional)": "Demo video (optional)",
+"Súmale un video tuyo mostrando el ejercicio o el movimiento que le explicas. Lo eliges de tu galería.": "Add a video of you showing the drill or move you're explaining. Pick it from your gallery.",
+"Subir video de mi galería": "Upload video from my gallery",
+"Agregar otro video": "Add another video",
+"El video y tu mensaje quedan en la clase y en la ficha del alumno. Si grabaste un análisis con": "The video and your message stay in the lesson and in the student's profile. If you recorded an analysis with",
+", ya está en su ficha.": ", it's already in their profile.",
+"Entregar clase": "Deliver lesson",
+"Entregando…": "Delivering…",
+"Tus videos de demostración": "Your demo videos",
+"Videos de tu coach": "Your coach's videos",
+"Ese archivo no es un video": "That file isn't a video",
+"No se pudo subir el video": "Couldn't upload the video",
+"Algunos videos no se pudieron subir": "Some videos couldn't be uploaded"
 };

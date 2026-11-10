@@ -1652,5 +1652,18 @@ window.MGL_I18N_PT = {
 "Cargando tu reporte…": "Carregando seu relatório…",
 "Ver en Mi reporte": "Ver em Meu relatório",
 "Mes anterior": "Mês anterior",
-"Mes siguiente": "Próximo mês"
+"Mes siguiente": "Próximo mês",
+"Video de demostración (opcional)": "Vídeo de demonstração (opcional)",
+"Súmale un video tuyo mostrando el ejercicio o el movimiento que le explicas. Lo eliges de tu galería.": "Adicione um vídeo seu mostrando o exercício ou o movimento que você explica. Escolha da sua galeria.",
+"Subir video de mi galería": "Enviar vídeo da minha galeria",
+"Agregar otro video": "Adicionar outro vídeo",
+"El video y tu mensaje quedan en la clase y en la ficha del alumno. Si grabaste un análisis con": "O vídeo e sua mensagem ficam na aula e no perfil do aluno. Se você gravou uma análise com",
+", ya está en su ficha.": ", ela já está no perfil dele.",
+"Entregar clase": "Entregar aula",
+"Entregando…": "Entregando…",
+"Tus videos de demostración": "Seus vídeos de demonstração",
+"Videos de tu coach": "Vídeos do seu coach",
+"Ese archivo no es un video": "Esse arquivo não é um vídeo",
+"No se pudo subir el video": "Não foi possível enviar o vídeo",
+"Algunos videos no se pudieron subir": "Alguns vídeos não puderam ser enviados"
 };

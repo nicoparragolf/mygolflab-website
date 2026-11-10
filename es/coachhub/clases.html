@@ -128,6 +128,17 @@
   textarea.reply{width:100%;min-height:84px;resize:vertical;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:11px 13px;font-size:15px;line-height:1.45;outline:none;margin-top:4px}
   textarea.reply:focus{border-color:var(--teal-dim)}
   .hint{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.45}
+  .demo-add{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;padding:14px;border:1.5px dashed var(--border2);border-radius:12px;background:none;color:var(--teal);font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+  .demo-add:hover{border-color:var(--teal-dim);background:rgba(var(--r212_197_169,212,197,169),.05)}
+  .demo-add svg{width:20px;height:20px}
+  .demo-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+  .demo-it{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;aspect-ratio:9/16}
+  .demo-it video{width:100%;height:100%;object-fit:cover;display:block}
+  .demo-it .sz{position:absolute;left:6px;bottom:6px;font-size:11px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:2px 7px}
+  .demo-it .rm{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,.7);color:#fff;font-size:16px;line-height:26px;cursor:pointer}
+  .prog{height:6px;border-radius:3px;background:var(--border);margin-top:12px;overflow:hidden;display:none}
+  .prog.on{display:block}
+  .prog i{display:block;height:100%;width:0;background:var(--teal);transition:width .2s}
   .pay{font-size:13.5px;color:var(--ce9cf9f,#e9cf9f);background:rgba(var(--r240_184_96,240,184,96),.08);border:1px solid rgba(var(--r240_184_96,240,184,96),.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.45}
 
   .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--c222222,#222);border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
@@ -178,6 +189,9 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 var USER=null, ROLE='jugador', IS_COACH=false;
 var LESSONS=[], TAB='pendiente', COACHES={}, CUR=null, BUSY=false;
+var DEMO=[];          // videos de demostración elegidos para entregar {file, url}
+var DEMO_MAX=3, DEMO_MB=500;
+var MEDIA_BUCKET='player-media';
 var PCONF={service_fee_pct:5, own_student_pct:0, tiers:[{hasta:30,pct:5},{hasta:60,pct:3},{hasta:null,pct:2}]};
 
 var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
@@ -370,6 +384,7 @@ function rowHTML(l){
 async function openDetail(id){
   var l=LESSONS.filter(function(x){ return x.id===id; })[0];
   if(!l) return;
+  if(CUR!==l && (!CUR || CUR.id!==l.id)) demoClear();
   CUR=l;
   renderDetail();
   $('ov').classList.add('on');
@@ -380,7 +395,7 @@ function closeDetail(){
   if(BUSY) return;
   $('ov').classList.remove('on'); document.body.style.overflow='';
   document.querySelectorAll('#drawer video').forEach(function(v){ try{ v.pause(); }catch(e){} });
-  CUR=null;
+  CUR=null; demoClear();
   if(window.history && window.history.replaceState) window.history.replaceState(null,'','/es/coachhub/clases.html');
 }
 
@@ -428,8 +443,11 @@ function renderDetail(){
 
   if(l.coach_reply) h+='<div class="box"><h4>'+(IS_COACH?'Tu mensaje al alumno':'Mensaje de tu coach')+'</h4><p>'+esc(l.coach_reply)+'</p></div>';
 
+  if(l.delivery_event_id) h+='<div class="box"><h4>'+(IS_COACH?'Tus videos de demostración':'Videos de tu coach')+'</h4><div class="vids" id="demoVids"><div class="hint">Cargando…</div></div></div>';
+
   h+=actionsHTML(l);
   $('drawer').innerHTML=h;
+  if($('demoList')) demoRender();
 }
 
 function actionsHTML(l){
@@ -448,8 +466,14 @@ function actionsHTML(l){
         + (pid?'<a class="btn" href="/es/coachhub/jugador.html?player='+pid+'">Ver ficha</a>':'')
         + '</div>'
         + '<div class="box"><h4>Entregar</h4><textarea class="reply" id="reply" maxlength="2000" placeholder="Opcional: un resumen para el alumno (ej. qué trabajar esta semana)."></textarea>'
-        + '<div class="hint">Graba tu análisis con <b>Analizar swing</b> y guárdalo en su ficha; después márcala como entregada.</div>'
-        + '<div class="acts"><button class="btn primary grow" id="bDel" onclick="entregar()">Marcar como entregada</button></div></div>';
+        + '<div class="fl" style="margin-top:14px;font-family:\'Barlow Condensed\';font-size:13px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)">Video de demostración (opcional)</div>'
+        + '<div class="hint" style="margin-top:2px">Súmale un video tuyo mostrando el ejercicio o el movimiento que le explicas. Lo eliges de tu galería.</div>'
+        + '<div class="demo-list" id="demoList"></div>'
+        + '<input type="file" id="demoIn" accept="video/*" multiple style="display:none" onchange="demoPick(this)">'
+        + '<button type="button" class="demo-add" id="demoAdd" onclick="$(\'demoIn\').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2.5"/><path d="M16 10.5l6-3.5v10l-6-3.5"/><path d="M9 9.5v5M6.5 12h5"/></svg>Subir video de mi galería</button>'
+        + '<div class="prog" id="demoProg"><i id="demoBar"></i></div>'
+        + '<div class="hint">El video y tu mensaje quedan en la clase y en la ficha del alumno. Si grabaste un análisis con <b>Analizar swing</b>, ya está en su ficha.</div>'
+        + '<div class="acts"><button class="btn primary grow" id="bDel" onclick="entregar()">Entregar clase</button></div></div>';
     } else if(l.status==='entregada' && l.player_id){
       h+='<div class="acts"><a class="btn grow" href="/es/coachhub/jugador.html?player='+encodeURIComponent(l.player_id)+'">Ver ficha del alumno</a><a class="btn" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(l.player_id)+'">Escribir</a></div>';
     }
@@ -466,7 +490,22 @@ function actionsHTML(l){
   return h;
 }
 
+async function loadDemo(l){
+  if(!l.delivery_event_id) return;
+  var m = await sb.from('player_media').select('storage_path,media_type').eq('event_id', l.delivery_event_id).order('created_at');
+  if(CUR!==l || !$('demoVids')) return;
+  var paths=(m.data||[]).map(function(x){ return x.storage_path; }).filter(Boolean);
+  if(!paths.length){ $('demoVids').innerHTML='<div class="hint">Sin videos.</div>'; return; }
+  var r = await sb.storage.from(MEDIA_BUCKET).createSignedUrls(paths, 3600);
+  if(CUR!==l || !$('demoVids')) return;
+  if(r.error || !r.data){ $('demoVids').innerHTML='<div class="hint">No se pudieron cargar los videos.</div>'; return; }
+  $('demoVids').innerHTML = r.data.map(function(x){
+    return x.signedUrl ? '<video src="'+esc(x.signedUrl)+'#t=0.5" controls playsinline preload="metadata"></video>' : '<div class="v-err">No disponible</div>';
+  }).join('');
+}
+
 async function loadVideos(l){
+  loadDemo(l);
   var paths=l.video_paths||[]; if(!paths.length) return;
   var r = await sb.storage.from('lesson-uploads').createSignedUrls(paths, 3600);
   if(CUR!==l) return;
@@ -510,13 +549,111 @@ async function rechazar(){
   await reloadKeep(l.id);
   if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
 }
+// ── Videos de demostración para la entrega ──
+function fmtMB(b){ return (b/1048576).toFixed(b<10485760?1:0).replace('.',',')+' MB'; }
+function demoPick(inp){
+  var files=[].slice.call(inp.files||[]);
+  inp.value='';
+  files.forEach(function(f){
+    if(DEMO.length>=DEMO_MAX){ toast('Máximo '+DEMO_MAX+' videos por entrega'); return; }
+    if(f.type && f.type.indexOf('video/')!==0){ toast('Ese archivo no es un video'); return; }
+    if(f.size>DEMO_MB*1048576){ toast('El video pesa más de '+DEMO_MB+' MB'); return; }
+    DEMO.push({ file:f, url:URL.createObjectURL(f) });
+  });
+  demoRender();
+}
+function demoRemove(i){
+  if(BUSY) return;
+  var d=DEMO.splice(i,1)[0]; if(d) try{ URL.revokeObjectURL(d.url); }catch(e){}
+  demoRender();
+}
+function demoClear(){ DEMO.forEach(function(d){ try{ URL.revokeObjectURL(d.url); }catch(e){} }); DEMO=[]; }
+function demoRender(){
+  var box=$('demoList'); if(!box) return;
+  box.innerHTML = DEMO.map(function(d,i){
+    return '<div class="demo-it"><video src="'+d.url+'#t=0.5" muted playsinline preload="metadata"></video>'
+      + '<span class="sz">'+fmtMB(d.file.size)+'</span>'
+      + '<button type="button" class="rm" onclick="demoRemove('+i+')" aria-label="Quitar">×</button></div>';
+  }).join('');
+  box.style.display = DEMO.length ? '' : 'none';
+  var add=$('demoAdd');
+  if(add){ add.style.display = DEMO.length>=DEMO_MAX ? 'none' : ''; add.lastChild.textContent = DEMO.length ? 'Agregar otro video' : 'Subir video de mi galería'; }
+}
+async function uploadXHR(path, blob, contentType, onProg){
+  var s = await sb.auth.getSession();
+  var token = (s.data && s.data.session && s.data.session.access_token) || SUPABASE_ANON_KEY;
+  return new Promise(function(resolve){
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST', SUPABASE_URL+'/storage/v1/object/'+MEDIA_BUCKET+'/'+path, true);
+    xhr.setRequestHeader('Authorization','Bearer '+token);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('x-upsert','false');
+    if(contentType) xhr.setRequestHeader('Content-Type', contentType);
+    xhr.upload.onprogress=function(e){ if(e.lengthComputable && onProg) onProg(e.loaded/e.total); };
+    xhr.onload=function(){
+      if(xhr.status>=200 && xhr.status<300){ resolve({error:null}); return; }
+      var msg=xhr.responseText||('HTTP '+xhr.status);
+      try{ var j=JSON.parse(xhr.responseText); msg=j.message||j.error||msg; }catch(e){}
+      resolve({error:{message:msg}});
+    };
+    xhr.onerror=function(){ resolve({error:{message:'Error de red al subir'}}); };
+    xhr.send(blob);
+  });
+}
+function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+
+// Sube los videos: crea un evento "Clase" en la ficha del alumno con los videos
+// y devuelve su id (o null si no hay videos). Lanza error si no se pudo subir ninguno.
+async function subirDemos(l, msg, btn){
+  if(!DEMO.length || !l.player_id) return null;
+  var o=l.offering||{};
+  var ev={ player_id:l.player_id, coach_id:USER.id, created_by:USER.id, source:'manual', event_type:'clase',
+           title:'Clase online · '+(o.title||'Análisis de swing'), summary:msg||null, event_date:todayISO() };
+  var r=await sb.from('player_events').insert(ev).select('id').single();
+  if(r.error) throw new Error('No se pudo crear el evento en su ficha: '+r.error.message);
+  var eventId=r.data.id, rows=[], fails=[], total=DEMO.length;
+  $('demoProg').classList.add('on');
+  for(var i=0;i<total;i++){
+    var f=DEMO[i].file, ext=((f.name.split('.').pop()||'mp4').toLowerCase()).replace(/[^a-z0-9]/g,'')||'mp4';
+    var path=USER.id+'/'+l.player_id+'/'+eventId+'/'+Date.now()+'-demo'+(i+1)+'.'+ext;
+    (function(i){
+      btn.textContent='Subiendo video '+(i+1)+' de '+total+'…';
+    })(i);
+    var up=await uploadXHR(path, f, f.type||'video/mp4', function(p){
+      $('demoBar').style.width=Math.round(((i+p)/total)*100)+'%';
+      btn.textContent='Subiendo video '+(i+1)+' de '+total+'… '+Math.round(p*100)+'%';
+    });
+    if(up.error){ fails.push(up.error.message); continue; }
+    rows.push({ event_id:eventId, player_id:l.player_id, coach_id:USER.id, created_by:USER.id, storage_path:path,
+                media_type:'video', file_name:f.name, mime_type:f.type||'video/mp4', size_bytes:f.size });
+  }
+  if(rows.length){
+    var ri=await sb.from('player_media').insert(rows);
+    if(ri.error) fails.push(ri.error.message);
+  }
+  if(!rows.length){
+    await sb.from('player_events').delete().eq('id', eventId);
+    throw new Error('No se pudo subir el video'+(fails[0]?': '+fails[0]:''));
+  }
+  if(fails.length) toast('Algunos videos no se pudieron subir');
+  return eventId;
+}
+
 async function entregar(){
-  var l=CUR, msg=replyText();
-  if(!confirm('¿Marcar esta clase como entregada?')) return;
+  var l=CUR, msg=replyText(), btn=$('bDel');
+  var q = DEMO.length ? '¿Entregar esta clase con '+DEMO.length+' video'+(DEMO.length===1?'':'s')+' de demostración?' : '¿Marcar esta clase como entregada?';
+  if(!confirm(q)) return;
   lock(true);
-  var r = await sb.rpc('mgl_clase_entregar',{ p_id:l.id, p_reply:msg });
-  if(r.error){ lock(false); toast('No se pudo marcar: '+r.error.message); return; }
+  var eventId=null;
+  try{ eventId = await subirDemos(l, msg, btn); }
+  catch(e){ lock(false); btn.textContent='Entregar clase'; $('demoProg').classList.remove('on'); toast(e.message); return; }
+  btn.textContent='Entregando…';
+  var r = eventId
+    ? await sb.rpc('mgl_clase_entregar',{ p_id:l.id, p_reply:msg, p_event:eventId })
+    : await sb.rpc('mgl_clase_entregar',{ p_id:l.id, p_reply:msg });
+  if(r.error){ lock(false); btn.textContent='Entregar clase'; toast('No se pudo entregar: '+r.error.message); return; }
   if(msg && l.player_id){ try{ await sb.from('coach_messages').insert({ player_id:l.player_id, sender_id:USER.id, body:msg }); }catch(e){} }
+  demoClear();
   lock(false);
   toast('Clase entregada');
   await reloadKeep(l.id);
