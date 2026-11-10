@@ -123,6 +123,72 @@
   .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);background:var(--c222222,#222);border:1px solid var(--border2);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:200}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* encabezado de la lista */
+  .lh-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .new-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--teal);color:#1C1709;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .new-btn svg{width:20px;height:20px}
+  .new-menu{position:absolute;z-index:120;background:var(--card2);border:1px solid var(--border2);border-radius:14px;padding:6px;min-width:230px;box-shadow:0 14px 40px rgba(0,0,0,.45);display:none}
+  .new-menu.on{display:block}
+  .new-menu button{display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;padding:11px 12px;border-radius:10px;cursor:pointer;text-align:left;font-size:15px}
+  .new-menu button:hover{background:var(--card)}
+  .new-menu svg{width:20px;height:20px;color:var(--teal);flex:0 0 auto}
+  .new-menu small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+  .chips{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-family:'Barlow Condensed';font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer}
+  .chip.on{background:var(--teal);border-color:var(--teal);color:#1C1709}
+  .av.grp-av{background:var(--c2b2619,#2B2619)}
+  .av.grp-av svg{width:22px;height:22px}
+  .cv-tag{font-family:'Barlow Condensed';font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--teal-dim);margin-left:6px}
+  .list-empty .acts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Barlow Condensed';font-size:15px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:11px 16px;border-radius:12px;border:1px solid var(--teal-dim);background:none;color:var(--teal);cursor:pointer}
+  .btn.pri{background:var(--teal);border-color:var(--teal);color:#1C1709}
+  .btn.danger{border-color:rgba(var(--r224_106_106,224,106,106),.5);color:var(--red)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  /* hilo de grupo */
+  .b .who{display:block;font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--teal);margin-bottom:2px}
+  .b.them.coach-msg{border-color:var(--teal-dim)}
+  .ro{flex:0 0 auto;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:var(--bg);text-align:center;color:var(--muted);font-size:13.5px}
+  .gdesc{margin:12px 18px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.45;background:var(--card);border:1px solid var(--border);color:var(--muted);white-space:pre-wrap}
+
+  /* ventanas */
+  .modal{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px}
+  .modal.on{display:flex}
+  .sheet{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:480px;max-height:min(86vh,760px);display:flex;flex-direction:column;overflow:hidden}
+  .sh-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border)}
+  .sh-head h3{font-family:'Bebas Neue';font-size:26px;letter-spacing:1px;line-height:1;flex:1}
+  .sh-x{background:none;border:none;color:var(--muted);font-size:26px;line-height:1;cursor:pointer;padding:0 4px}
+  .sh-body{flex:1 1 auto;overflow-y:auto;padding:16px 18px}
+  .sh-foot{display:flex;gap:10px;padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+  .sh-foot .btn{flex:1}
+  .fl{display:block;font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+  .fl:first-child{margin-top:0}
+  .inp{width:100%;padding:11px 13px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:15px;outline:none;resize:vertical}
+  .inp:focus{border-color:var(--teal-dim)}
+  .tgl{display:flex;gap:12px;align-items:flex-start;margin-top:14px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer}
+  .tgl input{display:none}
+  .sw{flex:0 0 auto;width:42px;height:24px;border-radius:12px;background:var(--border2);position:relative;transition:background .2s;margin-top:1px}
+  .sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+  .tgl input:checked + .sw{background:var(--teal)}
+  .tgl input:checked + .sw::after{transform:translateX(18px)}
+  .tgl b{display:block;font-size:14.5px;font-weight:600}
+  .tgl small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:2px}
+  .pk{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--c151515,#151515);cursor:pointer}
+  .pk:last-child{border-bottom:none}
+  .pk .av{width:38px;height:38px;font-size:14px}
+  .pk-name{flex:1;min-width:0;font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pk-name small{display:block;font-size:11px;color:var(--muted2);font-family:'Barlow Condensed';letter-spacing:.4px;text-transform:uppercase;font-weight:600}
+  .ck{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .pk.sel .ck{background:var(--teal);border-color:var(--teal)}
+  .pk.sel .ck::after{content:'';width:6px;height:11px;border:solid #1C1709;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+  .mcount{float:right;color:var(--teal);text-transform:none;letter-spacing:0}
+  .sh-msg{color:var(--muted);font-size:14px;line-height:1.55;padding:6px 0}
+  .sh-msg code{background:var(--c1a1a1a,#1a1a1a);border:1px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--teal);font-size:13px}
+
+  @media(max-width:760px){
+    .modal{align-items:flex-end;padding:0}
+    .sheet{max-width:none;border-radius:18px 18px 0 0;max-height:92vh}
+  }
   @media(max-width:900px){
     .nav-links{display:none}
     .nav-links.mobile-open{display:flex;flex-direction:column;gap:0;position:absolute;top:100%;left:0;right:0;background:rgba(var(--r10_10_10,10,10,10),.97);border-bottom:1px solid var(--border);padding:6px 20px 14px;margin:0}
@@ -154,9 +220,21 @@
 
 <div class="shell" id="shell">
   <aside class="list" id="listPane">
-    <div class="list-head">
-      <h1>Mensajes</h1>
+    <div class="list-head" style="position:relative">
+      <div class="lh-row">
+        <h1>Mensajes</h1>
+        <button class="new-btn" id="newBtn" type="button" aria-label="Nuevo" title="Nuevo" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+      <div class="new-menu" id="newMenu">
+        <button type="button" onclick="openPicker()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Nuevo mensaje<small>Escríbele a un alumno</small></span></button>
+        <button type="button" onclick="openGroupEditor(null)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 018 14h2a5.5 5.5 0 015.5 5.5v.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8"/><path d="M18 14.2a5.5 5.5 0 013.5 5.3v.5"/></svg><span>Nuevo grupo<small>Anuncios, tips y updates a varios alumnos</small></span></button>
+      </div>
       <input class="search" id="search" type="search" placeholder="Buscar" autocomplete="off" style="display:none">
+      <div class="chips" id="chips" style="display:none">
+        <button type="button" class="chip on" data-f="todos">Todos</button>
+        <button type="button" class="chip" data-f="chats">Chats</button>
+        <button type="button" class="chip" data-f="grupos">Grupos</button>
+      </div>
     </div>
     <div class="convs" id="convs"><div class="loading">Cargando…</div></div>
   </aside>
@@ -164,6 +242,8 @@
     <div class="th-empty"><h2>Tus conversaciones</h2>Elige una conversación para ver los mensajes.</div>
   </section>
 </div>
+
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -178,16 +258,32 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ============================================================
 // ESTADO
 // ============================================================
+// Conversaciones: directas (una por ficha de alumno) y grupos.
+//  {key:'p:ID'|'g:ID', type:'dm'|'grupo', player_id, group_id, name, avatar,
+//   kind:'alumno'|'coach'|'grupo', linked, last, unread, since,
+//   members, solo_coach, soy_coach, description}
+// El coach solo ve en la lista los chats con mensajes (activos) y sus grupos.
+// Para escribirle a otro alumno usa el botón + → Nuevo mensaje.
 var USER = null, ROLE = 'jugador', IS_COACH = false;
-var CONVS = [];          // {player_id, name, avatar, kind:'alumno'|'coach', linked, last, unread}
+var CONVS = [];
+var STUDENTS = [];       // todas las fichas del coach (para Nuevo mensaje y grupos)
+var STARTED = {};        // chats abiertos desde "Nuevo mensaje" aunque no tengan mensajes
+var GROUPS_OK = true;    // false si falta correr sql/coach_hub_grupos.sql
+var FILTER = 'todos';
 var CUR = null;          // conversación abierta
 var MSGS = [];           // mensajes de la conversación abierta
+var PEOPLE = {};         // user_id → {name, es_coach} del grupo abierto
+var READS = [];          // lecturas del grupo abierto (solo coach, para "Visto por")
 var CHANNEL = null;
+
+var GRP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 018 14h2a5.5 5.5 0 015.5 5.5v.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8"/><path d="M18 14.2a5.5 5.5 0 013.5 5.3v.5"/></svg>';
+var CAT_GROUP = { junior:'Juniors', iniciacion:'Amateurs', amateur:'Amateurs', college:'Amateurs', elite_amateur:'Amateurs', profesional:'Profesionales', senior:'Seniors' };
 
 // ============================================================
 // UTILIDADES
 // ============================================================
 function $(id){ return document.getElementById(id); }
+function T(s){ return (window.MGLi18n && MGLi18n.t) ? MGLi18n.t(s) : s; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); },2600); }
 function pad(n){ return (n<10?'0':'')+n; }
@@ -209,13 +305,18 @@ function listTime(iso){
   return pad(d.getDate())+'/'+pad(d.getMonth()+1);
 }
 function initialsOf(name){ var p=String(name||'?').trim().split(/\s+/); return ((p[0]||'?').charAt(0)+((p[1]||'').charAt(0))).toUpperCase(); }
-function avHTML(c){ return '<div class="av">'+(c.avatar?'<img src="'+esc(c.avatar)+'" alt="">':esc(initialsOf(c.name)))+'</div>'; }
+function avHTML(c){
+  if(c.type==='grupo') return '<div class="av grp-av">'+GRP_ICON+'</div>';
+  return '<div class="av">'+(c.avatar?'<img src="'+esc(c.avatar)+'" alt="">':esc(initialsOf(c.name)))+'</div>';
+}
 function isMissingTable(err){
   if(!err) return false;
   var m=(err.message||'')+' '+(err.code||'');
   return m.indexOf('coach_messages')>=0 || m.indexOf('42P01')>=0 || m.indexOf('PGRST205')>=0 || m.indexOf('mgl_msg')>=0 || m.indexOf('PGRST202')>=0;
 }
 function isMobile(){ return window.innerWidth<=760; }
+function convByKey(k){ return CONVS.filter(function(x){ return x.key===k; })[0]; }
+function firstName(n){ return String(n||'').split(' ')[0]; }
 
 // ============================================================
 // MENÚ SEGÚN ROL
@@ -252,19 +353,25 @@ async function init(){
   ROLE = (pr.data && pr.data.role) || 'jugador';
   IS_COACH = (ROLE==='coach' || ROLE==='ambos');
   buildNav();
+  if(IS_COACH) $('newBtn').style.display='';
 
   var ok = await loadConvs();
   if(!ok) return;
 
-  // ¿Viene con ?player=ID? (botón "Mensaje" desde el perfil)
   var qp=new URLSearchParams(window.location.search);
-  var pid=qp.get('player');
-  var target = pid && CONVS.filter(function(c){ return c.player_id===pid; })[0];
-  // Un jugador con un solo coach entra directo a la conversación
-  if(!target && !IS_COACH && CONVS.length===1) target=CONVS[0];
+  var pid=qp.get('player'), gid=qp.get('grupo');
+  var target=null;
+  if(gid) target=convByKey('g:'+gid);
+  if(!target && pid){
+    target=convByKey('p:'+pid);
+    // botón "Mensaje" desde el perfil: abre el chat aunque todavía no tenga mensajes
+    if(target && target.type==='dm' && target.kind==='alumno') STARTED[target.key]=Date.now();
+  }
+  // Un jugador con una sola conversación entra directo
+  if(!target && !IS_COACH){ var vis=visibleConvs(); if(vis.length===1) target=vis[0]; }
   // En desktop, abrir la conversación más reciente para no dejar el panel vacío
-  if(!target && !isMobile() && CONVS.length && CONVS[0].last) target=CONVS[0];
-  if(target) openConv(target.player_id);
+  if(!target && !isMobile()){ var v=visibleConvs(); if(v.length && (v[0].last || v[0].type==='grupo')) target=v[0]; }
+  if(target) openConv(target.key);
 
   subscribe();
 }
@@ -275,13 +382,19 @@ async function init(){
 async function loadConvs(){
   var list=[];
 
-  // Como coach: una conversación por cada ficha de alumno
+  // Como coach: todas las fichas (solo se muestran las que tienen mensajes)
   if(IS_COACH){
-    var r = await sb.from('players').select('id,first_name,last_name,photo_url,user_id').eq('coach_id',USER.id);
+    var r = await sb.from('players').select('id,first_name,last_name,photo_url,user_id,category').eq('coach_id',USER.id);
+    if(r.error) r = await sb.from('players').select('id,first_name,last_name,photo_url,user_id').eq('coach_id',USER.id);
     if(r.error){ $('convs').innerHTML='<div class="list-empty">No se pudieron cargar tus alumnos.</div>'; return false; }
-    (r.data||[]).forEach(function(p){
-      list.push({ player_id:p.id, name:((p.first_name||'')+' '+(p.last_name||'')).trim()||'Alumno',
-                  avatar:p.photo_url||'', kind:'alumno', linked:!!p.user_id, last:null, unread:0 });
+    STUDENTS=(r.data||[]).map(function(p){
+      return { id:p.id, name:((p.first_name||'')+' '+(p.last_name||'')).trim()||'Alumno', avatar:p.photo_url||'',
+               linked:!!p.user_id, user_id:p.user_id||null, grupo:CAT_GROUP[p.category]||'' };
+    });
+    STUDENTS.sort(function(a,b){ return a.name.localeCompare(b.name,'es'); });
+    STUDENTS.forEach(function(p){
+      list.push({ key:'p:'+p.id, type:'dm', player_id:p.id, name:p.name, avatar:p.avatar, kind:'alumno',
+                  linked:p.linked, last:null, unread:0 });
     });
   }
 
@@ -293,12 +406,12 @@ async function loadConvs(){
   } else {
     (c.data||[]).forEach(function(x){
       if(list.some(function(y){ return y.player_id===x.player_id; })) return;
-      list.push({ player_id:x.player_id, name:x.coach_name||'Tu coach', avatar:x.coach_avatar||'',
+      list.push({ key:'p:'+x.player_id, type:'dm', player_id:x.player_id, name:x.coach_name||'Tu coach', avatar:x.coach_avatar||'',
                   kind:'coach', linked:true, last:null, unread:0 });
     });
   }
 
-  // Último mensaje y no leídos de cada conversación (el RLS ya filtra lo mío)
+  // Último mensaje y no leídos de cada conversación directa (el RLS ya filtra lo mío)
   if(list.length){
     var m = await sb.from('coach_messages').select('player_id,sender_id,body,created_at,read_at')
       .order('created_at',{ascending:false}).limit(1000);
@@ -315,46 +428,103 @@ async function loadConvs(){
     }
   }
 
+  // Grupos
+  await loadGroups(list);
+
   CONVS=list;
   sortConvs();
-  $('search').style.display = CONVS.length>6 ? '' : 'none';
   renderList();
   return true;
 }
 
+async function loadGroups(list){
+  var g = await sb.rpc('mgl_grp_mis_grupos');
+  if(g.error){ GROUPS_OK=false; console.warn('grupos', g.error); return; }
+  GROUPS_OK=true;
+  var groups=g.data||[];
+  if(!groups.length) return;
+  var byId={};
+  groups.forEach(function(x){
+    var cv={ key:'g:'+x.group_id, type:'grupo', group_id:x.group_id, name:x.name, avatar:'', kind:'grupo',
+             description:x.description||'', solo_coach:!!x.solo_coach, soy_coach:!!x.soy_coach,
+             coach_name:x.coach_name||'', members:x.members||0, linked:true, last:null, unread:0, since:x.created_at };
+    byId[x.group_id]=cv; list.push(cv);
+  });
+  var ids=Object.keys(byId);
+  var lm = await sb.from('coach_group_messages').select('group_id,sender_id,body,created_at')
+    .in('group_id',ids).order('created_at',{ascending:false}).limit(600);
+  (lm.data||[]).forEach(function(msg){ var cv=byId[msg.group_id]; if(cv && !cv.last) cv.last=msg; });
+  var nl = await sb.rpc('mgl_grp_no_leidos');
+  (nl.data||[]).forEach(function(x){ if(byId[x.group_id]) byId[x.group_id].unread=x.n||0; });
+}
+
+function sortTime(c){
+  if(c.last) return new Date(c.last.created_at).getTime();
+  if(STARTED[c.key]) return STARTED[c.key];
+  if(c.since) return new Date(c.since).getTime();
+  return 0;
+}
 function sortConvs(){
   CONVS.sort(function(a,b){
-    var ta=a.last?new Date(a.last.created_at).getTime():0, tb=b.last?new Date(b.last.created_at).getTime():0;
+    var ta=sortTime(a), tb=sortTime(b);
     if(ta!==tb) return tb-ta;
     return a.name.localeCompare(b.name,'es');
   });
 }
 
+// Qué se muestra en la lista: grupos, chats con coaches, y con alumnos
+// solo si la conversación está activa (tiene mensajes) o se acaba de abrir.
+function visibleConvs(){
+  return CONVS.filter(function(c){
+    if(c.type==='grupo' || c.kind==='coach') return true;
+    return !!(c.last || c.unread || STARTED[c.key] || (CUR && CUR.key===c.key));
+  });
+}
+
 function renderList(){
   var q=($('search').value||'').trim().toLowerCase();
-  var items=CONVS.filter(function(c){ return !q || c.name.toLowerCase().indexOf(q)>=0; });
+  var vis=visibleConvs();
+  var hasGroups=vis.some(function(c){ return c.type==='grupo'; });
+  $('chips').style.display = hasGroups ? '' : 'none';
+  if(!hasGroups) FILTER='todos';
+  $('search').style.display = vis.length>6 ? '' : 'none';
 
-  if(!CONVS.length){
+  if(!vis.length){
     $('convs').innerHTML = IS_COACH
-      ? '<div class="list-empty">Todavía no tienes alumnos. Agrégalos desde <a href="/es/coachhub/jugador.html">Mis jugadores</a> y aquí aparecerá una conversación con cada uno.</div>'
+      ? '<div class="list-empty">'+(STUDENTS.length
+          ? '<b>No tienes conversaciones activas.</b><br>Escríbele a un alumno o crea un grupo para mandar anuncios, tips y updates a varios a la vez.'
+          : 'Todavía no tienes alumnos. Agrégalos desde <a href="/es/coachhub/jugador.html">Mis jugadores</a> para poder escribirles.')
+        + (STUDENTS.length ? '<div class="acts"><button class="btn pri" onclick="openPicker()">Nuevo mensaje</button><button class="btn" onclick="openGroupEditor(null)">Nuevo grupo</button></div>' : '')
+        + '</div>'
       : '<div class="list-empty">Aún no tienes un coach en CoachYard. Cuando tu coach agregue tu email (<b>'+esc(USER.email)+'</b>) a tu ficha, podrás escribirle aquí.<br><br>¿Buscas coach? <a href="/es/coaches/">Mira la vitrina</a>.</div>';
     return;
   }
 
-  var showGroups = IS_COACH && CONVS.some(function(c){ return c.kind==='coach'; });
+  var items=vis.filter(function(c){
+    if(FILTER==='chats' && c.type==='grupo') return false;
+    if(FILTER==='grupos' && c.type!=='grupo') return false;
+    return !q || c.name.toLowerCase().indexOf(q)>=0;
+  });
+
   var h='';
-  ['coach','alumno'].forEach(function(kind){
-    var g=items.filter(function(c){ return c.kind===kind; });
-    if(!g.length) return;
-    if(showGroups) h+='<div class="grp">'+(kind==='coach'?'Mis coaches':'Mis alumnos')+'</div>';
-    g.forEach(function(c){
-      var prev = c.last ? ((c.last.sender_id===USER.id?'Tú: ':'')+c.last.body.replace(/\s+/g,' ')) : (c.linked ? 'Sin mensajes todavía' : '');
-      h+='<div class="conv'+(CUR&&CUR.player_id===c.player_id?' on':'')+(c.unread?' unread':'')+'" onclick="openConv(\''+c.player_id+'\')">'
-        + avHTML(c)
-        + '<div class="cv-main"><div class="cv-top"><span class="cv-name">'+esc(c.name)+'</span><span class="cv-time">'+(c.last?listTime(c.last.created_at):'')+'</span></div>'
-        + '<div class="cv-top"><span class="cv-prev">'+(prev?esc(prev):'<span class="cv-nolink">Sin cuenta vinculada</span>')+'</span>'
-        + (c.unread?'<span class="cv-badge">'+(c.unread>99?'99+':c.unread)+'</span>':'')+'</div></div></div>';
-    });
+  items.forEach(function(c){
+    var prev='';
+    if(c.last){
+      var who='';
+      if(c.last.sender_id===USER.id) who=T('Tú')+': ';
+      else if(c.type==='grupo' && c.last.sender_id && !c.soy_coach && PEOPLE[c.last.sender_id]) who=firstName(PEOPLE[c.last.sender_id].name)+': ';
+      prev=who+c.last.body.replace(/\s+/g,' ');
+    }
+    var prevHTML;
+    if(prev) prevHTML=esc(prev);
+    else if(c.type==='grupo') prevHTML='<span>'+c.members+'</span> <span>'+(c.members===1?'miembro':'miembros')+'</span>';
+    else if(c.linked) prevHTML='Sin mensajes todavía';
+    else prevHTML='<span class="cv-nolink">Sin cuenta vinculada</span>';
+    h+='<div class="conv'+(CUR&&CUR.key===c.key?' on':'')+(c.unread?' unread':'')+'" onclick="openConv(\''+c.key+'\')">'
+      + avHTML(c)
+      + '<div class="cv-main"><div class="cv-top"><span class="cv-name">'+esc(c.name)+(c.type==='grupo'?'<span class="cv-tag">Grupo</span>':'')+'</span><span class="cv-time">'+(c.last?listTime(c.last.created_at):'')+'</span></div>'
+      + '<div class="cv-top"><span class="cv-prev">'+prevHTML+'</span>'
+      + (c.unread?'<span class="cv-badge">'+(c.unread>99?'99+':c.unread)+'</span>':'')+'</div></div></div>';
   });
   $('convs').innerHTML = h || '<div class="list-empty">Sin resultados.</div>';
 }
@@ -362,79 +532,150 @@ function renderList(){
 // ============================================================
 // HILO
 // ============================================================
-async function openConv(pid){
-  var c=CONVS.filter(function(x){ return x.player_id===pid; })[0];
+async function openConv(key){
+  var c=convByKey(key);
   if(!c) return;
-  CUR=c; MSGS=[];
+  forgetEmpty(c);
+  CUR=c; MSGS=[]; PEOPLE={}; READS=[];
   $('shell').classList.add('show-thread');
   renderList();
+  if(window.history && window.history.replaceState){
+    var u='/es/coachhub/mensajes.html'+(c.type==='grupo'?'?grupo='+encodeURIComponent(c.group_id):'?player='+encodeURIComponent(c.player_id));
+    window.history.replaceState(null,'',u);
+  }
 
-  var perfil = c.kind==='alumno'
-    ? '<a class="th-link" href="/es/coachhub/jugador.html?player='+encodeURIComponent(pid)+'">Ver perfil</a>'
-    : '<a class="th-link" href="/es/coachhub/jugador.html">Mi perfil</a>';
-  var sub = c.kind==='alumno' ? 'Alumno' : 'Tu coach';
+  var right, sub, extra='';
+  if(c.type==='grupo'){
+    right = c.soy_coach ? '<button class="th-link" style="background:none;cursor:pointer" onclick="openGroupEditor(\''+c.group_id+'\')">Editar</button>' : '';
+    sub = '<span>'+c.members+'</span> <span>'+(c.members===1?'miembro':'miembros')+'</span>'+(c.solo_coach?' · <span>Solo anuncios</span>':'')
+        + (!c.soy_coach && c.coach_name ? ' · <span translate="no">'+esc(c.coach_name)+'</span>' : '');
+    if(c.description) extra='<div class="gdesc">'+esc(c.description)+'</div>';
+  } else {
+    right = c.kind==='alumno'
+      ? '<a class="th-link" href="/es/coachhub/jugador.html?player='+encodeURIComponent(c.player_id)+'">Ver perfil</a>'
+      : '<a class="th-link" href="/es/coachhub/jugador.html">Mi perfil</a>';
+    sub = c.kind==='alumno' ? 'Alumno' : 'Tu coach';
+    if(c.kind==='alumno' && !c.linked) extra='<div class="notice">Este alumno todavía no tiene cuenta vinculada. Puedes escribirle igual: verá los mensajes cuando se vincule con su email.</div>';
+  }
+  var canWrite = c.type!=='grupo' || c.soy_coach || !c.solo_coach;
 
   $('threadPane').innerHTML =
       '<div class="th-head">'
     +   '<button class="th-back" onclick="backToList()" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>'
     +   avHTML(c)
-    +   '<div><div class="th-name">'+esc(c.name)+'</div><div class="th-sub">'+sub+'</div></div>'
-    +   perfil
+    +   '<div style="min-width:0"><div class="th-name">'+esc(c.name)+'</div><div class="th-sub">'+sub+'</div></div>'
+    +   right
     + '</div>'
-    + (c.kind==='alumno' && !c.linked ? '<div class="notice">Este alumno todavía no tiene cuenta vinculada. Puedes escribirle igual: verá los mensajes cuando se vincule con su email.</div>' : '')
+    + extra
     + '<div class="msgs" id="msgs"><div class="loading">Cargando mensajes…</div></div>'
-    + '<form class="composer" id="composer" onsubmit="sendMsg(event)">'
-    +   '<textarea id="input" rows="1" placeholder="Escribe un mensaje…" maxlength="4000"></textarea>'
-    +   '<button class="send" id="sendBtn" type="submit" aria-label="Enviar" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>'
-    + '</form>';
+    + (canWrite
+      ? '<form class="composer" id="composer" onsubmit="sendMsg(event)">'
+        +   '<textarea id="input" rows="1" placeholder="'+(c.type==='grupo'&&c.soy_coach?'Escribe un mensaje al grupo…':'Escribe un mensaje…')+'" maxlength="4000"></textarea>'
+        +   '<button class="send" id="sendBtn" type="submit" aria-label="Enviar" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>'
+        + '</form>'
+      : '<div class="ro">Solo el coach puede escribir en este grupo.</div>');
 
   var input=$('input');
-  input.addEventListener('input',function(){ autosize(); $('sendBtn').disabled=!input.value.trim(); });
-  input.addEventListener('keydown',function(e){
-    // Enter envía en computador; en el teléfono Enter es salto de línea
-    if(e.key==='Enter' && !e.shiftKey && !isMobile()){ e.preventDefault(); sendMsg(e); }
-  });
-  if(!isMobile()) input.focus();
-
-  var r = await sb.from('coach_messages').select('id,player_id,sender_id,body,created_at,read_at')
-    .eq('player_id',pid).order('created_at',{ascending:false}).limit(300);
-  if(CUR!==c) return; // cambió de conversación mientras cargaba
-  if(r.error){
-    if(isMissingTable(r.error)){ showSetup(); return; }
-    $('msgs').innerHTML='<div class="th-empty">No se pudieron cargar los mensajes.</div>';
-    return;
+  if(input){
+    input.addEventListener('input',function(){ autosize(); $('sendBtn').disabled=!input.value.trim(); });
+    input.addEventListener('keydown',function(e){
+      // Enter envía en computador; en el teléfono Enter es salto de línea
+      if(e.key==='Enter' && !e.shiftKey && !isMobile()){ e.preventDefault(); sendMsg(e); }
+    });
+    if(!isMobile()) input.focus();
   }
-  MSGS=(r.data||[]).reverse();
+
+  var ok = await fetchMsgs(c);
+  if(CUR!==c || !ok) return;
   renderMsgs(true);
   markRead(c);
 }
 
+// Trae los mensajes de la conversación (y en grupos, quién es quién)
+async function fetchMsgs(c){
+  if(c.type==='grupo'){
+    var calls=[
+      sb.from('coach_group_messages').select('id,group_id,sender_id,body,created_at').eq('group_id',c.group_id).order('created_at',{ascending:false}).limit(300),
+      sb.rpc('mgl_grp_personas',{ p_group:c.group_id })
+    ];
+    if(c.soy_coach) calls.push(sb.from('coach_group_reads').select('user_id,last_read_at').eq('group_id',c.group_id));
+    var rs = await Promise.all(calls);
+    if(CUR!==c) return false;
+    if(rs[0].error){ $('msgs').innerHTML='<div class="th-empty">No se pudieron cargar los mensajes.</div>'; return false; }
+    MSGS=(rs[0].data||[]).reverse();
+    PEOPLE={};
+    (rs[1].data||[]).forEach(function(p){ if(p.user_id) PEOPLE[p.user_id]={ name:p.name||'Alumno', es_coach:!!p.es_coach }; });
+    READS = rs[2] && !rs[2].error ? (rs[2].data||[]) : [];
+    return true;
+  }
+  var r = await sb.from('coach_messages').select('id,player_id,sender_id,body,created_at,read_at')
+    .eq('player_id',c.player_id).order('created_at',{ascending:false}).limit(300);
+  if(CUR!==c) return false;
+  if(r.error){
+    if(isMissingTable(r.error)){ showSetup(); return false; }
+    $('msgs').innerHTML='<div class="th-empty">No se pudieron cargar los mensajes.</div>';
+    return false;
+  }
+  MSGS=(r.data||[]).reverse();
+  return true;
+}
+
+// Un chat abierto con "Nuevo mensaje" que quedó sin mensajes vuelve a esconderse
+function forgetEmpty(next){
+  if(CUR && CUR!==next && CUR.type==='dm' && !CUR.last && STARTED[CUR.key]) delete STARTED[CUR.key];
+}
+
 function backToList(){
   $('shell').classList.remove('show-thread');
+  forgetEmpty(null);
   CUR=null; renderList();
   if(window.history && window.history.replaceState) window.history.replaceState(null,'','/es/coachhub/mensajes.html');
 }
 
-function autosize(){ var t=$('input'); t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,150)+'px'; }
+function autosize(){ var t=$('input'); if(!t) return; t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,150)+'px'; }
+
+// "Visto por 3/8": cuántos miembros con cuenta leyeron hasta ese mensaje
+function seenBy(m){
+  var members=Object.keys(PEOPLE).filter(function(uid){ return uid!==USER.id && !PEOPLE[uid].es_coach; });
+  if(!members.length) return '';
+  var t=new Date(m.created_at).getTime(), n=0;
+  READS.forEach(function(r){ if(members.indexOf(r.user_id)>=0 && new Date(r.last_read_at).getTime()>=t) n++; });
+  return ' · <span>Visto por</span> '+n+'/'+members.length;
+}
 
 function renderMsgs(scroll){
-  var box=$('msgs'); if(!box) return;
+  var box=$('msgs'); if(!box || !CUR) return;
   if(!MSGS.length){
-    box.innerHTML='<div class="th-empty">'+(CUR.kind==='alumno'
-      ? 'Escríbele a '+esc(CUR.name.split(' ')[0])+'. Puede ser un recordatorio de la clase, un comentario sobre su último video o la tarea de la semana.'
-      : 'Escríbele a tu coach. Cuéntale cómo te fue entrenando o pregúntale lo que quieras.')+'</div>';
+    var txt;
+    if(CUR.type==='grupo') txt = CUR.soy_coach
+      ? 'Escribe el primer mensaje del grupo. Lo verán todos los alumnos que agregaste: anuncios, tips, updates o recordatorios.'
+      : 'Todavía no hay mensajes en este grupo.';
+    else txt = CUR.kind==='alumno'
+      ? 'Escríbele a '+esc(firstName(CUR.name))+'. Puede ser un recordatorio de la clase, un comentario sobre su último video o la tarea de la semana.'
+      : 'Escríbele a tu coach. Cuéntale cómo te fue entrenando o pregúntale lo que quieras.';
+    box.innerHTML='<div class="th-empty">'+txt+'</div>';
     return;
   }
   var nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
-  var h='', lastDay='';
-  MSGS.forEach(function(m){
+  var isGroup = CUR.type==='grupo';
+  var lastMine=-1;
+  if(isGroup && CUR.soy_coach){ for(var i=MSGS.length-1;i>=0;i--){ if(MSGS[i].sender_id===USER.id && !MSGS[i]._pending && !MSGS[i]._failed){ lastMine=i; break; } } }
+  var h='', lastDay='', prevSender=null;
+  MSGS.forEach(function(m,idx){
     var dk=dayKey(m.created_at);
-    if(dk!==lastDay){ h+='<div class="day">'+dayLabel(m.created_at)+'</div>'; lastDay=dk; }
+    if(dk!==lastDay){ h+='<div class="day">'+dayLabel(m.created_at)+'</div>'; lastDay=dk; prevSender=null; }
     var me=m.sender_id===USER.id;
-    h+='<div class="b '+(me?'me':'them')+(m._pending?' pending':'')+(m._failed?' failed':'')+'">'
-      + (me && !m._pending && !m._failed ? '<span class="del" title="Borrar" onclick="delMsg(\''+m.id+'\')">×</span>' : '')
+    var person=isGroup ? PEOPLE[m.sender_id] : null;
+    var canDel = me || (isGroup && CUR.soy_coach);
+    var meta;
+    if(isGroup) meta = hhmm(m.created_at) + (idx===lastMine ? seenBy(m) : '');
+    else meta = hhmm(m.created_at) + (me && m.read_at ? ' · Visto' : '');
+    h+='<div class="b '+(me?'me':'them')+(person&&person.es_coach&&!me?' coach-msg':'')+(m._pending?' pending':'')+(m._failed?' failed':'')+'">'
+      + (canDel && !m._pending && !m._failed ? '<span class="del" title="Borrar" onclick="delMsg(\''+m.id+'\')">×</span>' : '')
+      + (isGroup && !me && prevSender!==m.sender_id ? '<span class="who" translate="no">'+esc(person ? person.name : 'Alumno')+'</span>' : '')
       + esc(m.body)
-      + '<span class="t">'+(m._failed?'No se envió · ':'')+hhmm(m.created_at)+(me && m.read_at?' · Visto':'')+'</span></div>';
+      + '<span class="t">'+(m._failed?'No se envió · ':'')+meta+'</span></div>';
+    prevSender=m.sender_id;
   });
   box.innerHTML=h;
   if(scroll || nearBottom) box.scrollTop=box.scrollHeight;
@@ -443,20 +684,23 @@ function renderMsgs(scroll){
 async function sendMsg(e){
   if(e && e.preventDefault) e.preventDefault();
   if(!CUR) return;
-  var input=$('input'), text=input.value.replace(/\s+$/,'');
+  var input=$('input'); if(!input) return;
+  var text=input.value.replace(/\s+$/,'');
   if(!text.trim()) return;
   input.value=''; autosize(); $('sendBtn').disabled=true;
 
-  var tmp={ id:'tmp-'+Date.now(), player_id:CUR.player_id, sender_id:USER.id, body:text, created_at:new Date().toISOString(), read_at:null, _pending:true };
+  var conv=CUR, isGroup=conv.type==='grupo';
+  var tmp={ id:'tmp-'+Date.now(), sender_id:USER.id, body:text, created_at:new Date().toISOString(), read_at:null, _pending:true };
+  if(isGroup) tmp.group_id=conv.group_id; else tmp.player_id=conv.player_id;
   MSGS.push(tmp); renderMsgs(true);
 
-  var conv=CUR;
-  var r = await sb.from('coach_messages').insert({ player_id:conv.player_id, sender_id:USER.id, body:text })
-    .select('id,player_id,sender_id,body,created_at,read_at').single();
+  var r = isGroup
+    ? await sb.from('coach_group_messages').insert({ group_id:conv.group_id, sender_id:USER.id, body:text }).select('id,group_id,sender_id,body,created_at').single()
+    : await sb.from('coach_messages').insert({ player_id:conv.player_id, sender_id:USER.id, body:text }).select('id,player_id,sender_id,body,created_at,read_at').single();
   if(r.error){
-    tmp._pending=false; tmp._failed=true; renderMsgs(false);
-    toast(isMissingTable(r.error) ? 'Falta correr el SQL de mensajes en Supabase' : 'No se pudo enviar el mensaje');
-    if(CUR===conv && !$('input').value){ $('input').value=text; autosize(); $('sendBtn').disabled=false; }
+    tmp._pending=false; tmp._failed=true; if(CUR===conv) renderMsgs(false);
+    toast(!isGroup && isMissingTable(r.error) ? 'Falta correr el SQL de mensajes en Supabase' : 'No se pudo enviar el mensaje');
+    if(CUR===conv && $('input') && !$('input').value){ $('input').value=text; autosize(); $('sendBtn').disabled=false; }
     return;
   }
   // Reemplaza el temporal (si el realtime no llegó antes)
@@ -468,8 +712,9 @@ async function sendMsg(e){
 }
 
 async function delMsg(id){
-  if(!confirm('¿Borrar este mensaje? Se borra para los dos.')) return;
-  var r = await sb.from('coach_messages').delete().eq('id',id);
+  var isGroup = CUR && CUR.type==='grupo';
+  if(!confirm(isGroup ? '¿Borrar este mensaje? Se borra para todo el grupo.' : '¿Borrar este mensaje? Se borra para los dos.')) return;
+  var r = await sb.from(isGroup?'coach_group_messages':'coach_messages').delete().eq('id',id);
   if(r.error){ toast('No se pudo borrar'); return; }
   MSGS=MSGS.filter(function(m){ return m.id!==id; });
   renderMsgs(false);
@@ -477,6 +722,11 @@ async function delMsg(id){
 }
 
 async function markRead(c){
+  if(c.type==='grupo'){
+    var rg = await sb.rpc('mgl_grp_marcar_leido',{ p_group:c.group_id });
+    if(!rg.error){ c.unread=0; renderList(); if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD(); }
+    return;
+  }
   if(!c.unread && !MSGS.some(function(m){ return m.sender_id!==USER.id && !m.read_at; })) return;
   var r = await sb.rpc('mgl_msg_marcar_leidos',{ p_player:c.player_id });
   if(!r.error){
@@ -486,30 +736,214 @@ async function markRead(c){
 }
 
 // ============================================================
+// NUEVO MENSAJE (elegir alumno)
+// ============================================================
+function openModal(html){ $('sheet').innerHTML=html; $('modal').classList.add('on'); }
+function closeModal(){ $('modal').classList.remove('on'); $('sheet').innerHTML=''; }
+$('modal').addEventListener('click',function(e){ if(e.target===$('modal')) closeModal(); });
+
+function toggleNewMenu(force){
+  var m=$('newMenu'), on = force!=null ? force : !m.classList.contains('on');
+  if(on){ var b=$('newBtn'); m.style.top=(b.offsetTop+b.offsetHeight+6)+'px'; m.style.right='18px'; }
+  m.classList.toggle('on',on);
+}
+$('newBtn').addEventListener('click',function(e){ e.stopPropagation(); toggleNewMenu(); });
+document.addEventListener('click',function(e){ if(!$('newMenu').contains(e.target)) toggleNewMenu(false); });
+
+function openPicker(){
+  toggleNewMenu(false);
+  openModal(
+      '<div class="sh-head"><h3>Nuevo mensaje</h3><button class="sh-x" onclick="closeModal()" aria-label="Cerrar">×</button></div>'
+    + '<div class="sh-body"><input class="inp" id="pkSearch" type="search" placeholder="Buscar alumno" autocomplete="off"><div id="pkList" style="margin-top:8px"></div></div>');
+  $('pkSearch').addEventListener('input',renderPicker);
+  renderPicker();
+  if(!isMobile()) $('pkSearch').focus();
+}
+function renderPicker(){
+  var q=($('pkSearch').value||'').trim().toLowerCase();
+  var items=STUDENTS.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q)>=0; });
+  if(!STUDENTS.length){ $('pkList').innerHTML='<div class="sh-msg">Todavía no tienes alumnos. Agrégalos desde <a href="/es/coachhub/jugador.html" style="color:var(--teal);text-decoration:underline">Mis jugadores</a>.</div>'; return; }
+  $('pkList').innerHTML = items.map(function(p){
+    return '<div class="pk" onclick="startDM(\''+p.id+'\')">'+avHTML(p)
+      + '<div class="pk-name"><span translate="no">'+esc(p.name)+'</span>'+(p.linked?'':'<small>Sin cuenta vinculada</small>')+'</div></div>';
+  }).join('') || '<div class="sh-msg">Sin resultados.</div>';
+}
+function startDM(pid){
+  closeModal();
+  var key='p:'+pid;
+  var c=convByKey(key); if(!c) return;
+  if(!c.last) STARTED[key]=Date.now();
+  FILTER='todos'; paintChips();
+  sortConvs();
+  openConv(key);
+}
+
+// ============================================================
+// GRUPOS: crear / editar
+// ============================================================
+var GED = null;   // {id, sel:{player_id:true}, orig:{...}}
+
+async function openGroupEditor(gid){
+  toggleNewMenu(false);
+  if(!GROUPS_OK){
+    openModal('<div class="sh-head"><h3>Grupos</h3><button class="sh-x" onclick="closeModal()" aria-label="Cerrar">×</button></div>'
+      + '<div class="sh-body"><div class="sh-msg">Para activar los grupos hay que crear las tablas en Supabase: abre el <b>SQL Editor</b> y corre el archivo <code>sql/coach_hub_grupos.sql</code> del repositorio. Después recarga esta página.</div></div>');
+    return;
+  }
+  if(!STUDENTS.length){
+    openModal('<div class="sh-head"><h3>Nuevo grupo</h3><button class="sh-x" onclick="closeModal()" aria-label="Cerrar">×</button></div>'
+      + '<div class="sh-body"><div class="sh-msg">Primero agrega alumnos desde <a href="/es/coachhub/jugador.html" style="color:var(--teal);text-decoration:underline">Mis jugadores</a>.</div></div>');
+    return;
+  }
+  var g = gid ? convByKey('g:'+gid) : null;
+  GED={ id:gid||null, sel:{}, orig:{} };
+  if(g){
+    var r = await sb.from('coach_group_members').select('player_id').eq('group_id',gid);
+    (r.data||[]).forEach(function(x){ GED.sel[x.player_id]=true; GED.orig[x.player_id]=true; });
+  }
+  var cats=[];
+  STUDENTS.forEach(function(p){ if(p.grupo && cats.indexOf(p.grupo)<0) cats.push(p.grupo); });
+  var order=['Juniors','Amateurs','Profesionales','Seniors'];
+  cats.sort(function(a,b){ return order.indexOf(a)-order.indexOf(b); });
+
+  openModal(
+      '<div class="sh-head"><h3>'+(g?'Editar grupo':'Nuevo grupo')+'</h3><button class="sh-x" onclick="closeModal()" aria-label="Cerrar">×</button></div>'
+    + '<div class="sh-body">'
+    +   '<label class="fl" for="gName">Nombre del grupo</label>'
+    +   '<input class="inp" id="gName" maxlength="80" placeholder="Ej: Juniors martes y jueves" value="'+esc(g?g.name:'')+'">'
+    +   '<label class="fl" for="gDesc">Descripción (opcional)</label>'
+    +   '<textarea class="inp" id="gDesc" rows="2" maxlength="300" placeholder="Para qué es este grupo">'+esc(g?g.description:'')+'</textarea>'
+    +   '<label class="tgl"><input type="checkbox" id="gSolo"'+(!g||g.solo_coach?' checked':'')+'><span class="sw"></span>'
+    +     '<span><b>Solo yo puedo escribir</b><small>Ideal para anuncios, tips y updates. Si lo desactivas, los alumnos también pueden escribir en el grupo.</small></span></label>'
+    +   '<label class="fl">Alumnos <span class="mcount" id="gCount"></span></label>'
+    +   '<div class="chips" style="margin-top:0;margin-bottom:8px"><button type="button" class="chip" onclick="selAll(null)">Todos</button>'
+    +     cats.map(function(cg){ return '<button type="button" class="chip" onclick="selAll(\''+cg+'\')">'+cg+'</button>'; }).join('')
+    +     '<button type="button" class="chip" onclick="selNone()">Ninguno</button></div>'
+    +   '<input class="inp" id="gSearch" type="search" placeholder="Buscar alumno" autocomplete="off">'
+    +   '<div id="gList" style="margin-top:6px"></div>'
+    + '</div>'
+    + '<div class="sh-foot">'
+    +   (g?'<button class="btn danger" type="button" onclick="deleteGroup()" style="flex:0 0 auto">Eliminar</button>':'')
+    +   '<button class="btn pri" id="gSave" type="button" onclick="saveGroup()">'+(g?'Guardar':'Crear grupo')+'</button>'
+    + '</div>');
+  $('gSearch').addEventListener('input',renderGroupList);
+  renderGroupList();
+  if(!g && !isMobile()) $('gName').focus();
+}
+function renderGroupList(){
+  var q=($('gSearch').value||'').trim().toLowerCase();
+  var items=STUDENTS.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q)>=0; });
+  $('gList').innerHTML = items.map(function(p){
+    return '<div class="pk'+(GED.sel[p.id]?' sel':'')+'" onclick="togSel(\''+p.id+'\')">'+avHTML(p)
+      + '<div class="pk-name"><span translate="no">'+esc(p.name)+'</span>'+(p.linked?'':'<small>Sin cuenta vinculada</small>')+'</div><div class="ck"></div></div>';
+  }).join('') || '<div class="sh-msg">Sin resultados.</div>';
+  var n=Object.keys(GED.sel).length;
+  $('gCount').innerHTML = n ? '<span>'+n+'</span> <span>'+(n===1?'seleccionado':'seleccionados')+'</span>' : '';
+}
+function togSel(pid){ if(GED.sel[pid]) delete GED.sel[pid]; else GED.sel[pid]=true; renderGroupList(); }
+function selAll(cat){ STUDENTS.forEach(function(p){ if(!cat || p.grupo===cat) GED.sel[p.id]=true; }); renderGroupList(); }
+function selNone(){ GED.sel={}; renderGroupList(); }
+
+async function saveGroup(){
+  var name=$('gName').value.trim(), desc=$('gDesc').value.trim(), solo=$('gSolo').checked;
+  var sel=Object.keys(GED.sel);
+  if(!name){ toast('Ponle un nombre al grupo'); $('gName').focus(); return; }
+  if(!sel.length){ toast('Agrega al menos un alumno'); return; }
+  var btn=$('gSave'); btn.disabled=true;
+  var gid=GED.id;
+  if(gid){
+    var u = await sb.from('coach_groups').update({ name:name, description:desc||null, solo_coach:solo }).eq('id',gid);
+    if(u.error){ btn.disabled=false; toast('No se pudo guardar el grupo'); return; }
+    var add=sel.filter(function(id){ return !GED.orig[id]; });
+    var rem=Object.keys(GED.orig).filter(function(id){ return !GED.sel[id]; });
+    if(rem.length){ var d = await sb.from('coach_group_members').delete().eq('group_id',gid).in('player_id',rem); if(d.error){ btn.disabled=false; toast('No se pudieron quitar alumnos'); return; } }
+    if(add.length){ var a = await sb.from('coach_group_members').insert(add.map(function(id){ return { group_id:gid, player_id:id }; })); if(a.error){ btn.disabled=false; toast('No se pudieron agregar alumnos'); return; } }
+  } else {
+    var ins = await sb.from('coach_groups').insert({ coach_id:USER.id, name:name, description:desc||null, solo_coach:solo }).select('id').single();
+    if(ins.error){ btn.disabled=false; toast('No se pudo crear el grupo'); console.warn(ins.error); return; }
+    gid=ins.data.id;
+    var am = await sb.from('coach_group_members').insert(sel.map(function(id){ return { group_id:gid, player_id:id }; }));
+    if(am.error){ btn.disabled=false; toast('El grupo se creó, pero no se pudieron agregar los alumnos'); console.warn(am.error); }
+  }
+  closeModal();
+  toast(GED.id ? 'Grupo actualizado' : 'Grupo creado');
+  await reloadGroups();
+  FILTER='todos'; paintChips();
+  openConv('g:'+gid);
+}
+
+async function deleteGroup(){
+  if(!GED || !GED.id) return;
+  if(!confirm('¿Eliminar este grupo? Se borran todos sus mensajes para todos los alumnos.')) return;
+  var r = await sb.from('coach_groups').delete().eq('id',GED.id);
+  if(r.error){ toast('No se pudo eliminar el grupo'); return; }
+  var key='g:'+GED.id;
+  closeModal();
+  CONVS=CONVS.filter(function(c){ return c.key!==key; });
+  if(CUR && CUR.key===key){
+    CUR=null; $('shell').classList.remove('show-thread');
+    $('threadPane').innerHTML='<div class="th-empty"><h2>Tus conversaciones</h2>Elige una conversación para ver los mensajes.</div>';
+  }
+  renderList(); toast('Grupo eliminado');
+  if(window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+}
+
+async function reloadGroups(){
+  var tmp=[];
+  await loadGroups(tmp);
+  CONVS=CONVS.filter(function(c){ return c.type!=='grupo'; }).concat(tmp);
+  if(CUR && CUR.type==='grupo') CUR=convByKey(CUR.key)||null;
+  sortConvs(); renderList();
+}
+
+// ============================================================
+// FILTRO (Todos / Chats / Grupos)
+// ============================================================
+function paintChips(){
+  var b=$('chips').querySelectorAll('.chip');
+  for(var i=0;i<b.length;i++) b[i].classList.toggle('on', b[i].getAttribute('data-f')===FILTER);
+}
+$('chips').addEventListener('click',function(e){
+  var f=e.target.closest && e.target.closest('.chip'); if(!f) return;
+  FILTER=f.getAttribute('data-f'); paintChips(); renderList();
+});
+
+// ============================================================
 // TIEMPO REAL
 // ============================================================
 function subscribe(){
   try{
     CHANNEL = sb.channel('mensajes-'+USER.id)
-      .on('postgres_changes',{ event:'INSERT', schema:'public', table:'coach_messages' },function(payload){ onInsert(payload.new); })
+      .on('postgres_changes',{ event:'INSERT', schema:'public', table:'coach_messages' },function(payload){ onInsert(payload.new,'p:'); })
       .on('postgres_changes',{ event:'DELETE', schema:'public', table:'coach_messages' },function(payload){ onDelete(payload.old); })
+      .on('postgres_changes',{ event:'INSERT', schema:'public', table:'coach_group_messages' },function(payload){ onInsert(payload.new,'g:'); })
+      .on('postgres_changes',{ event:'DELETE', schema:'public', table:'coach_group_messages' },function(payload){ onDelete(payload.old); })
       .subscribe();
   }catch(e){ console.warn('realtime', e); }
   // Respaldo por si el tiempo real no está disponible: refresca al volver a la pestaña
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) refreshCurrent(); });
 }
 
-function onInsert(m){
-  if(!m || !m.player_id) return;
-  var c=CONVS.filter(function(x){ return x.player_id===m.player_id; })[0];
+async function onInsert(m, pre){
+  if(!m) return;
+  var id = pre==='g:' ? m.group_id : m.player_id;
+  if(!id) return;
+  var c=convByKey(pre+id);
+  // Me agregaron a un grupo nuevo: recargar la lista de grupos
+  if(!c && pre==='g:'){ await reloadGroups(); c=convByKey(pre+id); }
   if(!c) return;
   c.last=m;
-  if(CUR && CUR.player_id===m.player_id){
+  if(CUR && CUR.key===c.key){
     if(!MSGS.some(function(x){ return x.id===m.id; })){
       // si es mío y todavía está el temporal, lo reemplaza
       var tmpIdx=-1;
       if(m.sender_id===USER.id){ for(var i=MSGS.length-1;i>=0;i--){ if(MSGS[i]._pending && MSGS[i].body===m.body){ tmpIdx=i; break; } } }
       if(tmpIdx>=0) MSGS[tmpIdx]=m; else MSGS.push(m);
+      // alguien nuevo en el grupo (se vinculó hace poco): actualizar nombres
+      if(pre==='g:' && !PEOPLE[m.sender_id]){
+        var pp = await sb.rpc('mgl_grp_personas',{ p_group:c.group_id });
+        (pp.data||[]).forEach(function(p){ if(p.user_id) PEOPLE[p.user_id]={ name:p.name||'Alumno', es_coach:!!p.es_coach }; });
+      }
       renderMsgs(false);
     }
     if(m.sender_id!==USER.id){
@@ -517,7 +951,7 @@ function onInsert(m){
     }
   } else if(m.sender_id!==USER.id){
     c.unread++;
-    toast('Nuevo mensaje de '+c.name.split(' ')[0]);
+    toast((c.type==='grupo' ? 'Nuevo mensaje en ' : 'Nuevo mensaje de ')+firstName(c.name));
   }
   sortConvs(); renderList();
   if(m.sender_id!==USER.id && window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
@@ -533,10 +967,10 @@ function onDelete(old){
 
 async function refreshCurrent(){
   if(!CUR) return;
-  var r = await sb.from('coach_messages').select('id,player_id,sender_id,body,created_at,read_at')
-    .eq('player_id',CUR.player_id).order('created_at',{ascending:false}).limit(300);
-  if(r.error) return;
-  MSGS=(r.data||[]).reverse(); renderMsgs(false); markRead(CUR);
+  var c=CUR;
+  var ok = await fetchMsgs(c);
+  if(!ok || CUR!==c) return;
+  renderMsgs(false); markRead(c);
 }
 
 // ============================================================
@@ -561,6 +995,7 @@ function showSetup(){
   window.addEventListener('resize',function(){ if(window.innerWidth>900) set(false); });
 })();
 
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(); toggleNewMenu(false); } });
 $('search').addEventListener('input', renderList);
 init();
 </script>

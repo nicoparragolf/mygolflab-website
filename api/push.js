@@ -4,6 +4,7 @@
 
    Lo llama la base de datos (sql/coach_hub_push.sql) cuando:
    · llega un mensaje nuevo (coach_messages)  → aviso a la otra persona
+   · llega un mensaje a un grupo (coach_group_messages) → aviso a los demás del grupo
    · llega una clase nueva o se paga           → aviso al coach
    · el coach acepta, entrega o rechaza        → aviso al alumno
    y lo manda a cada teléfono del destinatario (tabla push_tokens).
@@ -70,6 +71,29 @@ async function armarAvisos(tabla, op, fila, antes) {
                  cuerpo: function () { return corto(fila.body, 140); },
                  url: '/es/coachhub/mensajes.html?player=' + encodeURIComponent(pl.id), tipo: 'msg' });
     }
+    return out;
+  }
+  if (tabla === 'coach_group_messages' && op === 'INSERT') {
+    // Grupo: aviso a todos los miembros con cuenta (y al coach si escribió un alumno), menos a quien lo mandó
+    var g = (await sb('coach_groups?id=eq.' + fila.group_id + '&select=id,name,coach_id'))[0];
+    if (!g) return out;
+    var miembros = await sb('coach_group_members?group_id=eq.' + g.id + '&select=player_id,players(user_id,first_name,last_name)');
+    var quien = '';
+    if (fila.sender_id === g.coach_id) {
+      var cpg = (await sb('coach_profiles?coach_id=eq.' + g.coach_id + '&select=display_name'))[0];
+      quien = (cpg && cpg.display_name) || '';
+    } else {
+      miembros.forEach(function (m) { if (m.players && m.players.user_id === fila.sender_id) quien = (m.players.first_name || '').trim(); });
+    }
+    var url = '/es/coachhub/mensajes.html?grupo=' + encodeURIComponent(g.id);
+    var destinos = {};
+    miembros.forEach(function (m) { if (m.players && m.players.user_id) destinos[m.players.user_id] = 1; });
+    destinos[g.coach_id] = 1;
+    delete destinos[fila.sender_id];
+    Object.keys(destinos).forEach(function (uid) {
+      out.push({ user_id: uid, titulo: function () { return g.name; },
+                 cuerpo: function () { return corto((quien ? quien + ': ' : '') + fila.body, 140); }, url: url, tipo: 'grupo-' + g.id });
+    });
     return out;
   }
   if (tabla === 'coach_lessons') {

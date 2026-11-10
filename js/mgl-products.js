@@ -246,6 +246,9 @@
         var r = await sb.from('coach_messages').select('id', { count: 'exact', head: true })
           .neq('sender_id', uid).is('read_at', null);
         if (!r.error) COUNTS.mensajes = r.count || 0;   // si la tabla no existe, no se muestra nada
+        // + mensajes de grupos sin leer (si ya se corrió sql/coach_hub_grupos.sql)
+        var gr = await sb.rpc('mgl_grp_no_leidos');
+        if (!gr.error && gr.data) gr.data.forEach(function (x) { COUNTS.mensajes += (x.n || 0); });
         if (isCoach) {
           var c = await sb.from('coach_lessons').select('id', { count: 'exact', head: true })
             .eq('coach_id', uid).eq('status', 'pendiente');
@@ -378,6 +381,24 @@
       }
     } catch (e) {}
 
+    // grupos con mensajes sin leer
+    try {
+      var gn = await sb.rpc('mgl_grp_no_leidos');
+      if (!gn.error && gn.data && gn.data.length) {
+        var gl = await sb.rpc('mgl_grp_mis_grupos');
+        var gname = {};
+        ((gl && gl.data) || []).forEach(function (x) { gname[x.group_id] = x.name; });
+        h += '<h5>Grupos</h5>';
+        gn.data.slice(0, 6).forEach(function (x) {
+          var nm = gname[x.group_id] || 'Grupo';
+          h += '<a class="it" href="/es/coachhub/mensajes.html?grupo=' + encodeURIComponent(x.group_id) + '"><div class="av">' + escH(iniH(nm)) + '</div>'
+            + '<div class="tx"><b>' + escH(nm) + '</b><span>Mensajes sin leer</span></div>'
+            + '<div class="ct">' + x.n + '</div></a>';
+        });
+        algo = true;
+      }
+    } catch (e) {}
+
     // clases nuevas (solo coach)
     if (NOTIF.coach) {
       try {
@@ -441,6 +462,15 @@
           if (path.indexOf('/mensajes.html') >= 0 && !document.hidden) return;
           await loadNames();
           toast(nameOf(m.player_id), 'Nuevo mensaje', m.body || '', '/es/coachhub/mensajes.html?player=' + encodeURIComponent(m.player_id));
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'coach_group_messages' }, async function (pl) {
+          var m = pl.new || {};
+          if (!m.group_id || m.sender_id === uid) return;
+          if (window.MGL_REFRESH_UNREAD) window.MGL_REFRESH_UNREAD();
+          if (path.indexOf('/mensajes.html') >= 0 && !document.hidden) return;
+          var nm = 'Grupo';
+          try { var gl = await sb.rpc('mgl_grp_mis_grupos'); ((gl && gl.data) || []).forEach(function (x) { if (x.group_id === m.group_id) nm = x.name; }); } catch (e) {}
+          toast(nm, 'Mensaje en grupo', m.body || '', '/es/coachhub/mensajes.html?grupo=' + encodeURIComponent(m.group_id));
         })
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'coach_lessons' }, function (pl) {
           var l = pl.new || {};
