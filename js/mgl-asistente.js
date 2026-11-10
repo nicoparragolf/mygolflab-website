@@ -112,16 +112,29 @@
     +   'transition:left .28s cubic-bezier(.2,.8,.2,1),top .28s cubic-bezier(.2,.8,.2,1),transform .15s,opacity .2s;overflow:hidden}'
     + '.mgl-orb.drag{transition:none;cursor:grabbing;transform:scale(1.08)}'
     + '.mgl-orb.oculto{opacity:0;pointer-events:none;transform:scale(.6)}'
-    + '.mgl-orb .core{position:absolute;inset:9px;border-radius:50%;filter:blur(3px);'
+    // Sin filter:blur — en el iPhone un blur animado se vuelve a pintar en cada
+    // cuadro (y más aún bajo un modal con fondo desenfocado). El borde suave
+    // ahora lo da una máscara fija; el giro y el latido son solo transform/opacity,
+    // que el teléfono mueve sin repintar.
+    + '.mgl-orb .core{position:absolute;inset:9px;border-radius:50%;will-change:transform;'
+    +   '-webkit-mask-image:radial-gradient(circle,#000 52%,transparent 72%);mask-image:radial-gradient(circle,#000 52%,transparent 72%);'
     +   'background:conic-gradient(from 0deg,#f5e7c4,#b8975a,#2b2416,#d4c5a9,#8a6f3e,#f5e7c4);animation:mglOrbGiro 7s linear infinite;opacity:.9}'
-    + '.mgl-orb .core2{position:absolute;inset:17px;border-radius:50%;filter:blur(4px);'
-    +   'background:radial-gradient(circle,#fff6dc 0%,rgba(212,197,169,.65) 45%,transparent 75%);animation:mglOrbLatido 3.2s ease-in-out infinite}'
+    + '.mgl-orb .core2{position:absolute;inset:15px;border-radius:50%;will-change:transform,opacity;'
+    +   'background:radial-gradient(circle,#fff6dc 0%,rgba(212,197,169,.6) 38%,rgba(212,197,169,.18) 58%,transparent 72%);animation:mglOrbLatido 3.2s ease-in-out infinite}'
     + '.mgl-orb .brillo{position:absolute;left:12px;top:8px;width:22px;height:12px;border-radius:50%;'
     +   'background:radial-gradient(ellipse,rgba(255,255,255,.55),transparent 70%);transform:rotate(-20deg)}'
     + '.mgl-orb.pensando .core{animation-duration:1.4s}'
     + '.mgl-orb.pensando .core2{animation-duration:1s}'
     + '@keyframes mglOrbGiro{to{transform:rotate(360deg)}}'
     + '@keyframes mglOrbLatido{0%,100%{transform:scale(.85);opacity:.75}50%{transform:scale(1.08);opacity:1}}'
+    // La esfera se queda quieta cuando no se ve o estorba: teclado abierto
+    // (mgl-kb), pestaña oculta del marco (mgl-dormida), pestaña del navegador
+    // oculta, o un modal abierto encima (ahí además se esconde).
+    + 'html.mgl-kb .mgl-orb .core,html.mgl-kb .mgl-orb .core2,'
+    +   'html.mgl-dormida .mgl-orb .core,html.mgl-dormida .mgl-orb .core2,'
+    +   'html.mgl-quieto .mgl-orb .core,html.mgl-quieto .mgl-orb .core2{animation-play-state:paused}'
+    + 'body:has(.overlay.show) .mgl-orb,html.mgl-kb .mgl-orb:not(.mgl-orb-mini){visibility:hidden}'
+    + '@media (prefers-reduced-motion:reduce){.mgl-orb .core,.mgl-orb .core2{animation:none}}'
     + '.mgl-orb-mini{width:30px;height:30px;border-width:1px;position:relative;flex:0 0 auto;cursor:default}'
     + '.mgl-orb-mini .core{inset:4px}.mgl-orb-mini .core2{inset:8px}.mgl-orb-mini .brillo{left:6px;top:4px;width:11px;height:6px}'
     // panel
@@ -317,6 +330,10 @@
 
   // en el teléfono, con el teclado abierto, el panel se ajusta al espacio visible
   function ajustarTeclado() {
+    // Con el panel cerrado no hay nada que acomodar (antes esto forzaba un
+    // recálculo de la página en cada movimiento del teclado mientras escribías
+    // en cualquier formulario).
+    if (!S.open) { if (panel.style.bottom || panel.style.height) { panel.style.bottom = ''; panel.style.height = ''; } return; }
     var vv = window.visualViewport;
     if (!vv || !window.matchMedia('(max-width:640px)').matches) { panel.style.bottom = ''; panel.style.height = ''; return; }
     var tapado = window.innerHeight - vv.height - vv.offsetTop;

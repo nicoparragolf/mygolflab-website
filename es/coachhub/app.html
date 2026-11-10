@@ -72,16 +72,43 @@
     f.setAttribute('allow', 'camera; microphone; fullscreen; clipboard-write; autoplay');
     f.setAttribute('title', tab);
     f.src = url || RAIZ[tab];
+    // cada vez que la pestaña carga una página: escuchar si el usuario está
+    // usando la app y dormirla si no es la que se ve
+    f.addEventListener('load', function () { escuchar(f); dormir(f, activa !== tab); });
     document.body.appendChild(f);
     marcos[tab] = f;
     return f;
+  }
+
+  // ── Pestañas dormidas ───────────────────────────────────────────────────
+  // Todas las pestañas comparten el mismo procesador del teléfono. Las que no
+  // se ven quedan con html.mgl-dormida: animaciones congeladas y sin consultas
+  // periódicas (ver mgl-tema.js y mgl-products.js). Siguen cargadas, con su
+  // scroll y su estado, así que volver a ellas sigue siendo instantáneo.
+  function dormir(f, si) {
+    try { f.contentDocument.documentElement.classList.toggle('mgl-dormida', !!si); } catch (e) {}
+  }
+  // Última vez que el usuario tocó o escribió algo (para no precargar encima)
+  var ultimoUso = Date.now();
+  function usando() { ultimoUso = Date.now(); }
+  function escuchar(f) {
+    try {
+      var w = f.contentWindow;
+      ['touchstart', 'pointerdown', 'keydown', 'input', 'scroll'].forEach(function (ev) {
+        w.addEventListener(ev, usando, { passive: true, capture: true });
+      });
+    } catch (e) {}
+  }
+  function escribiendo() {
+    try { return marcos[activa].contentDocument.documentElement.classList.contains('mgl-kb'); } catch (e) { return false; }
   }
   function mostrar(tab) {
     if (activa === tab) return;
     var f = marcos[tab];
     if (!f) return;
     previa = activa;
-    for (var k in marcos) if (k !== tab) marcos[k].classList.remove('on', 'entra');
+    for (var k in marcos) if (k !== tab) { marcos[k].classList.remove('on', 'entra'); dormir(marcos[k], true); }
+    dormir(f, false);
     f.classList.add('on'); f.classList.remove('entra'); void f.offsetWidth; f.classList.add('entra');
     activa = tab;
     var ruta = ultima[tab] || f.src;
@@ -181,14 +208,25 @@
     }, 2500);
   })();
 
-  // Precarga del resto apenas termina la primera, de a una para no competir
+  // Precarga del resto, de a una y solo cuando el teléfono está libre.
+  // Antes se cargaban las 5 pestañas seguidas apenas abría la app: mientras
+  // tanto los toques quedaban en cola (el "+ Evento" tardaba segundos en abrir).
+  // Ahora se espera a que el usuario lleve un rato sin tocar ni escribir, y si
+  // vuelve a usar la app la precarga se pausa. Una pestaña que el usuario abre
+  // antes de que le toque se carga al tiro, como siempre.
+  var QUIETO_MS = 4000;
   f0.addEventListener('load', function () {
     var cola = PRECARGA.filter(function (t) { return !marcos[t]; });
-    (function sig() {
-      var t = cola.shift();
+    function sig() {
+      while (cola.length && marcos[cola[0]]) cola.shift();
+      var t = cola[0];
       if (!t) return;
-      setTimeout(function () { var f = crear(t); f.addEventListener('load', sig); }, 400);
-    })();
+      if (document.hidden || escribiendo() || Date.now() - ultimoUso < QUIETO_MS) { setTimeout(sig, 1500); return; }
+      cola.shift();
+      var f = crear(t);
+      f.addEventListener('load', function () { setTimeout(sig, 2500); }, { once: true });
+    }
+    setTimeout(sig, 5000);
   }, { once: true });
 })();
 </script>
