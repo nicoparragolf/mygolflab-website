@@ -90,11 +90,6 @@
   .st.rechazada,.st.cancelada{color:var(--muted);border-color:var(--border2)}
   .tag{font-family:'Barlow Condensed';font-size:11.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(var(--r240_184_96,240,184,96),.35);border-radius:20px;padding:2px 9px}
 
-  .mes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
-  .mi{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px}
-  .mi .n{font-family:'Bebas Neue';font-size:30px;letter-spacing:.5px;color:var(--teal);line-height:1}
-  .mi .l{font-family:'Barlow Condensed';font-size:12.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-top:4px}
-  .mi .sub{font-size:12.5px;color:var(--gold);margin-top:6px}
   .tag.ok{color:var(--green);border-color:rgba(var(--r143_209_158,143,209,158),.4)}
   .paid{font-size:14px;color:var(--ccfe9d4,#cfe9d4);background:rgba(var(--r143_209_158,143,209,158),.08);border:1px solid rgba(var(--r143_209_158,143,209,158),.3);border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.5}
   .empty{background:var(--card);border:1px dashed var(--border2);border-radius:16px;padding:34px 24px;text-align:center;color:var(--muted);line-height:1.6}
@@ -147,7 +142,6 @@
     .nav-inner .avatar{margin-left:auto}
   }
   @media(max-width:620px){
-    .mes{gap:8px} .mi{padding:12px} .mi .n{font-size:24px}
     .head h1{font-size:38px}
     .row{grid-template-columns:auto 1fr;gap:12px;padding:14px}
     .r-side{grid-column:2;text-align:left;display:flex;align-items:baseline;gap:10px}
@@ -254,7 +248,6 @@ async function init(){
   buildNav();
   document.title = (IS_COACH?'Clases':'Mis clases')+' · CoachYard';
 
-  try{ var pc=await sb.from('mgl_pagos_config').select('*').eq('id',1).maybeSingle(); if(pc.data) PCONF=pc.data; }catch(e){}
   await load();
   var qp=new URLSearchParams(window.location.search);
   var pago=qp.get('pago');
@@ -299,7 +292,6 @@ function render(){
   if(IS_COACH){
     h+='<div class="head"><div><h1>Clases</h1><p>Las clases que te piden tus alumnos desde tu vitrina.</p></div>'
       + '<a class="lnk" href="/es/coachhub/vitrina.html">Editar mis ofertas</a></div>';
-    h+=resumenMes();
     var nP=count('pendiente');
     h+='<div class="tabs">'
       + tabBtn('pendiente','Nuevas',nP,true)
@@ -328,32 +320,6 @@ function render(){
     h+='</div>';
   }
   $('wrap').innerHTML=h;
-}
-
-// ── Resumen del mes del coach: clases pagadas, comisión actual y lo ganado ──
-function tierPct(n){
-  var t=PCONF.tiers||[];
-  for(var i=0;i<t.length;i++){ if(t[i].hasta==null || n<=Number(t[i].hasta)) return Number(t[i].pct); }
-  return 5;
-}
-function nextTier(n){
-  var t=PCONF.tiers||[];
-  for(var i=0;i<t.length;i++){ if(t[i].hasta!=null && n<Number(t[i].hasta)+1 && t[i+1]) return {faltan:Number(t[i].hasta)+1-n, pct:Number(t[i+1].pct)}; }
-  return null;
-}
-function resumenMes(){
-  var now=new Date(), y=now.getFullYear(), m=now.getMonth();
-  var mes=LESSONS.filter(function(l){ if(l.payment_status!=='pagado' || !l.paid_at) return false; var d=new Date(l.paid_at); return d.getFullYear()===y && d.getMonth()===m; });
-  var n=mes.length, ganado=mes.reduce(function(a,l){ return a+(Number(l.coach_payout_clp)||0); },0);
-  var pct=tierPct(n+1), nx=nextTier(n);
-  var M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  return '<div class="mes">'
-    + '<div class="mi"><div class="n">'+n+'</div><div class="l">Clases pagadas en '+M[m]+'</div></div>'
-    + '<div class="mi"><div class="n">'+MGL_PRECIO.fmtCLP(ganado)+'</div><div class="l">Ganado este mes</div></div>'
-    + '<div class="mi"><div class="n">'+String(pct).replace('.',',')+'%</div><div class="l">Tu comisión ahora</div>'
-    +   (nx ? '<div class="sub">Te faltan '+nx.faltan+' clase'+(nx.faltan===1?'':'s')+' para bajar a '+String(nx.pct).replace('.',',')+'%</div>' : '<div class="sub">Estás en la comisión más baja</div>')
-    + '</div></div>'
-    + '<div class="hint" style="margin:-2px 0 6px">Con alumnos que ya eran tuyos antes de CoachYard no pagas comisión. La comisión vuelve a partir cada mes.</div>';
 }
 
 function tabBtn(id,label,n,hot){
@@ -441,8 +407,7 @@ function renderDetail(){
   if(l.payment_status==='pagado'){
     h+='<div class="paid">'+(IS_COACH
       ? '<b>Pagada'+(l.payment_method?' con '+esc(l.payment_method):'')+'.</b> '
-        + (l.is_own_student ? 'Alumno tuyo: sin comisión.' : 'Comisión '+String(l.commission_pct||0).replace('.',',')+'%.')
-        + ' Recibes <b>'+MGL_PRECIO.fmtCLP(l.coach_payout_clp||0)+'</b>'+(l.payout_status==='liquidado'?' · ya liquidado':' · se liquida a fin de mes')+'.'
+        + 'Recibes <b>'+MGL_PRECIO.fmtCLP(l.coach_payout_clp||0)+'</b>'+(l.payout_status==='liquidado'?' · ya liquidado':' · se liquida a fin de mes')+'. <a href="/es/coachhub/reporte.html" style="color:inherit;text-decoration:underline">Ver en Mi reporte</a>'
       : '<b>Pagaste '+MGL_PRECIO.fmtCLP(l.amount_clp||0)+'</b>'+(l.payment_method?' con '+esc(l.payment_method):'')+'.')+'</div>';
   } else if(l.payment_status==='reembolso_pendiente'){
     h+='<div class="pay">'+(IS_COACH?'Rechazaste esta clase pagada: el alumno recibirá la devolución de su dinero.':'Tu coach no pudo tomar esta clase. Te devolveremos el dinero en los próximos días.')+'</div>';

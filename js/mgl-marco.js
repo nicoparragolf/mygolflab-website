@@ -32,7 +32,7 @@
     if (path === '/es/coachhub/mensajes.html') return 'mensajes';
     if (path === '/es/coachhub/analisis.html') return 'analisis';
     if (path === '/es/coachhub/dashboard.html') return esCoach ? 'dashboard' : 'jugador';
-    if (path === '/es/coachhub/cuenta.html' || path === '/es/coachhub/vitrina.html' || path === '/es/coachhub/contenido.html') return 'cuenta';
+    if (path === '/es/coachhub/cuenta.html' || path === '/es/coachhub/vitrina.html' || path === '/es/coachhub/contenido.html' || path === '/es/coachhub/reporte.html') return 'cuenta';
     if (path.indexOf('/es/coaches/') === 0) return esCoach ? 'cuenta' : 'coaches';
     return null;
   }
