@@ -11,6 +11,12 @@
     },
     "api/pago-retorno.js": {
       "maxDuration": 30
+    },
+    "api/pago-mp.js": {
+      "maxDuration": 30
+    },
+    "api/contenido-pagar.js": {
+      "maxDuration": 30
     }
   },
   "redirects": [

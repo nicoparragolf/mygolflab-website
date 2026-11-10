@@ -8,28 +8,17 @@
    Se confirma el pago (por si la notificación aún no llega) y se redirige a
    "Mis clases" (o a la colección comprada) mostrando el resultado.
    ═══════════════════════════════════════════════════════════════════════════ */
-import { config, confirmarPago, SITE_URL } from './_pagos.js';
+import { config, confirmarPago, destinoTrasPago } from './_pagos.js';
 
 export default async function handler(req, res) {
-  var destino = SITE_URL + '/es/coachhub/clases.html';
   var cfg = config();
+  var destino = destinoTrasPago({ estado: 'pendiente' });
   try {
     var body = typeof req.body === 'string' ? Object.fromEntries(new URLSearchParams(req.body)) : (req.body || {});
     var token = body.token || (req.query && req.query.token);
-    if (cfg.ok && token) {
-      var r = await confirmarPago(cfg, String(token));
-      if (r.tipo === 'contenido') {
-        destino = SITE_URL + '/es/coaches/contenido.html?pago=' + encodeURIComponent(r.estado)
-          + (r.collectionId ? '&c=' + encodeURIComponent(r.collectionId) : '');
-      } else {
-        destino += '?pago=' + encodeURIComponent(r.estado) + (r.lessonId ? '&clase=' + encodeURIComponent(r.lessonId) : '');
-      }
-    } else {
-      destino += '?pago=pendiente';
-    }
+    if (cfg.ok && cfg.medios.flow && token) destino = destinoTrasPago(await confirmarPago(cfg, String(token)));
   } catch (e) {
     console.error('pago-retorno', e);
-    destino += '?pago=pendiente';
   }
   res.statusCode = 303;
   res.setHeader('Location', destino);

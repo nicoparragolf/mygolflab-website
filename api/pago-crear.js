@@ -5,17 +5,20 @@
 
    POST /api/pago-crear
    Headers: Authorization: Bearer <token de sesión de Supabase del alumno>
-   Body:    { "lesson_id": "<uuid de coach_lessons en estado por_pagar>" }
-   Responde { "url": "<checkout de Flow>" } para redirigir al alumno.
+   Body:    { "lesson_id": "<uuid de coach_lessons en estado por_pagar>", "medio": "flow" | "mp" }
+   GET /api/pago-crear → { medios: { flow, mp } } (medios activos)
+   Responde { "url": "<checkout de Flow o Mercado Pago>" } para redirigir al alumno.
 
    El precio NUNCA viene del navegador: se toma de la clase (copiado de la
    oferta por la base de datos) y se convierte a pesos con el dólar del día.
    ═══════════════════════════════════════════════════════════════════════════ */
-import { config, db, userFromToken, usdClp, pagosConfig, flowPost, SITE_URL } from './_pagos.js';
+import { config, db, userFromToken, usdClp, pagosConfig, crearCobro, medioPedido } from './_pagos.js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
   var cfg = config();
+  // GET → qué medios de pago están activos (para mostrar los botones)
+  if (req.method === 'GET') return res.status(200).json({ medios: cfg.ok ? cfg.medios : { flow: false, mp: false } });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
   if (!cfg.ok) return res.status(503).json({ error: 'Los pagos aún no están configurados', faltan: cfg.faltan });
 
   try {
@@ -49,30 +52,29 @@ export default async function handler(req, res) {
     var titulo = (l.offering && l.offering.title) || 'Clase';
     var subject = ('CoachYard · ' + titulo + ' con ' + coach).slice(0, 200);
 
-    var fo = await flowPost(cfg, 'payment/create', {
-      commerceOrder: l.id,
-      subject: subject,
-      currency: 'CLP',
-      amount: total,
-      email: user.email || l.student_email,
-      urlConfirmation: SITE_URL + '/api/pago-confirmar',
-      urlReturn: SITE_URL + '/api/pago-retorno',
-      optional: JSON.stringify({ lesson: l.id }),
-      timeout: 3600
-    });
-    if (!fo.url || !fo.token) throw new Error('Flow no devolvió el link de pago');
-
-    await db(cfg, 'coach_lessons?id=eq.' + l.id, {
-      method: 'PATCH',
-      body: {
-        base_clp: base, service_fee_clp: fee, amount_clp: total, usd_clp_rate: rate,
-        flow_token: fo.token, flow_order: fo.flowOrder || null, payment_status: 'pendiente'
-      }
+    var medio = medioPedido(cfg, body.medio);
+    var cobro = await crearCobro(cfg, medio, {
+      orderId: l.id, subject: subject, total: total, email: user.email || l.student_email, tipo: 'clase'
     });
 
-    return res.status(200).json({ url: fo.url + '?token=' + encodeURIComponent(fo.token), amount_clp: total });
+    await patchCampos(cfg, 'coach_lessons?id=eq.' + l.id, Object.assign({
+      base_clp: base, service_fee_clp: fee, amount_clp: total, usd_clp_rate: rate, payment_status: 'pendiente'
+    }, cobro.campos));
+
+    return res.status(200).json({ url: cobro.url, medio: medio, amount_clp: total });
   } catch (e) {
     console.error('pago-crear', e);
     return res.status(500).json({ error: 'No se pudo iniciar el pago. Inténtalo de nuevo.' });
+  }
+}
+
+// Guarda los datos del cobro; si la migración de medios de pago aún no se
+// corrió, reintenta sin las columnas nuevas.
+async function patchCampos(cfg, path, body) {
+  try { return await db(cfg, path, { method: 'PATCH', body: body }); }
+  catch (e) {
+    if (!/payment_provider|provider_payment_id|PGRST204|schema cache/i.test(e.message)) throw e;
+    var b = Object.assign({}, body); delete b.payment_provider; delete b.provider_payment_id;
+    return db(cfg, path, { method: 'PATCH', body: b });
   }
 }

@@ -16,6 +16,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <script src="/js/mgl-precios.js"></script>
+<script src="/js/mgl-pago.js"></script>
 <!--
   CoachYard · Catálogo de contenido exclusivo
   Archivo: /es/coaches/contenido.html
@@ -454,9 +455,9 @@ function buyBoxHTML(co, mine, dur){
       + '<ul><li>'+CI.length+' video'+(CI.length===1?'':'s')+(dur?' · '+fmtTotal(dur):'')+' de '+esc(co.display_name||'tu coach')+'</li>'
       + '<li>Acceso para siempre, sin suscripción</li><li>Míralo desde el celular o el computador</li></ul>';
     if(!C.is_published) h+='<button class="buy" disabled>No disponible</button>';
-    else if(p && (p.status==='por_pagar' || p.status==='fallido')) h+='<button class="buy" onclick="openBuy()">Terminar compra</button>';
-    else h+='<button class="buy" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar')+'</button>';
-    if(!free) h+='<div class="guar">'+ICON_SHIELD+'<span>Pago seguro con Flow: Webpay, tarjetas o transferencia.</span></div>';
+    else if(p && (p.status==='por_pagar' || p.status==='fallido')) h+='<button class="buy solo-web" onclick="openBuy()">Terminar compra</button>';
+    else h+='<button class="buy'+(free?'':' solo-web')+'" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar')+'</button>';
+    if(!free) h+='<div class="guar solo-web">'+ICON_SHIELD+'<span>Pago seguro con Webpay o Mercado Pago.</span></div>';
   }
   h+='</div>';
   if(!mine){
@@ -483,7 +484,7 @@ function renderStage(autoplay){
   } else {
     var free=!Number(C.price);
     st.innerHTML='<div class="lock">'+ICON_LOCK+'<b>'+(free?'Obtén la colección gratis para ver este video':'Compra la colección para ver este video')+'</b>'
-      + (C.is_published?'<button class="buy" style="width:auto;padding:11px 22px;margin:0" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar · '+esc(MGL_PRECIO.mostrar(C.price,C.currency)))+'</button>':'')+'</div>';
+      + (C.is_published?'<button class="buy'+(free?'':' solo-web')+'" style="width:auto;padding:11px 22px;margin:0" onclick="openBuy()">'+(free?'Obtener gratis':'Comprar · '+esc(MGL_PRECIO.mostrar(C.price,C.currency)))+'</button>':'')+'</div>';
   }
   var idx=CI.indexOf(it)+1;
   now.innerHTML='<h3>'+idx+'. '+esc(it.title)+'</h3>'+(it.description && playable(it)?'<p>'+esc(it.description)+'</p>':'');
@@ -531,6 +532,7 @@ function desglose(){
 
 async function openBuy(){
   if(!C || !C.is_published) return;
+  if(Number(C.price) && window.MGLPago && MGLPago.enApp()) return;
   var s=await sb.auth.getSession(); SESSION=s.data && s.data.session;
   if(!SESSION){
     try{ localStorage.setItem('mgl_comprar', JSON.stringify({ c:C.id, t:Date.now() })); }catch(e){}
@@ -541,7 +543,7 @@ async function openBuy(){
   var co=COACHES[C.coach_id]||{}, free=!Number(C.price);
   var h='<h3>'+(free?'Obtener gratis':'Comprar colección')+'</h3><div class="sub">'+esc(C.title)+' · '+esc(co.display_name||'Coach')+'</div>'
     + (free?'<div class="note">Es gratis: queda en <b>Mi contenido</b> y la puedes ver cuando quieras.</div>'
-           : desglose()+'<div class="note">Pagas una sola vez con <b>Flow</b> (Webpay, tarjetas o transferencia) y quedas con acceso para siempre a los '+CI.length+' videos.</div>')
+           : desglose()+'<div class="note">Pagas una sola vez con <b>Webpay</b> o <b>Mercado Pago</b> y quedas con acceso para siempre a los '+CI.length+' videos.</div>')
     + '<div class="err" id="buyErr"></div>'
     + '<div class="acts"><button onclick="closeBuy()" id="bCancel">Cancelar</button><button class="go" id="bGo" onclick="doBuy()">'+(free?'Obtener':'Ir a pagar')+'</button></div>';
   $('buyBody').innerHTML=h;
@@ -559,25 +561,23 @@ async function doBuy(){
   var res=r.data||{};
   if(res.status==='otorgado' || res.status==='pagado'){ PAYING=false; $('buyModal').classList.remove('on'); await refreshAccess(); toast('¡Listo! La colección ya es tuya'); playFirstUnseen(); return; }
 
-  $('bGo').textContent='Abriendo Flow…';
-  try{
-    var s=await sb.auth.getSession();
-    var resp=await fetch('/api/contenido-pagar',{ method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.data.session.access_token},
-      body:JSON.stringify({purchase_id:res.id}) });
-    var j=await resp.json().catch(function(){ return {}; });
-    if(resp.ok && j.url){ window.top.location.href=j.url; return; }
-    if(resp.status===503){
-      var co=COACHES[C.coach_id]||{};
-      PAYING=false;
-      $('buyBody').innerHTML='<h3>Pagos en línea muy pronto</h3>'
-        + '<div class="note warn" style="margin-top:10px">Estamos activando los pagos con Flow. Mientras tanto, escríbele a <b>'+esc(co.display_name||'el coach')+'</b> para coordinar el pago: apenas lo reciba, te da acceso directo a la colección.</div>'
-        + '<div class="acts">'+(co.slug?'<a href="/es/coaches/perfil.html?c='+encodeURIComponent(co.slug)+'" class="go" style="background:var(--teal);color:#1C1709">Ver perfil del coach</a>':'')+'<button onclick="closeBuy()">Entendido</button></div>';
-      MYP[C.id]={ id:res.id, collection_id:C.id, status:'por_pagar' };
-      return;
-    }
-    throw new Error(j.error||'No se pudo abrir el pago');
-  }catch(e){ fail(e.message); }
+  $('bGo').textContent='Abriendo el pago…';
+  var s=await sb.auth.getSession();
+  var bc=MGL_PRECIO.clp(C.price, C.currency||'CLP');
+  var pg=await MGLPago.pagar({ tipo:'contenido', id:res.id, token:s.data.session.access_token,
+                               total: MGL_PRECIO.fmtCLP(bc+Math.round(bc*FEE_PCT/100)) });
+  if(pg.ok) return;
+  if(pg.cancelado){ PAYING=false; MYP[C.id]={ id:res.id, collection_id:C.id, status:'por_pagar' }; closeBuy(); renderDetail(); return; }
+  if(pg.noConfigurado){
+    var co=COACHES[C.coach_id]||{};
+    PAYING=false;
+    $('buyBody').innerHTML='<h3>Pagos en línea muy pronto</h3>'
+      + '<div class="note warn" style="margin-top:10px">Estamos activando los pagos en línea. Mientras tanto, escríbele a <b>'+esc(co.display_name||'el coach')+'</b> para coordinar el pago: apenas lo reciba, te da acceso directo a la colección.</div>'
+      + '<div class="acts">'+(co.slug?'<a href="/es/coaches/perfil.html?c='+encodeURIComponent(co.slug)+'" class="go" style="background:var(--teal);color:#1C1709">Ver perfil del coach</a>':'')+'<button onclick="closeBuy()">Entendido</button></div>';
+    MYP[C.id]={ id:res.id, collection_id:C.id, status:'por_pagar' };
+    return;
+  }
+  fail(pg.error||'No se pudo abrir el pago');
 }
 function fail(m){
   PAYING=false;
@@ -594,19 +594,23 @@ async function refreshAccess(){
   renderDetail();
 }
 
-// vuelta desde Flow: ?c=...&pago=pagado|pendiente|fallido
+// vuelta desde Webpay (Flow) o Mercado Pago: ?c=...&pago=pagado|pendiente|fallido
 async function afterPago(){
   var pago=QP.get('pago'); if(!pago) return;
   if(history.replaceState) history.replaceState(null,'','/es/coaches/contenido.html?c='+encodeURIComponent(C.id));
   if(pago==='fallido'){ toast('El pago no se completó. Puedes intentarlo de nuevo.'); return; }
-  if(ACCESS){ toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); return; }
+  if(ACCESS){ toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); ofrecerAppContenido(); return; }
   toast('Estamos confirmando tu pago…');
   for(var i=0;i<6 && !ACCESS;i++){
     await new Promise(function(r){ setTimeout(r,2500); });
     await loadMine([C.id]); ACCESS=hasAccess(C.id);
   }
-  if(ACCESS){ await refreshAccess(); toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); }
+  if(ACCESS){ await refreshAccess(); toast('¡Pago recibido! La colección ya es tuya'); playFirstUnseen(); ofrecerAppContenido(); }
   else toast('Tu pago se está procesando. Te aparecerá en Mi contenido en unos minutos.');
+}
+function ofrecerAppContenido(){
+  if(window.MGLPago) MGLPago.ofrecerApp({ titulo:'¡La colección es tuya!', texto:'También la puedes ver en la app, en Mi contenido.',
+                                           ruta:'/es/coachhub/contenido.html' });
 }
 // volvió de crear su cuenta para comprar: se abre directo
 function reabrirCompra(){
