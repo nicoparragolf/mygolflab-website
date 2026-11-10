@@ -1,18 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Selector de producto (MyGolfLab ↔ Coach Hub)
+   MyGolfLab · Selector de producto (MyGolfLab ↔ CoachYard)
    Archivo: /js/mgl-products.js
    Versión: 1.2 · 2026-11-04
      1.1: menú compacto entre 901 y 1100 px (entra el link Contenido)
-     1.2: Coach Hub en teléfono / app: menú inferior con las páginas
+     1.2: CoachYard en teléfono / app: menú inferior con las páginas
           principales y la foto de perfil (estilo app)
 
    Una cuenta, dos productos. Este script:
    1. Pinta el header con el acento de cada producto:
-        MyGolfLab → teal  ·  Coach Hub → dorado
-   2. Agrega el selector "MyGolfLab | Coach Hub":
-        - En MyGolfLab: siempre (es el puente). Lleva a la ficha en Coach Hub
+        MyGolfLab → teal  ·  CoachYard → dorado
+   2. Agrega el selector "MyGolfLab | CoachYard":
+        - En MyGolfLab: siempre (es el puente). Lleva a la ficha en CoachYard
           si es coach o ya tiene coach; si no, a la vitrina /es/coaches/.
-        - En Coach Hub: jugadores y rol "ambos" (un coach puro no ve MyGolfLab).
+        - En CoachYard: jugadores y rol "ambos" (un coach puro no ve MyGolfLab).
         - data-switch="always": se muestra siempre (vitrina pública de coaches).
 
    Uso (después del script de supabase-js):
@@ -48,7 +48,7 @@
     + '.prod-switch a:hover{color:var(--cf5f5f5,#f5f5f5)}'
     + '.prod-switch a.on-mgl{background:rgba(var(--r45_212_191,45,212,191),.14);color:var(--c2dd4bf,#2dd4bf)}'
     + '.prod-switch a.on-hub{background:rgba(var(--r212_197_169,212,197,169),.16);color:var(--cd4c5a9,#D4C5A9)}'
-    // Desde MyGolfLab, el salto a Coach Hub va en su dorado para que se note
+    // Desde MyGolfLab, el salto a CoachYard va en su dorado para que se note
     + '.prod-switch a.go-hub{color:var(--cd4c5a9,#D4C5A9)}.prod-switch a.go-hub:hover{background:rgba(var(--r212_197_169,212,197,169),.1)}'
     + '.nav-auth .prod-switch{margin:0 6px 0 0}'
     // Junto a los botones de cuenta el espacio es justo: solo el salto al otro producto
@@ -63,7 +63,7 @@
     +   '.prod-switch a[aria-current]{display:none}.prod-switch a:not([aria-current])::after{content:" \\203A"}}';
 
   if (PRODUCT === 'hub') {
-    // Coach Hub = acento dorado en el header (logo, link activo y línea superior)
+    // CoachYard = acento dorado en el header (logo, link activo y línea superior)
     css += ''
       + '#siteHeader .brand span,#siteHeader .logo span{color:var(--cd4c5a9,#D4C5A9) !important}'
       + '#siteHeader .nav-links a.active{color:var(--cd4c5a9,#D4C5A9) !important}'
@@ -185,7 +185,7 @@
     sw.appendChild(link('MyGolfLab',
       loggedIn ? '/es/dashboard.html' : '/es/index.html',
       PRODUCT === 'mgl' ? 'on-mgl' : ''));
-    sw.appendChild(link('Coach Hub',
+    sw.appendChild(link('CoachYard',
       hubHref || (loggedIn ? '/es/coachhub/dashboard.html' : '/es/coaches/'),
       PRODUCT === 'hub' ? 'on-hub' : 'go-hub'));
     return sw;
@@ -571,7 +571,7 @@
       var res = await sb.auth.getSession();
       var session = res && res.data && res.data.session;
       if (!session) {
-        // En MyGolfLab el puente a Coach Hub se ve siempre (lleva a la vitrina)
+        // En MyGolfLab el puente a CoachYard se ve siempre (lleva a la vitrina)
         if (ALWAYS || PRODUCT === 'mgl') buildSwitch(false);
         return;
       }
@@ -604,7 +604,7 @@
       var show = ALWAYS;
       var hubHref = '/es/coachhub/dashboard.html';
       if (PRODUCT === 'mgl') {
-        // En MyGolfLab el puente se ve siempre. Destino: su Coach Hub si es coach
+        // En MyGolfLab el puente se ve siempre. Destino: su CoachYard si es coach
         // o ya tiene ficha con un coach; si no, la vitrina para elegir uno.
         show = true;
         if (role !== 'coach' && role !== 'ambos') {

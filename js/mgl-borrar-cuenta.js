@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab / Coach Hub · Botón y ventana de "Eliminar cuenta"
+   MyGolfLab / CoachYard · Botón y ventana de "Eliminar cuenta"
    Archivo: /js/mgl-borrar-cuenta.js
    Versión: 1.0 · 2026-11-02
 
@@ -55,7 +55,7 @@
     contenedor.innerHTML = '';
     var zona = el('section', 'mbc-zona',
       '<h3>Eliminar cuenta</h3>' +
-      '<p>Borra tu cuenta de MyGolfLab y Coach Hub junto con tus videos, análisis, mensajes y datos. No se puede deshacer.</p>');
+      '<p>Borra tu cuenta de MyGolfLab y CoachYard junto con tus videos, análisis, mensajes y datos. No se puede deshacer.</p>');
     var btn = el('button', 'mbc-btn', 'Eliminar mi cuenta');
     btn.type = 'button';
     zona.appendChild(btn);
@@ -64,7 +64,7 @@
     var bg = el('div', 'mbc-bg',
       '<div class="mbc-box" role="dialog" aria-modal="true" aria-labelledby="mbcTitulo">' +
         '<h2 id="mbcTitulo">¿Eliminar tu cuenta?</h2>' +
-        '<p>Se borra para siempre, en MyGolfLab y en Coach Hub (es la misma cuenta):</p>' +
+        '<p>Se borra para siempre, en MyGolfLab y en CoachYard (es la misma cuenta):</p>' +
         '<ul>' +
           '<li>Tus videos, fotos y análisis de swing</li>' +
           '<li>Tus mensajes, clases y notas</li>' +

@@ -12,5 +12,29 @@
     "api/pago-retorno.js": {
       "maxDuration": 30
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "coachyard.golf"
+        }
+      ],
+      "destination": "/es/coachhub/index.html",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.coachyard.golf"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coachhub/index.html",
+      "permanent": false
+    }
+  ]
 }

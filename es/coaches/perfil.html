@@ -6,7 +6,7 @@
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Coach · Coach Hub by MyGolfLab</title>
+<title>Coach · CoachYard by MyGolfLab</title>
 <meta name="description" content="Clases de golf online con coaches profesionales en español. Análisis de swing en video.">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
@@ -185,7 +185,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coaches/" class="brand">COACH<span>YARD</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
       <a href="/es/coaches/" class="active">Coaches</a>
       <a href="/es/coaches/contenido.html">Contenido</a>
@@ -262,7 +262,7 @@ async function init(){
       COLS = COLS.filter(function(c){ return (COL_ITEMS[c.id]||[]).length; });
     }
   }catch(e){ COLS=[]; }
-  document.title = C.display_name+' · Coach de golf online · Coach Hub';
+  document.title = C.display_name+' · Coach de golf online · CoachYard';
   MGL_PRECIO.listo(function(){ render(); reabrirPedido(); });
   sb.rpc('mgl_registrar_visita',{p_slug:slug});
 }
@@ -277,7 +277,7 @@ function render(){
      + '<h1>'+esc(C.display_name)+(C.is_verified?'<span class="ver">Verificado</span>':'')+'</h1>'
      + (C.headline?'<div class="hl">'+esc(C.headline)+'</div>':'')
      + '<div class="meta">'
-     +   (C.rating_count?'<span><span class="stars">'+stars(C.rating_avg)+'</span> <b>'+Number(C.rating_avg).toFixed(1)+'</b> ('+C.rating_count+')</span>':'<span>Nuevo en Coach Hub</span>')
+     +   (C.rating_count?'<span><span class="stars">'+stars(C.rating_avg)+'</span> <b>'+Number(C.rating_avg).toFixed(1)+'</b> ('+C.rating_count+')</span>':'<span>Nuevo en CoachYard</span>')
      +   (COUNTRY[C.country]?'<span>'+esc(COUNTRY[C.country])+'</span>':'')
      +   '<span>'+(C.languages||[]).map(function(l){ return esc(LANG[l]||l); }).join(' · ')+'</span>'
      +   '<span>Responde en <b>'+(C.response_sla_hours<=72?C.response_sla_hours+' h':Math.round(C.response_sla_hours/24)+' días')+'</b></span>'
@@ -553,7 +553,7 @@ function reabrirPedido(){
   btn.addEventListener('click',function(e){ e.stopPropagation(); btn.classList.toggle('open'); nav.classList.toggle('open'); });
   document.addEventListener('click',function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.classList.remove('open'); } });
   sb.auth.getSession().then(function(r){
-    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
+    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi CoachYard'; a.href='/es/coachhub/dashboard.html'; }
   });
 })();
 init();

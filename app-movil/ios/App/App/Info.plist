@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>es</string>
 	<key>CFBundleDisplayName</key>
-        <string>Coach Hub</string>
+        <string>CoachYard</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -22,13 +22,13 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Coach Hub usa la cámara para grabar videos de swing y subirlos al perfil del jugador.</string>
+	<string>CoachYard usa la cámara para grabar videos de swing y subirlos al perfil del jugador.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Coach Hub usa el micrófono para grabar tu voz en los análisis de swing y en los videos.</string>
+	<string>CoachYard usa el micrófono para grabar tu voz en los análisis de swing y en los videos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Coach Hub accede a tus fotos y videos para que puedas subir swings al perfil del jugador.</string>
+	<string>CoachYard accede a tus fotos y videos para que puedas subir swings al perfil del jugador.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Coach Hub guarda en tus fotos los videos y análisis que descargas.</string>
+	<string>CoachYard guarda en tus fotos los videos y análisis que descargas.</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
