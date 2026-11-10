@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab / CoachYard · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
-   Versión: 1.2 · 2026-11-09 (descargas: se comparte el archivo, no la ruta)
+   Versión: 1.3 · 2026-11-10 (mygolflab://abrir para volver a la app después de pagar en la web)
 
    La app de CoachYard (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
@@ -222,6 +222,43 @@
     var w = await Filesystem.writeFile({ path: nombre, data: data, directory: 'CACHE' });
     await compartirArchivo(w.uri, nombre);
     return true;
+  }
+
+  // ── 5. Volver a la app desde la web ──
+  // Después de pagar en la web, la página de confirmación ofrece
+  // "Abrir en la app" con mygolflab://abrir?ruta=/es/coachhub/clases.html?clase=…
+  // La app (esquema mygolflab ya registrado para el login) abre esa ruta.
+  var ABRIR = 'mygolflab://abrir';
+  function rutaDe(url) {
+    var r = leerParams(url).ruta || '';
+    return (r.charAt(0) === '/' && r.charAt(1) !== '/') ? r : '';
+  }
+  function irA(ruta) {
+    if (window.MGLShell && window.MGLShell.abrir) window.MGLShell.abrir(ruta, 'link');
+    else location.href = ruta;
+  }
+  if (nativo && window.top === window) {
+    var AppP = plugin('App');
+    if (AppP) {
+      AppP.addListener('appUrlOpen', function (ev) {
+        var u = (ev && ev.url) || '';
+        if (u.indexOf(ABRIR) !== 0) return;
+        var r = rutaDe(u);
+        if (r) irA(r);
+      });
+      // la app estaba cerrada y se abrió con el link
+      try {
+        if (!sessionStorage.getItem('mgl-launch')) {
+          sessionStorage.setItem('mgl-launch', '1');
+          AppP.getLaunchUrl().then(function (x) {
+            var u = (x && x.url) || '';
+            if (u.indexOf(ABRIR) !== 0) return;
+            var r = rutaDe(u);
+            if (r) setTimeout(function () { irA(r); }, 600);
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    }
   }
 
   window.MGLApp = {

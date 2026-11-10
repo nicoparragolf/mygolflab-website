@@ -21,6 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
 <script src="/js/mgl-precios.js"></script>
+<script src="/js/mgl-pago.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c141414,#141414); --card2:var(--c1a1a1a,#1a1a1a);
@@ -273,7 +274,12 @@ async function init(){
   await load();
   var qp=new URLSearchParams(window.location.search);
   var pago=qp.get('pago');
-  if(pago==='pagado') toast('¡Pago recibido! Tu coach ya tiene tu clase.');
+  if(pago==='pagado'){
+    toast('¡Pago recibido! Tu coach ya tiene tu clase.');
+    var cid=qp.get('clase');
+    if(window.MGLPago) MGLPago.ofrecerApp({ titulo:'¡Pago recibido!', texto:'Tu coach ya tiene tu clase. Sigue todo desde la app: te avisamos cuando te responda.',
+                                             ruta:'/es/coachhub/clases.html'+(cid?'?clase='+encodeURIComponent(cid):'') });
+  }
   else if(pago==='pendiente') toast('Estamos confirmando tu pago. Te avisamos apenas esté listo.');
   else if(pago==='fallido') toast('El pago no se completó. Puedes intentarlo de nuevo desde la clase.');
   if(qp.get('clase')) openDetail(qp.get('clase'));
@@ -491,7 +497,7 @@ function actionsHTML(l){
     if(l.player_id) h+='<a class="btn primary grow" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(l.player_id)+'">Escribir a mi coach</a>';
     if(l.status==='entregada' && l.player_id) h+='<a class="btn" href="/es/coachhub/jugador.html">Ver mi análisis</a>';
     if(c.slug) h+='<a class="btn" href="/es/coaches/perfil.html?c='+encodeURIComponent(c.slug)+'">Perfil del coach</a>';
-    if(l.status==='por_pagar') h+='<button class="btn primary grow" id="bPay" onclick="pagar()">Pagar ahora</button>';
+    if(l.status==='por_pagar') h+='<button class="btn primary grow solo-web" id="bPay" onclick="pagar()">Pagar ahora</button>';
     if((l.status==='pendiente' || l.status==='por_pagar') && l.payment_status!=='pagado') h+='<button class="btn danger" id="bCan" onclick="cancelar()">Cancelar solicitud</button>';
     h+='</div>';
   }
@@ -667,16 +673,14 @@ async function entregar(){
   await reloadKeep(l.id);
 }
 async function pagar(){
-  var l=CUR; lock(true); $('bPay').textContent='Abriendo Flow…';
-  try{
-    var s=await sb.auth.getSession();
-    var resp=await fetch('/api/pago-crear',{ method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.data.session.access_token},
-      body:JSON.stringify({lesson_id:l.id}) });
-    var j=await resp.json().catch(function(){ return {}; });
-    if(resp.ok && j.url){ window.top.location.href=j.url; return; }
-    throw new Error(j.error||'No se pudo abrir el pago');
-  }catch(e){ lock(false); $('bPay').textContent='Pagar ahora'; toast(e.message); }
+  var l=CUR; lock(true); $('bPay').textContent='Abriendo el pago…';
+  var s=await sb.auth.getSession();
+  var bc=Number(l.price_clp)||MGL_PRECIO.clp(Number(l.price)||0, l.currency||'CLP');
+  var pg=await MGLPago.pagar({ tipo:'clase', id:l.id, token:s.data.session.access_token,
+                               total: bc ? MGL_PRECIO.fmtCLP(bc+Math.round(bc*(Number(PCONF.service_fee_pct)||5)/100)) : '' });
+  if(pg.ok) return;
+  lock(false); $('bPay').textContent='Pagar ahora';
+  if(!pg.cancelado) toast(pg.error||'No se pudo abrir el pago');
 }
 
 async function cancelar(){

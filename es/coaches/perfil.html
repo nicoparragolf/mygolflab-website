@@ -16,6 +16,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <script src="/js/mgl-precios.js"></script>
+<script src="/js/mgl-pago.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
@@ -347,7 +348,8 @@ function render(){
       + (alt?'<div class="alt">'+esc(alt)+'</div>':'')
       + (o.description?'<p>'+esc(o.description)+'</p>':'')
       + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'tu palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
-      + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
+      // en la app no se venden clases pagadas (reglas de App Store / Google Play): se piden en la web
+      + '<button class="buy'+(Number(o.price)>0?' solo-web':'')+'" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
       + '</div>';
   });
   if(OFFERS.some(function(o){ return Number(o.price)>0; })){
@@ -388,6 +390,7 @@ function fmtMB(b){ return b>=1073741824 ? (b/1073741824).toFixed(1)+' GB' : Math
 async function buy(offerId){
   var o = OFFERS.filter(function(x){ return x.id===offerId; })[0];
   if(!o) return;
+  if(Number(o.price)>0 && window.MGLPago && MGLPago.enApp()) return;
   var s = await sb.auth.getSession();
   if(!s.data.session){
     // se guarda qué quería pedir y vuelve acá después de crear su cuenta / entrar
@@ -416,7 +419,7 @@ function renderReq(){
     + '<div class="files" id="reqList"></div>'
     + '<label class="l">¿Qué quieres trabajar?</label>'
     + '<textarea id="reqNote" maxlength="2000" placeholder="Ej: le pego con slice al driver y pierdo distancia. Juego hace 3 años, hándicap 18."></textarea>'
-    + (paid?'<div class="note pay">Pagas de forma segura con <b>Flow</b>: Webpay (crédito o débito), otras tarjetas o transferencia. Tu coach recibe la clase apenas se confirma el pago.</div>':'')
+    + (paid?'<div class="note pay">Pagas de forma segura con <b>Webpay</b> o <b>Mercado Pago</b>. Tu coach recibe la clase apenas se confirma el pago.</div>':'')
     + '<div class="err" id="reqErr"></div>'
     + '<div class="acts"><button onclick="closeReq()" id="reqCancel">Cancelar</button><button class="go" id="reqGo" onclick="sendReq()">'+(paid?'Ir a pagar':'Enviar solicitud')+'</button></div>';
   $('reqBody').className='modal rq';
@@ -516,24 +519,21 @@ async function sendReq(){
   }
   try{ localStorage.removeItem('mgl_pedir'); }catch(e){}
 
-  // clase pagada: crear el cobro en Flow y llevar al alumno a pagar
+  // clase pagada: el alumno elige Webpay o Mercado Pago y va a pagar
   if(paid && lessonId){
-    $('reqGo').textContent='Abriendo Flow…';
-    try{
-      var s2=await sb.auth.getSession();
-      var resp=await fetch('/api/pago-crear',{ method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+s2.data.session.access_token},
-        body:JSON.stringify({lesson_id:lessonId}) });
-      var j=await resp.json().catch(function(){ return {}; });
-      if(resp.ok && j.url){ window.top.location.href=j.url; return; }
-      throw new Error(j.error||'No se pudo abrir el pago');
-    }catch(e){
-      SENDING=false;
-      $('reqBody').className='modal rq done';
-      $('reqBody').innerHTML='<h3>Falta el pago</h3><p>Tus videos quedaron guardados, pero no pudimos abrir el pago ('+esc(e.message)+'). Puedes pagar la clase desde <b>Mis clases</b>.</p>'
-        + '<a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ir a Mis clases</a>';
-      return;
-    }
+    $('reqGo').textContent='Abriendo el pago…';
+    var s2=await sb.auth.getSession();
+    var cur=REQ.o.currency||'CLP', bc=MGL_PRECIO.clp(REQ.o.price,cur);
+    var pg=await MGLPago.pagar({ tipo:'clase', id:lessonId, token:s2.data.session.access_token,
+                                 total: MGL_PRECIO.fmtCLP(bc+Math.round(bc*FEE_PCT/100)) });
+    if(pg.ok) return;
+    SENDING=false;
+    $('reqBody').className='modal rq done';
+    $('reqBody').innerHTML='<h3>Falta el pago</h3><p>Tus videos quedaron guardados'
+      + (pg.cancelado ? '.' : ', pero no pudimos abrir el pago ('+esc(pg.error||'')+').')
+      + ' Puedes pagar la clase cuando quieras desde <b>Mis clases</b>; tu coach la recibe apenas se confirme el pago.</p>'
+      + '<a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ir a Mis clases</a>';
+    return;
   }
 
   SENDING=false;

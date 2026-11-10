@@ -1,8 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   MyGolfLab · Pagos de clases con Flow — utilidades compartidas
+   MyGolfLab · Pagos de clases y contenido (Flow y Mercado Pago) — utilidades
    Archivo: /api/_pagos.js   (el "_" hace que Vercel no lo publique como ruta)
-   Versión: 1.1 · 2026-11-02
+   Versión: 1.2 · 2026-11-10
      1.1: también confirma compras de contenido exclusivo (content_purchases)
+     1.2: Mercado Pago como segundo medio de pago. La lógica que libera la
+          clase o la colección (monto, comisión, alumno propio) es una sola
+          para los dos medios: aplicarPago().
 
    Variables de entorno (Vercel → Settings → Environment Variables):
      FLOW_API_KEY               apiKey de tu cuenta Flow
@@ -11,6 +14,11 @@
                                 https://www.flow.cl/api      (producción)
      SUPABASE_SERVICE_ROLE_KEY  Supabase → Settings → API → service_role
      SITE_URL                   https://mygolflab.golf  (opcional)
+     MP_ACCESS_TOKEN            Mercado Pago → Tus integraciones → Credenciales
+                                (TEST-... para pruebas, APP_USR-... producción)
+     MP_WEBHOOK_SECRET          clave secreta de las notificaciones (opcional,
+                                Tus integraciones → Webhooks)
+   Basta con configurar uno de los dos medios; el alumno ve solo los activos.
    ═══════════════════════════════════════════════════════════════════════════ */
 import crypto from 'node:crypto';
 
@@ -19,14 +27,20 @@ export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const SITE_URL = (process.env.SITE_URL || 'https://mygolflab.golf').replace(/\/$/, '');
 
 export function config() {
-  var faltan = ['FLOW_API_KEY', 'FLOW_SECRET_KEY', 'FLOW_API_URL', 'SUPABASE_SERVICE_ROLE_KEY']
-    .filter(function (k) { return !process.env[k]; });
+  var flow = !!(process.env.FLOW_API_KEY && process.env.FLOW_SECRET_KEY && process.env.FLOW_API_URL);
+  var mp = !!process.env.MP_ACCESS_TOKEN;
+  var faltan = [];
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) faltan.push('SUPABASE_SERVICE_ROLE_KEY');
+  if (!flow && !mp) faltan.push('FLOW_API_KEY/FLOW_SECRET_KEY/FLOW_API_URL o MP_ACCESS_TOKEN');
   return {
     ok: faltan.length === 0,
     faltan: faltan,
+    medios: { flow: flow, mp: mp },
     flowKey: process.env.FLOW_API_KEY,
     flowSecret: process.env.FLOW_SECRET_KEY,
     flowUrl: (process.env.FLOW_API_URL || '').replace(/\/$/, ''),
+    mpToken: process.env.MP_ACCESS_TOKEN || '',
+    mpSecret: process.env.MP_WEBHOOK_SECRET || '',
     serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY
   };
 }
@@ -142,19 +156,123 @@ export function inicioMesChile() {
   return (ok || cands[0]).toISOString();
 }
 
-// Confirma un pago consultando a Flow y, si está pagado, libera la clase al coach.
-// Es idempotente: si ya estaba marcada como pagada no hace nada.
+// ── Crear el cobro en el medio elegido ──────────────────────────────────
+// Devuelve { url, campos } — campos = columnas a guardar en la clase/compra.
+export async function crearCobro(cfg, medio, d) {
+  // d = { orderId, subject, total, email, tipo: 'clase'|'contenido' }
+  if (medio === 'mp') {
+    if (!cfg.medios.mp) throw new Error('Mercado Pago no está activo');
+    var vence = new Date(Date.now() + 3600 * 1000).toISOString();
+    var r = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + cfg.mpToken,
+        'Content-Type': 'application/json',
+        'X-Idempotency-Key': d.orderId + '-' + Date.now()
+      },
+      body: JSON.stringify({
+        items: [{ id: d.orderId, title: d.subject, quantity: 1, unit_price: d.total, currency_id: 'CLP' }],
+        payer: d.email ? { email: d.email } : undefined,
+        external_reference: d.orderId,
+        metadata: { tipo: d.tipo },
+        notification_url: SITE_URL + '/api/pago-mp?accion=webhook',
+        back_urls: {
+          success: SITE_URL + '/api/pago-mp?accion=retorno',
+          pending: SITE_URL + '/api/pago-mp?accion=retorno',
+          failure: SITE_URL + '/api/pago-mp?accion=retorno'
+        },
+        auto_return: 'approved',
+        statement_descriptor: 'COACHYARD',
+        expires: true,
+        expiration_date_to: vence
+      })
+    });
+    var pj = await r.json().catch(function () { return {}; });
+    if (!r.ok || !pj.id) throw new Error('Mercado Pago: ' + (pj.message || r.status));
+    var url = /^TEST-/.test(cfg.mpToken) ? (pj.sandbox_init_point || pj.init_point) : pj.init_point;
+    return { url: url, campos: { payment_provider: 'mp', provider_payment_id: null, flow_token: null } };
+  }
+  if (!cfg.medios.flow) throw new Error('Flow no está activo');
+  var fo = await flowPost(cfg, 'payment/create', {
+    commerceOrder: d.orderId,
+    subject: d.subject,
+    currency: 'CLP',
+    amount: d.total,
+    email: d.email,
+    urlConfirmation: SITE_URL + '/api/pago-confirmar',
+    urlReturn: SITE_URL + '/api/pago-retorno',
+    optional: JSON.stringify(d.tipo === 'contenido' ? { contenido: d.orderId } : { lesson: d.orderId }),
+    timeout: 3600
+  });
+  if (!fo.url || !fo.token) throw new Error('Flow no devolvió el link de pago');
+  return {
+    url: fo.url + '?token=' + encodeURIComponent(fo.token),
+    campos: { payment_provider: 'flow', flow_token: fo.token, flow_order: fo.flowOrder || null }
+  };
+}
+
+// Medio elegido por el alumno: el pedido o el que esté activo
+export function medioPedido(cfg, pedido) {
+  var m = pedido === 'mp' ? 'mp' : (pedido === 'flow' ? 'flow' : '');
+  if (m && cfg.medios[m]) return m;
+  return cfg.medios.flow ? 'flow' : (cfg.medios.mp ? 'mp' : '');
+}
+
+// ── Flow: confirma consultando el estado real a Flow ──
 export async function confirmarPago(cfg, token) {
   var st = await flowGet(cfg, 'payment/getStatus', { token: token });
-  var lessonId = st.commerceOrder;
   // 1 pendiente · 2 pagada · 3 rechazada · 4 anulada
-  var estado = st.status === 2 ? 'pagado' : (st.status === 1 ? 'pendiente' : 'fallido');
+  return aplicarPago(cfg, {
+    orderId: st.commerceOrder,
+    estado: st.status === 2 ? 'pagado' : (st.status === 1 ? 'pendiente' : 'fallido'),
+    amount: st.amount,
+    media: (st.paymentData && st.paymentData.media) || null,
+    campos: { payment_provider: 'flow', flow_order: st.flowOrder || null }
+  });
+}
+
+// ── Mercado Pago: confirma consultando el pago real a Mercado Pago ──
+var MP_MEDIA = { credit_card: 'Tarjeta de crédito', debit_card: 'Tarjeta de débito', prepaid_card: 'Tarjeta de prepago',
+                 account_money: 'Saldo Mercado Pago', bank_transfer: 'Transferencia', ticket: 'Efectivo' };
+export async function confirmarPagoMP(cfg, paymentId) {
+  var r = await fetch('https://api.mercadopago.com/v1/payments/' + encodeURIComponent(paymentId), {
+    headers: { Authorization: 'Bearer ' + cfg.mpToken }
+  });
+  var p = await r.json().catch(function () { return {}; });
+  if (!r.ok) throw new Error('Mercado Pago payments: ' + (p.message || r.status));
+  var s = p.status;
+  var estado = s === 'approved' ? 'pagado'
+    : (s === 'pending' || s === 'in_process' || s === 'authorized' || s === 'in_mediation' ? 'pendiente' : 'fallido');
+  return aplicarPago(cfg, {
+    orderId: p.external_reference,
+    estado: estado,
+    amount: p.transaction_amount,
+    media: 'Mercado Pago' + (MP_MEDIA[p.payment_type_id] ? ' · ' + MP_MEDIA[p.payment_type_id] : ''),
+    campos: { payment_provider: 'mp', provider_payment_id: String(p.id) }
+  });
+}
+
+// Quita columnas nuevas si la migración aún no se corrió (PGRST204)
+async function patchSeguro(cfg, path, body) {
+  try { return await db(cfg, path, { method: 'PATCH', body: body }); }
+  catch (e) {
+    if (!/payment_provider|provider_payment_id|PGRST204|schema cache/i.test(e.message)) throw e;
+    var b = Object.assign({}, body); delete b.payment_provider; delete b.provider_payment_id;
+    return db(cfg, path, { method: 'PATCH', body: b });
+  }
+}
+
+// Libera la clase (o la colección) cuando el pago está confirmado.
+// Es idempotente: si ya estaba marcada como pagada no hace nada.
+export async function aplicarPago(cfg, pago) {
+  var lessonId = pago.orderId;
+  var estado = pago.estado;
   if (!lessonId) return { estado: estado, lessonId: null };
 
   var lr = await db(cfg, 'coach_lessons?id=eq.' + encodeURIComponent(lessonId) + '&select=*');
   var l = lr.data && lr.data[0];
   // si no es una clase, puede ser la compra de una colección de contenido
-  if (!l) return confirmarCompraContenido(cfg, st, estado, lessonId);
+  if (!l) return confirmarCompraContenido(cfg, pago, estado, lessonId);
   if (l.payment_status === 'pagado' || l.payment_status === 'reembolso_pendiente' || l.payment_status === 'reembolsado') {
     return { estado: 'pagado', lessonId: lessonId };
   }
@@ -166,8 +284,8 @@ export async function confirmarPago(cfg, token) {
   if (estado !== 'pagado') return { estado: estado, lessonId: lessonId };
 
   // el monto pagado tiene que calzar con lo que cobramos
-  if (Number(st.amount) !== Number(l.amount_clp)) {
-    console.error('Pago con monto distinto', lessonId, st.amount, l.amount_clp);
+  if (Number(pago.amount) !== Number(l.amount_clp)) {
+    console.error('Pago con monto distinto', lessonId, pago.amount, l.amount_clp);
     await db(cfg, 'coach_lessons?id=eq.' + l.id, { method: 'PATCH', body: { payment_status: 'fallido' } });
     return { estado: 'fallido', lessonId: lessonId };
   }
@@ -201,30 +319,44 @@ export async function confirmarPago(cfg, token) {
   var base = Number(l.base_clp) || 0;
   var commission = Math.round(base * pct / 100);
 
-  var media = (st.paymentData && st.paymentData.media) || null;
-  await db(cfg, 'coach_lessons?id=eq.' + l.id + '&payment_status=neq.pagado', {
-    method: 'PATCH',
-    body: {
-      status: l.status === 'por_pagar' ? 'pendiente' : l.status,
-      payment_status: 'pagado',
-      paid_at: new Date().toISOString(),
-      payment_method: media,
-      flow_order: st.flowOrder || l.flow_order,
-      is_own_student: own,
-      commission_pct: pct,
-      commission_clp: commission,
-      coach_payout_clp: base - commission,
-      payout_status: 'por_liquidar'
-    }
-  });
+  await patchSeguro(cfg, 'coach_lessons?id=eq.' + l.id + '&payment_status=neq.pagado', Object.assign({
+    status: l.status === 'por_pagar' ? 'pendiente' : l.status,
+    payment_status: 'pagado',
+    paid_at: new Date().toISOString(),
+    payment_method: pago.media,
+    is_own_student: own,
+    commission_pct: pct,
+    commission_clp: commission,
+    coach_payout_clp: base - commission,
+    payout_status: 'por_liquidar'
+  }, limpiar(pago.campos, l)));
   return { estado: 'pagado', lessonId: lessonId };
+}
+function limpiar(campos, fila) {
+  var out = {};
+  Object.keys(campos || {}).forEach(function (k) {
+    var v = campos[k];
+    if (k === 'flow_order') v = v || fila.flow_order || null;
+    if (v != null) out[k] = v;
+  });
+  return out;
+}
+
+// A dónde vuelve el alumno después de pagar (web)
+export function destinoTrasPago(r) {
+  if (r && r.tipo === 'contenido') {
+    return SITE_URL + '/es/coaches/contenido.html?pago=' + encodeURIComponent(r.estado)
+      + (r.collectionId ? '&c=' + encodeURIComponent(r.collectionId) : '');
+  }
+  return SITE_URL + '/es/coachhub/clases.html?pago=' + encodeURIComponent((r && r.estado) || 'pendiente')
+    + (r && r.lessonId ? '&clase=' + encodeURIComponent(r.lessonId) : '');
 }
 
 // ── Contenido exclusivo: compra de una colección de videos ──
 // Misma lógica que las clases: el monto tiene que calzar, comisión escalonada
 // según las ventas de contenido del coach en el mes, 0% con alumnos propios.
 // Es idempotente: si ya estaba pagada no hace nada.
-async function confirmarCompraContenido(cfg, st, estado, purchaseId) {
+async function confirmarCompraContenido(cfg, pago, estado, purchaseId) {
   var base = { estado: estado, lessonId: null, purchaseId: purchaseId, collectionId: null, tipo: 'contenido' };
   var pr;
   try {
@@ -244,8 +376,8 @@ async function confirmarCompraContenido(cfg, st, estado, purchaseId) {
   }
   if (estado !== 'pagado') return base;
 
-  if (Number(st.amount) !== Number(p.amount_clp)) {
-    console.error('Pago de contenido con monto distinto', p.id, st.amount, p.amount_clp);
+  if (Number(pago.amount) !== Number(p.amount_clp)) {
+    console.error('Pago de contenido con monto distinto', p.id, pago.amount, p.amount_clp);
     await db(cfg, 'content_purchases?id=eq.' + p.id, { method: 'PATCH', body: { status: 'fallido' } });
     base.estado = 'fallido';
     return base;
@@ -274,21 +406,16 @@ async function confirmarCompraContenido(cfg, st, estado, purchaseId) {
   var baseClp = Number(p.base_clp) || 0;
   var commission = Math.round(baseClp * pct / 100);
 
-  var media = (st.paymentData && st.paymentData.media) || null;
-  await db(cfg, 'content_purchases?id=eq.' + p.id + '&status=neq.pagado', {
-    method: 'PATCH',
-    body: {
-      status: 'pagado',
-      paid_at: new Date().toISOString(),
-      payment_method: media,
-      flow_order: st.flowOrder || p.flow_order,
-      is_own_student: own,
-      commission_pct: pct,
-      commission_clp: commission,
-      coach_payout_clp: baseClp - commission,
-      payout_status: 'por_liquidar'
-    }
-  });
+  await patchSeguro(cfg, 'content_purchases?id=eq.' + p.id + '&status=neq.pagado', Object.assign({
+    status: 'pagado',
+    paid_at: new Date().toISOString(),
+    payment_method: pago.media,
+    is_own_student: own,
+    commission_pct: pct,
+    commission_clp: commission,
+    coach_payout_clp: baseClp - commission,
+    payout_status: 'por_liquidar'
+  }, limpiar(pago.campos, p)));
   base.estado = 'pagado';
   return base;
 }

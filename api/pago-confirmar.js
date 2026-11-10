@@ -12,7 +12,7 @@ import { config, confirmarPago } from './_pagos.js';
 
 export default async function handler(req, res) {
   var cfg = config();
-  if (!cfg.ok) return res.status(503).send('No configurado');
+  if (!cfg.ok || !cfg.medios.flow) return res.status(503).send('No configurado');
   try {
     var body = typeof req.body === 'string' ? Object.fromEntries(new URLSearchParams(req.body)) : (req.body || {});
     var token = body.token || (req.query && req.query.token);
