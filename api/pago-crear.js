@@ -35,6 +35,28 @@ export default async function handler(req, res) {
     if (!l || l.student_id !== user.id) return res.status(404).json({ error: 'Clase no encontrada' });
     if (l.status !== 'por_pagar' || l.payment_status === 'pagado') return res.status(409).json({ error: 'Esta clase ya no está esperando pago' });
 
+    // videollamada: el horario apartado tiene que seguir libre; si sí, se
+    // renueva el apartado por 1 hora más mientras el alumno paga
+    if (l.offering && l.offering.kind === 'videollamada') {
+      var bk = await db(cfg, 'coach_bookings?lesson_id=eq.' + l.id + '&status=eq.reservada&select=id,starts_at,ends_at');
+      var mias = bk.data || [];
+      if (!mias.length) return res.status(409).json({ error: 'Elige un horario antes de pagar', codigo: 'horario' });
+      for (var i = 0; i < mias.length; i++) {
+        var b = mias[i];
+        var otras = await db(cfg, 'coach_bookings?coach_id=eq.' + l.coach_id + '&status=eq.reservada&id=neq.' + b.id +
+          '&starts_at=lt.' + encodeURIComponent(b.ends_at) + '&ends_at=gt.' + encodeURIComponent(b.starts_at) + '&select=id,lesson_id,created_at');
+        for (var j = 0; j < (otras.data || []).length; j++) {
+          var ot = otras.data[j];
+          var ol = await db(cfg, 'coach_lessons?id=eq.' + ot.lesson_id + '&select=status,payment_status');
+          var x = ol.data && ol.data[0];
+          var activa = x && x.status !== 'cancelada' && x.status !== 'rechazada' &&
+            (x.payment_status === 'pagado' || x.payment_status === 'sin_pago' || Date.now() - new Date(ot.created_at).getTime() < 3600000);
+          if (activa) return res.status(409).json({ error: 'Tu horario ya no está disponible. Elige otro.', codigo: 'horario' });
+        }
+      }
+      await db(cfg, 'coach_bookings?lesson_id=eq.' + l.id + '&status=eq.reservada', { method: 'PATCH', body: { created_at: new Date().toISOString() } });
+    }
+
     var conf = await pagosConfig(cfg);
     var rate = await usdClp(conf.usd_clp_fallback);
     var precio = Number(l.price) || 0;
