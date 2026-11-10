@@ -2,7 +2,7 @@
   "name": "coachhub-app",
   "version": "1.0.0",
   "private": true,
-  "description": "App de Coach Hub (iOS y Android) hecha con Capacitor. Carga la web de mygolflab.golf.",
+  "description": "App de CoachYard (iOS y Android) hecha con Capacitor. Carga la web de mygolflab.golf.",
   "scripts": {
     "sync": "cap sync",
     "ios": "cap sync ios && cap open ios",

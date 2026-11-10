@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       if (cp.data && cp.data[0] && cp.data[0].display_name) coach = cp.data[0].display_name;
     } catch (e) {}
     var titulo = (l.offering && l.offering.title) || 'Clase';
-    var subject = ('Coach Hub · ' + titulo + ' con ' + coach).slice(0, 200);
+    var subject = ('CoachYard · ' + titulo + ' con ' + coach).slice(0, 200);
 
     var fo = await flowPost(cfg, 'payment/create', {
       commerceOrder: l.id,

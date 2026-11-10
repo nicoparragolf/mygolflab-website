@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Asistente IA del coach ("Caddie")
+   CoachYard · Asistente IA del coach ("Caddie")
    Archivo: /api/asistente.js
    Versión: 1.0 · 2026-11-04
 
@@ -122,7 +122,7 @@ const TOOLS = [
   },
   {
     name: 'abrir_pagina',
-    description: 'Lleva al coach a una página de Coach Hub. Úsala solo si el coach lo pide o si la tarea no se puede hacer desde el chat (metas, planes de entrenamiento, rondas de torneo, subir videos).',
+    description: 'Lleva al coach a una página de CoachYard. Úsala solo si el coach lo pide o si la tarea no se puede hacer desde el chat (metas, planes de entrenamiento, rondas de torneo, subir videos).',
     input_schema: {
       type: 'object',
       properties: {
@@ -144,7 +144,7 @@ function systemPrompt(ctx) {
       }).join('\n')
     : '(el coach todavía no tiene alumnos)';
 
-  return `Eres ${NOMBRE}, el asistente de IA de Coach Hub (plataforma de MyGolfLab para coaches de golf).
+  return `Eres ${NOMBRE}, el asistente de IA de CoachYard (plataforma de MyGolfLab para coaches de golf).
 Trabajas para el coach ${String(ctx.coach || '').slice(0, 80) || 'que te habla'}. Tu trabajo es ahorrarle tiempo:
 registrar en la plataforma lo que te pide, rápido y bien redactado, muchas veces
 mientras está en plena clase con el celular en la mano.
@@ -197,14 +197,14 @@ Español de Chile, cercano y profesional. Tutea al coach. Respuestas cortas:
 el coach está ocupado. Sin listas largas, sin emojis, sin relleno.${String(ctx.idioma || '') === 'en' ? `
 
 ════ IDIOMA ════
-El coach usa Coach Hub en inglés. Respóndele SIEMPRE en inglés (de Estados
+El coach usa CoachYard en inglés. Respóndele SIEMPRE en inglés (de Estados
 Unidos), con el mismo tono cercano y corto. Los títulos, descripciones, notas
 y mensajes que prepares también van en inglés. Si el coach te escribe en
 español, igual respóndele en inglés salvo que te pida otra cosa. Los valores
 internos (tipo, pilar, área) no cambian.` : String(ctx.idioma || '') === 'pt' ? `
 
 ════ IDIOMA ════
-El coach usa Coach Hub en portugués. Respóndele SIEMPRE en portugués de
+El coach usa CoachYard en portugués. Respóndele SIEMPRE en portugués de
 Brasil (trato de "você"), con el mismo tono cercano y corto. Los títulos,
 descripciones, notas y mensajes que prepares también van en portugués. Si el
 coach te escribe en español, igual respóndele en portugués salvo que te pida

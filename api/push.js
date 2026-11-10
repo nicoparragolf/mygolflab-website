@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Envío de avisos push
+   CoachYard · Envío de avisos push
    Archivo: /api/push.js · 2026-11-09
 
    Lo llama la base de datos (sql/coach_hub_push.sql) cuando:
@@ -29,13 +29,13 @@ var SB_URL = process.env.SUPABASE_URL || 'https://yulpqupmftdjbepqiscs.supabase.
 var TXT = {
   es: { msg: 'Nuevo mensaje', clase: 'Nueva clase', pagada: 'Nueva clase pagada', pidio: 'Pidió una clase',
         aceptada: 'Tu coach aceptó tu clase', entregada: 'Tu análisis está listo', rechazada: 'Tu coach no pudo tomar tu clase',
-        verla: 'Ábrela en Coach Hub', alumno: 'Alumno', coach: 'Tu coach' },
+        verla: 'Ábrela en CoachYard', alumno: 'Alumno', coach: 'Tu coach' },
   en: { msg: 'New message', clase: 'New lesson', pagada: 'New paid lesson', pidio: 'Requested a lesson',
         aceptada: 'Your coach accepted your lesson', entregada: 'Your analysis is ready', rechazada: "Your coach couldn't take your lesson",
-        verla: 'Open it in Coach Hub', alumno: 'Student', coach: 'Your coach' },
+        verla: 'Open it in CoachYard', alumno: 'Student', coach: 'Your coach' },
   pt: { msg: 'Nova mensagem', clase: 'Nova aula', pagada: 'Nova aula paga', pidio: 'Pediu uma aula',
         aceptada: 'Seu coach aceitou sua aula', entregada: 'Sua análise está pronta', rechazada: 'Seu coach não pôde aceitar sua aula',
-        verla: 'Abra no Coach Hub', alumno: 'Aluno', coach: 'Seu coach' }
+        verla: 'Abra no CoachYard', alumno: 'Aluno', coach: 'Seu coach' }
 };
 
 async function sb(path, opts) {

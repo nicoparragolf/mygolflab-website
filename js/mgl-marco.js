@@ -1,19 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Navegación tipo app (marco + pestañas vivas)
+   CoachYard · Navegación tipo app (marco + pestañas vivas)
    Archivo: /js/mgl-marco.js
    Versión: 1.0 · 2026-11-09
 
-   En el teléfono (y en la app), Coach Hub corre dentro de /es/coachhub/app.html:
+   En el teléfono (y en la app), CoachYard corre dentro de /es/coachhub/app.html:
    una página "marco" que mantiene cada pestaña del menú inferior viva en su
    propio iframe (Jugadores, Clases, Mensajes, Perfil…). Cambiar de pestaña ya
    no recarga nada: se muestra la que ya estaba cargada, con su scroll y su
    estado, como en una app nativa. No hay pantallazo negro.
 
-   Este script va PRIMERO en el <head> de cada página de Coach Hub y hace:
+   Este script va PRIMERO en el <head> de cada página de CoachYard y hace:
    · Página abierta suelta en el teléfono con sesión iniciada → se va al marco.
    · Página dentro del marco:
        - si pertenece a otra pestaña, se abre en esa pestaña;
-       - si no es de Coach Hub (entrar, landing, pago…), se abre afuera;
+       - si no es de CoachYard (entrar, landing, pago…), se abre afuera;
        - los links a otras pestañas cambian de pestaña sin recargar.
    En el computador (pantalla ancha) no hace nada: todo sigue como antes.
    Para saltarse el marco: agregar ?marco=no a la URL.
@@ -83,7 +83,7 @@
   var r = SHELL.llegue(window, miTab);
   if (r !== 'ok') { try { window.stop(); } catch (e) {} return; }
 
-  // Links: a otra pestaña → cambiar de pestaña; fuera de Coach Hub → afuera
+  // Links: a otra pestaña → cambiar de pestaña; fuera de CoachYard → afuera
   document.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
     var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;

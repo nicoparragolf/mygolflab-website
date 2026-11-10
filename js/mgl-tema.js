@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Tema claro / oscuro
+   CoachYard · Tema claro / oscuro
    Archivo: /js/mgl-tema.js
    Versión: 1.0 · 2026-11-09
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Transcripción de voz para Caddie
+   CoachYard · Transcripción de voz para Caddie
    Archivo: /api/transcribir.js
    Versión: 1.0 · 2026-11-04
 

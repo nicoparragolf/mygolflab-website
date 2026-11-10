@@ -6,7 +6,7 @@
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Contenido exclusivo · Coach Hub by MyGolfLab</title>
+<title>Contenido exclusivo · CoachYard by MyGolfLab</title>
 <meta name="description" content="Colecciones de tips de golf en video de coaches profesionales, en español. Pagas una vez y son tuyas para siempre.">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
@@ -17,7 +17,7 @@
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <script src="/js/mgl-precios.js"></script>
 <!--
-  Coach Hub · Catálogo de contenido exclusivo
+  CoachYard · Catálogo de contenido exclusivo
   Archivo: /es/coaches/contenido.html
   Versión: 1.0 · 2026-11-02
 
@@ -218,7 +218,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coaches/" class="brand">COACH<span>YARD</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
       <a href="/es/coaches/">Coaches</a>
       <a href="/es/coaches/contenido.html" class="active">Contenido</a>
@@ -287,7 +287,7 @@ function coverHTML(c, items, badge){
 async function init(){
   var s=await sb.auth.getSession();
   SESSION = s.data && s.data.session;
-  if(SESSION){ var a=$('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
+  if(SESSION){ var a=$('navAuthBtn'); a.textContent='Mi CoachYard'; a.href='/es/coachhub/dashboard.html'; }
   sb.from('mgl_pagos_config').select('service_fee_pct').eq('id',1).maybeSingle().then(function(r){
     if(r && r.data && r.data.service_fee_pct!=null) FEE_PCT=Number(r.data.service_fee_pct);
   });
@@ -367,7 +367,7 @@ function renderCatalog(){
     if(list.some(function(c){ return Number(c.price)>0; })) h+='<div class="cur">Precios en la moneda del coach · equivalencia en '+(MGL_PRECIO.esChile()?'pesos chilenos':'dólares')+' · <a onclick="cambiarMoneda()">ver equivalencia en '+(MGL_PRECIO.esChile()?'USD':'CLP')+'</a></div>';
   }
   $('wrap').innerHTML=h;
-  document.title=(co?'Tips de '+co.display_name:'Contenido exclusivo')+' · Coach Hub';
+  document.title=(co?'Tips de '+co.display_name:'Contenido exclusivo')+' · CoachYard';
 }
 function cambiarMoneda(){ MGL_PRECIO.cambiar(MGL_PRECIO.esChile()?'USD':'CLP'); if(C) renderDetail(); else renderCatalog(); }
 
@@ -388,7 +388,7 @@ async function loadDetail(id){
   ACCESS=hasAccess(C.id);
   await signUrls();
   var co=COACHES[C.coach_id]||{};
-  document.title=C.title+' · '+(co.display_name||'Coach')+' · Coach Hub';
+  document.title=C.title+' · '+(co.display_name||'Coach')+' · CoachYard';
   CUR_ITEM = pickStart();
   MGL_PRECIO.listo(function(){
     renderDetail();

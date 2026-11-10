@@ -6,7 +6,7 @@
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Coaches de golf online en español · Coach Hub by MyGolfLab</title>
+<title>Coaches de golf online en español · CoachYard by MyGolfLab</title>
 <meta name="description" content="Encuentra tu coach de golf. Manda tu swing en video y recibe un análisis con voz, drills y seguimiento, en español.">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
@@ -175,7 +175,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coaches/" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coaches/" class="brand">COACH<span>YARD</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks">
       <a href="/es/coaches/" class="active">Coaches</a>
       <a href="/es/coaches/contenido.html">Contenido</a>
@@ -479,7 +479,7 @@ window.addEventListener('resize',function(){ document.querySelectorAll('.car-tra
   btn.addEventListener('click',function(e){ e.stopPropagation(); btn.classList.toggle('open'); nav.classList.toggle('open'); });
   document.addEventListener('click',function(e){ if(nav.classList.contains('open') && !nav.contains(e.target)){ nav.classList.remove('open'); btn.classList.remove('open'); } });
   sb.auth.getSession().then(function(r){
-    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi Coach Hub'; a.href='/es/coachhub/dashboard.html'; }
+    if(r.data && r.data.session){ var a=document.getElementById('navAuthBtn'); a.textContent='Mi CoachYard'; a.href='/es/coachhub/dashboard.html'; }
   });
 })();
 // Los filtros de presupuesto se guardan en pesos; fuera de Chile se muestran en dólares

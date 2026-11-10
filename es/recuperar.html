@@ -151,9 +151,9 @@
   var hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
   var fromCoachHub = params.get('next') === 'coachhub';
 
-  // Marca Coach Hub si viene desde entrar.html
+  // Marca CoachYard si viene desde entrar.html
   if (fromCoachHub) {
-    document.getElementById('brandSub').textContent = 'Coach Hub by MyGolfLab';
+    document.getElementById('brandSub').textContent = 'CoachYard by MyGolfLab';
     document.getElementById('brandLink').href = '/es/coachhub/entrar.html';
     document.getElementById('backLink').href = '/es/coachhub/entrar.html';
   }
@@ -291,8 +291,8 @@
     });
   });
 
-  // Mismo ruteo que login.html: coach → Coach Hub, jugador → dashboard
-  // (o Coach Hub si vino desde entrar.html)
+  // Mismo ruteo que login.html: coach → CoachYard, jugador → dashboard
+  // (o CoachYard si vino desde entrar.html)
   function redirigir(user) {
     if (fromCoachHub) { setTimeout(function () { location.href = DEST_COACHHUB; }, 1200); return; }
     sb.from('profiles').select('role').eq('id', user.id).single().then(function (r) {

@@ -626,14 +626,14 @@
         </div>
 
         <div class="auth-footer">
-            ¿Eres coach? <a href="/es/coachhub/entrar.html?registro=coach">Entra a Coach Hub</a><br>
+            ¿Eres coach? <a href="/es/coachhub/entrar.html?registro=coach">Entra a CoachYard</a><br>
             ¿Tienes problemas para entrar? <a href="mailto:nico@smoothgolf.co">Contacta soporte</a>
         </div>
     </div>
 
     <script>
-        // ── LINKS ANTIGUOS DE COACH HUB ──
-        // Antes Coach Hub usaba este login con ?next=coachhub. Ahora tiene su
+        // ── LINKS ANTIGUOS DE COACHYARD ──
+        // Antes CoachYard usaba este login con ?next=coachhub. Ahora tiene su
         // propia puerta; se redirige conservando el #hash (tokens de confirmación
         // de email / Google) para que la sesión se complete allá.
         (function () {
@@ -641,7 +641,7 @@
             if (q.get('next') === 'coachhub' || localStorage.getItem('mgl_next_coachhub') === '1') {
                 localStorage.removeItem('mgl_next_coachhub');
                 window.location.replace('/es/coachhub/entrar.html' + window.location.hash);
-                throw new Error('redirigiendo a Coach Hub');
+                throw new Error('redirigiendo a CoachYard');
             }
         })();
 
@@ -651,9 +651,9 @@
         const { createClient } = supabase;
         const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // MyGolfLab y Coach Hub son productos distintos con una sola cuenta.
+        // MyGolfLab y CoachYard son productos distintos con una sola cuenta.
         // Este login es el de MyGolfLab (jugadores). Los coaches se registran
-        // en la puerta de Coach Hub: /es/coachhub/entrar.html
+        // en la puerta de CoachYard: /es/coachhub/entrar.html
         const DEST_COACH  = '/es/coachhub/dashboard.html';
         const DEST_PLAYER = '/es/dashboard.html';
 
@@ -661,9 +661,9 @@
         let routing = false;
 
         // ── RUTEO SEGÚN ROL ──
-        // Un coach "puro" no usa MyGolfLab: entra directo a su Coach Hub.
+        // Un coach "puro" no usa MyGolfLab: entra directo a su CoachYard.
         // Jugadores y rol "ambos" entran al dashboard de MyGolfLab
-        // (desde ahí el selector de producto los lleva a Coach Hub).
+        // (desde ahí el selector de producto los lleva a CoachYard).
         async function routeByRole(userId) {
             if (routing) return;
             routing = true;

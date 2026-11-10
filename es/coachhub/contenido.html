@@ -6,13 +6,13 @@
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Contenido · Coach Hub</title>
+<title>Contenido · CoachYard</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="/es/coachhub/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Coach Hub">
+<meta name="apple-mobile-web-app-title" content="CoachYard">
 <link rel="apple-touch-icon" href="/es/coachhub/apple-touch-icon.png">
 <link rel="icon" href="/es/coachhub/favicon-32.png" sizes="32x32">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +22,7 @@
 <script src="/js/mgl-products.js" data-product="hub"></script>
 <script src="/js/mgl-precios.js"></script>
 <!--
-  Coach Hub · Contenido exclusivo
+  CoachYard · Contenido exclusivo
   Archivo: /es/coachhub/contenido.html
   Versión: 1.0 · 2026-11-02
 
@@ -247,7 +247,7 @@
 
 <header id="siteHeader">
   <div class="nav-inner">
-    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>HUB</span></a><span class="brand-by">by MyGolfLab</span>
+    <a href="/es/coachhub/dashboard.html" class="brand">COACH<span>YARD</span></a><span class="brand-by">by MyGolfLab</span>
     <nav class="nav-links" id="navLinks"></nav>
     <a class="avatar" id="navAvatar" href="/es/coachhub/cuenta.html" title="Mi cuenta">?</a>
     <button class="hamburger" id="hamburgerBtn" aria-label="Menú"><span></span><span></span><span></span></button>
@@ -338,7 +338,7 @@ async function init(){
   ROLE = (pr.data && pr.data.role) || 'jugador';
   IS_COACH = (ROLE==='coach' || ROLE==='ambos');
   buildNav();
-  document.title = (IS_COACH?'Contenido':'Mi contenido')+' · Coach Hub';
+  document.title = (IS_COACH?'Contenido':'Mi contenido')+' · CoachYard';
   await load();
   var qp=new URLSearchParams(location.search);
   if(IS_COACH && qp.get('c')) openEditor(qp.get('c'));
@@ -415,7 +415,7 @@ function render(){
       h+='<div class="empty"><h3>Tu primera colección</h3>Agrupa tus mejores tips en un tema (putter, salida, juego corto…) y véndela a cualquier golfista, sea o no tu alumno.'
         + '<div class="steps"><div class="step"><b>1 · Crea</b><span>Ponle nombre, tema y precio (o déjala gratis para atraer alumnos).</span></div>'
         + '<div class="step"><b>2 · Sube o graba</b><span>Videos cortos desde tu celular. Marca uno o dos como vista previa gratis.</span></div>'
-        + '<div class="step"><b>3 · Publica</b><span>Aparece en tu vitrina y en el catálogo de contenido de Coach Hub.</span></div></div>'
+        + '<div class="step"><b>3 · Publica</b><span>Aparece en tu vitrina y en el catálogo de contenido de CoachYard.</span></div></div>'
         + '<div class="acts"><button class="btn primary" onclick="openEditor(null)">Crear colección</button></div></div>';
     } else {
       h+='<div class="grid">';
@@ -435,7 +435,7 @@ function render(){
     h+='<div class="head"><div><h1>Mi contenido</h1><p>Las colecciones de tips que compraste. Son tuyas para siempre.</p></div>'
       + '<div class="hb"><a class="lnk solid" href="/es/coaches/contenido.html">Explorar contenido</a></div></div>';
     if(!MINE.length){
-      h+='<div class="empty"><h3>Aún no tienes contenido</h3>Los coaches de Coach Hub venden colecciones de videos con sus mejores tips: putter, salida, juego corto, físico y estrategia. Pagas una vez y las ves cuando quieras.'
+      h+='<div class="empty"><h3>Aún no tienes contenido</h3>Los coaches de CoachYard venden colecciones de videos con sus mejores tips: putter, salida, juego corto, físico y estrategia. Pagas una vez y las ves cuando quieras.'
         + '<div class="acts"><a class="btn primary" href="/es/coaches/contenido.html">Ver el catálogo</a></div></div>';
     } else {
       h+=mineGrid();
@@ -894,7 +894,7 @@ function renderBuyers(){
   var list=SALES.filter(function(p){ return p.collection_id===CUR.id && (p.status==='pagado' || p.status==='otorgado' || p.status==='reembolsado'); });
   var h='<label class="l" style="margin-top:4px">Dar acceso a un alumno</label>'
     + '<div class="grant"><input class="inp" id="gEmail" type="email" inputmode="email" autocomplete="off" placeholder="correo@alumno.com"><button class="btn primary" id="bGrant" onclick="grant()">Dar acceso</button></div>'
-    + '<div class="hint">Para alumnos tuyos, regalos o pagos que coordinaste por fuera. El alumno tiene que tener cuenta en Coach Hub (es gratis).</div>';
+    + '<div class="hint">Para alumnos tuyos, regalos o pagos que coordinaste por fuera. El alumno tiene que tener cuenta en CoachYard (es gratis).</div>';
   if(!list.length){
     h+='<div class="empty" style="text-align:center">Todavía nadie tiene esta colección.'+(CUR.is_published?'':' Publícala para empezar a venderla.')+'</div>';
   } else {

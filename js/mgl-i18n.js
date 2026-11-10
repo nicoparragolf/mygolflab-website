@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Idiomas (español / inglés / portugués)
+   CoachYard · Idiomas (español / inglés / portugués)
    Archivo: /js/mgl-i18n.js
    Versión: 1.0 · 2026-11-09
 
-   El código de Coach Hub sigue escrito en español. Cuando el idioma elegido
+   El código de CoachYard sigue escrito en español. Cuando el idioma elegido
    es inglés, este script traduce lo que se ve en pantalla usando el
    diccionario /js/i18n/en.js (texto en español → texto en inglés):
      · textos de la página y los que se agregan después (MutationObserver)
@@ -99,10 +99,10 @@
   // Palabras y frases cortas de las reglas: [singular, plural]
   var W = EN ? {
     alumno: ['student', 'students'], jugador: ['player', 'players'], evento: ['event', 'events'], video: ['video', 'videos'], foto: ['photo', 'photos'], clase: ['lesson', 'lessons'], dia: ['day', 'days'], nota: ['note', 'notes'], mensaje: ['message', 'messages'], meta: ['goal', 'goals'], tarea: ['task', 'tasks'], coleccion: ['collection', 'collections'], coach: ['coach', 'coaches'], analisis: ['analysis', 'analyses'], semana: ['week', 'weeks'], mes: ['month', 'months'], hora: ['hour', 'hours'], minuto: ['minute', 'minutes'], archivo: ['file', 'files'], resena: ['review', 'reviews'], venta: ['sale', 'sales'], compra: ['purchase', 'purchases'], hoyo: ['hole', 'holes'], golpe: ['shot', 'shots'], tip: ['tip', 'tips'], ano: ['year', 'years'],
-    hace: '{n} {u} ago', de: '{a} of {b}', sinLeer: '{n} unread', enHub: '{n} {u} in your Coach Hub', faltan: '{n} more {u} to drop to {x}', notas: 'Notes ({n})', esteMes: '{x} this month', hoy: '{x} today', pend: '{n} pending', nuevas: '{n} new', entrenando: '{n} {u} training'
+    hace: '{n} {u} ago', de: '{a} of {b}', sinLeer: '{n} unread', enHub: '{n} {u} in your CoachYard', faltan: '{n} more {u} to drop to {x}', notas: 'Notes ({n})', esteMes: '{x} this month', hoy: '{x} today', pend: '{n} pending', nuevas: '{n} new', entrenando: '{n} {u} training'
   } : {
     alumno: ['aluno', 'alunos'], jugador: ['jogador', 'jogadores'], evento: ['evento', 'eventos'], video: ['vídeo', 'vídeos'], foto: ['foto', 'fotos'], clase: ['aula', 'aulas'], dia: ['dia', 'dias'], nota: ['nota', 'notas'], mensaje: ['mensagem', 'mensagens'], meta: ['meta', 'metas'], tarea: ['tarefa', 'tarefas'], coleccion: ['coleção', 'coleções'], coach: ['coach', 'coaches'], analisis: ['análise', 'análises'], semana: ['semana', 'semanas'], mes: ['mês', 'meses'], hora: ['hora', 'horas'], minuto: ['minuto', 'minutos'], archivo: ['arquivo', 'arquivos'], resena: ['avaliação', 'avaliações'], venta: ['venda', 'vendas'], compra: ['compra', 'compras'], hoyo: ['buraco', 'buracos'], golpe: ['tacada', 'tacadas'], tip: ['dica', 'dicas'], ano: ['ano', 'anos'],
-    hace: 'há {n} {u}', de: '{a} de {b}', sinLeer: '{n} não lidas', enHub: '{n} {u} no seu Coach Hub', faltan: 'Faltam {n} {u} para baixar para {x}', notas: 'Notas ({n})', esteMes: '{x} este mês', hoy: '{x} hoje', pend: '{n} pendentes', nuevas: '{n} novas', entrenando: '{n} {u} treinando'
+    hace: 'há {n} {u}', de: '{a} de {b}', sinLeer: '{n} não lidas', enHub: '{n} {u} no seu CoachYard', faltan: 'Faltam {n} {u} para baixar para {x}', notas: 'Notas ({n})', esteMes: '{x} este mês', hoy: '{x} hoje', pend: '{n} pendentes', nuevas: '{n} novas', entrenando: '{n} {u} treinando'
   };
   function fmt(t, o) { return t.replace(/\{(\w)\}/g, function (_, k) { return o[k]; }); }
   function pal(clave, n) { var w = W[clave]; return w ? (+n === 1 ? w[0] : w[1]) : null; }
@@ -143,7 +143,7 @@
   });
   regla(/^(\d+)\s+de\s+(\d+)$/, function (m) { return fmt(W.de, { a: m[1], b: m[2] }); });
   regla(/^(\d+)\s+sin leer$/i, function (m) { return fmt(W.sinLeer, { n: m[1] }); });
-  regla(/^(\d+)\s+alumnos?\s+en tu Coach Hub$/i, function (m) { return fmt(W.enHub, { n: m[1], u: pal('alumno', m[1]) }); });
+  regla(/^(\d+)\s+alumnos?\s+en tu CoachYard$/i, function (m) { return fmt(W.enHub, { n: m[1], u: pal('alumno', m[1]) }); });
   regla(/^Te faltan\s+(\d+)\s+clases?\s+para bajar a\s+(.+)$/i, function (m) { return fmt(W.faltan, { n: m[1], u: pal('clase', m[1]), x: m[2] }); });
   regla(/^Notas\s*\((\d+)\)$/i, function (m) { return fmt(W.notas, { n: m[1] }); });
   regla(/^(.+)\s+este mes$/i, function (m) { return /^[+\-\d]/.test(m[1]) ? fmt(W.esteMes, { x: m[1] }) : null; });

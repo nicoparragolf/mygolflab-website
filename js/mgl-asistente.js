@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Coach Hub · Asistente IA del coach ("Caddie")
+   CoachYard · Asistente IA del coach ("Caddie")
    Archivo: /js/mgl-asistente.js
    Versión: 1.0 · 2026-11-04
 
    Lo carga mgl-products.js solo para coaches, en todas las páginas de
-   Coach Hub. Dibuja una esfera flotante que se puede arrastrar (se pega al
+   CoachYard. Dibuja una esfera flotante que se puede arrastrar (se pega al
    borde más cercano y recuerda dónde quedó) y, al tocarla, un chat.
 
    El coach pide cosas en lenguaje normal ("crea una clase para Clemente..."),
@@ -280,7 +280,7 @@
   panel.setAttribute('aria-label', NOMBRE + ', asistente');
   panel.innerHTML = ''
     + '<div class="mgl-asis-h">' + orbHTML('mgl-orb-mini')
-    +   '<div class="t"><b>' + NOMBRE + '</b><span>Tu asistente en Coach Hub</span></div>'
+    +   '<div class="t"><b>' + NOMBRE + '</b><span>Tu asistente en CoachYard</span></div>'
     +   '<button type="button" id="mglAsisNueva" title="Nueva conversación">Nueva</button>'
     +   '<button type="button" class="x" id="mglAsisCerrar" aria-label="Cerrar">×</button>'
     + '</div>'
@@ -609,7 +609,7 @@
       for (var vuelta = 0; vuelta < MAX_VUELTAS; vuelta++) {
         S.view.push({ k: 'pens' }); if (S.open) pintar();
         var tk = await token();
-        if (!tk) { quitarPensando(); agregar({ k: 'err', t: 'Tu sesión expiró. Vuelve a entrar a Coach Hub.' }); break; }
+        if (!tk) { quitarPensando(); agregar({ k: 'err', t: 'Tu sesión expiró. Vuelve a entrar a CoachYard.' }); break; }
         var resp, data;
         try {
           resp = await fetch(API, {
@@ -828,7 +828,7 @@
     } else {
       h += '<div><label>' + (v.tool === 'crear_nota' ? 'Nota' : 'Mensaje') + '</label><textarea data-f="descripcion">' + esc(D.descripcion) + '</textarea></div>';
       if (v.tool === 'enviar_mensaje' && p && !p.user_id) {
-        h += '<div class="aviso">' + esc(nombreDe(p).split(' ')[0]) + ' todavía no tiene cuenta: verá el mensaje cuando entre a Coach Hub.</div>';
+        h += '<div class="aviso">' + esc(nombreDe(p).split(' ')[0]) + ' todavía no tiene cuenta: verá el mensaje cuando entre a CoachYard.</div>';
       }
     }
     var okTxt = { crear_evento: 'Guardar evento', crear_nota: 'Guardar nota', enviar_mensaje: 'Enviar' }[v.tool];
