@@ -257,8 +257,14 @@
     }
     window.MGL_REFRESH_UNREAD = refresh;
     refresh();
-    setInterval(refresh, 30000);
+    // Cada 30 s, pero no en pestañas ocultas del marco ni con la app en segundo
+    // plano (antes las 6 pestañas consultaban a la vez); al volver se actualiza.
+    setInterval(function () {
+      if (document.hidden || document.documentElement.classList.contains('mgl-dormida')) return;
+      refresh();
+    }, 30000);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
+    window.addEventListener('mgl-pestana-visible', refresh);
     // Algunas páginas arman el menú con JS después: se vuelve a pintar el contador
     var hdr = document.getElementById('siteHeader');
     if (hdr && window.MutationObserver) {
@@ -595,7 +601,7 @@
         if (role === 'coach' || role === 'ambos') {
           window.MGL_SB = sb;
           var as = document.createElement('script');
-          as.src = '/js/mgl-asistente.js?v=2';
+          as.src = '/js/mgl-asistente.js?v=3';
           as.async = true;
           document.body.appendChild(as);
         }

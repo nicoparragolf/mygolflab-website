@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    CoachYard · Tema claro / oscuro
    Archivo: /js/mgl-tema.js
-   Versión: 1.0 · 2026-11-09
+   Versión: 1.1 · 2026-11-10 (rendimiento en teléfono)
 
    Cada color del tema oscuro está escrito en el CSS como
      var(--c0a0a0a,#0a0a0a)      o      rgba(var(--r255_255_255,255,255,255),.1)
@@ -62,6 +62,26 @@
     try { localStorage.setItem(KEY, v); } catch (e) {}
     aplicar();
   }
+
+  // ── Rendimiento en el teléfono (solo CoachYard) ─────────────────────────
+  // El desenfoque de fondo (backdrop-filter) obliga al iPhone a re-desenfocar
+  // la pantalla cada vez que algo se mueve detrás: con un modal abierto eso
+  // hacía que cada letra tardara en aparecer. Se cambia por fondos sólidos,
+  // que se ven casi igual. Además, una pestaña oculta del marco
+  // (html.mgl-dormida) congela todas sus animaciones.
+  var HUB = /^\/es\/(coachhub|coaches)\//.test(location.pathname);
+  if (HUB) {
+    css += '@media (max-width:900px){'
+      + '#siteHeader,.overlay,.nav-links.mobile-open,.mbc-bg,.savebar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'
+      + '#siteHeader,.savebar{background:var(--c0a0a0a,#0a0a0a)!important}'
+      + '.overlay,.mbc-bg{background:rgba(0,0,0,.8)!important}'
+      + '}'
+      + 'html.mgl-dormida *,html.mgl-dormida *::before,html.mgl-dormida *::after{animation-play-state:paused!important}';
+  }
+  // Pestaña del navegador / app en segundo plano: html.mgl-quieto
+  document.addEventListener('visibilitychange', function () {
+    document.documentElement.classList.toggle('mgl-quieto', !!document.hidden);
+  });
 
   var st = document.createElement('style');
   st.id = 'mgl-tema-css';
