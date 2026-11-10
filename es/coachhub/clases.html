@@ -22,6 +22,7 @@
 <script src="/js/mgl-products.js" data-product="hub"></script>
 <script src="/js/mgl-precios.js"></script>
 <script src="/js/mgl-pago.js"></script>
+<script src="/js/mgl-agenda.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c141414,#141414); --card2:var(--c1a1a1a,#1a1a1a);
@@ -162,6 +163,14 @@
     .drawer{padding:18px 16px calc(30px + env(safe-area-inset-bottom))}
     .vids{grid-template-columns:repeat(2,1fr)}
   }
+.ses{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.ses:first-of-type{border-top:0}
+.ses.off{opacity:.5}
+.ses-t b{display:block;font-size:15px}
+.ses-t small{color:var(--muted);font-size:12.5px}
+.ses-a{display:flex;flex-wrap:wrap;gap:6px}
+.btn.sm{padding:7px 12px;font-size:13px}
+.ses-pick{margin-top:10px;border-top:1px solid var(--border);padding-top:6px}
 </style>
 </head>
 <body>
@@ -195,7 +204,8 @@ var DEMO_MAX=3, DEMO_MB=500;
 var MEDIA_BUCKET='player-media';
 var PCONF={service_fee_pct:5, own_student_pct:0, tiers:[{hasta:30,pct:5},{hasta:60,pct:3},{hasta:null,pct:2}]};
 
-var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
+var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada en vivo'};
+var SES=[], SES_PICK=null, SES_TIMER=null;   // sesiones en vivo de la clase abierta
 var ANGLE = {frente:'de frente',linea_de_tiro:'desde la línea de tiro',atras:'desde atrás del objetivo',resultado:'mostrando el vuelo de bola'};
 var CLUB = {libre:'el palo que quiera',driver:'driver',hierro_7:'hierro 7',wedge:'wedge',putter:'putter'};
 // Textos de la oferta: palos (uno o varios) y análisis (0 = ilimitados)
@@ -298,7 +308,7 @@ async function load(){
   // nombre de cada coach para la vista del alumno
   if(!IS_COACH && LESSONS.length){
     var ids = LESSONS.map(function(l){ return l.coach_id; }).filter(function(v,i,a){ return a.indexOf(v)===i; });
-    var c = await sb.from('coach_profiles').select('coach_id,display_name,slug,photo_path').in('coach_id', ids);
+    var c = await sb.from('coach_profiles').select('coach_id,display_name,slug,photo_path,timezone').in('coach_id', ids);
     (c.data||[]).forEach(function(x){ COACHES[x.coach_id]=x; });
   }
   if(!IS_COACH && TAB==='pendiente') TAB='todas';
@@ -409,7 +419,7 @@ function closeDetail(){
   if(BUSY) return;
   $('ov').classList.remove('on'); document.body.style.overflow='';
   document.querySelectorAll('#drawer video').forEach(function(v){ try{ v.pause(); }catch(e){} });
-  CUR=null; demoClear();
+  CUR=null; demoClear(); SES_PICK=null; SES_LESSON=null; if(SES_TIMER){ clearInterval(SES_TIMER); SES_TIMER=null; }
   if(window.history && window.history.replaceState) window.history.replaceState(null,'','/es/coachhub/clases.html');
 }
 
@@ -424,7 +434,7 @@ function renderDetail(){
 
   h+='<div class="box"><div class="kv">'
     + '<span>Clase</span><b>'+esc(o.title||'—')+(o.is_trial?' · Evaluación inicial':'')+'</b>'
-    + '<span>Tipo</span><div>'+esc(KIND[o.kind]||o.kind||'—')+(o.kind==='paquete'?' · '+o.analyses_included+' análisis':'')+(o.kind==='plan_mensual'?' · '+analisisText(o.analyses_included)+' cada '+(o.duration_days||30)+' días':'')+'</div>'
+    + '<span>Tipo</span><div>'+esc(KIND[o.kind]||o.kind||'—')+(o.kind==='videollamada'?' · '+sesTot(o)+(sesTot(o)===1?' sesión':' sesiones')+' de '+(o.call_minutes||60)+' min':'')+(o.kind==='paquete'?' · '+o.analyses_included+' análisis':'')+(o.kind==='plan_mensual'?' · '+analisisText(o.analyses_included)+' cada '+(o.duration_days||30)+' días':'')+'</div>'
     + '<span>Precio</span><div><b>'+precioDe(l)+'</b> <span style="color:var(--muted);font-size:13px">'+esc(precioRef(l))+'</span></div>'
     + '<span>Estado</span><div><span class="st '+l.status+'">'+(IS_COACH?ST[l.status]:ST_ALUMNO[l.status])+'</span></div>'
     + '<span>Pedida</span><div>'+fmtDate(l.created_at)+'</div>'
@@ -449,6 +459,14 @@ function renderDetail(){
   }
 
   if(l.student_note) h+='<div class="box"><h4>'+(IS_COACH?'Lo que quiere trabajar':'Lo que le contaste')+'</h4><p>'+esc(l.student_note)+'</p></div>';
+  if(o.kind==='videollamada'){
+    h+='<div class="box" id="sesBox"><h4>Sesiones en vivo</h4><div class="hint">Cargando…</div></div>';
+    if(l.coach_reply) h+='<div class="box"><h4>'+(IS_COACH?'Tu mensaje al alumno':'Mensaje de tu coach')+'</h4><p>'+esc(l.coach_reply)+'</p></div>';
+    h+=actionsHTML(l);
+    $('drawer').innerHTML=h;
+    if(SES_LESSON===l.id) pintarSes();
+    return;
+  }
   if(ang.length) h+='<div class="box"><h4>Qué se pidió grabar</h4><p>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'su palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</p></div>';
 
   h+='<div class="box"><h4>Videos ('+(l.video_paths||[]).length+')</h4><div class="vids" id="vids">'
@@ -479,7 +497,7 @@ function actionsHTML(l){
         + (pid?'<a class="btn" href="/es/coachhub/mensajes.html?player='+pid+'">Escribir</a>':'')
         + (pid?'<a class="btn" href="/es/coachhub/jugador.html?player='+pid+'">Ver ficha</a>':'')
         + '</div>'
-        + '<div class="box"><h4>Entregar</h4><textarea class="reply" id="reply" maxlength="2000" placeholder="Opcional: un resumen para el alumno (ej. qué trabajar esta semana)."></textarea>'
+        + '<div class="box"><h4>'+((l.offering||{}).kind==='videollamada'?'Cerrar la clase':'Entregar')+'</h4>'+((l.offering||{}).kind==='videollamada'?'<div class="hint" style="margin-bottom:8px">Ciérrala cuando ya hicieron todas las sesiones. Después el alumno no puede reservar más.</div>':'')+'<textarea class="reply" id="reply" maxlength="2000" placeholder="Opcional: un resumen para el alumno (ej. qué trabajar esta semana)."></textarea>'
         + '<div class="fl" style="margin-top:14px;font-family:\'Barlow Condensed\';font-size:13px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)">Video de demostración (opcional)</div>'
         + '<div class="hint" style="margin-top:2px">Súmale un video tuyo mostrando el ejercicio o el movimiento que le explicas. Lo eliges de tu galería.</div>'
         + '<div class="demo-list" id="demoList"></div>'
@@ -497,7 +515,7 @@ function actionsHTML(l){
     if(l.player_id) h+='<a class="btn primary grow" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(l.player_id)+'">Escribir a mi coach</a>';
     if(l.status==='entregada' && l.player_id) h+='<a class="btn" href="/es/coachhub/jugador.html">Ver mi análisis</a>';
     if(c.slug) h+='<a class="btn" href="/es/coaches/perfil.html?c='+encodeURIComponent(c.slug)+'">Perfil del coach</a>';
-    if(l.status==='por_pagar') h+='<button class="btn primary grow solo-web" id="bPay" onclick="pagar()">Pagar ahora</button>';
+    if(l.status==='por_pagar') h+='<button class="btn primary grow'+((l.offering||{}).kind==='videollamada'?'':' solo-web')+'" id="bPay" onclick="pagar()">Pagar ahora</button>';
     if((l.status==='pendiente' || l.status==='por_pagar') && l.payment_status!=='pagado') h+='<button class="btn danger" id="bCan" onclick="cancelar()">Cancelar solicitud</button>';
     h+='</div>';
   }
@@ -519,6 +537,7 @@ async function loadDemo(l){
 }
 
 async function loadVideos(l){
+  if((l.offering||{}).kind==='videollamada'){ loadSes(l); return; }
   loadDemo(l);
   var paths=l.video_paths||[]; if(!paths.length) return;
   var r = await sb.storage.from('lesson-uploads').createSignedUrls(paths, 3600);
@@ -530,6 +549,104 @@ async function loadVideos(l){
       ? '<video src="'+esc(x.signedUrl)+'#t=0.5" controls playsinline preload="metadata"></video>'
       : '<div class="v-err">No disponible</div>';
   }).join('');
+}
+
+// ============================================================
+// VIDEOLLAMADAS: sesiones de la clase (reservar, unirse, cancelar)
+// ============================================================
+var SES_LESSON=null;
+function sesTot(o){ return Math.max(1, Number(o.sessions_included)||1); }
+function sesActiva(l){ return l.payment_status==='pagado' || l.payment_status==='sin_pago'; }
+async function loadSes(l){
+  var r = await sb.from('coach_bookings').select('*').eq('lesson_id', l.id).order('starts_at');
+  if(CUR!==l) return;
+  SES = r.data||[]; SES_LESSON=l.id;
+  pintarSes();
+  if(!SES_TIMER) SES_TIMER=setInterval(function(){ if(CUR && SES_LESSON===CUR.id && !SES_PICK) pintarSes(); }, 30000);
+}
+function pintarSes(){
+  var l=CUR, box=$('sesBox'); if(!l || !box) return;
+  var o=l.offering||{}, tot=sesTot(o), now=Date.now();
+  var vivas=SES.filter(function(b){ return b.status!=='cancelada'; });
+  var h='<h4>Sesiones en vivo · '+vivas.length+' de '+tot+' reservada'+(tot===1?'':'s')+'</h4>';
+  if(!SES.length) h+='<div class="hint">'+(IS_COACH?'El alumno todavía no reserva un horario.':'Todavía no reservas un horario.')+'</div>';
+  SES.forEach(function(b){
+    var ini=new Date(b.starts_at).getTime(), fin=new Date(b.ends_at).getTime();
+    var est = b.status==='cancelada' ? 'Cancelada' : b.status==='realizada' ? 'Realizada' : (fin<now ? 'Terminó' : (ini-now<=900000 ? 'Ahora' : 'Reservada'));
+    h+='<div class="ses'+(b.status==='cancelada'?' off':'')+'"><div class="ses-t"><b>'+esc(MGLAgenda.fecha(b.starts_at))+'</b><small>'+Math.round((fin-ini)/60000)+' min · '+est+'</small></div>';
+    if(b.status==='reservada'){
+      h+='<div class="ses-a">';
+      if(sesActiva(l) && fin>now){
+        var abierto = ini-now<=900000;
+        h+='<button class="btn primary sm" '+(abierto?'':'disabled ')+'onclick="unirse(\''+b.id+'\')">'+(abierto?'Unirse a la llamada':'Link 15 min antes')+'</button>';
+        h+='<a class="btn sm" target="_blank" rel="noopener" href="'+esc(MGLAgenda.linkCalendario('Clase en vivo · '+(o.title||'CoachYard'), b.starts_at, b.ends_at, 'Únete desde Mis clases en CoachYard: https://mygolflab.golf/es/coachhub/clases.html?clase='+l.id))+'">+ Calendario</a>';
+      }
+      if(IS_COACH && ini<now) h+='<button class="btn sm" onclick="realizada(\''+b.id+'\')">Marcar realizada</button>';
+      if(fin>now && (IS_COACH || ini-now>12*3600000) && l.status!=='por_pagar') h+='<button class="btn danger sm" onclick="cancelarSes(\''+b.id+'\')">Cancelar</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  if(!IS_COACH){
+    if(l.status==='por_pagar'){
+      h+='<div class="hint" style="margin-top:8px">'+(vivas.length?'Te guardamos este horario mientras pagas. ':'')+'Si ya no está libre al pagar, te pedimos elegir otro.</div>';
+      if(SES_PICK!=='renovar') h+='<div class="acts"><button class="btn sm" onclick="SES_PICK=\'renovar\';pintarSes();abrirPicker(CUR)">Cambiar horario</button></div>';
+    } else if(sesActiva(l) && (l.status==='pendiente'||l.status==='aceptada') && vivas.length<tot && SES_PICK!=='nueva'){
+      h+='<div class="acts"><button class="btn primary grow" onclick="SES_PICK=\'nueva\';pintarSes();abrirPicker(CUR)">Reservar '+(vivas.length?'otra sesión':'tu sesión')+'</button></div>';
+    }
+    if(SES_PICK) h+='<div class="ses-pick"><div class="hint" style="margin:6px 0 8px">Elige un horario</div><div id="sesSlots"><div class="hint">Cargando horarios…</div></div>'
+      + '<div class="acts"><button class="btn" onclick="SES_PICK=null;pintarSes()">Volver</button><button class="btn primary grow" id="bSes" disabled onclick="confirmarSes()">'+(SES_PICK==='renovar'?'Usar este horario':'Reservar')+'</button></div></div>';
+  } else if(sesActiva(l) && (l.status==='pendiente'||l.status==='aceptada') && vivas.length<tot){
+    h+='<div class="hint" style="margin-top:8px">El alumno reserva '+(vivas.length?'las siguientes sesiones':'su sesión')+' desde sus clases, dentro de tus horarios de <a href="/es/coachhub/vitrina.html" style="color:inherit;text-decoration:underline">Mi vitrina</a>.</div>';
+  }
+  var keep=$('sesSlots') && SES_PICK ? $('sesSlots') : null;
+  box.innerHTML=h;
+  if(keep && $('sesSlots')){ $('sesSlots').replaceWith(keep); if($('bSes')) $('bSes').disabled=!SES_SLOT; }
+}
+var SES_SLOT=null;
+async function abrirPicker(l){
+  SES_SLOT=null;
+  var c=COACHES[l.coach_id]||{};
+  try{
+    var ag=await MGLAgenda.cargar(sb, l.coach_id, c.timezone);
+    if(CUR!==l || !$('sesSlots')) return;
+    MGLAgenda.selector($('sesSlots'), ag, { minutos:(l.offering||{}).call_minutes||60, alElegir:function(iso){ SES_SLOT=iso; if($('bSes')) $('bSes').disabled=!iso; } });
+  }catch(e){ if($('sesSlots')) $('sesSlots').innerHTML='<div class="hint">No se pudieron cargar los horarios.</div>'; }
+}
+async function confirmarSes(){
+  var l=CUR; if(!l || !SES_SLOT || BUSY) return;
+  var modo=SES_PICK; lock(true); $('bSes').textContent='Reservando…';
+  var r = modo==='renovar'
+    ? await sb.rpc('mgl_renovar_reserva',{ p_lesson:l.id, p_starts:SES_SLOT })
+    : await sb.rpc('mgl_reservar',{ p_lesson:l.id, p_starts:SES_SLOT });
+  lock(false);
+  if(r.error){ toast(r.error.message); SES_SLOT=null; abrirPicker(l); if($('bSes')){ $('bSes').disabled=true; $('bSes').textContent=modo==='renovar'?'Usar este horario':'Reservar'; } return; }
+  var cuando=SES_SLOT; SES_PICK=null; SES_SLOT=null;
+  toast('Reservado: '+MGLAgenda.fecha(cuando));
+  await loadSes(l);
+  if(modo==='renovar' && l.status==='por_pagar' && $('bPay')) pagar();
+}
+async function unirse(id){
+  var r = await sb.rpc('mgl_link_llamada',{ p_booking:id });
+  if(r.error || !r.data){ toast('El link todavía no está disponible.'); return; }
+  var P=window.Capacitor && window.Capacitor.Plugins;
+  if(P && P.Browser && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) P.Browser.open({ url:r.data });
+  else window.open(r.data,'_blank','noopener');
+}
+async function cancelarSes(id){
+  if(!confirm(IS_COACH?'¿Cancelar esta sesión? Avísale al alumno por Mensajes para reagendar.':'¿Cancelar esta sesión? Podrás reservar otro horario.')) return;
+  var l=CUR; lock(true);
+  var r = await sb.rpc('mgl_cancelar_reserva',{ p_booking:id });
+  lock(false);
+  if(r.error){ toast(r.error.message); return; }
+  toast('Sesión cancelada'); await loadSes(l);
+}
+async function realizada(id){
+  var l=CUR; lock(true);
+  var r = await sb.rpc('mgl_sesion_realizada',{ p_booking:id });
+  lock(false);
+  if(r.error){ toast(r.error.message); return; }
+  await loadSes(l);
 }
 
 // ============================================================
@@ -676,10 +793,13 @@ async function pagar(){
   var l=CUR; lock(true); $('bPay').textContent='Abriendo el pago…';
   var s=await sb.auth.getSession();
   var bc=Number(l.price_clp)||MGL_PRECIO.clp(Number(l.price)||0, l.currency||'CLP');
-  var pg=await MGLPago.pagar({ tipo:'clase', id:l.id, token:s.data.session.access_token,
+  var vc=(l.offering||{}).kind==='videollamada';
+  var pg=await MGLPago.pagar({ tipo:'clase', id:l.id, token:s.data.session.access_token, envivo:vc,
                                total: bc ? MGL_PRECIO.fmtCLP(bc+Math.round(bc*(Number(PCONF.service_fee_pct)||5)/100)) : '' });
+  if(pg.ok && !pg.enApp) return;
+  lock(false); if($('bPay')) $('bPay').textContent='Pagar ahora';
   if(pg.ok) return;
-  lock(false); $('bPay').textContent='Pagar ahora';
+  if(pg.codigo==='horario' && vc){ toast(pg.error); SES_PICK='renovar'; pintarSes(); abrirPicker(l); return; }
   if(!pg.cancelado) toast(pg.error||'No se pudo abrir el pago');
 }
 

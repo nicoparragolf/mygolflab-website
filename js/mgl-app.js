@@ -243,6 +243,8 @@
       AppP.addListener('appUrlOpen', function (ev) {
         var u = (ev && ev.url) || '';
         if (u.indexOf(ABRIR) !== 0) return;
+        var Browser = plugin('Browser');
+        if (Browser) { try { Browser.close(); } catch (e) {} }
         var r = rutaDe(u);
         if (r) irA(r);
       });

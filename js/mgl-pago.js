@@ -118,23 +118,44 @@
     if (resp.ok && j.url) return j.url;
     var e = new Error(j.error || 'No se pudo abrir el pago');
     e.noConfigurado = resp.status === 503;
+    e.codigo = j.codigo || '';
     throw e;
   }
 
+  // En el navegador: se va a la página de pago. En la app (solo videollamadas
+  // en vivo, que las tiendas permiten cobrar por fuera): se abre la ventana de
+  // pago dentro de la app y, al cerrarla, se vuelve a la clase.
+  var VOLVER = null;
   function ir(url) {
+    var CAP = window.Capacitor, Browser = CAP && CAP.Plugins && CAP.Plugins.Browser;
+    if (enApp() && Browser) {
+      if (!ir.escuchando && Browser.addListener) {
+        ir.escuchando = true;
+        Browser.addListener('browserFinished', function () {
+          if (!VOLVER) return;
+          var r = VOLVER; VOLVER = null;
+          if (window.MGLnav) MGLnav.href = r; else location.href = r;
+        });
+      }
+      return Browser.open({ url: url, presentationStyle: 'fullscreen' });
+    }
     try { window.top.location.href = url; } catch (e) { location.href = url; }
   }
 
   async function pagar(opts) {
-    if (enApp()) return { ok: false, error: 'Los pagos se hacen en coachyard.golf' };
+    // en la app solo se cobran las videollamadas en vivo 1 a 1 (opts.envivo)
+    if (enApp() && !opts.envivo) return { ok: false, error: 'No disponible en la app' };
+    VOLVER = opts.tipo === 'clase' ? '/es/coachhub/clases.html?clase=' + encodeURIComponent(opts.id) : null;
     var m = await medios();
     var lista = Object.keys(m).filter(function (k) { return m[k]; });
     if (!lista.length) return { ok: false, error: 'Los pagos aún no están activos', noConfigurado: true };
     if (lista.length === 1) {
-      try { ir(await crear(opts, lista[0])); return { ok: true }; }
-      catch (e) { return { ok: false, error: e.message, noConfigurado: e.noConfigurado }; }
+      try { await ir(await crear(opts, lista[0])); return { ok: true, enApp: enApp() }; }
+      catch (e) { return { ok: false, error: e.message, noConfigurado: e.noConfigurado, codigo: e.codigo }; }
     }
-    return hoja(opts, m, async function (medio) { ir(await crear(opts, medio)); });
+    var r = await hoja(opts, m, async function (medio) { await ir(await crear(opts, medio)); });
+    if (r && r.ok) r.enApp = enApp();
+    return r;
   }
 
   // Después de pagar en la web desde el teléfono: ofrecer volver a la app

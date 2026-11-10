@@ -17,6 +17,7 @@
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <script src="/js/mgl-precios.js"></script>
 <script src="/js/mgl-pago.js"></script>
+<script src="/js/mgl-agenda.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
@@ -259,6 +260,11 @@ async function init(){
   C=r.data;
   var ro = await sb.from('coach_offerings').select('*').eq('coach_id',C.coach_id).eq('is_active',true).order('is_trial',{ascending:false}).order('sort_order');
   OFFERS = ro.data||[];
+  // videollamadas: solo si el coach ya tiene link y horarios
+  if(OFFERS.some(function(o){ return o.kind==='videollamada'; })){
+    var rv = await sb.rpc('mgl_videollamada_lista',{ p_coach:C.coach_id });
+    if(!(rv.data===true)) OFFERS = OFFERS.filter(function(o){ return o.kind!=='videollamada'; });
+  }
   var rr = await sb.from('coach_reviews').select('rating,comment,created_at').eq('coach_id',C.coach_id).order('created_at',{ascending:false}).limit(20);
   REVIEWS = rr.data||[];
   // contenido exclusivo publicado (si la tabla aún no existe, no se muestra nada)
@@ -340,7 +346,9 @@ function render(){
     var cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
     var per = o.kind==='plan_mensual' ? '<small>/ '+(o.duration_days||30)+' días</small>' : '';
     var alt = MGL_PRECIO.otra(o.price, o.currency||'CLP');
-    var inc = o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? (Number(o.analyses_included)===0 ? 'Análisis ilimitados' : o.analyses_included+' análisis')+' por período' : '1 análisis en video');
+    var vc = o.kind==='videollamada';
+    if(vc){ ang=[]; per=(o.sessions_included||1)>1 && o.duration_days ? '<small>/ '+o.duration_days+' días</small>' : ''; }
+    var inc = vc ? (o.sessions_included||1)+((o.sessions_included||1)===1?' sesión':' sesiones')+' en vivo de '+(o.call_minutes||60)+' min' : o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? (Number(o.analyses_included)===0 ? 'Análisis ilimitados' : o.analyses_included+' análisis')+' por período' : '1 análisis en video');
     h+='<div class="offer'+(o.is_trial?' trial':'')+'">'
       + '<div class="k">'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+' · '+esc(inc)+'</div>'
       + '<h3>'+esc(o.title)+'</h3>'
@@ -349,7 +357,9 @@ function render(){
       + (o.description?'<p>'+esc(o.description)+'</p>':'')
       + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'tu palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
       // en la app no se venden clases pagadas (reglas de App Store / Google Play): se piden en la web
-      + '<button class="buy'+(Number(o.price)>0?' solo-web':'')+'" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
+      // (las videollamadas en vivo 1 a 1 sí se pueden pagar dentro de la app)
+      + (vc ? '<div class="rec"><b>Cómo funciona</b>Eliges un horario libre del coach, pagas y la sesión queda reservada. Se hace por videollamada (Zoom o Meet) y el link aparece en Mis clases.</div>' : '')
+      + '<button class="buy'+(Number(o.price)>0 && !vc?' solo-web':'')+'" onclick="buy(\''+o.id+'\')">'+(vc?'Reservar horario':(Number(o.price)===0?'Pedir evaluación':'Pedir clase'))+'</button>'
       + '</div>';
   });
   if(OFFERS.some(function(o){ return Number(o.price)>0; })){
@@ -390,7 +400,7 @@ function fmtMB(b){ return b>=1073741824 ? (b/1073741824).toFixed(1)+' GB' : Math
 async function buy(offerId){
   var o = OFFERS.filter(function(x){ return x.id===offerId; })[0];
   if(!o) return;
-  if(Number(o.price)>0 && window.MGLPago && MGLPago.enApp()) return;
+  if(Number(o.price)>0 && o.kind!=='videollamada' && window.MGLPago && MGLPago.enApp()) return;
   var s = await sb.auth.getSession();
   if(!s.data.session){
     // se guarda qué quería pedir y vuelve acá después de crear su cuenta / entrar
@@ -405,7 +415,75 @@ async function buy(offerId){
   $('reqModal').classList.add('on');
 }
 
+// ── Videollamada en vivo: elegir horario y pagar ──
+async function renderReqCall(){
+  var o=REQ.o, paid=Number(o.price)>0, n=o.sessions_included||1;
+  var h='<h3>Reservar videollamada</h3>'
+    + '<div class="sub">'+esc(o.title)+' · con '+esc(C.display_name)+'</div>'
+    + '<div class="pz"><div><small>'+n+(n===1?' sesión':' sesiones')+' en vivo de '+(o.call_minutes||60)+' min</small>'+esc(o.title)+'</div>'
+    +   '<div style="text-align:right"><b>'+MGL_PRECIO.mostrar(o.price,o.currency||'CLP')+'</b><small>'+esc(MGL_PRECIO.otra(o.price,o.currency||'CLP'))+'</small></div></div>'
+    + (paid ? desglose(o) : '')
+    + '<label class="l">'+(n>1?'Elige el horario de tu primera sesión':'Elige tu horario')+'</label>'
+    + '<div id="reqSlots"><div class="note">Cargando horarios…</div></div>'
+    + (n>1?'<div class="note">Las otras '+(n-1)+' sesiones las reservas después desde <b>Mis clases</b>.</div>':'')
+    + '<label class="l">¿Qué quieres trabajar? <span style="text-transform:none;letter-spacing:0;font-weight:500">(opcional)</span></label>'
+    + '<textarea id="reqNote" maxlength="2000" placeholder="Ej: quiero ordenar mi rutina de práctica y revisar mi swing con driver."></textarea>'
+    + (paid?'<div class="note pay">Pagas de forma segura con <b>Webpay</b> o <b>Mercado Pago</b>. El horario queda reservado apenas se confirma el pago.</div>':'')
+    + '<div class="err" id="reqErr"></div>'
+    + '<div class="acts"><button onclick="closeReq()" id="reqCancel">Cancelar</button><button class="go" id="reqGo" onclick="sendReqCall()" disabled>'+(paid?'Reservar y pagar':'Reservar')+'</button></div>';
+  $('reqBody').className='modal rq';
+  $('reqBody').innerHTML=h;
+  try{
+    var ag = await MGLAgenda.cargar(sb, C.coach_id, C.timezone);
+    if(!REQ || REQ.o!==o) return;
+    MGLAgenda.selector($('reqSlots'), ag, { minutos:o.call_minutes||60, alElegir:function(iso){ REQ.slot=iso; $('reqGo').disabled=!iso; } });
+  }catch(e){ $('reqSlots').innerHTML='<div class="note">No se pudieron cargar los horarios. Inténtalo de nuevo.</div>'; }
+}
+async function sendReqCall(){
+  if(!REQ || SENDING || !REQ.slot) return;
+  showReqErr('');
+  SENDING=true; $('reqGo').disabled=true; $('reqCancel').disabled=true; $('reqGo').textContent='Reservando…';
+  var o=REQ.o, paid=Number(o.price)>0, lessonId=null;
+  try{
+    var r = await sb.rpc('mgl_clase_pedir',{ p_offering:o.id, p_note:($('reqNote').value||'').trim(), p_videos:[],
+      p_country: MGL_PRECIO.esChile()?'CL':'XX', p_price_clp: MGL_PRECIO.clp(o.price, o.currency||'CLP') });
+    if(r.error) throw r.error;
+    lessonId=r.data;
+    var rb = await sb.rpc('mgl_reservar',{ p_lesson:lessonId, p_starts:REQ.slot });
+    if(rb.error) throw rb.error;
+  }catch(e){
+    SENDING=false;
+    if(lessonId) sb.rpc('mgl_clase_cancelar',{ p_id:lessonId });
+    showReqErr(esc((e && e.message)||'No se pudo reservar'));
+    $('reqGo').disabled=false; $('reqCancel').disabled=false; $('reqGo').textContent=paid?'Reservar y pagar':'Reservar';
+    // el horario pudo ocuparse: se recargan
+    if(/reservar ese horario|no está disponible/i.test((e && e.message)||'')){ REQ.slot=null; renderReqCall(); setTimeout(function(){ showReqErr(esc(e.message)); },300); }
+    return;
+  }
+  try{ localStorage.removeItem('mgl_pedir'); }catch(e){}
+  var cuando = MGLAgenda.fecha(REQ.slot);
+  if(paid){
+    $('reqGo').textContent='Abriendo el pago…';
+    var s2=await sb.auth.getSession();
+    var bc=MGL_PRECIO.clp(o.price,o.currency||'CLP');
+    var pg=await MGLPago.pagar({ tipo:'clase', id:lessonId, token:s2.data.session.access_token, envivo:true,
+                                 total: MGL_PRECIO.fmtCLP(bc+Math.round(bc*FEE_PCT/100)) });
+    SENDING=false;
+    if(pg.ok && !pg.enApp) return;
+    $('reqBody').className='modal rq done';
+    $('reqBody').innerHTML = pg.ok
+      ? '<h3>Completa el pago</h3><p>Se abrió la ventana de pago. Al terminar, tu sesión del <b>'+esc(cuando)+'</b> queda confirmada en Mis clases.</p><a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ir a Mis clases</a>'
+      : '<h3>Falta el pago</h3><p>Tu horario del <b>'+esc(cuando)+'</b> queda apartado por 1 hora. Paga desde <b>Mis clases</b> para confirmarlo.</p><a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ir a Mis clases</a>';
+    return;
+  }
+  SENDING=false;
+  $('reqBody').className='modal rq done';
+  $('reqBody').innerHTML='<h3>¡Sesión reservada!</h3><p>Tu videollamada con '+esc(C.display_name)+' es el <b>'+esc(cuando)+'</b>. El link aparece en Mis clases 15 minutos antes.</p>'
+    + '<a href="/es/coachhub/clases.html?clase='+encodeURIComponent(lessonId)+'">Ver mis clases</a>';
+}
+
 function renderReq(){
+  if(REQ.o.kind==='videollamada') return renderReqCall();
   var o=REQ.o, cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
   var maxv=o.max_videos||6, paid=Number(o.price)>0;
   var h='<h3>'+(o.is_trial?'Pedir evaluación':'Pedir clase')+'</h3>'

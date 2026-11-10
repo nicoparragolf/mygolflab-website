@@ -276,6 +276,7 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var BUCKET = 'coach-public';
 
+var CALL={call_link:''}, AVAIL=[];   // videollamadas: link privado y horarios semanales
 var USER=null, P=null, IS_NEW=true, OFFERS=[], VIEWS={d7:0,d30:0}, DIRTY=false, EDIT_OFFER=null;
 var WIZ=false, WSTEP=0;   // WIZ = asistente de primer registro
 
@@ -286,7 +287,7 @@ var SPECIALTIES = [['full_swing','Full Swing'],['juego_corto','Juego Corto'],['p
 var LEVELS = [['iniciacion','Iniciación'],['junior','Junior'],['amateur','Amateur'],['college','College'],['elite','Elite amateur'],['profesional','Profesional'],['senior','Senior']];
 var LANGS = [['es','Español'],['en','Inglés'],['pt','Portugués']];
 var COUNTRIES = [['CL','Chile'],['AR','Argentina'],['MX','México'],['CO','Colombia'],['PE','Perú'],['UY','Uruguay'],['PY','Paraguay'],['EC','Ecuador'],['ES','España'],['US','Estados Unidos'],['OT','Otro']];
-var KINDS = {analisis:'Análisis de swing', paquete:'Paquete de análisis', plan_mensual:'Plan mensual', videollamada:'Videollamada'};
+var KINDS = {analisis:'Análisis de swing', paquete:'Paquete de análisis', plan_mensual:'Plan mensual', videollamada:'Videollamada en vivo'};
 var ANGLES = [['frente','De frente'],['linea_de_tiro','Línea de tiro'],['atras','Desde atrás del objetivo'],['resultado','Vuelo de bola / resultado']];
 var CLUBS = [['libre','A elección'],['driver','Driver'],['hierro_7','Hierro 7'],['wedge','Wedge'],['putter','Putter']];
 
@@ -360,8 +361,14 @@ async function init(){
 
 async function loadOffers(){
   if(IS_NEW){ OFFERS=[]; return; }
-  var r = await sb.from('coach_offerings').select('*').eq('coach_id',USER.id).order('sort_order').order('created_at');
-  OFFERS = r.data||[];
+  var rs = await Promise.all([
+    sb.from('coach_offerings').select('*').eq('coach_id',USER.id).order('sort_order').order('created_at'),
+    sb.from('coach_call_settings').select('call_link').eq('coach_id',USER.id).maybeSingle(),
+    sb.from('coach_availability').select('weekday,start_min,end_min').eq('coach_id',USER.id).order('weekday').order('start_min')
+  ]);
+  OFFERS = rs[0].data||[];
+  CALL = rs[1].data || {call_link:''};
+  AVAIL = rs[2].data || [];
 }
 async function loadViews(){
   if(IS_NEW) return;
@@ -431,6 +438,76 @@ function secOffers(){
      + '<p class="sub">Define precio y qué tiene que grabar el alumno. Tip: una evaluación inicial gratis o rebajada es la mejor puerta de entrada (cada alumno puede usarla una sola vez contigo).</p>'
      + '<div class="offers" id="offers"></div></div>';
 }
+// ── Videollamadas en vivo: link de Zoom/Meet y horarios semanales ──
+var DSEM_L=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'], ORD_SEM=[1,2,3,4,5,6,0];
+function hhmm(m){ return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2); }
+function horaOpts(sel, desde, hasta){ var h=''; for(var m=desde;m<=hasta;m+=30) h+='<option value="'+m+'"'+(m===sel?' selected':'')+'>'+hhmm(m)+'</option>'; return h; }
+function secCalls(){
+  return '<div class="sec" id="llamadas"><div class="sec-h"><h2>Videollamadas en vivo</h2></div>'
+     + '<p class="sub">Para vender sesiones en vivo 1 a 1 (oferta tipo <b>Videollamada en vivo</b>). El alumno elige un horario libre y paga al reservar, también desde la app.</p>'
+     + '<div class="grid"><div class="f full"><label>Link de tu sala (Zoom o Google Meet)</label>'
+     + '<input id="c_link" type="url" placeholder="https://us02web.zoom.us/j/… o https://meet.google.com/…" value="'+esc(CALL.call_link||'')+'">'
+     + '<div class="hint">Solo lo ven tus alumnos con una sesión pagada, desde 15 minutos antes.</div></div></div>'
+     + '<label class="f" style="display:block;margin-top:16px"><span style="display:block;font-family:\'Barlow Condensed\';font-weight:600;font-size:14px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:7px">Tus horarios semanales</span></label>'
+     + '<div id="c_semana"></div>'
+     + '<div class="hint" style="color:var(--muted2);font-size:12.5px;margin-top:8px">En tu hora local ('+esc((P.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone||'America/Santiago').replace(/_/g,' '))+'). Los alumnos de otros países los ven en su propia hora. Pueden reservar hasta con 4 horas de anticipación.</div>'
+     + '<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn primary sm" id="c_save" onclick="saveCalls()">Guardar videollamadas</button></div></div>';
+}
+function renderCalls(){
+  var box=$('c_semana'); if(!box) return;
+  var h='';
+  ORD_SEM.forEach(function(dw){
+    var tramos=AVAIL.filter(function(a){ return Number(a.weekday)===dw; });
+    h+='<div class="dia-h" style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--border)">'
+      + '<label style="display:flex;gap:8px;align-items:center;width:120px;flex:0 0 auto;padding-top:9px;cursor:pointer"><input type="checkbox" '+(tramos.length?'checked':'')+' onchange="diaToggle('+dw+',this.checked)" style="width:18px;height:18px;accent-color:var(--teal)"><b style="font-weight:600">'+DSEM_L[dw]+'</b></label>'
+      + '<div style="flex:1;min-width:0">';
+    if(!tramos.length) h+='<div style="color:var(--muted2);padding-top:9px;font-size:14px">No disponible</div>';
+    tramos.forEach(function(t){
+      var i=AVAIL.indexOf(t);
+      h+='<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px" class="f">'
+        + '<select style="width:auto;padding:8px 10px" onchange="AVAIL['+i+'].start_min=+this.value">'+horaOpts(Number(t.start_min),0,1410)+'</select>'
+        + '<span style="color:var(--muted)">a</span>'
+        + '<select style="width:auto;padding:8px 10px" onchange="AVAIL['+i+'].end_min=+this.value">'+horaOpts(Number(t.end_min),30,1440)+'</select>'
+        + '<button type="button" class="btn sm ghost" onclick="tramoDel('+i+')" aria-label="Quitar">×</button></div>';
+    });
+    if(tramos.length) h+='<button type="button" class="btn sm ghost" onclick="tramoAdd('+dw+')">+ Otro horario</button>';
+    h+='</div></div>';
+  });
+  box.innerHTML=h;
+}
+function diaToggle(dw,on){
+  if(on){ AVAIL.push({weekday:dw,start_min:540,end_min:780}); }
+  else { AVAIL=AVAIL.filter(function(a){ return Number(a.weekday)!==dw; }); }
+  renderCalls();
+}
+function tramoAdd(dw){
+  var ult=AVAIL.filter(function(a){ return Number(a.weekday)===dw; }).sort(function(a,b){ return b.end_min-a.end_min; })[0];
+  var ini=ult?Math.min(Number(ult.end_min)+60,1380):540;
+  AVAIL.push({weekday:dw,start_min:ini,end_min:Math.min(ini+120,1440)}); renderCalls();
+}
+function tramoDel(i){ AVAIL.splice(i,1); renderCalls(); }
+async function saveCalls(){
+  var link=$('c_link').value.trim();
+  if(link && !/^https:\/\//i.test(link)){ toast('El link tiene que empezar con https://',true); return; }
+  for(var i=0;i<AVAIL.length;i++){
+    if(Number(AVAIL[i].end_min)<=Number(AVAIL[i].start_min)){ toast(DSEM_L[AVAIL[i].weekday]+': la hora de término tiene que ser después del inicio',true); return; }
+  }
+  var btn=$('c_save'); btn.disabled=true;
+  var r1 = await sb.from('coach_call_settings').upsert({ coach_id:USER.id, call_link: link||null, updated_at:new Date().toISOString() });
+  if(r1.error){ btn.disabled=false; toast('No se pudo guardar el link: '+r1.error.message,true); return; }
+  var r2 = await sb.from('coach_availability').delete().eq('coach_id',USER.id);
+  if(!r2.error && AVAIL.length) r2 = await sb.from('coach_availability').insert(AVAIL.map(function(a){ return { coach_id:USER.id, weekday:a.weekday, start_min:Number(a.start_min), end_min:Number(a.end_min) }; }));
+  btn.disabled=false;
+  if(r2.error){ toast('No se pudieron guardar los horarios: '+r2.error.message,true); return; }
+  // la zona horaria del perfil se usa para calcular los horarios
+  var tz=(Intl.DateTimeFormat().resolvedOptions().timeZone)||'America/Santiago';
+  if(P.timezone!==tz){ var r3=await sb.from('coach_profiles').update({timezone:tz}).eq('coach_id',USER.id); if(!r3.error) P.timezone=tz; }
+  CALL.call_link=link;
+  toast('Videollamadas guardadas');
+  renderOffers();
+}
+function callsListas(){ return !!(CALL.call_link && AVAIL.length); }
+
 function secPublish(){
   return '<div class="sec" id="pubSec"><div class="sec-h"><h2>Para publicar</h2><div class="r" id="pubBtnBox"></div></div>'
      + '<p class="sub">Tu vitrina aparece en el buscador de coaches cuando completas lo esencial.</p><div class="check" id="checklist"></div></div>';
@@ -456,9 +533,10 @@ function render(){
       + '<div class="st"><div class="v">'+(P.rating_count? Number(P.rating_avg).toFixed(1):'—')+'</div><div class="l">'+(P.rating_count||0)+' reseñas</div></div>'
       + '</div>';
   }
-  h += secPublish() + secBasic() + secMedia() + secSpec() + secCred() + secOffers();
+  h += secPublish() + secBasic() + secMedia() + secSpec() + secCred() + secOffers() + (IS_NEW?'':secCalls());
   $('wrap').innerHTML = h;
   renderOffers();
+  if(!IS_NEW) renderCalls();
   renderChecklist();
   // desde Mi cuenta → "Mis ofertas" baja directo a las ofertas
   if(location.hash==='#foto' && !render._foto){ render._foto=true; setTimeout(photoSheet,80); }
@@ -884,6 +962,13 @@ async function clearMedia(field){
 // ============================================================
 function offerSummary(o){
   var parts=[];
+  if(o.kind==='videollamada'){
+    var n=o.sessions_included||1;
+    parts.push(n+(n===1?' sesión':' sesiones')+' en vivo de '+(o.call_minutes||60)+' min');
+    if(n>1 && o.duration_days) parts.push('para usar en '+o.duration_days+' días');
+    if(!callsListas()) parts.push('⚠ falta tu link u horarios');
+    return parts.join(' · ');
+  }
   if(o.kind==='paquete') parts.push(o.analyses_included+' análisis');
   if(o.kind==='plan_mensual') parts.push((Number(o.analyses_included)===0?'Análisis ilimitados':o.analyses_included+' análisis')+' cada '+(o.duration_days||30)+' días');
   var cr=o.capture_requirements||{};
@@ -926,13 +1011,13 @@ function openOffer(id){
   if(IS_NEW){ toast('Guarda tu perfil primero',true); return; }
   var o = id ? OFFERS.filter(function(x){ return x.id===id; })[0] : null;
   EDIT_OFFER = o;
-  var d = o || {kind:'analisis', title:'', description:'', price:'', currency:'USD', analyses_included:1, duration_days:30, is_trial:false, is_active:true, max_videos:6,
+  var d = o || {kind:'analisis', call_minutes:60, sessions_included:1, title:'', description:'', price:'', currency:'USD', analyses_included:1, duration_days:30, is_trial:false, is_active:true, max_videos:6,
                 capture_requirements:{angulos:['frente','linea_de_tiro'], swings_por_angulo:3, palo:'libre', nota:''}};
   var cr = d.capture_requirements||{};
   var h = '<h3>'+(o?'Editar oferta':'Nueva oferta')+'</h3><div class="grid">'
     + '<div class="f"><label>Tipo</label><select id="o_kind" onchange="offerKind()">'
-    +   optionList([['analisis',KINDS.analisis],['paquete',KINDS.paquete],['plan_mensual',KINDS.plan_mensual]], d.kind)
-    + '</select><div class="hint">Las videollamadas llegan en la siguiente etapa.</div></div>'
+    +   optionList([['analisis',KINDS.analisis],['paquete',KINDS.paquete],['plan_mensual',KINDS.plan_mensual],['videollamada',KINDS.videollamada]], d.kind)
+    + '</select><div class="hint" id="o_kind_hint"></div></div>'
     + '<div class="f"><label>Precio</label><div style="display:flex;gap:8px"><select id="o_cur" style="width:96px;flex:0 0 auto" onchange="offerPriceHint()">'+optionList([['USD','USD'],['CLP','CLP']], d.currency||'CLP')+'</select>'
     +   '<input id="o_price" type="number" min="0" step="1" value="'+esc(d.price)+'" oninput="offerPriceHint()"></div><div class="hint" id="o_price_hint"></div></div>'
     + '<div class="f full"><label>Título</label><input id="o_title" maxlength="70" placeholder="Análisis completo de full swing" value="'+esc(d.title)+'"></div>'
@@ -941,15 +1026,18 @@ function openOffer(id){
     +   '<input id="o_n" type="number" min="1" max="99" value="'+(Number(d.analyses_included)>0?d.analyses_included:'')+'"'+(Number(d.analyses_included)===0?' disabled placeholder="∞"':'')+' style="flex:1 1 auto;min-width:0">'
     +   '<span class="chip unl'+(Number(d.analyses_included)===0?' on':'')+'" id="o_unl" onclick="offerUnl()" style="display:flex;align-items:center;white-space:nowrap">Ilimitado</span></div>'
     +   '<div class="hint" id="o_n_hint"></div></div>'
+    + '<div class="f" id="o_min_box"><label>Duración de cada sesión</label><select id="o_min">'+optionList([['30','30 min'],['45','45 min'],['60','60 min'],['90','90 min']], String(d.call_minutes||60))+'</select></div>'
+    + '<div class="f" id="o_ses_box"><label>Sesiones incluidas</label><input id="o_ses" type="number" min="1" max="12" value="'+(d.sessions_included||1)+'" oninput="offerKind()"><div class="hint">El alumno reserva la primera al pagar y las demás desde Mis clases.</div></div>'
     + '<div class="f" id="o_days_box"><label>Duración del plan (días)</label><input id="o_days" type="number" min="7" max="365" value="'+(d.duration_days||30)+'"></div>'
     + '<div class="full"><label class="tog"><input type="checkbox" id="o_trial"'+(d.is_trial?' checked':'')+'><span><b>Es una evaluación inicial</b><small>Puede ser gratis o rebajada. Cada alumno la puede comprar una sola vez contigo.</small></span></label></div>'
-    + '</div><div class="hr"></div><div class="mtitle">Qué tiene que grabar el alumno</div><div class="grid">'
+    + '</div><div id="o_capture"><div class="hr"></div><div class="mtitle">Qué tiene que grabar el alumno</div><div class="grid">'
     + '<div class="f full"><label>Ángulos</label>'+chipsHTML('o_angles',ANGLES,cr.angulos||[])+'</div>'
     + '<div class="f"><label>Swings por ángulo</label><input id="o_swings" type="number" min="1" max="10" value="'+(cr.swings_por_angulo||3)+'"></div>'
     + '<div class="f"><label>Palos</label><div id="o_clubs"></div>'
     +   '<button type="button" class="btn sm ghost" id="o_club_add" onclick="offerClubAdd()" style="margin-top:8px;width:100%">+ Agregar otro palo</button></div>'
     + '<div class="f"><label>Máximo de videos</label><input id="o_max" type="number" min="1" max="12" value="'+d.max_videos+'"></div>'
     + '<div class="f full"><label>Instrucción extra <i>opcional</i></label><input id="o_note" maxlength="160" placeholder="Graba a la altura de las manos, con el celular horizontal" value="'+esc(cr.nota||'')+'"></div>'
+    + '</div></div><div class="grid">'
     + (o?'<div class="full"><label class="tog"><input type="checkbox" id="o_active"'+(d.is_active?' checked':'')+'><span><b>Activa</b><small>Si la desmarcas, deja de aparecer en tu perfil público.</small></span></label></div>':'')
     + '</div><div class="acts">'
     + (o?'<button class="btn danger ghost l" onclick="deleteOffer()">Eliminar</button>':'')
@@ -998,12 +1086,19 @@ function offerClubAdd(){
 function offerClubDel(i){ OFFER_CLUBS.splice(i,1); offerClubsRender(); }
 function offerKind(){
   var k=$('o_kind').value;
-  $('o_n_box').style.display = k==='analisis' ? 'none' : '';
+  var vc = k==='videollamada';
+  $('o_n_box').style.display = (k==='analisis'||vc) ? 'none' : '';
+  $('o_min_box').style.display = vc ? '' : 'none';
+  $('o_ses_box').style.display = vc ? '' : 'none';
+  $('o_capture').style.display = vc ? 'none' : '';
+  $('o_kind_hint').innerHTML = vc
+    ? (callsListas() ? 'Sesiones en vivo 1 a 1 por tu link de Zoom/Meet. Se pueden pagar también desde la app.' : '<span style="color:var(--gold)">Antes de publicarla, guarda tu link y tus horarios en <b>Videollamadas en vivo</b> (más abajo en esta página).</span>')
+    : '';
   // "Ilimitado" solo tiene sentido en un plan mensual
   $('o_unl').style.display = k==='plan_mensual' ? '' : 'none';
   if(k!=='plan_mensual' && $('o_unl').classList.contains('on')) offerUnl();
   offerNHint();
-  $('o_days_box').style.display = k==='plan_mensual' ? '' : 'none';
+  $('o_days_box').style.display = (k==='plan_mensual' || (vc && Number($('o_ses').value)>1)) ? '' : 'none';
 }
 function closeOffer(){ $('offerModal').classList.remove('on'); EDIT_OFFER=null; }
 
@@ -1015,21 +1110,25 @@ async function saveOffer(){
   if(!title){ toast('Ponle un título a la oferta',true); return; }
   if(isNaN(price) || price<0){ toast('Revisa el precio',true); return; }
   if(price===0 && !trial){ toast('Solo una evaluación inicial puede ser gratis',true); return; }
+  var vc = k==='videollamada';
   var angles=chipVals('o_angles',$('offerBody'));
-  if(!angles.length){ toast('Elige al menos un ángulo de grabación',true); return; }
+  if(!vc && !angles.length){ toast('Elige al menos un ángulo de grabación',true); return; }
   var swings=parseInt($('o_swings').value,10)||1, maxv=parseInt($('o_max').value,10)||6;
   // palos sin repetir; "a elección" solo tiene sentido solo
   var clubs=OFFER_CLUBS.filter(function(v,i,a){ return a.indexOf(v)===i; });
   if(clubs.length>1) clubs=clubs.filter(function(v){ return v!=='libre'; });
   if(!clubs.length) clubs=['libre'];
-  if(angles.length*clubs.length > maxv){ toast('El máximo de videos es menor que ángulos × palos ('+(angles.length*clubs.length)+')',true); return; }
+  if(!vc && angles.length*clubs.length > maxv){ toast('El máximo de videos es menor que ángulos × palos ('+(angles.length*clubs.length)+')',true); return; }
   var d = {
     coach_id: USER.id, kind:k, title:title, description:$('o_desc').value.trim(), price:price, currency:cur,
     analyses_included: k==='analisis' ? 1 : (k==='plan_mensual' && $('o_unl').classList.contains('on') ? 0 : Math.max(1, parseInt($('o_n').value,10)||1)),
-    duration_days: k==='plan_mensual' ? (parseInt($('o_days').value,10)||30) : null,
+    duration_days: (k==='plan_mensual' || (vc && Number($('o_ses').value)>1)) ? (parseInt($('o_days').value,10)||30) : null,
+    call_minutes: vc ? parseInt($('o_min').value,10)||60 : null,
+    sessions_included: vc ? Math.min(12, Math.max(1, parseInt($('o_ses').value,10)||1)) : null,
     is_trial: trial, max_videos: maxv,
     capture_requirements: {angulos:angles, swings_por_angulo:swings, palo:clubs[0], palos:clubs, nota:$('o_note').value.trim()}
   };
+  if(vc) d.analyses_included = 0;
   if(EDIT_OFFER) d.is_active = $('o_active').checked; else d.sort_order = OFFERS.length;
   var r = EDIT_OFFER
     ? await sb.from('coach_offerings').update(d).eq('id',EDIT_OFFER.id).select().single()
