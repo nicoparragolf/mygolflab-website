@@ -1663,5 +1663,12 @@ window.MGL_I18N_EN = {
 "Videos de tu coach": "Your coach's videos",
 "Ese archivo no es un video": "That file isn't a video",
 "No se pudo subir el video": "Couldn't upload the video",
-"Algunos videos no se pudieron subir": "Some videos couldn't be uploaded"
+"Algunos videos no se pudieron subir": "Some videos couldn't be uploaded",
+"Ilimitado": "Unlimited",
+"Palos": "Clubs",
+"+ Agregar otro palo": "+ Add another club",
+"Quitar palo": "Remove club",
+"El alumno puede mandarte videos las veces que quiera durante el plan.": "The student can send you videos as many times as they want during the plan.",
+"Análisis ilimitados": "Unlimited analyses",
+"análisis ilimitados": "unlimited analyses"
 };

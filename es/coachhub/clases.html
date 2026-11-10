@@ -197,6 +197,14 @@ var PCONF={service_fee_pct:5, own_student_pct:0, tiers:[{hasta:30,pct:5},{hasta:
 var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
 var ANGLE = {frente:'de frente',linea_de_tiro:'desde la línea de tiro',atras:'desde atrás del objetivo',resultado:'mostrando el vuelo de bola'};
 var CLUB = {libre:'el palo que quiera',driver:'driver',hierro_7:'hierro 7',wedge:'wedge',putter:'putter'};
+// Textos de la oferta: palos (uno o varios) y análisis (0 = ilimitados)
+function clubsText(cr, fallback){
+  var l=(cr.palos && cr.palos.length ? cr.palos : (cr.palo ? [cr.palo] : [])).map(function(v){ return CLUB[v]||v; });
+  if(!l.length) return fallback;
+  return l.length===1 ? l[0] : l.slice(0,-1).join(', ')+' y '+l[l.length-1];
+}
+function analisisText(n){ return Number(n)===0 ? 'análisis ilimitados' : n+' análisis'; }
+
 var ST = {pendiente:'Nueva',aceptada:'En curso',entregada:'Entregada',rechazada:'Rechazada',cancelada:'Cancelada'};
 var ST_ALUMNO = {por_pagar:'Pago pendiente',pendiente:'Esperando al coach',aceptada:'En curso',entregada:'Entregada',rechazada:'No aceptada',cancelada:'Cancelada'};
 
@@ -410,7 +418,7 @@ function renderDetail(){
 
   h+='<div class="box"><div class="kv">'
     + '<span>Clase</span><b>'+esc(o.title||'—')+(o.is_trial?' · Evaluación inicial':'')+'</b>'
-    + '<span>Tipo</span><div>'+esc(KIND[o.kind]||o.kind||'—')+(o.kind==='paquete'?' · '+o.analyses_included+' análisis':'')+(o.kind==='plan_mensual'?' · '+o.analyses_included+' análisis cada '+(o.duration_days||30)+' días':'')+'</div>'
+    + '<span>Tipo</span><div>'+esc(KIND[o.kind]||o.kind||'—')+(o.kind==='paquete'?' · '+o.analyses_included+' análisis':'')+(o.kind==='plan_mensual'?' · '+analisisText(o.analyses_included)+' cada '+(o.duration_days||30)+' días':'')+'</div>'
     + '<span>Precio</span><div><b>'+precioDe(l)+'</b> <span style="color:var(--muted);font-size:13px">'+esc(precioRef(l))+'</span></div>'
     + '<span>Estado</span><div><span class="st '+l.status+'">'+(IS_COACH?ST[l.status]:ST_ALUMNO[l.status])+'</span></div>'
     + '<span>Pedida</span><div>'+fmtDate(l.created_at)+'</div>'
@@ -435,7 +443,7 @@ function renderDetail(){
   }
 
   if(l.student_note) h+='<div class="box"><h4>'+(IS_COACH?'Lo que quiere trabajar':'Lo que le contaste')+'</h4><p>'+esc(l.student_note)+'</p></div>';
-  if(ang.length) h+='<div class="box"><h4>Qué se pidió grabar</h4><p>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'su palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</p></div>';
+  if(ang.length) h+='<div class="box"><h4>Qué se pidió grabar</h4><p>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'su palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</p></div>';
 
   h+='<div class="box"><h4>Videos ('+(l.video_paths||[]).length+')</h4><div class="vids" id="vids">'
     + ((l.video_paths||[]).length ? (l.video_paths||[]).map(function(){ return '<div class="v-err">Cargando…</div>'; }).join('') : '<div class="hint">Sin videos.</div>')

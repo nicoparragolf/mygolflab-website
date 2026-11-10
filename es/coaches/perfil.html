@@ -219,6 +219,14 @@ var COUNTRY = {CL:'Chile',AR:'Argentina',MX:'México',CO:'Colombia',PE:'Perú',U
 var KIND = {analisis:'Análisis de swing',paquete:'Paquete',plan_mensual:'Plan mensual',videollamada:'Videollamada'};
 var ANGLE = {frente:'de frente',linea_de_tiro:'desde la línea de tiro',atras:'desde atrás del objetivo',resultado:'mostrando el vuelo de bola'};
 var CLUB = {libre:'el palo que quieras trabajar',driver:'driver',hierro_7:'hierro 7',wedge:'wedge',putter:'putter'};
+// Textos de la oferta: palos (uno o varios) y análisis (0 = ilimitados)
+function clubsText(cr, fallback){
+  var l=(cr.palos && cr.palos.length ? cr.palos : (cr.palo ? [cr.palo] : [])).map(function(v){ return CLUB[v]||v; });
+  if(!l.length) return fallback;
+  return l.length===1 ? l[0] : l.slice(0,-1).join(', ')+' y '+l[l.length-1];
+}
+function analisisText(n){ return Number(n)===0 ? 'análisis ilimitados' : n+' análisis'; }
+
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -331,14 +339,14 @@ function render(){
     var cr=o.capture_requirements||{}, ang=(cr.angulos||[]).map(function(a){ return ANGLE[a]||a; });
     var per = o.kind==='plan_mensual' ? '<small>/ '+(o.duration_days||30)+' días</small>' : '';
     var alt = MGL_PRECIO.otra(o.price, o.currency||'CLP');
-    var inc = o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? o.analyses_included+' análisis por período' : '1 análisis en video');
+    var inc = o.kind==='paquete' ? o.analyses_included+' análisis' : (o.kind==='plan_mensual' ? (Number(o.analyses_included)===0 ? 'Análisis ilimitados' : o.analyses_included+' análisis')+' por período' : '1 análisis en video');
     h+='<div class="offer'+(o.is_trial?' trial':'')+'">'
       + '<div class="k">'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+' · '+esc(inc)+'</div>'
       + '<h3>'+esc(o.title)+'</h3>'
       + '<div class="pr">'+MGL_PRECIO.mostrar(o.price, o.currency||'CLP')+per+'</div>'
       + (alt?'<div class="alt">'+esc(alt)+'</div>':'')
       + (o.description?'<p>'+esc(o.description)+'</p>':'')
-      + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
+      + (ang.length?'<div class="rec"><b>Qué vas a grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'tu palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
       + '<button class="buy" onclick="buy(\''+o.id+'\')">'+(Number(o.price)===0?'Pedir evaluación':'Pedir clase')+'</button>'
       + '</div>';
   });
@@ -402,7 +410,7 @@ function renderReq(){
     + '<div class="pz"><div><small>'+(o.is_trial?'Evaluación inicial':esc(KIND[o.kind]||''))+'</small>'+esc(o.title)+'</div>'
     +   '<div style="text-align:right"><b>'+MGL_PRECIO.mostrar(o.price,o.currency||'CLP')+'</b><small>'+esc(MGL_PRECIO.otra(o.price,o.currency||'CLP'))+'</small></div></div>'
     + (paid ? desglose(o) : '')
-    + (ang.length?'<div class="rec" style="margin-top:0"><b>Qué tienes que grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(CLUB[cr.palo]||cr.palo||'tu palo')+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
+    + (ang.length?'<div class="rec" style="margin-top:0"><b>Qué tienes que grabar</b>'+(cr.swings_por_angulo||1)+' swings '+esc(ang.join(' y '))+', con '+esc(clubsText(cr,'tu palo'))+'.'+(cr.nota?' '+esc(cr.nota):'')+'</div>':'')
     + '<label class="l">Tus videos <span style="text-transform:none;letter-spacing:0;font-weight:500">(hasta '+maxv+')</span></label>'
     + '<div class="drop" onclick="if(!SENDING)$(\'reqFiles\').click()">Toca para elegir tus videos del celular o computador</div>'
     + '<div class="files" id="reqList"></div>'

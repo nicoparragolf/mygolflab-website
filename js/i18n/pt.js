@@ -1665,5 +1665,12 @@ window.MGL_I18N_PT = {
 "Videos de tu coach": "Vídeos do seu coach",
 "Ese archivo no es un video": "Esse arquivo não é um vídeo",
 "No se pudo subir el video": "Não foi possível enviar o vídeo",
-"Algunos videos no se pudieron subir": "Alguns vídeos não puderam ser enviados"
+"Algunos videos no se pudieron subir": "Alguns vídeos não puderam ser enviados",
+"Ilimitado": "Ilimitado",
+"Palos": "Tacos",
+"+ Agregar otro palo": "+ Adicionar outro taco",
+"Quitar palo": "Remover taco",
+"El alumno puede mandarte videos las veces que quiera durante el plan.": "O aluno pode te mandar vídeos quantas vezes quiser durante o plano.",
+"Análisis ilimitados": "Análises ilimitadas",
+"análisis ilimitados": "análises ilimitadas"
 };

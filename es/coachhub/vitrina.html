@@ -885,7 +885,7 @@ async function clearMedia(field){
 function offerSummary(o){
   var parts=[];
   if(o.kind==='paquete') parts.push(o.analyses_included+' análisis');
-  if(o.kind==='plan_mensual') parts.push(o.analyses_included+' análisis cada '+(o.duration_days||30)+' días');
+  if(o.kind==='plan_mensual') parts.push((Number(o.analyses_included)===0?'Análisis ilimitados':o.analyses_included+' análisis')+' cada '+(o.duration_days||30)+' días');
   var cr=o.capture_requirements||{};
   if(cr.angulos && cr.angulos.length) parts.push(cr.angulos.length+(cr.angulos.length===1?' ángulo':' ángulos')+' · '+(cr.swings_por_angulo||1)+' swings c/u');
   parts.push('máx. '+o.max_videos+' videos');
@@ -937,13 +937,17 @@ function openOffer(id){
     +   '<input id="o_price" type="number" min="0" step="1" value="'+esc(d.price)+'" oninput="offerPriceHint()"></div><div class="hint" id="o_price_hint"></div></div>'
     + '<div class="f full"><label>Título</label><input id="o_title" maxlength="70" placeholder="Análisis completo de full swing" value="'+esc(d.title)+'"></div>'
     + '<div class="f full"><label>Qué incluye</label><textarea id="o_desc" placeholder="Video con mi voz analizando tu swing, 2 drills específicos y fecha para tu video de seguimiento.">'+esc(d.description)+'</textarea></div>'
-    + '<div class="f" id="o_n_box"><label>Análisis incluidos</label><input id="o_n" type="number" min="1" max="30" value="'+d.analyses_included+'"></div>'
+    + '<div class="f" id="o_n_box"><label>Análisis incluidos</label><div style="display:flex;gap:8px;align-items:stretch">'
+    +   '<input id="o_n" type="number" min="1" max="99" value="'+(Number(d.analyses_included)>0?d.analyses_included:'')+'"'+(Number(d.analyses_included)===0?' disabled placeholder="∞"':'')+' style="flex:1 1 auto;min-width:0">'
+    +   '<span class="chip unl'+(Number(d.analyses_included)===0?' on':'')+'" id="o_unl" onclick="offerUnl()" style="display:flex;align-items:center;white-space:nowrap">Ilimitado</span></div>'
+    +   '<div class="hint" id="o_n_hint"></div></div>'
     + '<div class="f" id="o_days_box"><label>Duración del plan (días)</label><input id="o_days" type="number" min="7" max="365" value="'+(d.duration_days||30)+'"></div>'
     + '<div class="full"><label class="tog"><input type="checkbox" id="o_trial"'+(d.is_trial?' checked':'')+'><span><b>Es una evaluación inicial</b><small>Puede ser gratis o rebajada. Cada alumno la puede comprar una sola vez contigo.</small></span></label></div>'
     + '</div><div class="hr"></div><div class="mtitle">Qué tiene que grabar el alumno</div><div class="grid">'
     + '<div class="f full"><label>Ángulos</label>'+chipsHTML('o_angles',ANGLES,cr.angulos||[])+'</div>'
     + '<div class="f"><label>Swings por ángulo</label><input id="o_swings" type="number" min="1" max="10" value="'+(cr.swings_por_angulo||3)+'"></div>'
-    + '<div class="f"><label>Palo</label><select id="o_club">'+optionList(CLUBS,cr.palo||'libre')+'</select></div>'
+    + '<div class="f"><label>Palos</label><div id="o_clubs"></div>'
+    +   '<button type="button" class="btn sm ghost" id="o_club_add" onclick="offerClubAdd()" style="margin-top:8px;width:100%">+ Agregar otro palo</button></div>'
     + '<div class="f"><label>Máximo de videos</label><input id="o_max" type="number" min="1" max="12" value="'+d.max_videos+'"></div>'
     + '<div class="f full"><label>Instrucción extra <i>opcional</i></label><input id="o_note" maxlength="160" placeholder="Graba a la altura de las manos, con el celular horizontal" value="'+esc(cr.nota||'')+'"></div>'
     + (o?'<div class="full"><label class="tog"><input type="checkbox" id="o_active"'+(d.is_active?' checked':'')+'><span><b>Activa</b><small>Si la desmarcas, deja de aparecer en tu perfil público.</small></span></label></div>':'')
@@ -952,14 +956,53 @@ function openOffer(id){
     + '<button class="btn ghost" onclick="closeOffer()">Cancelar</button><button class="btn primary" onclick="saveOffer()">Guardar oferta</button></div>';
   $('offerBody').innerHTML=h;
   // los chips del modal no deben marcar el perfil como modificado
-  $('offerBody').querySelectorAll('.chip').forEach(function(c){ c.onclick=function(){ c.classList.toggle('on'); }; });
+  $('offerBody').querySelectorAll('.chips .chip').forEach(function(c){ c.onclick=function(){ c.classList.toggle('on'); }; });
   $('offerModal').classList.add('on');
+  OFFER_CLUBS = (cr.palos && cr.palos.length) ? cr.palos.slice(0,CLUB_MAX) : [cr.palo||'libre'];
+  offerClubsRender();
   offerKind();
   offerPriceHint();
 }
+
+// ── Análisis ilimitados (se guarda como 0) ──
+function offerUnl(){
+  var on=!$('o_unl').classList.contains('on');
+  $('o_unl').classList.toggle('on',on);
+  var n=$('o_n'); n.disabled=on;
+  if(on){ n.dataset.prev=n.value; n.value=''; n.placeholder='∞'; }
+  else { n.value=n.dataset.prev||'4'; n.placeholder=''; }
+  offerNHint();
+}
+function offerNHint(){
+  var el=$('o_n_hint'); if(!el) return;
+  el.textContent = $('o_unl').classList.contains('on') ? 'El alumno puede mandarte videos las veces que quiera durante el plan.' : '';
+}
+
+// ── Palos (uno o más) ──
+var OFFER_CLUBS=['libre'], CLUB_MAX=4;
+function offerClubsRender(){
+  var h='';
+  OFFER_CLUBS.forEach(function(v,i){
+    h+='<div style="display:flex;gap:8px;'+(i?'margin-top:8px':'')+'"><select data-i="'+i+'" onchange="OFFER_CLUBS[+this.dataset.i]=this.value" style="flex:1 1 auto">'+optionList(CLUBS,v)+'</select>'
+      + (i?'<button type="button" class="btn sm ghost" onclick="offerClubDel('+i+')" aria-label="Quitar palo" style="flex:0 0 auto;padding:0 14px">×</button>':'')+'</div>';
+  });
+  $('o_clubs').innerHTML=h;
+  $('o_club_add').style.display = OFFER_CLUBS.length>=CLUB_MAX ? 'none' : '';
+}
+function offerClubAdd(){
+  if(OFFER_CLUBS.length>=CLUB_MAX) return;
+  var used=OFFER_CLUBS, next=CLUBS.filter(function(c){ return c[0]!=='libre' && used.indexOf(c[0])<0; })[0];
+  OFFER_CLUBS.push(next?next[0]:'libre');
+  offerClubsRender();
+}
+function offerClubDel(i){ OFFER_CLUBS.splice(i,1); offerClubsRender(); }
 function offerKind(){
   var k=$('o_kind').value;
   $('o_n_box').style.display = k==='analisis' ? 'none' : '';
+  // "Ilimitado" solo tiene sentido en un plan mensual
+  $('o_unl').style.display = k==='plan_mensual' ? '' : 'none';
+  if(k!=='plan_mensual' && $('o_unl').classList.contains('on')) offerUnl();
+  offerNHint();
   $('o_days_box').style.display = k==='plan_mensual' ? '' : 'none';
 }
 function closeOffer(){ $('offerModal').classList.remove('on'); EDIT_OFFER=null; }
@@ -975,13 +1018,17 @@ async function saveOffer(){
   var angles=chipVals('o_angles',$('offerBody'));
   if(!angles.length){ toast('Elige al menos un ángulo de grabación',true); return; }
   var swings=parseInt($('o_swings').value,10)||1, maxv=parseInt($('o_max').value,10)||6;
-  if(angles.length > maxv){ toast('El máximo de videos es menor que la cantidad de ángulos',true); return; }
+  // palos sin repetir; "a elección" solo tiene sentido solo
+  var clubs=OFFER_CLUBS.filter(function(v,i,a){ return a.indexOf(v)===i; });
+  if(clubs.length>1) clubs=clubs.filter(function(v){ return v!=='libre'; });
+  if(!clubs.length) clubs=['libre'];
+  if(angles.length*clubs.length > maxv){ toast('El máximo de videos es menor que ángulos × palos ('+(angles.length*clubs.length)+')',true); return; }
   var d = {
     coach_id: USER.id, kind:k, title:title, description:$('o_desc').value.trim(), price:price, currency:cur,
-    analyses_included: k==='analisis' ? 1 : Math.max(1, parseInt($('o_n').value,10)||1),
+    analyses_included: k==='analisis' ? 1 : (k==='plan_mensual' && $('o_unl').classList.contains('on') ? 0 : Math.max(1, parseInt($('o_n').value,10)||1)),
     duration_days: k==='plan_mensual' ? (parseInt($('o_days').value,10)||30) : null,
     is_trial: trial, max_videos: maxv,
-    capture_requirements: {angulos:angles, swings_por_angulo:swings, palo:$('o_club').value, nota:$('o_note').value.trim()}
+    capture_requirements: {angulos:angles, swings_por_angulo:swings, palo:clubs[0], palos:clubs, nota:$('o_note').value.trim()}
   };
   if(EDIT_OFFER) d.is_active = $('o_active').checked; else d.sort_order = OFFERS.length;
   var r = EDIT_OFFER
