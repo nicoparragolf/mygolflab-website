@@ -126,7 +126,7 @@ const TOOLS = [
     input_schema: {
       type: 'object',
       properties: {
-        destino: { type: 'string', enum: ['perfil_jugador', 'notas_jugador', 'nuevo_evento', 'mensajes', 'clases', 'analizar_swing', 'dashboard', 'jugadores', 'contenido', 'cuenta'] },
+        destino: { type: 'string', enum: ['perfil_jugador', 'notas_jugador', 'nuevo_evento', 'mensajes', 'clases', 'analizar_swing', 'dashboard', 'jugadores', 'contenido', 'cuenta', 'reporte'] },
         player_id: { type: 'string', description: 'Para perfil_jugador, notas_jugador, nuevo_evento y mensajes' }
       },
       required: ['destino']

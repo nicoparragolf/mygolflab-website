@@ -752,7 +752,8 @@
           dashboard: '/es/coachhub/dashboard.html',
           jugadores: '/es/coachhub/jugador.html',
           contenido: '/es/coachhub/contenido.html',
-          cuenta: '/es/coachhub/cuenta.html'
+          cuenta: '/es/coachhub/cuenta.html',
+          reporte: '/es/coachhub/reporte.html'
         };
         var url = rutas[a.destino];
         if (!url) return { ok: false, error: 'Destino desconocido' };
