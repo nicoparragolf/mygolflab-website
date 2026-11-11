@@ -3,18 +3,23 @@
 //  Archivo: app-movil/ios/App/App/CamaraSwing.swift
 //
 //  Antes, "Tomar un video nuevo" usaba la cámara que trae el WebView de iOS
-//  (<input capture>): sin estabilización, con la imagen comprimida y el
-//  video "temblando". Esta cámara está hecha directo con AVFoundation, igual
-//  que la app Cámara del iPhone:
-//    · Estabilización de video (la más fuerte que tenga el teléfono:
-//      cinemática extendida → cinemática → estándar), también en la vista previa.
-//    · 1080p a 60 cuadros por segundo (opción de 120 / 240 para cámara lenta).
-//    · Lentes 0.5× / 1× / 2× cuando el teléfono los tiene.
-//    · Video en H.264 (.mp4): se reproduce en Safari y en Chrome.
-//    · Toca la pantalla para enfocar.
+//  (<input capture>): sin estabilización y con la imagen comprimida. Esta
+//  cámara está hecha directo con AVFoundation y se parece a la app Cámara:
+//    · Estabilización: la más fuerte del teléfono (cinemática extendida
+//      mejorada en iOS 18 → extendida → cinemática → estándar), también en
+//      la vista previa. Formatos sin "binning" (más detalle) y Video HDR.
+//    · Arriba "HD · 60" como en el iPhone: HD / 4K y 30 / 60 fps.
+//    · Modos VIDEO y CÁMARA LENTA (120 / 240 fps).
+//    · Lentes .5 / 1× / 2 / 3 o 5 según el teléfono. Toca para enfocar.
+//    · Varios videos seguidos sin cerrar la cámara (miniatura + "Listo").
+//    · H.264 (.mp4): se reproduce en Safari y en Chrome. No se guarda nada
+//      en la galería del teléfono.
 //
 //  Desde la web (js/mgl-camara.js):
-//    CamaraSwing.grabar({ fps: 60 })  → { path, nombre, bytes, duracion, fps } o { cancelado: true }
+//    CamaraSwing.grabar({ fps: 60 })
+//        → { videos: [{ path, nombre, tipo, bytes, duracion, fps }, ...] }
+//          (+ los campos del primero sueltos, para la web antigua)
+//          o { cancelado: true }
 //    CamaraSwing.leer({ path, offset, length }) → { data (base64), bytes }
 //    CamaraSwing.borrar({ path })
 //
@@ -122,35 +127,60 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
     var fpsPedido = 60
     var alTerminar: (([String: Any]?) -> Void)?
 
+    private enum Modo { case video, lento }
+
     private let session = AVCaptureSession()
     private let colaSesion = DispatchQueue(label: "golf.coachyard.camaraswing")
     private let salida = AVCaptureMovieFileOutput()
     private var dispositivo: AVCaptureDevice?
     private var preview: AVCaptureVideoPreviewLayer!
 
-    private var fpsDisponibles: [Int] = []
-    private var fps = 60
+    // Ajustes (como la app Cámara)
+    private var modo: Modo = .video
+    private var en4K = false
+    private var fpsVideo = 60
+    private var fpsLento = 240
+    private var hay4K = false
+    private var fpsVideoDisp: [Int] = []
+    private var fpsLentoDisp: [Int] = []
+    private var fpsActual: Int { return modo == .lento ? fpsLento : fpsVideo }
+
     private var lentes: [(titulo: String, zoom: CGFloat)] = []
     private var lenteActual = 0
     private var grabando = false
     private var terminado = false
-    private var orientacionGrabacion: UIDeviceOrientation = .portrait
     private var reloj: Timer?
+
+    // Videos de esta sesión
+    private var clips: [[String: Any]] = []
+    private let grupoExport = DispatchGroup()
+    private var exportando = 0
 
     // Vistas
     private let vistaPreview = UIView()
     private let btnCerrar = UIButton(type: .system)
-    private let btnFps = UIButton(type: .system)
+    private let filaAjustes = UIStackView()
+    private let btnRes = UIButton(type: .custom)
+    private let btnFps = UIButton(type: .custom)
     private let lblTiempo = UILabel()
     private let puntoRojo = UIView()
     private let cajaTiempo = UIView()
     private let btnGrabar = UIButton(type: .custom)
     private let centroGrabar = UIView()
     private let filaLentes = UIStackView()
+    private let filaModos = UIStackView()
+    private let btnModoLento = UIButton(type: .custom)
+    private let btnModoVideo = UIButton(type: .custom)
+    private let miniatura = UIImageView()
+    private let lblCuenta = UILabel()
+    private let btnListo = UIButton(type: .custom)
     private let aviso = UILabel()
     private let btnAjustes = UIButton(type: .system)
     private let cargando = UIActivityIndicatorView(style: .large)
     private let marcoFoco = UIView()
+
+    private let oro = UIColor(red: 212/255, green: 197/255, blue: 169/255, alpha: 1)
+    private let amarillo = UIColor(red: 1, green: 0.8, blue: 0.0, alpha: 1)
 
     override var prefersStatusBarHidden: Bool { return true }
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask { return .portrait }
@@ -161,6 +191,8 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
+        if fpsPedido >= 120 { modo = .lento; fpsLento = fpsPedido >= 240 ? 240 : 120 }
+        else { fpsVideo = fpsPedido <= 30 ? 30 : 60 }
         armarVistas()
         pedirPermisos()
     }
@@ -219,7 +251,8 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         aviso.isHidden = false
         btnAjustes.isHidden = false
         btnGrabar.isHidden = true
-        btnFps.isHidden = true
+        filaAjustes.isHidden = true
+        filaModos.isHidden = true
     }
 
     @objc private func abrirAjustes() {
@@ -228,7 +261,7 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         }
     }
 
-    // MARK: Configuración de la cámara
+    // MARK: Formatos
 
     private func elegirDispositivo() -> AVCaptureDevice? {
         let tipos: [AVCaptureDevice.DeviceType] = [
@@ -241,16 +274,30 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         return AVCaptureDevice.default(for: .video)
     }
 
-    private func puntajeEstabilizacion(_ f: AVCaptureDevice.Format) -> Int {
-        if f.isVideoStabilizationModeSupported(.cinematicExtended) { return 3000 }
-        if f.isVideoStabilizationModeSupported(.cinematic) { return 2000 }
-        if f.isVideoStabilizationModeSupported(.standard) { return 1000 }
-        return 0
+    private func modoEstabilizacion(_ f: AVCaptureDevice.Format) -> AVCaptureVideoStabilizationMode? {
+        if #available(iOS 18.0, *) {
+            if f.isVideoStabilizationModeSupported(.cinematicExtendedEnhanced) { return .cinematicExtendedEnhanced }
+        }
+        if f.isVideoStabilizationModeSupported(.cinematicExtended) { return .cinematicExtended }
+        if f.isVideoStabilizationModeSupported(.cinematic) { return .cinematic }
+        if f.isVideoStabilizationModeSupported(.standard) { return .standard }
+        return nil
     }
 
-    // Mejor formato para esos cuadros por segundo: 1080p 16:9, 8 bits (H.264),
-    // con la estabilización más fuerte disponible. Nada de 4K (archivos enormes).
-    private func elegirFormato(_ d: AVCaptureDevice, fps: Int) -> AVCaptureDevice.Format? {
+    private func puntajeEstabilizacion(_ f: AVCaptureDevice.Format) -> Int {
+        guard let m = modoEstabilizacion(f) else { return 0 }
+        if #available(iOS 18.0, *) { if m == .cinematicExtendedEnhanced { return 4000 } }
+        switch m {
+        case .cinematicExtended: return 3000
+        case .cinematic: return 2000
+        default: return 1000
+        }
+    }
+
+    // Mejor formato: 16:9, 8 bits (H.264), sin "binning" (más detalle) y con
+    // la estabilización más fuerte. HD = 1080p (720p solo si no hay otra en
+    // cámara lenta). 4K = 2160p.
+    private func elegirFormato(_ d: AVCaptureDevice, fps: Int, k4: Bool) -> AVCaptureDevice.Format? {
         var mejor: AVCaptureDevice.Format?
         var mejorPuntaje = -1
         for f in d.formats {
@@ -259,15 +306,37 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
                 sub != kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange { continue }
             if !f.videoSupportedFrameRateRanges.contains(where: { $0.maxFrameRate >= Double(fps) - 0.5 }) { continue }
             let dim = CMVideoFormatDescriptionGetDimensions(f.formatDescription)
-            if dim.width > 1920 || dim.width < 1280 { continue }
-            var p = dim.width >= 1920 ? 10000 : Int(dim.width) * 2
-            if Int(dim.width) * 9 != Int(dim.height) * 16 { p -= 6000 }   // preferir 16:9
+            if Int(dim.width) * 9 != Int(dim.height) * 16 { continue }
+            if k4 {
+                if dim.width != 3840 { continue }
+            } else {
+                if dim.width > 1920 || dim.width < 1280 { continue }
+            }
+            var p = dim.width >= 1920 ? 20000 : 0
+            if !f.isVideoBinned { p += 5000 }
             p += puntajeEstabilizacion(f)
+            if f.isVideoHDRSupported { p += 50 }
             if sub == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange { p += 1 }
             if p > mejorPuntaje { mejorPuntaje = p; mejor = f }
         }
         return mejor
     }
+
+    private func calcularDisponibles(_ d: AVCaptureDevice) {
+        hay4K = elegirFormato(d, fps: 30, k4: true) != nil
+        fpsLentoDisp = [120, 240].filter { elegirFormato(d, fps: $0, k4: false) != nil }
+        if !fpsLentoDisp.contains(fpsLento) { fpsLento = fpsLentoDisp.last ?? 120 }
+        if en4K && !hay4K { en4K = false }
+        recalcularFpsVideo(d)
+    }
+
+    private func recalcularFpsVideo(_ d: AVCaptureDevice) {
+        fpsVideoDisp = [30, 60].filter { elegirFormato(d, fps: $0, k4: en4K) != nil }
+        if fpsVideoDisp.isEmpty { fpsVideoDisp = [30] }
+        if !fpsVideoDisp.contains(fpsVideo) { fpsVideo = fpsVideoDisp.last ?? 30 }
+    }
+
+    // MARK: Sesión
 
     private func configurarSesion() {
         guard let d = elegirDispositivo() else {
@@ -275,9 +344,8 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             return
         }
         dispositivo = d
-        fpsDisponibles = [60, 120, 240].filter { elegirFormato(d, fps: $0) != nil }
-        if fpsDisponibles.isEmpty { fpsDisponibles = [30] }
-        fps = fpsDisponibles.contains(fpsPedido) ? fpsPedido : fpsDisponibles[0]
+        calcularDisponibles(d)
+        if modo == .lento && fpsLentoDisp.isEmpty { modo = .video }
 
         session.beginConfiguration()
         do {
@@ -302,7 +370,7 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         DispatchQueue.main.async {
             self.cargando.stopAnimating()
             self.armarLentes()
-            self.actualizarBotonFps()
+            self.pintarAjustes()
             self.btnGrabar.isEnabled = true
             self.btnGrabar.alpha = 1
         }
@@ -311,7 +379,8 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
     // Se llama dentro de begin/commitConfiguration, en colaSesion
     private func aplicarFormato() {
         guard let d = dispositivo else { return }
-        let formato = elegirFormato(d, fps: fps)
+        let fps = fpsActual
+        let formato = elegirFormato(d, fps: fps, k4: modo == .video && en4K)
         do {
             try d.lockForConfiguration()
             if let f = formato {
@@ -319,6 +388,13 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
                 let dur = CMTime(value: 1, timescale: CMTimeScale(fps))
                 d.activeVideoMinFrameDuration = dur
                 d.activeVideoMaxFrameDuration = dur
+                // Video HDR (8 bits): más rango de luz, como la app Cámara
+                if f.isVideoHDRSupported {
+                    d.automaticallyAdjustsVideoHDREnabled = false
+                    d.isVideoHDREnabled = true
+                } else {
+                    d.automaticallyAdjustsVideoHDREnabled = true
+                }
             } else {
                 session.sessionPreset = .high
             }
@@ -330,16 +406,7 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
 
         if let c = salida.connection(with: .video) {
             if c.isVideoStabilizationSupported {
-                let f = formato ?? d.activeFormat
-                if f.isVideoStabilizationModeSupported(.cinematicExtended) {
-                    c.preferredVideoStabilizationMode = .cinematicExtended
-                } else if f.isVideoStabilizationModeSupported(.cinematic) {
-                    c.preferredVideoStabilizationMode = .cinematic
-                } else if f.isVideoStabilizationModeSupported(.standard) {
-                    c.preferredVideoStabilizationMode = .standard
-                } else {
-                    c.preferredVideoStabilizationMode = .auto
-                }
+                c.preferredVideoStabilizationMode = modoEstabilizacion(formato ?? d.activeFormat) ?? .auto
             }
             // H.264 en vez de HEVC: así el video también se ve en Chrome
             if salida.availableVideoCodecTypes.contains(.h264) {
@@ -347,6 +414,19 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             }
         }
         DispatchQueue.main.async { self.ajustarPreview() }
+    }
+
+    private func reconfigurar() {
+        let zoom = lentes.isEmpty ? 1 : lentes[lenteActual].zoom
+        pintarAjustes()
+        colaSesion.async {
+            self.session.beginConfiguration()
+            self.aplicarFormato()
+            self.session.commitConfiguration()
+            DispatchQueue.main.async {
+                self.armarLentes(zoomPreferido: zoom)
+            }
+        }
     }
 
     private func ajustarPreview() {
@@ -360,30 +440,95 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         }
     }
 
-    // MARK: Lentes (0.5× / 1× / 2×)
+    // MARK: Ajustes de arriba (HD · 60) y modos (VIDEO / CÁMARA LENTA)
 
-    private func armarLentes() {
+    private func pintarAjustes() {
+        let res = modo == .lento ? "HD" : (en4K ? "4K" : "HD")
+        btnRes.setTitle(res, for: .normal)
+        btnRes.isEnabled = modo == .video && hay4K
+        btnRes.setTitleColor(modo == .video && hay4K ? .white : UIColor(white: 1, alpha: 0.5), for: .normal)
+        btnFps.setTitle(String(fpsActual), for: .normal)
+        let opciones = modo == .lento ? fpsLentoDisp : fpsVideoDisp
+        btnFps.isEnabled = opciones.count > 1
+        btnFps.setTitleColor(opciones.count > 1 ? .white : UIColor(white: 1, alpha: 0.5), for: .normal)
+        filaAjustes.isHidden = grabando
+        btnModoLento.isHidden = fpsLentoDisp.isEmpty
+        btnModoLento.setTitleColor(modo == .lento ? amarillo : .white, for: .normal)
+        btnModoVideo.setTitleColor(modo == .video ? amarillo : .white, for: .normal)
+    }
+
+    @objc private func tocarRes() {
+        guard !grabando, modo == .video, hay4K, let d = dispositivo else { return }
+        en4K.toggle()
+        recalcularFpsVideo(d)
+        reconfigurar()
+    }
+
+    @objc private func tocarFps() {
+        guard !grabando else { return }
+        if modo == .lento {
+            guard fpsLentoDisp.count > 1 else { return }
+            let i = fpsLentoDisp.firstIndex(of: fpsLento) ?? 0
+            fpsLento = fpsLentoDisp[(i + 1) % fpsLentoDisp.count]
+        } else {
+            guard fpsVideoDisp.count > 1 else { return }
+            let i = fpsVideoDisp.firstIndex(of: fpsVideo) ?? 0
+            fpsVideo = fpsVideoDisp[(i + 1) % fpsVideoDisp.count]
+        }
+        reconfigurar()
+    }
+
+    @objc private func tocarModoVideo() { cambiarModo(.video) }
+    @objc private func tocarModoLento() { cambiarModo(.lento) }
+
+    private func cambiarModo(_ m: Modo) {
+        guard !grabando, m != modo else { return }
+        if m == .lento && fpsLentoDisp.isEmpty { return }
+        modo = m
+        reconfigurar()
+    }
+
+    // MARK: Lentes (.5 / 1× / 2 / 3 o 5)
+
+    private func armarLentes(zoomPreferido: CGFloat? = nil) {
         filaLentes.arrangedSubviews.forEach { $0.removeFromSuperview() }
         lentes = []
         guard let d = dispositivo else { return }
-        let maxZoom = min(d.activeFormat.videoMaxZoomFactor, 12)
+        let maxZoom = min(d.activeFormat.videoMaxZoomFactor, 30)
         let cortes = d.virtualDeviceSwitchOverVideoZoomFactors.map { CGFloat(truncating: $0) }
         var uno: CGFloat = 1
-        if d.deviceType == .builtInTripleCamera || d.deviceType == .builtInDualWideCamera {
+        var tele: CGFloat = 0
+        switch d.deviceType {
+        case .builtInTripleCamera:
+            uno = cortes.first ?? 2
+            if cortes.count > 1 { tele = cortes[1] }
+            lentes.append((titulo: ".5", zoom: 1))
+        case .builtInDualWideCamera:
             uno = cortes.first ?? 2
             lentes.append((titulo: ".5", zoom: 1))
+        case .builtInDualCamera:
+            if let c = cortes.first { tele = c }
+        default:
+            break
         }
-        lentes.append((titulo: "1×", zoom: uno))
-        if uno * 2 <= maxZoom { lentes.append((titulo: "2", zoom: uno * 2)) }
-        lenteActual = lentes.firstIndex(where: { $0.titulo == "1×" }) ?? 0
-        if lentes.count < 2 { filaLentes.isHidden = true; return }
-        filaLentes.isHidden = false
+        lentes.append((titulo: "1", zoom: uno))
+        // 2×: recorte del sensor principal (si el teleobjetivo no es 2×)
+        let relTele = tele > 0 ? tele / uno : 0
+        if abs(relTele - 2) > 0.3 && uno * 2 <= maxZoom { lentes.append((titulo: "2", zoom: uno * 2)) }
+        if tele > 0 && tele <= maxZoom {
+            let t = relTele.truncatingRemainder(dividingBy: 1) < 0.05 ? String(Int(relTele)) : String(format: "%.1f", relTele)
+            lentes.append((titulo: t, zoom: tele))
+        }
+        lentes.sort { $0.zoom < $1.zoom }
+        lenteActual = lentes.firstIndex(where: { $0.titulo == "1" }) ?? 0
+        if let z = zoomPreferido, let i = lentes.firstIndex(where: { abs($0.zoom - z) < 0.01 }) { lenteActual = i }
+        filaLentes.isHidden = lentes.count < 2
         for (i, l) in lentes.enumerated() {
             let b = UIButton(type: .custom)
             b.tag = i
             b.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .bold)
             b.setTitle(l.titulo, for: .normal)
-            b.backgroundColor = UIColor(white: 0, alpha: 0.45)
+            b.backgroundColor = UIColor(white: 0, alpha: 0.4)
             b.layer.cornerRadius = 19
             b.translatesAutoresizingMaskIntoConstraints = false
             b.widthAnchor.constraint(equalToConstant: 38).isActive = true
@@ -392,17 +537,17 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             filaLentes.addArrangedSubview(b)
         }
         pintarLentes()
-        aplicarZoom(lentes[lenteActual].zoom)
+        if !lentes.isEmpty { aplicarZoom(lentes[lenteActual].zoom) }
     }
 
     private func pintarLentes() {
-        let oro = UIColor(red: 212/255, green: 197/255, blue: 169/255, alpha: 1)
         for v in filaLentes.arrangedSubviews {
-            guard let b = v as? UIButton else { continue }
+            guard let b = v as? UIButton, b.tag < lentes.count else { continue }
             let on = b.tag == lenteActual
-            b.setTitleColor(on ? oro : .white, for: .normal)
             let t = lentes[b.tag].titulo
-            b.setTitle(on && t != "1×" ? (t + "×") : t, for: .normal)
+            b.setTitle(on ? (t + "×") : t, for: .normal)
+            b.setTitleColor(on ? amarillo : .white, for: .normal)
+            b.transform = on ? CGAffineTransform(scaleX: 1.12, y: 1.12) : .identity
         }
     }
 
@@ -422,27 +567,6 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
                 d.ramp(toVideoZoomFactor: max(1, min(z, maxZ)), withRate: 12)
                 d.unlockForConfiguration()
             } catch {}
-        }
-    }
-
-    // MARK: Cuadros por segundo
-
-    private func actualizarBotonFps() {
-        btnFps.setTitle(fps >= 120 ? "\(fps) FPS · LENTO" : "\(fps) FPS", for: .normal)
-        btnFps.isHidden = fpsDisponibles.count < 2
-    }
-
-    @objc private func cambiarFps() {
-        guard !grabando, fpsDisponibles.count > 1 else { return }
-        let i = fpsDisponibles.firstIndex(of: fps) ?? 0
-        fps = fpsDisponibles[(i + 1) % fpsDisponibles.count]
-        actualizarBotonFps()
-        let zoom = lentes.isEmpty ? 1 : lentes[lenteActual].zoom
-        colaSesion.async {
-            self.session.beginConfiguration()
-            self.aplicarFormato()
-            self.session.commitConfiguration()
-            DispatchQueue.main.async { self.aplicarZoom(zoom) }
         }
     }
 
@@ -485,11 +609,10 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
 
     private func empezar() {
         guard !grabando, !salida.isRecording else { return }
-        orientacionGrabacion = orientacionActual()
-        let nombre = "swing-" + String(Int(Date().timeIntervalSince1970)) + ".mov"
+        let o = orientacionActual()
+        let nombre = "swing-" + String(Int(Date().timeIntervalSince1970 * 1000)) + ".mov"
         let url = CamaraSwingPlugin.carpeta.appendingPathComponent(nombre)
         try? FileManager.default.createDirectory(at: CamaraSwingPlugin.carpeta, withIntermediateDirectories: true)
-        let o = orientacionGrabacion
         grabando = true
         pintarGrabando(true)
         colaSesion.async {
@@ -523,8 +646,11 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
     }
 
     private func pintarGrabando(_ si: Bool) {
-        btnFps.isHidden = si || fpsDisponibles.count < 2
+        filaAjustes.isHidden = si
+        filaModos.isHidden = si
         btnCerrar.isHidden = si
+        miniatura.isHidden = si || clips.isEmpty && exportando == 0
+        btnListo.isHidden = si || (clips.isEmpty && exportando == 0)
         cajaTiempo.isHidden = !si
         lblTiempo.text = "00:00"
         UIView.animate(withDuration: 0.2) {
@@ -550,28 +676,30 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             ok = (e.userInfo[AVErrorRecordingSuccessfullyFinishedKey] as? Bool) ?? false
         }
         let duracion = CMTimeGetSeconds(output.recordedDuration)
+        let fps = fpsActual
         DispatchQueue.main.async {
             self.grabando = false
             self.reloj?.invalidate()
+            self.btnGrabar.isEnabled = true
             if !ok || !FileManager.default.fileExists(atPath: outputFileURL.path) {
                 self.pintarGrabando(false)
-                self.btnGrabar.isEnabled = true
                 self.mostrarError("No se pudo guardar el video. Intenta de nuevo.")
                 return
             }
-            self.cajaTiempo.isHidden = true
-            self.btnGrabar.isHidden = true
-            self.filaLentes.isHidden = true
-            self.cargando.startAnimating()
-            self.pasarAMp4(outputFileURL, duracion: duracion.isFinite ? duracion : 0)
+            // La cámara sigue abierta para grabar el siguiente swing.
+            // Mientras tanto el video se pasa a .mp4 en segundo plano.
+            self.exportando += 1
+            self.pintarGrabando(false)
+            self.pintarCuenta()
+            self.grupoExport.enter()
+            self.pasarAMp4(outputFileURL, duracion: duracion.isFinite ? duracion : 0, fps: fps)
         }
     }
 
     // .mov → .mp4 sin volver a comprimir (passthrough): es solo cambiar el envase
-    private func pasarAMp4(_ mov: URL, duracion: Double) {
+    private func pasarAMp4(_ mov: URL, duracion: Double, fps: Int) {
         let mp4 = mov.deletingPathExtension().appendingPathExtension("mp4")
-        let fpsUsado = fps
-        func entregar(_ url: URL) {
+        func listo(_ url: URL) {
             let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
             let bytes = (attrs?[.size] as? NSNumber)?.intValue ?? 0
             let r: [String: Any] = [
@@ -580,13 +708,20 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
                 "tipo": url.pathExtension == "mp4" ? "video/mp4" : "video/quicktime",
                 "bytes": bytes,
                 "duracion": duracion,
-                "fps": fpsUsado
+                "fps": fps
             ]
-            DispatchQueue.main.async { self.terminar(r) }
+            let img = self.cuadro(de: url)
+            DispatchQueue.main.async {
+                self.clips.append(r)
+                self.exportando -= 1
+                if let img = img { self.miniatura.image = img }
+                self.pintarCuenta()
+                self.grupoExport.leave()
+            }
         }
         let asset = AVURLAsset(url: mov)
         guard let exp = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetPassthrough) else {
-            entregar(mov)
+            DispatchQueue.global(qos: .userInitiated).async { listo(mov) }
             return
         }
         exp.outputURL = mp4
@@ -595,18 +730,63 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         exp.exportAsynchronously {
             if exp.status == .completed, FileManager.default.fileExists(atPath: mp4.path) {
                 try? FileManager.default.removeItem(at: mov)
-                entregar(mp4)
+                listo(mp4)
             } else {
-                entregar(mov)
+                listo(mov)
             }
         }
     }
 
-    // MARK: Cerrar
+    private func cuadro(de url: URL) -> UIImage? {
+        let gen = AVAssetImageGenerator(asset: AVURLAsset(url: url))
+        gen.appliesPreferredTrackTransform = true
+        gen.maximumSize = CGSize(width: 200, height: 200)
+        guard let cg = try? gen.copyCGImage(at: CMTime(seconds: 0.3, preferredTimescale: 600), actualTime: nil) else { return nil }
+        return UIImage(cgImage: cg)
+    }
+
+    private func pintarCuenta() {
+        let n = clips.count + exportando
+        miniatura.isHidden = n == 0 || grabando
+        btnListo.isHidden = n == 0 || grabando
+        lblCuenta.text = String(n)
+        lblCuenta.isHidden = n < 2
+        btnListo.setTitle(n > 1 ? "Listo (" + String(n) + ")" : "Listo", for: .normal)
+    }
+
+    // MARK: Terminar
+
+    @objc private func tocarListo() {
+        if grabando { return }
+        btnListo.isEnabled = false
+        btnGrabar.isEnabled = false
+        cargando.startAnimating()
+        grupoExport.notify(queue: .main) {
+            var r: [String: Any] = ["videos": self.clips]
+            if let primero = self.clips.first {
+                for (k, v) in primero { r[k] = v }   // para la web antigua (un solo video)
+            }
+            self.terminar(self.clips.isEmpty ? nil : r)
+        }
+    }
 
     @objc private func cerrar() {
         if grabando { return }
-        terminar(nil)
+        let n = clips.count + exportando
+        if n == 0 { terminar(nil); return }
+        let a = UIAlertController(title: n == 1 ? "¿Usar el video grabado?" : "¿Usar los " + String(n) + " videos grabados?",
+                                  message: nil, preferredStyle: .actionSheet)
+        a.addAction(UIAlertAction(title: n == 1 ? "Usar video" : "Usar videos", style: .default) { _ in self.tocarListo() })
+        a.addAction(UIAlertAction(title: "Descartar", style: .destructive) { _ in
+            self.grupoExport.notify(queue: .main) {
+                for c in self.clips { if let p = c["path"] as? String { try? FileManager.default.removeItem(atPath: p) } }
+                self.clips = []
+                self.terminar(nil)
+            }
+        })
+        a.addAction(UIAlertAction(title: "Seguir grabando", style: .cancel))
+        if let pop = a.popoverPresentationController { pop.sourceView = btnCerrar; pop.sourceRect = btnCerrar.bounds }
+        present(a, animated: true)
     }
 
     private func terminar(_ r: [String: Any]?) {
@@ -628,9 +808,26 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
 
     // MARK: Vistas
 
-    private func armarVistas() {
-        let oro = UIColor(red: 212/255, green: 197/255, blue: 169/255, alpha: 1)
+    private func pastilla(_ b: UIButton, _ accion: Selector) {
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        b.setTitleColor(.white, for: .normal)
+        b.backgroundColor = UIColor(white: 0, alpha: 0.45)
+        b.layer.cornerRadius = 16
+        b.contentEdgeInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
+        b.heightAnchor.constraint(equalToConstant: 32).isActive = true
+        b.addTarget(self, action: accion, for: .touchUpInside)
+    }
 
+    private func modoBoton(_ b: UIButton, _ titulo: String, _ accion: Selector) {
+        b.setTitle(titulo, for: .normal)
+        b.titleLabel?.font = UIFont.systemFont(ofSize: 13.5, weight: .semibold)
+        b.setTitleColor(.white, for: .normal)
+        b.contentEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        b.addTarget(self, action: accion, for: .touchUpInside)
+    }
+
+    private func armarVistas() {
         vistaPreview.translatesAutoresizingMaskIntoConstraints = false
         vistaPreview.backgroundColor = .black
         view.addSubview(vistaPreview)
@@ -640,7 +837,7 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         vistaPreview.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tocarPantalla(_:))))
 
         marcoFoco.frame = CGRect(x: 0, y: 0, width: 74, height: 74)
-        marcoFoco.layer.borderColor = oro.cgColor
+        marcoFoco.layer.borderColor = amarillo.cgColor
         marcoFoco.layer.borderWidth = 1.5
         marcoFoco.alpha = 0
         marcoFoco.isUserInteractionEnabled = false
@@ -656,16 +853,15 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         btnCerrar.addTarget(self, action: #selector(cerrar), for: .touchUpInside)
         view.addSubview(btnCerrar)
 
-        // FPS
-        btnFps.translatesAutoresizingMaskIntoConstraints = false
-        btnFps.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .bold)
-        btnFps.tintColor = oro
-        btnFps.backgroundColor = UIColor(white: 0, alpha: 0.45)
-        btnFps.layer.cornerRadius = 17
-        btnFps.contentEdgeInsets = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 14)
-        btnFps.addTarget(self, action: #selector(cambiarFps), for: .touchUpInside)
-        btnFps.isHidden = true
-        view.addSubview(btnFps)
+        // HD · 60 (arriba a la derecha, como en el iPhone)
+        filaAjustes.translatesAutoresizingMaskIntoConstraints = false
+        filaAjustes.axis = .horizontal
+        filaAjustes.spacing = 6
+        pastilla(btnRes, #selector(tocarRes))
+        pastilla(btnFps, #selector(tocarFps))
+        filaAjustes.addArrangedSubview(btnRes)
+        filaAjustes.addArrangedSubview(btnFps)
+        view.addSubview(filaAjustes)
 
         // Tiempo
         cajaTiempo.translatesAutoresizingMaskIntoConstraints = false
@@ -698,12 +894,55 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
         centroGrabar.isUserInteractionEnabled = false
         btnGrabar.addSubview(centroGrabar)
 
+        // Modos
+        filaModos.translatesAutoresizingMaskIntoConstraints = false
+        filaModos.axis = .horizontal
+        filaModos.spacing = 22
+        modoBoton(btnModoLento, "CÁMARA LENTA", #selector(tocarModoLento))
+        modoBoton(btnModoVideo, "VIDEO", #selector(tocarModoVideo))
+        filaModos.addArrangedSubview(btnModoLento)
+        filaModos.addArrangedSubview(btnModoVideo)
+        view.addSubview(filaModos)
+
         // Lentes
         filaLentes.translatesAutoresizingMaskIntoConstraints = false
         filaLentes.axis = .horizontal
         filaLentes.spacing = 10
+        filaLentes.alignment = .center
         filaLentes.isHidden = true
         view.addSubview(filaLentes)
+
+        // Miniatura del último video + cantidad
+        miniatura.translatesAutoresizingMaskIntoConstraints = false
+        miniatura.contentMode = .scaleAspectFill
+        miniatura.clipsToBounds = true
+        miniatura.layer.cornerRadius = 8
+        miniatura.layer.borderWidth = 2
+        miniatura.layer.borderColor = UIColor.white.cgColor
+        miniatura.backgroundColor = UIColor(white: 0.15, alpha: 1)
+        miniatura.isHidden = true
+        view.addSubview(miniatura)
+        lblCuenta.translatesAutoresizingMaskIntoConstraints = false
+        lblCuenta.backgroundColor = amarillo
+        lblCuenta.textColor = .black
+        lblCuenta.font = UIFont.systemFont(ofSize: 12, weight: .bold)
+        lblCuenta.textAlignment = .center
+        lblCuenta.layer.cornerRadius = 10
+        lblCuenta.clipsToBounds = true
+        lblCuenta.isHidden = true
+        view.addSubview(lblCuenta)
+
+        // Listo
+        btnListo.translatesAutoresizingMaskIntoConstraints = false
+        btnListo.setTitle("Listo", for: .normal)
+        btnListo.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        btnListo.setTitleColor(.black, for: .normal)
+        btnListo.backgroundColor = oro
+        btnListo.layer.cornerRadius = 20
+        btnListo.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        btnListo.isHidden = true
+        btnListo.addTarget(self, action: #selector(tocarListo), for: .touchUpInside)
+        view.addSubview(btnListo)
 
         // Avisos
         aviso.translatesAutoresizingMaskIntoConstraints = false
@@ -745,9 +984,8 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             btnCerrar.widthAnchor.constraint(equalToConstant: 44),
             btnCerrar.heightAnchor.constraint(equalToConstant: 44),
 
-            btnFps.centerYAnchor.constraint(equalTo: btnCerrar.centerYAnchor),
-            btnFps.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: -16),
-            btnFps.heightAnchor.constraint(equalToConstant: 34),
+            filaAjustes.centerYAnchor.constraint(equalTo: btnCerrar.centerYAnchor),
+            filaAjustes.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: -16),
 
             cajaTiempo.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             cajaTiempo.centerYAnchor.constraint(equalTo: btnCerrar.centerYAnchor),
@@ -761,7 +999,7 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             lblTiempo.centerYAnchor.constraint(equalTo: cajaTiempo.centerYAnchor),
 
             btnGrabar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            btnGrabar.bottomAnchor.constraint(equalTo: g.bottomAnchor, constant: -24),
+            btnGrabar.bottomAnchor.constraint(equalTo: g.bottomAnchor, constant: -20),
             btnGrabar.widthAnchor.constraint(equalToConstant: 78),
             btnGrabar.heightAnchor.constraint(equalToConstant: 78),
             centroGrabar.centerXAnchor.constraint(equalTo: btnGrabar.centerXAnchor),
@@ -769,8 +1007,24 @@ final class CamaraSwingViewController: UIViewController, AVCaptureFileOutputReco
             centroGrabar.widthAnchor.constraint(equalToConstant: 58),
             centroGrabar.heightAnchor.constraint(equalToConstant: 58),
 
+            filaModos.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filaModos.bottomAnchor.constraint(equalTo: btnGrabar.topAnchor, constant: -12),
+
             filaLentes.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            filaLentes.bottomAnchor.constraint(equalTo: btnGrabar.topAnchor, constant: -22),
+            filaLentes.bottomAnchor.constraint(equalTo: filaModos.topAnchor, constant: -14),
+
+            miniatura.centerYAnchor.constraint(equalTo: btnGrabar.centerYAnchor),
+            miniatura.leadingAnchor.constraint(equalTo: g.leadingAnchor, constant: 28),
+            miniatura.widthAnchor.constraint(equalToConstant: 52),
+            miniatura.heightAnchor.constraint(equalToConstant: 52),
+            lblCuenta.topAnchor.constraint(equalTo: miniatura.topAnchor, constant: -8),
+            lblCuenta.trailingAnchor.constraint(equalTo: miniatura.trailingAnchor, constant: 8),
+            lblCuenta.widthAnchor.constraint(greaterThanOrEqualToConstant: 20),
+            lblCuenta.heightAnchor.constraint(equalToConstant: 20),
+
+            btnListo.centerYAnchor.constraint(equalTo: btnGrabar.centerYAnchor),
+            btnListo.trailingAnchor.constraint(equalTo: g.trailingAnchor, constant: -20),
+            btnListo.heightAnchor.constraint(equalToConstant: 40),
 
             aviso.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             aviso.leadingAnchor.constraint(equalTo: g.leadingAnchor, constant: 28),

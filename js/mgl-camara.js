@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    CoachYard · Cámara de swing + menú rápido del botón central
    Archivo: /js/mgl-camara.js
-   Versión: 1.0 · 2026-11-11
+   Versión: 1.1 · 2026-11-11 (varios videos seguidos)
 
    1. Cámara
       En la app de iPhone (versión con la cámara nueva) se usa la cámara
@@ -13,7 +13,8 @@
       · Cualquier <input type="file" capture accept="video/..."> de la página
         se desvía solo a la cámara nueva cuando está disponible (no hay que
         tocar cada página). Para excluir uno: data-sin-camara-nativa.
-      · MGLCamara.grabar()      → Promise<File | null>
+      · MGLCamara.grabarVarios() → Promise<File[]> (se pueden grabar varios seguidos)
+      · MGLCamara.grabar()      → Promise<File | null> (el último)
       · MGLCamara.nativa()      → true si está la cámara nueva
       · MGLCamara.dejar(file) / MGLCamara.tomar()
             pasar el video recién grabado a otra pestaña (analizador, evento)
@@ -67,6 +68,7 @@
     + '.mcam-op .ic{flex:0 0 auto;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;'
     +   'background:rgba(var(--r212_197_169,212,197,169),.12);color:var(--cd4c5a9,#D4C5A9)}'
     + '.mcam-op.rec .ic{background:rgba(235,64,52,.14);color:#ff5a4f}'
+    + '.mcam-op.top{border-color:rgba(var(--r212_197_169,212,197,169),.45);background:rgba(var(--r212_197_169,212,197,169),.08)}'
     + '.mcam-op .ic svg{width:24px;height:24px}'
     + '.mcam-op b{display:block;font-size:16.5px;font-weight:600}'
     + '.mcam-op small{display:block;color:var(--c8a8a8a,#8a8a8a);font-size:13.5px;margin-top:2px;line-height:1.3}'
@@ -145,30 +147,45 @@
   var TROZO = 3 * 1024 * 1024;
   var grabandoAhora = false;
 
+  // Lee un video de la cámara nativa (en trozos) y lo arma como File
+  async function leerVideo(p, v, pr, hecho, total) {
+    var partes = [], off = 0;
+    for (;;) {
+      var c = await p.leer({ path: v.path, offset: off, length: TROZO });
+      var n = (c && Number(c.bytes)) || 0;
+      if (!n) break;
+      partes.push(base64ABytes(c.data));
+      off += n;
+      if (total) pr.pct((hecho + off) / total);
+      if (n < TROZO) break;
+    }
+    if (!off) throw new Error('El video quedó vacío.');
+    var f = new File(partes, v.nombre || 'swing.mp4', { type: v.tipo || 'video/mp4', lastModified: Date.now() });
+    try { f.__rutaNativa = v.path; f.__duracion = Number(v.duracion) || 0; } catch (e) {}
+    return { file: f, bytes: off };
+  }
+
+  // Devuelve una lista de File (la cámara permite grabar varios seguidos)
   async function grabarNativo(p, opts) {
     opts = opts || {};
     var r = await p.grabar({ fps: opts.fps || 60 });
-    if (!r || r.cancelado || !r.path) return null;
-    var pr = progreso('Preparando video…');
+    if (!r || r.cancelado) return [];
+    var lista = (r.videos && r.videos.length) ? r.videos : (r.path ? [r] : []);
+    if (!lista.length) return [];
+    var pr = progreso(lista.length > 1 ? 'Preparando ' + lista.length + ' videos…' : 'Preparando video…');
     try {
-      var partes = [], off = 0, total = Number(r.bytes) || 0;
-      for (;;) {
-        var c = await p.leer({ path: r.path, offset: off, length: TROZO });
-        var n = (c && Number(c.bytes)) || 0;
-        if (!n) break;
-        partes.push(base64ABytes(c.data));
-        off += n;
-        if (total) pr.pct(off / total);
-        if (n < TROZO) break;
+      var total = 0, hecho = 0, out = [];
+      lista.forEach(function (v) { total += Number(v.bytes) || 0; });
+      for (var i = 0; i < lista.length; i++) {
+        var x = await leerVideo(p, lista[i], pr, hecho, total);
+        hecho += x.bytes;
+        out.push(x.file);
       }
-      if (!off) throw new Error('El video quedó vacío.');
-      var f = new File(partes, r.nombre || 'swing.mp4', { type: r.tipo || 'video/mp4', lastModified: Date.now() });
-      try { f.__rutaNativa = r.path; f.__duracion = Number(r.duracion) || 0; } catch (e) {}
       pr.cerrar();
-      return f;
+      return out;
     } catch (e) {
       pr.error((e && e.message) || 'Intenta grabar de nuevo.');
-      return null;
+      return [];
     }
   }
 
@@ -194,17 +211,24 @@
     });
   }
 
-  async function grabar(opts) {
+  // Lista de videos (en el navegador, uno solo)
+  async function grabarVarios(opts) {
     var p = plugin();
-    if (!p) return grabarWeb();
-    if (grabandoAhora) return null;
+    if (!p) { var w = await grabarWeb(); return w ? [w] : []; }
+    if (grabandoAhora) return [];
     grabandoAhora = true;
     try { return await grabarNativo(p, opts); }
     catch (e) {
       console.warn('camara', e);
       alert('No se pudo abrir la cámara: ' + ((e && e.message) || 'intenta de nuevo.'));
-      return null;
+      return [];
     } finally { grabandoAhora = false; }
+  }
+
+  // Un solo video (el último grabado)
+  async function grabar(opts) {
+    var l = await grabarVarios(opts);
+    return l.length ? l[l.length - 1] : null;
   }
 
   // ── Cualquier <input capture> de video usa la cámara nueva ──────────────
@@ -219,12 +243,13 @@
     e.stopPropagation();
     if (grabandoAhora) return;
     grabandoAhora = true;
-    grabarNativo(p, {}).then(function (f) {
+    grabarNativo(p, {}).then(function (lista) {
       grabandoAhora = false;
-      if (!f) return;
+      if (!lista || !lista.length) return;
+      if (!t.multiple) lista = [lista[lista.length - 1]];
       try {
         var dt = new DataTransfer();
-        dt.items.add(f);
+        lista.forEach(function (f) { dt.items.add(f); });
         t.files = dt.files;
       } catch (er) { console.warn('camara: no se pudo pasar el archivo', er); return; }
       t.dispatchEvent(new Event('change', { bubbles: true }));
@@ -235,39 +260,50 @@
     });
   }, true);
 
-  // ── Pasar el video recién grabado a otra pestaña ────────────────────────
+  // ── Pasar los videos recién grabados a otra pestaña ─────────────────────
   function arriba() { try { return window.top || window; } catch (e) { return window; } }
-  function dejar(f) { try { arriba().__mglVideoNuevo = { file: f, t: Date.now() }; } catch (e) {} }
+  function dejar(lista) {
+    if (lista && !lista.length && lista.size != null) lista = [lista];
+    try { arriba().__mglVideoNuevo = { files: lista || [], t: Date.now() }; } catch (e) {}
+  }
+  // Devuelve la lista (vacía si no hay nada)
   function tomar() {
     try {
       var w = arriba(), x = w.__mglVideoNuevo;
       w.__mglVideoNuevo = null;
-      if (!x || !x.file || Date.now() - x.t > 30 * 60 * 1000) return null;
-      var f = x.file;
-      // se rearma en esta página (viene de otra pestaña)
-      var g = new File([f], f.name || 'swing.mp4', { type: f.type || 'video/mp4', lastModified: f.lastModified || Date.now() });
-      try { g.__rutaNativa = f.__rutaNativa; } catch (e) {}
-      return g;
-    } catch (e) { return null; }
+      if (!x || !x.files || Date.now() - x.t > 30 * 60 * 1000) return [];
+      // se rearman en esta página (vienen de otra pestaña)
+      return x.files.map(function (f) {
+        var g = new File([f], f.name || 'swing.mp4', { type: f.type || 'video/mp4', lastModified: f.lastModified || Date.now() });
+        try { g.__rutaNativa = f.__rutaNativa; } catch (e) {}
+        return g;
+      });
+    } catch (e) { return []; }
   }
 
   // ── Guardar en el teléfono ──────────────────────────────────────────────
-  async function guardarEnTelefono(f) {
+  async function guardarEnTelefono(lista) {
+    if (lista && lista.size != null) lista = [lista];
+    lista = lista || [];
     var C = cap();
     var Share = C && C.Plugins && C.isNativePlatform && C.isNativePlatform() ? C.Plugins.Share : null;
-    if (Share && f.__rutaNativa) {
-      try { await Share.share({ title: f.name, files: ['file://' + f.__rutaNativa] }); return; }
+    var rutas = lista.filter(function (f) { return f.__rutaNativa; }).map(function (f) { return 'file://' + f.__rutaNativa; });
+    if (Share && rutas.length === lista.length && rutas.length) {
+      try { await Share.share({ title: lista[0].name, files: rutas }); return; }
       catch (e) { if (/cancel/i.test(String((e && e.message) || e))) return; }
     }
     var app = window.MGLApp;
     try { if (!app && window.top) app = window.top.MGLApp; } catch (e) {}
-    if (app && app.esNativo && app.esNativo()) { await app.guardarBlob(f, f.name); return; }
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(f);
-    a.download = f.name || 'swing.mp4';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    for (var i = 0; i < lista.length; i++) {
+      var f = lista[i];
+      if (app && app.esNativo && app.esNativo()) { await app.guardarBlob(f, f.name); continue; }
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(f);
+      a.download = f.name || 'swing.mp4';
+      document.body.appendChild(a);
+      a.click();
+      (function (el) { setTimeout(function () { URL.revokeObjectURL(el.href); el.remove(); }, 4000); })(a);
+    }
   }
 
   // ── Menú rápido ─────────────────────────────────────────────────────────
@@ -300,21 +336,25 @@
   }
 
   async function grabarYDecidir() {
-    var f = await grabar({});
-    if (!f) return;
-    despuesDeGrabar(f);
+    var lista = await grabarVarios({});
+    if (!lista.length) return;
+    despuesDeGrabar(lista);
   }
 
-  function despuesDeGrabar(f) {
-    var url = URL.createObjectURL(f);
-    var info = (f.__duracion ? fmtDur(f.__duracion) + ' · ' : '') + fmtMB(f.size);
+  function despuesDeGrabar(lista) {
+    var ult = lista[lista.length - 1];
+    var url = URL.createObjectURL(ult);
+    var bytes = 0, dur = 0;
+    lista.forEach(function (f) { bytes += f.size; dur += f.__duracion || 0; });
+    var varios = lista.length > 1;
+    var info = (varios ? lista.length + ' videos · ' : (dur ? fmtDur(dur) + ' · ' : '')) + fmtMB(bytes);
     var h = hoja(
       '<div class="mcam-prev"><video src="' + url + '#t=0.5" muted playsinline preload="metadata"></video>'
-      + '<div><h3>Video listo</h3><p class="sub">' + info + '</p></div></div>'
-      + opcion('analizar', IC.swing, 'Analizar ahora', 'Abre el video en el analizador')
-      + opcion('alumno', IC.alumno, 'Subir al perfil de un alumno', 'Crea un evento con el video y elige el alumno')
+      + '<div><h3>' + (varios ? 'Videos listos' : 'Video listo') + '</h3><p class="sub">' + info + '</p></div></div>'
+      + opcion('alumno', IC.alumno, 'Subir al perfil de un alumno', 'Le llega un aviso al teléfono y no ocupa tu galería', 'top')
+      + opcion('analizar', IC.swing, varios ? 'Analizar el último' : 'Analizar ahora', 'Abre el video en el analizador')
       + opcion('guardar', IC.bajar, 'Guardar en el teléfono', 'Para tus fotos o para mandarlo por WhatsApp')
-      + '<button class="mcam-x del" data-op="x">Descartar video</button>',
+      + '<button class="mcam-x del" data-op="x">' + (varios ? 'Descartar videos' : 'Descartar video') + '</button>',
       function () { setTimeout(function () { URL.revokeObjectURL(url); }, 1000); }
     );
     h.el.addEventListener('click', function (e) {
@@ -322,24 +362,24 @@
       if (!b) return;
       var op = b.getAttribute('data-op');
       if (op === 'x') {
-        if (!confirm('¿Descartar el video?')) return;
+        if (!confirm(varios ? '¿Descartar los ' + lista.length + ' videos?' : '¿Descartar el video?')) return;
         h.cerrar();
         return;
       }
       if (op === 'guardar') {
-        guardarEnTelefono(f).catch(function (er) { alert((er && er.message) || 'No se pudo guardar el video.'); });
+        guardarEnTelefono(lista).catch(function (er) { alert((er && er.message) || 'No se pudo guardar el video.'); });
         return;   // la hoja sigue abierta para elegir otra cosa después
       }
       h.cerrar();
-      dejar(f);
-      if (op === 'analizar') ir('/es/coachhub/analisis.html?from=dash&video=nuevo');
-      else if (op === 'alumno') ir('/es/coachhub/jugador.html?nuevo=evento&video=nuevo&t=' + Date.now());
+      if (op === 'analizar') { dejar([ult]); ir('/es/coachhub/analisis.html?from=dash&video=nuevo'); }
+      else if (op === 'alumno') { dejar(lista); ir('/es/coachhub/jugador.html?nuevo=evento&video=nuevo&t=' + Date.now()); }
     });
   }
 
   window.MGLCamara = {
     nativa: function () { return !!plugin(); },
     grabar: grabar,
+    grabarVarios: grabarVarios,
     dejar: dejar,
     tomar: tomar,
     guardarEnTelefono: guardarEnTelefono,

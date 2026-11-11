@@ -1197,8 +1197,8 @@ async function init(){
       openEventModal();
       // video recién grabado desde el botón central (Nuevo → Grabar video → Subir al perfil)
       if(qp.get('video')==='nuevo' && window.MGLCamara){
-        var vNuevo=window.MGLCamara.tomar();
-        if(vNuevo) addPending([vNuevo]);
+        var vNuevos=window.MGLCamara.tomar();
+        if(vNuevos.length) addPending(vNuevos);
       }
       qp.delete('nuevo'); qp.delete('video'); qp.delete('t');
       var qs=qp.toString();
@@ -2977,8 +2977,8 @@ async function applyMediaRemovals(){
   ver(); setTimeout(ver,1500); setTimeout(ver,5000);
   b.addEventListener('click',async function(){
     if(!window.MGLCamara) return;
-    var f=await window.MGLCamara.grabar({});
-    if(f) addPending([f]);
+    var l=await window.MGLCamara.grabarVarios({});
+    if(l.length) addPending(l);
   });
 })();
 

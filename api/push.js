@@ -7,6 +7,8 @@
    · llega un mensaje a un grupo (coach_group_messages) → aviso a los demás del grupo
    · llega una clase nueva o se paga           → aviso al coach
    · el coach acepta, entrega o rechaza        → aviso al alumno
+   · el coach sube videos o fotos al perfil del alumno (player_media)
+                                               → aviso al alumno ("Agregó 3 videos a tu perfil")
    y lo manda a cada teléfono del destinatario (tabla push_tokens).
 
    iOS va directo a Apple (APNs), sin Firebase. Android queda para cuando la
@@ -30,14 +32,25 @@ var SB_URL = process.env.SUPABASE_URL || 'https://yulpqupmftdjbepqiscs.supabase.
 var TXT = {
   es: { msg: 'Nuevo mensaje', clase: 'Nueva clase', pagada: 'Nueva clase pagada', pidio: 'Pidió una clase',
         aceptada: 'Tu coach aceptó tu clase', entregada: 'Tu análisis está listo', rechazada: 'Tu coach no pudo tomar tu clase',
-        verla: 'Ábrela en CoachYard', alumno: 'Alumno', coach: 'Tu coach' },
+        verla: 'Ábrela en CoachYard', alumno: 'Alumno', coach: 'Tu coach',
+        media: function (v, f) { return 'Agregó ' + cuenta(v, f, ['video', 'videos'], ['foto', 'fotos'], 'y') + ' a tu perfil'; } },
   en: { msg: 'New message', clase: 'New lesson', pagada: 'New paid lesson', pidio: 'Requested a lesson',
         aceptada: 'Your coach accepted your lesson', entregada: 'Your analysis is ready', rechazada: "Your coach couldn't take your lesson",
-        verla: 'Open it in CoachYard', alumno: 'Student', coach: 'Your coach' },
+        verla: 'Open it in CoachYard', alumno: 'Student', coach: 'Your coach',
+        media: function (v, f) { return 'Added ' + cuenta(v, f, ['video', 'videos'], ['photo', 'photos'], 'and') + ' to your profile'; } },
   pt: { msg: 'Nova mensagem', clase: 'Nova aula', pagada: 'Nova aula paga', pidio: 'Pediu uma aula',
         aceptada: 'Seu coach aceitou sua aula', entregada: 'Sua análise está pronta', rechazada: 'Seu coach não pôde aceitar sua aula',
-        verla: 'Abra no CoachYard', alumno: 'Aluno', coach: 'Seu coach' }
+        verla: 'Abra no CoachYard', alumno: 'Aluno', coach: 'Seu coach',
+        media: function (v, f) { return 'Adicionou ' + cuenta(v, f, ['vídeo', 'vídeos'], ['foto', 'fotos'], 'e') + ' ao seu perfil'; } }
 };
+
+// "1 video", "3 videos y 2 fotos"
+function cuenta(v, f, pv, pf, y) {
+  var a = [];
+  if (v) a.push((v === 1 ? 'un ' : v + ' ') + pv[v === 1 ? 0 : 1]);
+  if (f) a.push((f === 1 ? 'una ' : f + ' ') + pf[f === 1 ? 0 : 1]);
+  return a.join(' ' + y + ' ');
+}
 
 async function sb(path, opts) {
   opts = opts || {};
@@ -96,6 +109,29 @@ async function armarAvisos(tabla, op, fila, antes) {
     });
     return out;
   }
+  if (tabla === 'player_media' && op === 'INSERT') {
+    // El coach subió videos o fotos al perfil del alumno → aviso al alumno.
+    // Si sube varios en el mismo evento, cada aviso reemplaza al anterior
+    // (apns-collapse-id) y dice el total: "Agregó 3 videos a tu perfil".
+    var pm = (await sb('players?id=eq.' + fila.player_id + '&select=id,coach_id,user_id'))[0];
+    if (!pm || !pm.user_id) return out;                       // alumno sin cuenta en la app
+    if (!fila.created_by || fila.created_by === pm.user_id) return out;   // lo subió el mismo alumno
+    var cpm = (await sb('coach_profiles?coach_id=eq.' + pm.coach_id + '&select=display_name'))[0];
+    var grupo = fila.event_id ? 'event_id=eq.' + fila.event_id : 'id=eq.' + fila.id;
+    var todos = await sb('player_media?' + grupo + '&player_id=eq.' + pm.id + '&created_by=neq.' + pm.user_id + '&select=id,media_type');
+    var nv = 0, nf = 0;
+    todos.forEach(function (m) { if (m.media_type === 'imagen') nf++; else nv++; });
+    if (!nv && !nf) { if (fila.media_type === 'imagen') nf = 1; else nv = 1; }
+    out.push({
+      user_id: pm.user_id,
+      titulo: function (t) { return (cpm && cpm.display_name) || t.coach; },
+      cuerpo: function (t) { return t.media(nv, nf); },
+      url: '/es/coachhub/jugador.html',
+      tipo: 'media',
+      colapsar: 'media-' + (fila.event_id || fila.id)
+    });
+    return out;
+  }
   if (tabla === 'coach_lessons') {
     var titulo = (fila.offering && fila.offering.title) || '';
     var urlCoach = '/es/coachhub/clases.html?clase=' + encodeURIComponent(fila.id);
@@ -132,9 +168,9 @@ function jwtApns() {
   return JWT.token;
 }
 
-function enviarApns(cliente, token, payload) {
+function enviarApns(cliente, token, payload, colapsar) {
   return new Promise(function (ok) {
-    var req = cliente.request({
+    var cab = {
       ':method': 'POST',
       ':path': '/3/device/' + token,
       authorization: 'bearer ' + jwtApns(),
@@ -142,7 +178,9 @@ function enviarApns(cliente, token, payload) {
       'apns-push-type': 'alert',
       'apns-priority': '10',
       'content-type': 'application/json'
-    });
+    };
+    if (colapsar) cab['apns-collapse-id'] = String(colapsar).slice(0, 64);
+    var req = cliente.request(cab);
     var status = 0, data = '';
     req.on('response', function (h) { status = h[':status']; });
     req.on('data', function (c) { data += c; });
@@ -183,7 +221,7 @@ export default async function handler(req, res) {
           url: a.url
         };
         if (!cliente) cliente = http2.connect(host);
-        var r = await enviarApns(cliente, tk.token, payload);
+        var r = await enviarApns(cliente, tk.token, payload, a.colapsar);
         if (r.status === 200) enviados++;
         else {
           errores.push(r.status + ' ' + r.body);
