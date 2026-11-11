@@ -254,6 +254,9 @@
   .btn-danger.hide{display:none}
 
   .drop{border:1.5px dashed var(--border2);border-radius:11px;padding:18px;text-align:center;color:var(--muted);cursor:pointer;font-size:14px;transition:all .15s}
+  .ne-cam{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:10px;padding:13px;border-radius:11px;border:1px solid rgba(var(--r212_197_169,212,197,169),.4);background:rgba(var(--r212_197_169,212,197,169),.08);color:var(--teal);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer}
+  .ne-cam[hidden]{display:none}
+  .ne-cam svg{width:20px;height:20px}
   .drop:hover,.drop.over{border-color:var(--teal-dim);color:var(--teal);background:rgba(var(--r212_197_169,212,197,169),.05)}
   .drop small{display:block;margin-top:4px;font-size:12px;color:var(--muted2)}
   .filelist{margin-top:10px;display:flex;flex-direction:column;gap:6px}
@@ -659,6 +662,10 @@
         Arrastra los archivos acá o toca para elegirlos
         <small>MP4, MOV o WEBM · los videos se pueden recortar antes de subirlos</small>
       </div>
+      <button type="button" class="ne-cam" id="ne_cam" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2.5"/><path d="M16 10.5l6-3.5v10l-6-3.5"/></svg>
+        Grabar video con la cámara
+      </button>
       <input type="file" id="ne_files" accept="video/*,image/*" multiple hidden>
       <div class="filelist" id="ne_fileList"></div>
       <div class="upstate" id="ne_upstate"></div>
@@ -1188,7 +1195,12 @@ async function init(){
     // acceso rápido desde el dashboard: abre directo la ventana de nuevo evento
     if(qp.get('nuevo')==='evento'){
       openEventModal();
-      qp.delete('nuevo');
+      // video recién grabado desde el botón central (Nuevo → Grabar video → Subir al perfil)
+      if(qp.get('video')==='nuevo' && window.MGLCamara){
+        var vNuevo=window.MGLCamara.tomar();
+        if(vNuevo) addPending([vNuevo]);
+      }
+      qp.delete('nuevo'); qp.delete('video'); qp.delete('t');
       var qs=qp.toString();
       history.replaceState(null,'',window.location.pathname+(qs?'?'+qs:''));
     }
@@ -2957,6 +2969,18 @@ async function applyMediaRemovals(){
   }
   return {ok:ids.length, fails:fails};
 }
+
+// En la app de iPhone: botón para grabar con la cámara estabilizada
+(function(){
+  var b=document.getElementById('ne_cam');
+  function ver(){ if(window.MGLCamara && window.MGLCamara.nativa()) b.hidden=false; }
+  ver(); setTimeout(ver,1500); setTimeout(ver,5000);
+  b.addEventListener('click',async function(){
+    if(!window.MGLCamara) return;
+    var f=await window.MGLCamara.grabar({});
+    if(f) addPending([f]);
+  });
+})();
 
 var neDrop=document.getElementById('ne_drop');
 var neFiles=document.getElementById('ne_files');
