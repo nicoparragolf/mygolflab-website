@@ -1741,5 +1741,21 @@ window.MGL_I18N_PT = {
 "Duración de cada sesión": "Duração de cada sessão",
 "Sesiones incluidas": "Sessões incluídas",
 "El alumno reserva la primera al pagar y las demás desde Mis clases.": "O aluno reserva a primeira ao pagar e as demais em Minhas aulas.",
-"Antes de publicarla, guarda tu link y tus horarios en": "Antes de publicá-la, salve seu link e horários em"
+"Antes de publicarla, guarda tu link y tus horarios en": "Antes de publicá-la, salve seu link e horários em",
+"¿Qué quieres hacer?": "O que você quer fazer?",
+"Acceso rápido durante la clase": "Acesso rápido durante a aula",
+"Grabar video": "Gravar vídeo",
+"Cámara estabilizada para el swing": "Câmera estabilizada para o swing",
+"Dibuja, compara dos swings y graba tu voz": "Desenhe, compare dois swings e grave sua voz",
+"Clase, video o ronda para un alumno": "Aula, vídeo ou rodada para um aluno",
+"Video listo": "Vídeo pronto",
+"Analizar ahora": "Analisar agora",
+"Abre el video en el analizador": "Abre o vídeo no analisador",
+"Subir al perfil de un alumno": "Enviar para o perfil de um aluno",
+"Crea un evento con el video y elige el alumno": "Crie um evento com o vídeo e escolha o aluno",
+"Guardar en el teléfono": "Salvar no celular",
+"Para tus fotos o para mandarlo por WhatsApp": "Para suas fotos ou para enviar pelo WhatsApp",
+"Descartar video": "Descartar vídeo",
+"No se pudo usar el video": "Não foi possível usar o vídeo",
+"Grabar video con la cámara": "Gravar vídeo com a câmera"
 };

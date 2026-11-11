@@ -1,7 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Selector de producto (MyGolfLab ↔ CoachYard)
    Archivo: /js/mgl-products.js
-   Versión: 1.2 · 2026-11-04
+   Versión: 1.3 · 2026-11-11
+     1.3: botón central del coach = menú rápido (Grabar video · Analizar
+          swing · Crear evento) y cámara de swing (js/mgl-camara.js)
      1.1: menú compacto entre 901 y 1100 px (entra el link Contenido)
      1.2: CoachYard en teléfono / app: menú inferior con las páginas
           principales y la foto de perfil (estilo app)
@@ -35,6 +37,12 @@
     (document.head || document.documentElement).appendChild(sApp);
   }
   var PRODUCT = (script && script.getAttribute('data-product')) === 'hub' ? 'hub' : 'mgl';
+  // CoachYard: cámara de swing (nativa en la app de iPhone) y menú rápido del botón central
+  if (PRODUCT === 'hub' && !window.MGLCamara && !document.querySelector('script[src^="/js/mgl-camara.js"]')) {
+    var sCam = document.createElement('script');
+    sCam.src = '/js/mgl-camara.js?v=1';
+    (document.head || document.documentElement).appendChild(sCam);
+  }
   var ALWAYS = !!(script && script.getAttribute('data-switch') === 'always');
 
   // ── 1. Estilos (se inyectan de inmediato para que no parpadee el color) ──
@@ -144,7 +152,7 @@
       +     'border:1.5px solid var(--c3a3a3a,#3a3a3a);background:var(--c1c1c1c,#1c1c1c)}'
       +   '.mgl-tabs a.on .mgl-tab-av{border-color:var(--cd4c5a9,#D4C5A9)}'
       +   '.mgl-tabs .mgl-tab-av svg{width:16px;height:16px}'
-      // botón central (Analizar): aro dorado con centro oscuro que sobresale por encima de la barra, con relieve
+      // botón central (Nuevo): aro dorado con centro oscuro que sobresale por encima de la barra, con relieve
       +   '.mgl-tabs a.fab{overflow:visible;justify-content:flex-end;padding-bottom:11px;color:var(--cd4c5a9,#D4C5A9)}'
       +   '.mgl-tabs a.fab,.mgl-tabs a.fab.on,.mgl-tabs a.fab:active{background:none}'
       +   '.mgl-tabs a.fab .ic{position:absolute;top:-30px;left:50%;width:60px;height:60px;margin-left:-30px;border-radius:50%;color:var(--cd4c5a9,#D4C5A9);'
@@ -492,7 +500,8 @@
   }
 
   // ── 6. Menú inferior (teléfono / app) ──
-  //    Coach: Jugadores, Clases, Analizar (botón central elevado), Mensajes y Perfil (su foto). El Inicio se abre desde el logo.
+  //    Coach: Jugadores, Clases, Nuevo (botón central elevado: Grabar video · Analizar swing · Crear evento),
+  //    Mensajes y Perfil (su foto). El Inicio se abre desde el logo.
   //    Jugador: Mi perfil, Clases, Mensajes, Coaches y Perfil.
   //    Los links con data-nav reciben el contador de no leídos igual que el header.
   var TAB_IC = {
@@ -502,6 +511,7 @@
     chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.6L3 20.5l1.5-5A8.5 8.5 0 1121 11.5z"/></svg>',
     cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>',
     flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V3.5"/><path d="M6 4h11l-2.5 4L17 12H6"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
     me: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0114 0v1"/></svg>'
   };
   function setupTabs(isCoach) {
@@ -509,7 +519,7 @@
     var items = isCoach
       ? [['/es/coachhub/jugador.html', 'Jugadores', 'users', ''],
          ['/es/coachhub/clases.html', 'Clases', 'cal', 'clases'],
-         ['/es/coachhub/analisis.html?from=dash', 'Analizar', 'swing', '', 'fab'],
+         ['#nuevo', 'Nuevo', 'plus', '', 'fab'],
          ['/es/coachhub/mensajes.html', 'Mensajes', 'chat', 'mensajes'],
          ['/es/coachhub/cuenta.html', 'Perfil', 'me', '']]
       : [['/es/coachhub/jugador.html', 'Mi perfil', 'flag', ''],
@@ -529,6 +539,16 @@
       if (it[3]) a.setAttribute('data-nav', it[3]);
       if (on) { a.className = 'on'; a.setAttribute('aria-current', 'page'); }
       if (it[4]) a.classList.add(it[4]);
+      // botón central del coach: menú rápido (Grabar video · Analizar swing · Crear evento)
+      if (it[0] === '#nuevo') {
+        a.setAttribute('role', 'button');
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (window.MGLCamara) window.MGLCamara.menuRapido();
+          else if (window.MGLnav) window.MGLnav.href = '/es/coachhub/analisis.html?from=dash';
+          else location.href = '/es/coachhub/analisis.html?from=dash';
+        });
+      }
       var ic = it[2] === 'me'
         ? '<span class="ic"><span class="mgl-tab-av">' + TAB_IC.me + '</span></span>'
         : '<span class="ic">' + TAB_IC[it[2]] + '</span>';

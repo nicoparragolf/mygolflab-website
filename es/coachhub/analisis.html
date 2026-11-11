@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-app.js"></script>
+<script src="/js/mgl-camara.js?v=1"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
@@ -483,7 +484,17 @@ async function init(){
   var mid = params().get('media');
   var m = mid ? VIDEOS.filter(function(v){ return v.id===mid; })[0] : null;
   if(m) await loadFromMedia('A', m);
+  else if(params().get('video')==='nuevo' && window.MGLCamara && openNewRecording()){}
   else openPicker('A');
+}
+
+// Video recién grabado desde el botón central (Nuevo → Grabar video → Analizar ahora)
+function openNewRecording(){
+  var f = window.MGLCamara.tomar();
+  if(!f) return false;
+  loadFromFile('A', f);
+  enterTrim('A');
+  return true;
 }
 
 function playerFullName(p){ return p ? ((p.first_name||'')+' '+(p.last_name||'')).trim() : ''; }
