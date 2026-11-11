@@ -40,7 +40,7 @@
   // CoachYard: cámara de swing (nativa en la app de iPhone) y menú rápido del botón central
   if (PRODUCT === 'hub' && !window.MGLCamara && !document.querySelector('script[src^="/js/mgl-camara.js"]')) {
     var sCam = document.createElement('script');
-    sCam.src = '/js/mgl-camara.js?v=1';
+    sCam.src = '/js/mgl-camara.js?v=2';
     (document.head || document.documentElement).appendChild(sCam);
   }
   var ALWAYS = !!(script && script.getAttribute('data-switch') === 'always');
