@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab / CoachYard · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
-   Versión: 1.3 · 2026-11-10 (mygolflab://abrir para volver a la app después de pagar en la web)
+   Versión: 1.4 · 2026-11-12 (la pantalla ya no se desliza de lado ni rebota entera)
 
    La app de CoachYard (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
@@ -49,6 +49,12 @@
     html.classList.add(plataforma === 'ios' ? 'en-ios' : 'en-android');
 
     var css = 'html.en-app .solo-web{display:none!important}';
+    // La pantalla no se debe deslizar hacia los lados ni "rebotar" entera:
+    // en el iPhone, dentro de la app (cada pestaña es un iframe), basta que algo
+    // sobresalga unos píxeles para que toda la página se pueda mover de lado.
+    // (overflow-x en el body sería 'hidden' → rompería los headers sticky; por eso 'clip')
+    css += 'html.en-app{overflow-x:hidden;overscroll-behavior:none}html.en-app body{max-width:100%;overscroll-behavior:none}'
+      + '@supports (overflow:clip){html.en-app,html.en-app body{overflow-x:clip}}';
     if (plataforma === 'ios') {
       css += 'html.en-ios a[href*="pricing.html"],html.en-ios .solo-web-ios{display:none!important}';
     }

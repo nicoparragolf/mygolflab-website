@@ -227,9 +227,13 @@
     if (!tabs || getComputedStyle(tabs).display === 'none') return 0;
     return tabs.getBoundingClientRect().height + 12 || parseInt(v, 10) || 0;
   }
+  // ancho/alto visibles reales (en el iPhone, window.innerWidth dentro de un
+  // iframe puede crecer si algo sobresale y la esfera quedaba medio afuera)
+  function anchoV() { return document.documentElement.clientWidth || window.innerWidth; }
+  function altoV() { return document.documentElement.clientHeight || window.innerHeight; }
   function limitesY() {
     var top = 70;
-    var bottom = window.innerHeight - tabH() - SIZE - 14;
+    var bottom = altoV() - tabH() - SIZE - 14;
     return { min: top, max: Math.max(top, bottom) };
   }
   var pos = lsGet(KEY_POS) || { side: 'right', y: null };
@@ -237,7 +241,7 @@
     var L = limitesY();
     var y = pos.y == null ? L.max : Math.min(Math.max(pos.y, L.min), L.max);
     orb.style.top = y + 'px';
-    orb.style.left = (pos.side === 'left' ? MARGEN : window.innerWidth - SIZE - MARGEN) + 'px';
+    orb.style.left = (pos.side === 'left' ? MARGEN : anchoV() - SIZE - MARGEN) + 'px';
   }
   colocar();
   window.addEventListener('resize', colocar);
@@ -259,8 +263,8 @@
       if (!moved && Math.sqrt(dx * dx + dy * dy) < 7) return;
       moved = true;
       orb.classList.add('drag');
-      orb.style.left = Math.min(Math.max(e.clientX - offX, 4), window.innerWidth - SIZE - 4) + 'px';
-      orb.style.top = Math.min(Math.max(e.clientY - offY, 4), window.innerHeight - SIZE - 4) + 'px';
+      orb.style.left = Math.min(Math.max(e.clientX - offX, 4), anchoV() - SIZE - 4) + 'px';
+      orb.style.top = Math.min(Math.max(e.clientY - offY, 4), altoV() - SIZE - 4) + 'px';
     });
     function fin(e) {
       if (!start) return;
@@ -268,7 +272,7 @@
       orb.classList.remove('drag');
       if (!moved) { abrir(); return; }
       var r = orb.getBoundingClientRect();
-      pos.side = (r.left + SIZE / 2) < window.innerWidth / 2 ? 'left' : 'right';
+      pos.side = (r.left + SIZE / 2) < anchoV() / 2 ? 'left' : 'right';
       pos.y = r.top;
       var L = limitesY();
       pos.y = Math.min(Math.max(pos.y, L.min), L.max);
