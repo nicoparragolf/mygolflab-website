@@ -856,10 +856,10 @@
       el.addEventListener('input', function () { D[el.getAttribute('data-f')] = el.value; guardar(); });
       el.addEventListener('change', function () {
         D[el.getAttribute('data-f')] = el.value; guardar();
-        if (el.getAttribute('data-f') === 'tipo') { var area = d.querySelector('[data-area]'); if (area) area.style.visibility = CON_AREA[el.value] ? '' : 'hidden'; }
+        if (el.getAttribute('data-f') === 'tipo') { var area = d.querySelector('[data-area]'); if (area) area.style.display = CON_AREA[el.value] ? '' : 'none'; }
       });
     });
-    var ar = d.querySelector('[data-area]'); if (ar && !CON_AREA[D.tipo]) ar.style.visibility = 'hidden';
+    var ar = d.querySelector('[data-area]'); if (ar && !CON_AREA[D.tipo]) ar.style.display = 'none';
     var ta = d.querySelector('textarea'); if (ta) setTimeout(function () { ta.style.height = Math.min(ta.scrollHeight + 2, 260) + 'px'; }, 0);
 
     d.querySelector('[data-no]').addEventListener('click', function () { terminar(v, 'cancelado', { ok: false, cancelado: true, nota: 'El coach canceló esta acción.' }); });
