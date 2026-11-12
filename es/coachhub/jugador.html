@@ -610,19 +610,7 @@
       <select id="ne_type"></select>
     </div>
     <div class="field"><label>Título</label><input id="ne_title" placeholder="Ej: Práctica de bunkers"></div>
-    <div class="field-row">
-      <div class="field"><label>Fecha</label><input id="ne_date" type="date"></div>
-      <div class="field">
-        <label>Pilar (opcional)</label>
-        <select id="ne_pillar">
-          <option value="">—</option>
-          <option value="ground_forces">Ground Forces</option>
-          <option value="kinematic_sequence">Kinematic Sequence</option>
-          <option value="body_tilts">Body Tilts</option>
-          <option value="wrist_conditions">Wrist Conditions</option>
-        </select>
-      </div>
-    </div>
+    <div class="field"><label>Fecha</label><input id="ne_date" type="date"></div>
 
     <!-- Área del juego: clases, video análisis, launch monitor y preparación física -->
     <div class="field" id="ne_areaWrap" style="display:none">
@@ -2498,7 +2486,6 @@ function renderTimeline(){
        +     (delJugador?'<span class="tl-pill byplayer">Subido por el jugador</span>':'')
        +     (e.area&&AREA_LABEL[e.area]?'<span class="tl-pill area">'+esc(AREA_LABEL[e.area])+'</span>':'')
        +     (e.device?'<span class="tl-pill">'+esc(e.device)+'</span>':'')
-       +     (e.pillar?'<span class="tl-pill pillar">'+esc(PILLAR_LABEL[e.pillar]||e.pillar)+'</span>':'')
        +     (nMedia>0?'<span class="tl-pill media">'+nMedia+' archivo'+(nMedia>1?'s':'')+'</span>':'')
        +     (e.metric_count>0?'<span class="tl-pill">'+e.metric_count+' métrica'+(e.metric_count>1?'s':'')+'</span>':'')
        +   '</div>'
@@ -2820,7 +2807,6 @@ function resetEventModal(){
   EDIT_ID=null; REMOVE_MEDIA=[]; PENDING=[]; NE_AREA=null; NE_WARMUP_AREAS=[];
   document.getElementById('ne_title').value='';
   document.getElementById('ne_summary').value='';
-  document.getElementById('ne_pillar').value='';
   document.getElementById('ne_device').value='';
   document.getElementById('ne_warmupMin').value='';
   document.getElementById('ne_milestone').checked=false;
@@ -2902,7 +2888,6 @@ async function openEditEvent(id){
   document.getElementById('ne_save').textContent='Guardar cambios';
   document.getElementById('ne_title').value=e.title||'';
   document.getElementById('ne_date').value=e.event_date||todayISO();
-  document.getElementById('ne_pillar').value=e.pillar||'';
   document.getElementById('ne_summary').value=e.summary||'';
   document.getElementById('ne_device').value=e.device||'';
   document.getElementById('ne_milestoneWrap').className = IS_COACH ? 'check' : 'check hide';
@@ -3092,8 +3077,7 @@ document.getElementById('ne_save').addEventListener('click',async function(){
   var fecha=document.getElementById('ne_date').value||todayISO();
   var campos={
     event_type:type, title:title, event_date:fecha,
-    summary:document.getElementById('ne_summary').value.replace(/\s+$/,'')||null,
-    pillar:document.getElementById('ne_pillar').value||null
+    summary:document.getElementById('ne_summary').value.replace(/\s+$/,'')||null
   };
   if(HAS_AREA) campos.area = (AREA_TYPES[type] && NE_AREA) ? NE_AREA : null;
   campos.device = tipoCfg(type).device ? (document.getElementById('ne_device').value.trim()||null) : null;
