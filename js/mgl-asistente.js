@@ -782,7 +782,6 @@
         titulo: a.titulo || '',
         descripcion: a.descripcion || a.texto || '',
         fecha: /^\d{4}-\d{2}-\d{2}$/.test(a.fecha || '') ? a.fecha : hoyISO(),
-        pilar: PILARES[a.pilar] ? a.pilar : '',
         area: AREAS[a.area] ? a.area : '',
         dispositivo: a.dispositivo || '',
         hito: !!a.hito
@@ -839,8 +838,7 @@
         + '<div><label>Fecha</label><input type="date" data-f="fecha" value="' + esc(D.fecha) + '"></div></div>'
         + '<div><label>Título</label><input type="text" data-f="titulo" maxlength="120" value="' + esc(D.titulo) + '"></div>'
         + '<div><label>Descripción del trabajo</label><textarea data-f="descripcion">' + esc(D.descripcion) + '</textarea></div>'
-        + '<div class="fila"><div><label>Pilar</label><select data-f="pilar">' + opciones(PILARES, D.pilar, '—') + '</select></div>'
-        + '<div data-area><label>Área</label><select data-f="area">' + opciones(AREAS, D.area, '—') + '</select></div></div>'
+        + '<div data-area><label>Área</label><select data-f="area">' + opciones(AREAS, D.area, '—') + '</select></div>'
         + (D.tipo === 'launch_monitor' ? '<div><label>Dispositivo</label><input type="text" data-f="dispositivo" value="' + esc(D.dispositivo) + '"></div>' : '')
         + (D.hito ? '<div class="aviso">Se marcará como hito en el timeline.</div>' : '');
     } else {
@@ -858,10 +856,10 @@
       el.addEventListener('input', function () { D[el.getAttribute('data-f')] = el.value; guardar(); });
       el.addEventListener('change', function () {
         D[el.getAttribute('data-f')] = el.value; guardar();
-        if (el.getAttribute('data-f') === 'tipo') { var area = d.querySelector('[data-area]'); if (area) area.style.visibility = CON_AREA[el.value] ? '' : 'hidden'; }
+        if (el.getAttribute('data-f') === 'tipo') { var area = d.querySelector('[data-area]'); if (area) area.style.display = CON_AREA[el.value] ? '' : 'none'; }
       });
     });
-    var ar = d.querySelector('[data-area]'); if (ar && !CON_AREA[D.tipo]) ar.style.visibility = 'hidden';
+    var ar = d.querySelector('[data-area]'); if (ar && !CON_AREA[D.tipo]) ar.style.display = 'none';
     var ta = d.querySelector('textarea'); if (ta) setTimeout(function () { ta.style.height = Math.min(ta.scrollHeight + 2, 260) + 'px'; }, 0);
 
     d.querySelector('[data-no]').addEventListener('click', function () { terminar(v, 'cancelado', { ok: false, cancelado: true, nota: 'El coach canceló esta acción.' }); });
@@ -893,7 +891,7 @@
       var ev = {
         player_id: p.id, coach_id: p.coach_id || S.uid, created_by: S.uid, source: 'manual',
         event_type: D.tipo, title: String(D.titulo).trim(), event_date: D.fecha || hoyISO(),
-        summary: texto || null, pillar: D.pilar || null, is_milestone: !!D.hito
+        summary: texto || null, is_milestone: !!D.hito
       };
       if (CON_AREA[D.tipo] && D.area) ev.area = D.area;
       if (D.tipo === 'launch_monitor' && D.dispositivo) ev.device = D.dispositivo;

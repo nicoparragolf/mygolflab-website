@@ -62,7 +62,6 @@ const TOOLS = [
         titulo: { type: 'string', description: 'Título corto y claro, máximo ~60 caracteres. Ej: "Postura · posición de pelota"' },
         descripcion: { type: 'string', description: 'Descripción del trabajo, redactada como la escribiría el coach. Puede usar viñetas con "- " y saltos de línea.' },
         fecha: { type: 'string', description: 'Fecha del evento en formato AAAA-MM-DD. Si el coach no dice otra, la de hoy.' },
-        pilar: { type: 'string', enum: ['ground_forces', 'kinematic_sequence', 'body_tilts', 'wrist_conditions'], description: 'Pilar de la metodología. Omitir si no corresponde claramente.' },
         area: { type: 'string', enum: ['full_swing', 'short_game', 'putting', 'fisico', 'estrategia'], description: 'Área del juego. Solo para clase, video_analisis, launch_monitor y preparacion_fisica.' },
         dispositivo: { type: 'string', description: 'Solo para launch_monitor: Trackman, GCQuad, etc.' },
         hito: { type: 'boolean', description: 'true solo si el coach dice explícitamente que es un hito' }
@@ -182,12 +181,6 @@ ${lista}
   Trackman u otro monitor; "preparacion_fisica" para trabajo físico;
   "rutina_calentamiento" para calentamiento previo a competir.
 · Fecha: hoy, salvo que diga otra ("ayer", "el martes"); calcúlala tú.
-· Pilar (metodología de los 4 pilares de MyGolfLab), solo si es claro:
-    postura, lowpoint, inclinaciones, early extension → body_tilts
-    cara del palo, muñecas, lag, shaft lean, control de distancia → wrist_conditions
-    path, secuencia, conexión, over-the-top, transición → kinematic_sequence
-    presión, piso, trabajo de pies, transferencia de peso → ground_forces
-  La posición de pelota es parte de la postura/setup → body_tilts.
 · Área: full_swing para swing completo y setup; short_game para chip, pitch,
   bunker y wedges cortos; putting; fisico; estrategia para cancha y manejo.
 · Hito: false, salvo que el coach diga que es un hito.
@@ -201,14 +194,14 @@ El coach usa CoachYard en inglés. Respóndele SIEMPRE en inglés (de Estados
 Unidos), con el mismo tono cercano y corto. Los títulos, descripciones, notas
 y mensajes que prepares también van en inglés. Si el coach te escribe en
 español, igual respóndele en inglés salvo que te pida otra cosa. Los valores
-internos (tipo, pilar, área) no cambian.` : String(ctx.idioma || '') === 'pt' ? `
+internos (tipo, área) no cambian.` : String(ctx.idioma || '') === 'pt' ? `
 
 ════ IDIOMA ════
 El coach usa CoachYard en portugués. Respóndele SIEMPRE en portugués de
 Brasil (trato de "você"), con el mismo tono cercano y corto. Los títulos,
 descripciones, notas y mensajes que prepares también van en portugués. Si el
 coach te escribe en español, igual respóndele en portugués salvo que te pida
-otra cosa. Los valores internos (tipo, pilar, área) no cambian.` : ''}`;
+otra cosa. Los valores internos (tipo, área) no cambian.` : ''}`;
 }
 
 export default async function handler(req, res) {
