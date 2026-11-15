@@ -1,0 +1,41 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  CoachYard · TestFlight para testers externos (link público)
+#
+#  Llena la información de prueba, crea el grupo "Beta CoachYard" con link
+#  público, le agrega el build más reciente y lo manda a revisión de Apple.
+#  Se puede correr varias veces: solo hace lo que falta.
+#
+#  Correrlo a mano: pestaña Actions → "TestFlight Beta" → Run workflow.
+#  Usa las mismas llaves que "App iOS" (ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8).
+# ═══════════════════════════════════════════════════════════════════════════
+name: TestFlight Beta
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, testflight-beta]
+    paths:
+      - '.github/workflows/testflight-beta.yml'
+      - '.github/scripts/testflight_beta.py'
+      - 'es/privacidad.html'
+
+concurrency:
+  group: testflight-beta
+  cancel-in-progress: false
+
+jobs:
+  beta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyjwt cryptography requests
+      - name: Preparar TestFlight externo
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: python .github/scripts/testflight_beta.py

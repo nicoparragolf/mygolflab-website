@@ -41,6 +41,21 @@
       ],
       "destination": "https://coachyard.golf/es/coachhub/index.html",
       "permanent": false
+    },
+    {
+      "source": "/es/privacy.html",
+      "destination": "/es/privacidad.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacidad",
+      "destination": "/es/privacidad.html",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/es/privacidad.html",
+      "permanent": false
     }
   ]
 }
