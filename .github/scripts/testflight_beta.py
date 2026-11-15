@@ -110,9 +110,12 @@ def main():
            "contactEmail": cur.get("contactEmail") or FEEDBACK_EMAIL,
            "demoAccountName": DEMO_EMAIL, "demoAccountRequired": True,
            "notes": REVIEW_NOTES}
-    call("PATCH", f"/betaAppReviewDetails/{det['id']}",
-         {"data": {"type": "betaAppReviewDetails", "id": det["id"], "attributes": upd}})
-    cur = call("GET", f"/apps/{app_id}/betaAppReviewDetail")["data"]["attributes"]
+    # Apple exige el teléfono en cada cambio: si aún no está, no se toca nada aquí.
+    if cur.get("contactPhone"):
+        upd["contactPhone"] = cur["contactPhone"]
+        call("PATCH", f"/betaAppReviewDetails/{det['id']}",
+             {"data": {"type": "betaAppReviewDetails", "id": det["id"], "attributes": upd}})
+        cur = call("GET", f"/apps/{app_id}/betaAppReviewDetail")["data"]["attributes"]
     if not cur.get("contactPhone"):
         faltantes.append("teléfono de contacto")
     if not cur.get("demoAccountPassword"):
