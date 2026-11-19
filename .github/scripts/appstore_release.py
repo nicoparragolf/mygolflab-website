@@ -126,6 +126,12 @@ def patch_tolerante(path, tipo, oid, attrs):
             for e in json.loads(txt).get("errors", []):
                 ptr = (e.get("source") or {}).get("pointer", "")
                 campo = ptr.rsplit("/", 1)[-1] if ptr else ""
+                if campo and campo not in attrs and "REQUIRED" in (e.get("code") or ""):
+                    # campo nuevo que Apple exige: se responde "no" y se avisa
+                    attrs[campo] = False
+                    print(f"   ℹ️ Apple pide '{campo}': se marcó como 'No' (revísalo si corresponde)")
+                    malo = "__reintentar__"
+                    break
                 if campo in attrs:
                     malo = campo
                     break
@@ -140,7 +146,8 @@ def patch_tolerante(path, tipo, oid, attrs):
         if not malo:
             print(f"⚠️  PATCH {path} → {r['_error']}: {txt[:800]}")
             return False
-        attrs.pop(malo)
+        if malo != "__reintentar__":
+            attrs.pop(malo)
     return False
 
 
@@ -191,7 +198,7 @@ def main():
             "sexualContentGraphicAndNudity": "NONE", "sexualContentOrNudity": "NONE",
             "violenceCartoonOrFantasy": "NONE", "violenceRealistic": "NONE",
             "violenceRealisticProlongedGraphicOrSadistic": "NONE", "gunsOrOtherWeapons": "NONE",
-            "unrestrictedWebAccess": False, "lootBox": False,
+            "unrestrictedWebAccess": False, "lootBox": False, "socialMedia": False,
             "messagingAndChat": True, "userGeneratedContent": True, "advertising": False,
             "parentalControls": False, "ageAssurance": False, "healthOrWellnessTopics": False,
         })
