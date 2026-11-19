@@ -18,6 +18,7 @@
 <script src="/js/mgl-precios.js"></script>
 <script src="/js/mgl-pago.js"></script>
 <script src="/js/mgl-agenda.js"></script>
+<script src="/js/mgl-moderar.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
@@ -367,8 +368,30 @@ function render(){
   }
   h+='<div class="guar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg><span>Si el coach no responde dentro de '+(C.response_sla_hours<=72?C.response_sla_hours+' horas':Math.round(C.response_sla_hours/24)+' días')+', te devolvemos el dinero. Tu análisis queda guardado para siempre en tu perfil.</span></div>';
   h+='</div></div>';
+  // Reportar / bloquear (requisito de App Store para perfiles públicos)
+  h+='<div style="text-align:center;margin:28px 0 8px"><a onclick="modCoach()" style="cursor:pointer;color:var(--muted,#8a8a8a);font-size:13px;text-decoration:underline">⚑ Reportar o bloquear a este coach</a></div>';
 
   $('wrap').innerHTML=h;
+}
+
+async function modCoach(){
+  if(!C || !window.MGLModerar) return;
+  var s=await sb.auth.getSession();
+  if(!s.data.session){
+    location.href='/es/coachhub/entrar.html?registro=alumno&volver='+encodeURIComponent(location.pathname+location.search);
+    return;
+  }
+  var me=s.data.session.user.id;
+  if(me===C.coach_id){ if(typeof toast==='function') toast('Este es tu propio perfil'); return; }
+  var bl=await MGLModerar.bloqueados(sb);
+  MGLModerar.menu(sb, {
+    titulo:C.display_name, contexto:'perfil_coach', ref:C.coach_id,
+    evidencia:[C.headline||'', C.bio||''].join('\n').slice(0,3000),
+    bloqueo:{ bloqueado:!!bl[C.coach_id], cambiar: async function(on){
+      var r=await sb.rpc('mgl_bloquear',{ p_user:C.coach_id, p_on:on });
+      return !r.error && !!r.data;
+    } }
+  });
 }
 
 function coleccionesHTML(){
