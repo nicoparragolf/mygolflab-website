@@ -1,0 +1,78 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  CoachYard · Ficha del App Store y envío a revisión
+#
+#  1. Saca capturas de la app (iPhone 6.5") con la cuenta de prueba.
+#  2. Llena la ficha: nombre CoachYard, descripción, categoría, precio gratis,
+#     clasificación por edad, build, datos para la revisión y capturas.
+#  3. Si al correrlo eliges "enviar = true", la manda a revisión de Apple.
+#
+#  Correrlo: pestaña Actions → "App Store" → Run workflow.
+#  Llaves: las mismas de "App iOS" (ASC_*) + DEMO_PASSWORD (clave de
+#  revision@coachyard.golf) en Settings → Secrets and variables → Actions.
+# ═══════════════════════════════════════════════════════════════════════════
+name: App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      enviar:
+        description: '¿Mandar a revisión de Apple? (true / false)'
+        required: true
+        default: 'false'
+      capturas:
+        description: '¿Sacar capturas nuevas? (true / false)'
+        required: true
+        default: 'true'
+  push:
+    branches: [app-store-v1]
+    paths:
+      - '.github/workflows/app-store.yml'
+      - '.github/scripts/appstore_release.py'
+      - '.github/scripts/capturas.mjs'
+
+concurrency:
+  group: app-store
+  cancel-in-progress: false
+
+jobs:
+  ficha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'push' || inputs.capturas == 'true'
+        with:
+          node-version: 22
+
+      - name: Sacar capturas
+        if: github.event_name == 'push' || inputs.capturas == 'true'
+        env:
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+        run: |
+          npm install --no-save --no-package-lock playwright@1
+          npx playwright install --with-deps chromium
+          node .github/scripts/capturas.mjs
+
+      - name: Guardar capturas (para revisarlas)
+        if: always() && (github.event_name == 'push' || inputs.capturas == 'true')
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas
+          path: capturas/
+          if-no-files-found: ignore
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyjwt cryptography requests
+
+      - name: Llenar la ficha del App Store
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar || 'false' }}
+        run: python .github/scripts/appstore_release.py

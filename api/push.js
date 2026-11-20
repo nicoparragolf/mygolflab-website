@@ -69,6 +69,9 @@ function nombre(p) { return p ? ((p.first_name || '') + ' ' + (p.last_name || ''
 function corto(s, n) { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 
 // ── Qué aviso corresponde ────────────────────────────────────────────────
+// Quién recibe los avisos de reportes (se puede cambiar con la variable ADMIN_USER_IDS en Vercel)
+var ADMIN_DEFAULT = '5c5212cb-8904-495a-8c52-ac8d3cf4bfd3';   // Nico
+
 async function armarAvisos(tabla, op, fila, antes) {
   var out = [];   // { user_id, title(lang), body(lang), url, tipo }
   if (tabla === 'coach_messages' && op === 'INSERT') {
@@ -103,9 +106,24 @@ async function armarAvisos(tabla, op, fila, antes) {
     miembros.forEach(function (m) { if (m.players && m.players.user_id) destinos[m.players.user_id] = 1; });
     destinos[g.coach_id] = 1;
     delete destinos[fila.sender_id];
+    // quienes bloquearon a quien escribió no reciben el aviso
+    var blq = await sb('user_blocks?blocked_id=eq.' + fila.sender_id + '&select=blocker_id');
+    (blq || []).forEach(function (b) { delete destinos[b.blocker_id]; });
     Object.keys(destinos).forEach(function (uid) {
       out.push({ user_id: uid, titulo: function () { return g.name; },
                  cuerpo: function () { return corto((quien ? quien + ': ' : '') + fila.body, 140); }, url: url, tipo: 'grupo-' + g.id });
+    });
+    return out;
+  }
+  if (tabla === 'user_reports' && op === 'INSERT') {
+    // Reporte de un usuario (reportar/bloquear, guía 1.2 de Apple) → aviso al admin
+    var ctx = { mensaje: 'chat', grupo: 'grupo', perfil_coach: 'perfil de coach', contenido: 'contenido' }[fila.context] || fila.context;
+    String(process.env.ADMIN_USER_IDS || ADMIN_DEFAULT).split(',').forEach(function (uid) {
+      uid = uid.trim();
+      if (!uid) return;
+      out.push({ user_id: uid, titulo: function () { return '⚑ Reporte nuevo · ' + ctx; },
+                 cuerpo: function () { return corto(fila.reason + (fila.details ? ': ' + fila.details : ''), 140); },
+                 url: '/es/coachhub/dashboard.html', tipo: 'reporte' });
     });
     return out;
   }

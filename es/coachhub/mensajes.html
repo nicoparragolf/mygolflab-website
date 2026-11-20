@@ -20,6 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
+<script src="/js/mgl-moderar.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c161616,#161616); --card2:var(--c1c1c1c,#1c1c1c);
@@ -90,6 +91,9 @@
   .th-back svg{width:24px;height:24px}
   .th-name{font-weight:600;font-size:16px}
   .th-sub{font-size:12.5px;color:var(--muted)}
+  .th-more{flex:0 0 auto;width:34px;height:34px;margin-left:4px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 6px}
+  .th-head > div + .th-more{margin-left:auto}
+  .th-more:hover{color:var(--text,#f5f5f5);border-color:var(--teal-dim)}
   .th-link{margin-left:auto;font-family:'Barlow Condensed';font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);border:1px solid var(--teal-dim);border-radius:20px;padding:5px 12px;white-space:nowrap}
   .th-link:hover{background:rgba(var(--r212_197_169,212,197,169),.08)}
   .notice{margin:12px 18px 0;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.45;background:rgba(var(--r240_184_96,240,184,96),.08);border:1px solid rgba(var(--r240_184_96,240,184,96),.3);color:var(--ce9cf9f,#e9cf9f)}
@@ -275,6 +279,7 @@ var MSGS = [];           // mensajes de la conversación abierta
 var PEOPLE = {};         // user_id → {name, es_coach} del grupo abierto
 var READS = [];          // lecturas del grupo abierto (solo coach, para "Visto por")
 var CHANNEL = null;
+var BLOCKED = {};        // user_id → true (personas que bloqueé: sus mensajes de grupo se ocultan)
 
 var GRP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 018 14h2a5.5 5.5 0 015.5 5.5v.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8"/><path d="M18 14.2a5.5 5.5 0 013.5 5.3v.5"/></svg>';
 var CAT_GROUP = { junior:'Juniors', iniciacion:'Amateurs', amateur:'Amateurs', college:'Amateurs', elite_amateur:'Amateurs', profesional:'Profesionales', senior:'Seniors' };
@@ -355,6 +360,7 @@ async function init(){
   buildNav();
   if(IS_COACH) $('newBtn').style.display='';
 
+  BLOCKED = window.MGLModerar ? await MGLModerar.bloqueados(sb) : {};
   var ok = await loadConvs();
   if(!ok) return;
 
@@ -565,8 +571,10 @@ async function openConv(key){
     +   avHTML(c)
     +   '<div style="min-width:0"><div class="th-name">'+esc(c.name)+'</div><div class="th-sub">'+sub+'</div></div>'
     +   right
+    +   '<button class="th-more" type="button" onclick="convMenu()" aria-label="Más opciones" title="Reportar o bloquear">⋯</button>'
     + '</div>'
     + extra
+    + '<div id="blkNotice"></div>'
     + '<div class="msgs" id="msgs"><div class="loading">Cargando mensajes…</div></div>'
     + (canWrite
       ? '<form class="composer" id="composer" onsubmit="sendMsg(event)">'
@@ -585,8 +593,10 @@ async function openConv(key){
     if(!isMobile()) input.focus();
   }
 
+  var pb = c.type==='dm' ? sb.rpc('mgl_conv_bloqueada',{ p_player:c.player_id }) : null;
   var ok = await fetchMsgs(c);
   if(CUR!==c || !ok) return;
+  if(pb){ var rb=await pb; c.bloqueado=!!(rb && !rb.error && rb.data); if(CUR!==c) return; applyBlock(c); }
   renderMsgs(true);
   markRead(c);
 }
@@ -643,8 +653,16 @@ function seenBy(m){
   return ' · <span>Visto por</span> '+n+'/'+members.length;
 }
 
+function visibleMsgs(){
+  return MSGS.filter(function(m){
+    if(m.sender_id===USER.id) return true;
+    if(CUR.type==='dm') return !CUR.bloqueado;
+    return !BLOCKED[m.sender_id];
+  });
+}
 function renderMsgs(scroll){
   var box=$('msgs'); if(!box || !CUR) return;
+  var MSGS=visibleMsgs();
   if(!MSGS.length){
     var txt;
     if(CUR.type==='grupo') txt = CUR.soy_coach
@@ -681,6 +699,34 @@ function renderMsgs(scroll){
   if(scroll || nearBottom) box.scrollTop=box.scrollHeight;
 }
 
+// ── Reportar / bloquear (sql/coach_hub_moderacion.sql + /js/mgl-moderar.js) ──
+function applyBlock(c){
+  var n=$('blkNotice'); if(!n) return;
+  n.innerHTML = c.bloqueado ? '<div class="notice">Bloqueaste este chat: no recibes sus mensajes y no le puedes escribir. Para desbloquear, toca ⋯ arriba.</div>' : '';
+  var comp=$('composer');
+  if(comp) comp.style.display = c.bloqueado ? 'none' : '';
+}
+function convMenu(){
+  var c=CUR; if(!c || !window.MGLModerar) return;
+  var otros=MSGS.filter(function(m){ return m.sender_id!==USER.id && !m._pending; }).slice(-15);
+  var evid=otros.map(function(m){ return m.created_at+' · '+(c.type==='grupo' && PEOPLE[m.sender_id] ? PEOPLE[m.sender_id].name+': ' : '')+m.body; }).join('\n');
+  if(c.type==='grupo'){
+    MGLModerar.menu(sb, { titulo:c.name, contexto:'grupo', ref:c.group_id, evidencia:evid });
+    return;
+  }
+  var puede = c.kind==='coach' || c.linked;
+  MGLModerar.menu(sb, {
+    titulo:c.name, contexto:'mensaje', ref:c.player_id, evidencia:evid,
+    bloqueo: puede ? { bloqueado:!!c.bloqueado, cambiar: async function(on){
+      var r=await sb.rpc('mgl_bloquear_conv',{ p_player:c.player_id, p_on:on });
+      if(r.error || !r.data) return false;
+      c.bloqueado=on;
+      if(CUR===c){ applyBlock(c); renderMsgs(true); }
+      return true;
+    } } : null
+  });
+}
+
 async function sendMsg(e){
   if(e && e.preventDefault) e.preventDefault();
   if(!CUR) return;
@@ -699,7 +745,8 @@ async function sendMsg(e){
     : await sb.from('coach_messages').insert({ player_id:conv.player_id, sender_id:USER.id, body:text }).select('id,player_id,sender_id,body,created_at,read_at').single();
   if(r.error){
     tmp._pending=false; tmp._failed=true; if(CUR===conv) renderMsgs(false);
-    toast(!isGroup && isMissingTable(r.error) ? 'Falta correr el SQL de mensajes en Supabase' : 'No se pudo enviar el mensaje');
+    toast(!isGroup && isMissingTable(r.error) ? 'Falta correr el SQL de mensajes en Supabase'
+      : (/bloque|No puedes enviar/i.test((r.error.message||'')+' '+(r.error.hint||'')) ? 'No puedes enviar mensajes en este chat' : 'No se pudo enviar el mensaje'));
     if(CUR===conv && $('input') && !$('input').value){ $('input').value=text; autosize(); $('sendBtn').disabled=false; }
     return;
   }

@@ -17,6 +17,7 @@
 <script src="/js/mgl-products.js" data-product="hub" data-switch="always"></script>
 <script src="/js/mgl-precios.js"></script>
 <script src="/js/mgl-pago.js"></script>
+<script src="/js/mgl-moderar.js"></script>
 <!--
   CoachYard · Catálogo de contenido exclusivo
   Archivo: /es/coaches/contenido.html
@@ -433,6 +434,7 @@ function renderDetail(){
   h+='<div class="sec"><h2>Contenido de la colección</h2><div class="pl" id="pl"></div></div>';
   if(C.description) h+='<div class="sec"><h2>Qué vas a aprender</h2><p class="txt">'+esc(C.description)+'</p></div>';
   h+='</div><div class="side">'+buyBoxHTML(co, mine, dur)+'</div></div>';
+  if(!mine) h+='<div style="text-align:center;margin:28px 0 8px"><a onclick="modCol()" style="cursor:pointer;color:var(--muted,#8a8a8a);font-size:13px;text-decoration:underline">⚑ Reportar esta colección</a></div>';
   $('wrap').innerHTML=h;
   renderStage(false);
   renderPlaylist();
@@ -467,6 +469,12 @@ function buyBoxHTML(co, mine, dur){
   return h;
 }
 
+async function modCol(){
+  if(!C || !window.MGLModerar) return;
+  var s=await sb.auth.getSession();
+  if(!s.data.session){ location.href='/es/coachhub/entrar.html?registro=alumno&volver='+encodeURIComponent(location.pathname+location.search); return; }
+  MGLModerar.reportar(sb, { contexto:'contenido', ref:C.id, evidencia:(C.title||'')+'\n'+(C.description||'') });
+}
 function renderStage(autoplay){
   var st=$('stage'), now=$('now'); if(!st) return;
   var it=CUR_ITEM;
