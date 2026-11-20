@@ -88,6 +88,14 @@
 
   .footer{text-align:center;margin-top:1.3rem;font-size:.75rem;color:var(--muted2)}
   .footer a{color:var(--muted);text-decoration:underline}
+  /* presented by MyGolfLab + auspiciadores */
+  .marcas{margin-top:2rem;padding-top:1.4rem;border-top:1px solid var(--border);text-align:center}
+  .marcas-by{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted2)}
+  .marcas-mgl{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.08em;line-height:1;margin-top:.25rem}
+  .marcas-mgl span{color:#2dd4bf}   /* teal de MyGolfLab (en CoachYard --teal es dorado) */
+  .marcas-label{font-family:'Barlow Condensed',sans-serif;font-size:.64rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted2);margin-top:1.3rem}
+  .marcas-logos{display:flex;align-items:center;justify-content:center;gap:1.6rem;flex-wrap:wrap;margin-top:.8rem}
+  .marcas-logos img{height:26px;width:auto;display:block;opacity:.85}
 
   .tabs{display:flex;gap:4px;background:var(--elevated);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:1.3rem}
   .tab{flex:1;padding:.6rem;border:none;background:transparent;color:var(--muted2);font-family:'Barlow Condensed';font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;border-radius:9px;cursor:pointer}
@@ -235,6 +243,18 @@
   </div>
 
   <p class="footer">CoachYard y MyGolfLab comparten tu cuenta — son productos distintos, un solo login.<br>¿Buscas entrenar por tu cuenta con IA? <a href="/es/login.html">Entra a MyGolfLab</a></p>
+
+  <!-- presented by MyGolfLab + auspiciadores (si falta un logo, se oculta solo) -->
+  <div class="marcas">
+    <div class="marcas-by">Presented by</div>
+    <div class="marcas-mgl">MYGOLF<span>LAB</span></div>
+    <div class="marcas-label">Con el apoyo de</div>
+    <div class="marcas-logos">
+      <img class="logo-claro-inv" src="/es/img/sponsors/golfchile-blanco.png" alt="GolfChile" onerror="this.remove()">
+      <img class="logo-claro-inv" src="/es/img/sponsors/titleist-blanco.png" alt="Titleist" onerror="this.remove()">
+      <img class="logo-claro-inv" src="/es/img/sponsors/footjoy-blanco.png" alt="FootJoy" onerror="this.remove()">
+    </div>
+  </div>
 </div>
 
 <script>
