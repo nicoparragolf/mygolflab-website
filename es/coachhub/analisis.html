@@ -146,6 +146,13 @@
   .spd{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:6px 9px;font-family:'Barlow Condensed';font-weight:600;font-size:14px;cursor:pointer}
   .spd.on{background:#fff;color:#000;border-color:#fff}
   .grow{flex:1}
+  /* captura de la comparación → galería del teléfono */
+  .snapbtn{display:flex;align-items:center;gap:7px;height:40px;padding:0 14px;border-radius:10px;background:var(--card2);border:1px solid var(--border2);font-family:'Barlow Condensed';font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;flex:0 0 auto;color:var(--text)}
+  .snapbtn svg{width:20px;height:20px;color:var(--teal)}
+  .snapbtn:hover{border-color:var(--teal)}
+  .snapbtn:disabled{opacity:.45;cursor:default}
+  .snapflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8;transition:opacity .35s ease-out}
+  .snapflash.on{opacity:.75;transition:none}
 
   /* ---------- modales ---------- */
   .ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:none;align-items:flex-end;justify-content:center}
@@ -250,6 +257,7 @@
     <div class="recbadge" id="recBadge">● REC 0:00</div>
     <button class="vclose" id="btnClose" title="Quitar video y elegir otro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <button class="zoomreset" id="zoomReset">Quitar zoom</button>
+    <div class="snapflash" id="snapFlash"></div>
     <div class="placeholder" id="placeholder">
       <h2>Elige un video</h2>
       <p>Usa uno que ya esté en el perfil del alumno o sube uno nuevo desde tu teléfono.</p>
@@ -303,6 +311,7 @@
       <button class="playbtn" id="btnPlay" title="Reproducir / pausar"></button>
       <div class="speeds" id="speeds"></div>
       <div class="grow"></div>
+      <button class="snapbtn" id="btnSnap" title="Guardar una captura de lo que se ve (para redes o para el alumno)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.6"/></svg><span>Captura</span></button>
     </div>
   </div>
 </div>
@@ -1430,6 +1439,73 @@ function onRecStop(){
   if(!REC_BLOB.size){ toast('La grabación quedó vacía. Intenta de nuevo.',true); return; }
   openSaveSheet();
 }
+
+// ============================================================
+// CAPTURA: foto de lo que se ve en el escenario (videos + dibujos)
+// En la app abre la hoja nativa (Guardar imagen → Fotos, WhatsApp…);
+// en Safari/Chrome del teléfono usa compartir; en el computador descarga.
+// ============================================================
+function snapName(){
+  var d=new Date(), z=function(n){ return (n<10?'0':'')+n; };
+  var quien = PLAYER ? '-'+playerFullName(PLAYER).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') : '';
+  return 'coachyard'+quien+'-'+todayISO()+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())+'.jpg';
+}
+function snapBlob(){
+  return new Promise(function(resolve, reject){
+    // copia del escenario + firma discreta de CoachYard abajo a la derecha
+    var W=canvas.width, H=canvas.height;
+    var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+    var c=cv.getContext('2d');
+    c.drawImage(canvas, 0, 0);
+    var fs=Math.max(14, Math.round(H/48));
+    c.font='700 '+fs+'px "Barlow Condensed", Barlow, sans-serif';
+    c.textAlign='right'; c.textBaseline='alphabetic';
+    c.shadowColor='rgba(0,0,0,.6)'; c.shadowBlur=fs*0.4;
+    c.fillStyle='rgba(212,197,169,.9)';
+    c.fillText('COACHYARD', W-fs*0.8, H-fs*0.8);
+    try{
+      cv.toBlob(function(b){ if(b) resolve(b); else reject(new Error('imagen vacía')); }, 'image/jpeg', 0.93);
+    }catch(e){ reject(e); }
+  });
+}
+function snapFlash(){
+  var f=$('snapFlash'); f.classList.add('on');
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ f.classList.remove('on'); }); });
+}
+function snapDownload(blob, nombre){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=nombre;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+$('btnSnap').onclick=async function(){
+  if(!LAYOUT.length){ toast('Primero elige un video',true); return; }
+  var btn=this; btn.disabled=true;
+  snapFlash();
+  var nombre=snapName(), blob;
+  try{ blob=await snapBlob(); }
+  catch(e){ toast('No se pudo sacar la captura: '+errMsg(e),true); btn.disabled=false; return; }
+  try{
+    if(window.MGLApp && MGLApp.esNativo()){
+      // hoja nativa: "Guardar imagen" la deja en Fotos
+      await MGLApp.guardarBlob(blob, nombre);
+    } else {
+      var file=null;
+      try{ file=new File([blob], nombre, {type:'image/jpeg'}); }catch(e){}
+      var movil=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && /Mac/.test(navigator.platform||''));
+      if(movil && file && navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file]}); }
+        catch(e){ if(e && e.name!=='AbortError') snapDownload(blob, nombre); }
+      } else {
+        snapDownload(blob, nombre);
+        toast('Captura descargada');
+      }
+    }
+  }catch(e){
+    toast('No se pudo guardar: '+errMsg(e),true);
+  }
+  btn.disabled=false;
+};
 
 // ============================================================
 // GUARDAR EN EL TIMELINE
