@@ -36,7 +36,8 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({
   viewport: { width: 414, height: 896 },
   deviceScaleFactor: 3,
-  isMobile: true,
+  // isMobile:false → el ancho queda fijo en 414 (en modo móvil Chrome agranda la página si algo oculto sobresale y la foto sale corrida)
+  isMobile: false,
   hasTouch: true,
   locale: 'es-CL',
   timezoneId: 'America/Santiago',
@@ -58,10 +59,13 @@ if (err) { console.error('❌ No se pudo iniciar sesión:', err); process.exit(1
 let ok = 0;
 for (const p of PANTALLAS) {
   try {
-    await page.goto(BASE + p.url, { waitUntil: 'networkidle', timeout: 45000 });
-    await page.waitForTimeout(2500);
+    await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+    await page.waitForTimeout(3000);
     // sin barras de scroll ni avisos flotantes en la foto
-    await page.addStyleTag({ content: '::-webkit-scrollbar{display:none!important}.toast,#toast{display:none!important}' });
+    await page.addStyleTag({ content: 'html,body{overflow-x:hidden!important}::-webkit-scrollbar{display:none!important}.toast,#toast{display:none!important}' });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
     await page.screenshot({ path: 'capturas/' + p.archivo, fullPage: false });
     console.log('📸', p.archivo);
     ok++;
