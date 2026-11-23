@@ -661,16 +661,24 @@
         let routing = false;
 
         // ── RUTEO SEGÚN ROL ──
-        // Un coach "puro" no usa MyGolfLab: entra directo a su CoachYard.
-        // Jugadores y rol "ambos" entran al dashboard de MyGolfLab
-        // (desde ahí el selector de producto los lleva a CoachYard).
+        // Este es el login de MyGolfLab: por defecto todos entran al dashboard
+        // de MyGolfLab (desde ahí el selector de producto lleva a CoachYard).
+        // Solo un coach SIN plan MyGolfLab vigente (Pro/Elite) va directo a
+        // CoachYard, porque no tiene nada que hacer en MyGolfLab.
+        // (2026-11-23: antes cualquier rol "coach" iba a CoachYard, aunque
+        //  tuviera plan MyGolfLab, y no podía entrar a su propia plataforma.)
+        function tienePlanMGL(p) {
+            const plan = String((p && p.plan) || '').trim().toLowerCase();
+            const vigente = !(p && p.pro_expires_at) || new Date(p.pro_expires_at) > new Date();
+            return (plan === 'pro' || plan === 'elite') && vigente;
+        }
         async function routeByRole(userId) {
             if (routing) return;
             routing = true;
             let dest = DEST_PLAYER;
             try {
-                const { data } = await sb.from('profiles').select('role').eq('id', userId).maybeSingle();
-                if (data && data.role === 'coach') dest = DEST_COACH;
+                const { data } = await sb.from('profiles').select('role, plan, pro_expires_at').eq('id', userId).maybeSingle();
+                if (data && data.role === 'coach' && !tienePlanMGL(data)) dest = DEST_COACH;
             } catch (e) { console.warn('routeByRole', e); }
             window.location.href = dest;
         }
