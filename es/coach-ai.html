@@ -870,6 +870,14 @@
     handleVideoFile(f);
   });
   videoInput.addEventListener('change', function (e) { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
+  /* iPhone: si el selector de Fotos vuelve sin video (pasa cuando se abre la
+     vista previa del video o el video está solo en iCloud), se explica qué hacer
+     en vez de dejar la pantalla como si nada. */
+  videoInput.addEventListener('cancel', function () {
+    if (!/iPhone|iPad|iPod/.test(navigator.userAgent || '')) return;
+    showStatus('uploadStatus', 'El iPhone no entregó el video. Vuelve a intentarlo tocando la miniatura del video UNA vez ' +
+      '(sin abrir la vista previa). Si el video está en iCloud, ábrelo primero en Fotos para que se descargue.', 'info');
+  });
 
   function handleVideoFile(file) {
     clearStatus('uploadStatus');
