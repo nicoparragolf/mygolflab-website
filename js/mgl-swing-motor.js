@@ -1,7 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Motor de swing (pose + fases + mediciones)
    Archivo: /js/mgl-swing-motor.js
-   Versión: 1.1 · 2026-11-23  ·  recorte del video
+   Versión: 1.2 · 2026-11-23  ·  más robusto en Safari / iPhone
+
+   ── v1.2: NUNCA QUEDARSE PEGADO ─────────────────────────────────────────────
+   · El detector ya no se precarga al abrir la página (en algunos equipos
+     podía trabar la página). Se empieza a cargar recién cuando aparece la
+     herramienta de recorte, mientras el jugador elige el tramo.
+   · En Safari (Mac/iPhone) el detector usa CPU primero: la GPU de Safari
+     puede colgarse al iniciar MediaPipe.
+   · Si el detector no carga en 30 s, se sigue con el método básico.
+   · Si algo falla antes del recorte, se usa la extracción original de
+     coach-ai.html, así el jugador nunca queda con la pantalla detenida.
+
 
    ── v1.1: RECORTE ANTES DE ANALIZAR ─────────────────────────────────────────
    Igual que el analizador de CoachYard: al elegir o grabar un video aparece
@@ -71,7 +82,9 @@
   if (typeof window === 'undefined') return;
   if (window.MGL_MOTOR) return;
 
-  var VERSION = '1.1';
+  var VERSION = '1.2';
+  var ES_SAFARI = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent || '');
+  var TIMEOUT_DETECTOR = 30000;
   var MAX_TRAMO = 30;        // segundos máximos del tramo a analizar
 
   /* ═════════════════════════════════════════════════════════════════════════
@@ -540,7 +553,7 @@
       var files = await mod.FilesetResolver.forVisionTasks(WASM_URL);
       var ultimo = null;
       for (var m = 0; m < MODELOS.length; m++) {
-        var delegados = ['GPU', 'CPU'];
+        var delegados = ES_SAFARI ? ['CPU', 'GPU'] : ['GPU', 'CPU'];
         for (var g = 0; g < delegados.length; g++) {
           try {
             var lm = await mod.PoseLandmarker.createFromOptions(files, {
@@ -559,6 +572,15 @@
     })();
     _pose.catch(function () { _pose = null; });
     return _pose;
+  }
+  /* Igual que cargarPose(), pero se rinde a los 30 s */
+  function cargarPoseConLimite() {
+    return Promise.race([
+      cargarPose(),
+      new Promise(function (_, rej) {
+        setTimeout(function () { rej(new Error('El detector tardó demasiado en cargar')); }, TIMEOUT_DETECTOR);
+      })
+    ]);
   }
 
   function buscar(video, t) {
@@ -607,7 +629,7 @@
     if (!(dur > 0) || !W || !H) return { ok: false, motivo: 'video_ilegible' };
     try { video.pause(); } catch (e) {}
 
-    var pose = await cargarPose();
+    var pose = await cargarPoseConLimite();
     function avance(base, peso, msg) {
       return function (p) { if (alAvanzar) alAvanzar(base + p * peso, msg); };
     }
@@ -1113,6 +1135,8 @@
       dibujar();
       ir(0.001);
       construirTira(T, video, q('canvas'), q('.mgl-trfilm'));
+      /* El detector se carga mientras el jugador recorta */
+      setTimeout(function () { cargarPose().catch(function () {}); }, 600);
     });
   }
 
@@ -1185,6 +1209,19 @@
 
   /* ── Reemplazo de extractFrames() de coach-ai.html ── */
   async function extractFramesMotor(videoEl, gridId, previewId, btnId, statusId) {
+    try {
+      return await extractFramesMotorInterno(videoEl, gridId, previewId, btnId, statusId);
+    } catch (e) {
+      console.error('[MGL motor] Error inesperado, se usa la extracción original:', e);
+      if (RECORTE) { try { RECORTE.cerrar(null); } catch (e2) {} }
+      window.MGL_SWING = null;
+      if (typeof window.__extractFramesOriginal === 'function') {
+        return window.__extractFramesOriginal(videoEl, gridId, previewId, btnId, statusId);
+      }
+    }
+  }
+
+  async function extractFramesMotorInterno(videoEl, gridId, previewId, btnId, statusId) {
     window.extractedFrames = []; window.frameTimes = [];
     window.MGL_SWING = null;
     var grid = document.getElementById(gridId);
@@ -1431,10 +1468,7 @@
     var r = test();
     console.log('%c 🏌️ MGL MOTOR v' + VERSION + (r.ok ? ' — INSTALADO, autotest OK ' : ' — AUTOTEST CON FALLAS '),
       'background:' + (r.ok ? '#2dd4bf' : '#ef4444') + ';color:#06251f;font-weight:bold', r.ok ? '' : r.fallas);
-    /* Precarga del detector cuando la página está tranquila */
-    var pre = function () { cargarPose().catch(function () {}); };
-    if ('requestIdleCallback' in window) window.requestIdleCallback(pre, { timeout: 4000 });
-    else setTimeout(pre, 2500);
+    /* El detector ya no se precarga aquí: se carga al abrir el recorte */
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', instalar);
