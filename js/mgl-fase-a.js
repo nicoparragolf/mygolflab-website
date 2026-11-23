@@ -843,17 +843,26 @@
       });
       clearTimeout(timeout);
       if (!response.ok) {
-        var errSrv = null;
-        try { errSrv = (await response.json()).error; } catch (e) {}
+        var errSrv = null, etapa = null;
+        try { var cuerpoErr = await response.json(); errSrv = cuerpoErr.error; etapa = cuerpoErr.etapa;
+              console.error('[MGL] Respuesta de error del servidor:', cuerpoErr); } catch (e) {}
         var eh = new Error('HTTP ' + response.status);
-        eh.status = response.status; eh.mensaje = errSrv;
+        eh.status = response.status; eh.mensaje = errSrv; eh.etapa = etapa;
         throw eh;
       }
 
       var data = await response.json();
       var raw = (data.content || []).map(function (c) { return c.text || ''; }).join('');
       var result = parseAnalysis(raw);
-      if (!result || !Array.isArray(result.diagnosticos)) throw new Error('Respuesta inesperada');
+      if (!result || !Array.isArray(result.diagnosticos)) {
+        console.error('[MGL] Respuesta ilegible · stop_reason=' + data.stop_reason + ' · texto:', raw.slice(0, 400));
+        var ei = new Error('Respuesta inesperada');
+        ei.mensaje = data.stop_reason === 'max_tokens'
+          ? 'La respuesta de la IA llegó incompleta. Inténtalo de nuevo.'
+          : 'La IA respondió en un formato que no pudimos leer. Inténtalo de nuevo.';
+        ei.status = 'formato';
+        throw ei;
+      }
 
       /* Copia cruda, para poder inspeccionar en la consola */
       try { window.__crudo = JSON.parse(JSON.stringify(result)); } catch (e) {}
@@ -909,11 +918,20 @@
       clearTimeout(timeout);
       $('analysisLoading').classList.remove('visible');
       $('questionnaireSection').classList.add('visible');
-      var msg = (err && err.name === 'AbortError')
-        ? 'El análisis tardó demasiado o fue cancelado. Inténtalo de nuevo.'
-        : (err && (err.status === 401 || err.status === 403 || err.status === 413) && err.mensaje)
-          ? err.mensaje
-          : 'Hubo un error al analizar el swing. Revisa tu conexión e inténtalo de nuevo.';
+      /* v4.1: siempre se muestra la causa real y el código, para poder diagnosticar */
+      var msg;
+      if (err && err.name === 'AbortError') {
+        msg = 'El análisis tardó demasiado o fue cancelado. Inténtalo de nuevo.';
+      } else if (err && err.status === 504) {
+        msg = 'El servidor tardó demasiado en responder (código 504). Inténtalo de nuevo.';
+      } else if (err && err.mensaje) {
+        msg = err.mensaje + (err.status ? ' (código ' + err.status + (err.etapa ? ' · ' + err.etapa : '') + ')' : '');
+      } else if (err && err.status) {
+        msg = 'Hubo un error al analizar el swing (código ' + err.status + '). Inténtalo de nuevo.';
+      } else {
+        msg = 'Hubo un error al analizar el swing. Revisa tu conexión e inténtalo de nuevo.' +
+              (err && err.message ? ' (' + String(err.message).slice(0, 80) + ')' : '');
+      }
       showStatus('consentHint', msg, 'error');
       console.error('[MGL] Error en analyzeSwing:', err);
     } finally {

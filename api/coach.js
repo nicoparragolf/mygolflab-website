@@ -70,7 +70,7 @@ import { userFromToken, SUPABASE_URL, SUPABASE_ANON_KEY } from './_pagos.js';
 const MODEL = 'claude-sonnet-5';
 const PLANES_CON_ACCESO = ['pro', 'elite'];   // igual que js/auth-guard.js
 
-const MAX_TOKENS_SWING = 8000;   // deja espacio para el razonamiento + el JSON
+const MAX_TOKENS_SWING = 16000;  // v5.1: con 9 imágenes + mediciones, 8000 cortaba el JSON
 const MAX_TOKENS_CHAT  = 3000;
 const LIMITE_MB        = 4.0;   // Vercel corta a los 4.5 MB; avisamos antes
 
@@ -326,7 +326,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         estado: 'ok',
         mensaje: 'El backend del Coach IA está vivo y funcionando.',
-        version_endpoint: '5.0',
+        version_endpoint: '5.1',
         verificacion_sesion: process.env.COACH_AUTH === 'off' ? 'DESACTIVADA' : 'activa',
         mapeo_pilares: 'activo',
         modelo_configurado: MODEL,
@@ -500,6 +500,13 @@ export default async function handler(req, res) {
 
     if (data.stop_reason === 'max_tokens') {
       console.warn('[coach] Respuesta TRUNCADA por max_tokens. Subir el límite.');
+      if (isSwing) {
+        return res.status(502).json({
+          error: 'La respuesta de la IA llegó incompleta. Inténtalo de nuevo.',
+          etapa: 'truncado',
+          tokens: data.usage || null
+        });
+      }
     }
 
     console.log('[coach] ok · modo=' + mode + ' · ' + ms + 'ms · tokens=' +
