@@ -3,6 +3,18 @@
    Archivo: /api/coach.js
    Versión: 5.0 · 2026-11-23  ·  evidencia medida + sesión obligatoria
 
+   ── v5.3: MÁS RÁPIDO ──────────────────────────────────────────────────────
+   Claude Sonnet 5 razona por defecto en esfuerzo "high", lo que más demora.
+   El análisis de swing ahora va en esfuerzo "medium" (output_config.effort):
+   las mediciones ya vienen calculadas por el motor de pose, así que no hace
+   falta que razone tanto. Se puede ajustar sin tocar código con variables
+   de entorno en Vercel:
+     COACH_EFFORT   = low | medium | high      (por defecto: medium)
+     COACH_THINKING = off                      (apaga el razonamiento: lo más
+                                                rápido, posible pérdida de calidad)
+   Si la API rechaza esos parámetros (400), se reintenta una vez sin ellos.
+   La respuesta trae data.mgl = { ms, effort, thinking } para medir tiempos.
+
    ── v5.0: SWING COMPLETO Y SEGURIDAD ──────────────────────────────────────
    1. El frontend (js/mgl-swing-motor.js) ahora recorre el video completo con
       detección de pose y manda las 9 posiciones detectadas (P1…P10) más
@@ -326,7 +338,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
         estado: 'ok',
         mensaje: 'El backend del Coach IA está vivo y funcionando.',
-        version_endpoint: '5.2',
+        version_endpoint: '5.3',
+        esfuerzo_analisis: (process.env.COACH_EFFORT || 'medium') + (String(process.env.COACH_THINKING || '').toLowerCase() === 'off' ? ' · sin razonamiento' : ''),
         max_duracion_s: 300,
         verificacion_sesion: process.env.COACH_AUTH === 'off' ? 'DESACTIVADA' : 'activa',
         mapeo_pilares: 'activo',
@@ -431,20 +444,43 @@ export default async function handler(req, res) {
       messages
     };
 
+    /* Velocidad: esfuerzo del razonamiento (ver cabecera v5.3) */
+    const EFFORTS = ['low', 'medium', 'high'];
+    const effort = EFFORTS.indexOf(String(process.env.COACH_EFFORT || '').toLowerCase()) >= 0
+      ? String(process.env.COACH_EFFORT).toLowerCase() : 'medium';
+    const sinThinking = String(process.env.COACH_THINKING || '').toLowerCase() === 'off';
+    anthropicPayload.output_config = { effort: effort };
+    if (sinThinking) anthropicPayload.thinking = { type: 'disabled' };
+
     console.log('[coach] llamando a Anthropic · modo=' + mode + ' · modelo=' + MODEL);
     const inicio = Date.now();
 
     let response, data;
-    try {
-      response = await fetch('https://api.anthropic.com/v1/messages', {
+    function llamar(payload) {
+      return fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': process.env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01'
         },
-        body: JSON.stringify(anthropicPayload)
+        body: JSON.stringify(payload)
       });
+    }
+    let ajustesUsados = { effort: effort, thinking: sinThinking ? 'off' : 'adaptive' };
+    try {
+      response = await llamar(anthropicPayload);
+      /* Si la API no acepta effort/thinking para este modelo, reintento sin ellos */
+      if (response.status === 400) {
+        const errTxt = await response.clone().text();
+        if (/effort|output_config|thinking/i.test(errTxt)) {
+          console.warn('[coach] La API rechazó effort/thinking, reintento sin ellos: ' + errTxt.slice(0, 300));
+          delete anthropicPayload.output_config;
+          delete anthropicPayload.thinking;
+          ajustesUsados = { effort: 'por defecto', thinking: 'por defecto' };
+          response = await llamar(anthropicPayload);
+        }
+      }
     } catch (e) {
       console.error('[coach] Falló la conexión con Anthropic:', e.message);
       return res.status(502).json({
@@ -510,12 +546,14 @@ export default async function handler(req, res) {
       }
     }
 
-    console.log('[coach] ok · modo=' + mode + ' · ' + ms + 'ms · tokens=' +
+    console.log('[coach] ok · modo=' + mode + ' · effort=' + ajustesUsados.effort + ' · ' + ms + 'ms · tokens=' +
       ((data.usage && data.usage.input_tokens) || '?') + '/' +
       ((data.usage && data.usage.output_tokens) || '?') +
       ' · bloques ' + bloquesAntes + '→' +
       (Array.isArray(data.content) ? data.content.length : '?'));
 
+    data.mgl = { ms: ms, effort: ajustesUsados.effort, thinking: ajustesUsados.thinking,
+                 tokens: data.usage || null };
     return res.status(200).json(data);
 
   } catch (err) {

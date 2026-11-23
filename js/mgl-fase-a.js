@@ -861,6 +861,8 @@
       }
 
       var data = await response.json();
+      if (data.mgl) console.log('%c[MGL] IA respondió en ' + (data.mgl.ms / 1000).toFixed(1) + ' s · esfuerzo ' +
+        data.mgl.effort + ' · razonamiento ' + data.mgl.thinking, 'color:#2dd4bf;font-weight:bold', data.mgl.tokens);
       var raw = (data.content || []).map(function (c) { return c.text || ''; }).join('');
       var result = parseAnalysis(raw);
       if (!result || !Array.isArray(result.diagnosticos)) {
