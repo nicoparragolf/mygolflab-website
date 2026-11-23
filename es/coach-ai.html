@@ -469,9 +469,11 @@
           <button type="button" class="drop-zone" id="dropZone" aria-label="Subir video: arrastra un archivo o presiona para seleccionar">
             <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
             <h3>Arrastra tu video aquí</h3>
-            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · hasta 3 min, después recortas el swing)<br>Un solo swing · cuerpo completo en cuadro · cámara fija · ideal 60 fps</p>
-            <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
+            <p>o haz click para seleccionar — MP4, MOV, WebM (hasta 3 min, después recortas el swing)<br>Un solo swing · cuerpo completo en cuadro · cámara fija · ideal 60 fps</p>
           </button>
+          <!-- El input va FUERA del botón: en Safari del iPhone, un input dentro de un
+               <button> abre Fotos pero nunca entrega el video a la página. -->
+          <input type="file" id="videoInput" accept="video/*" style="display:none">
           <div class="video-preview" id="videoPreview">
             <div class="video-preview-inner"><video id="previewPlayer" controls playsinline></video></div>
             <div class="video-info">
@@ -844,6 +846,14 @@
   /* ===== Drag & drop + selección de archivo ===== */
   var dropZone = $('dropZone'), videoInput = $('videoInput');
   var ALLOWED = ['video/mp4', 'video/quicktime', 'video/webm'];
+  /* El iPhone a veces entrega el video sin tipo o como video/x-m4v: se acepta
+     cualquier video/* o una extensión conocida. */
+  function esVideoValido(f) {
+    if (!f) return false;
+    if (ALLOWED.indexOf(f.type) >= 0) return true;
+    if (f.type && f.type.indexOf('video/') === 0) return true;
+    return /\.(mp4|mov|m4v|webm|3gp|hevc)$/i.test(f.name || '');
+  }
 
   dropZone.addEventListener('click', function () { videoInput.click(); });
   dropZone.addEventListener('keydown', function (e) {
@@ -855,15 +865,17 @@
     e.preventDefault(); dropZone.classList.remove('dragover');
     var f = e.dataTransfer.files[0];
     if (!f) return;
-    if (ALLOWED.indexOf(f.type) < 0) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
+    if (!esVideoValido(f)) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
     handleVideoFile(f);
   });
   videoInput.addEventListener('change', function (e) { if (e.target.files[0]) handleVideoFile(e.target.files[0]); });
 
   function handleVideoFile(file) {
     clearStatus('uploadStatus');
-    if (ALLOWED.indexOf(file.type) < 0) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
-    if (file.size > 50 * 1024 * 1024) { showStatus('uploadStatus', 'El video supera el límite de 50MB. Recórtalo o bájale la calidad.', 'error'); return; }
+    if (!esVideoValido(file)) { showStatus('uploadStatus', 'Ese formato no es compatible. Usa MP4, MOV o WebM.', 'error'); return; }
+    /* El video no se sube a ningún servidor (se procesa en el dispositivo y
+       solo se envían imágenes), así que el límite puede ser amplio. */
+    if (file.size > 400 * 1024 * 1024) { showStatus('uploadStatus', 'El video supera 400 MB. Recórtalo en Fotos o grábalo más corto.', 'error'); return; }
 
     currentVideoFile = file;
     var url = URL.createObjectURL(file), player = $('previewPlayer');
@@ -886,6 +898,26 @@
       showStatus('uploadStatus', 'Preparando video y extrayendo frames…', 'info');
       extractFrames(player, 'framesGrid', 'framesPreview', 'analyzeBtn', 'uploadStatus');
     };
+    showStatus('uploadStatus', 'Cargando video…', 'info');
+    player.preload = 'auto';
+    try { player.load(); } catch (e) {}
+    destrabarMetadata(player);
+  }
+
+  /* iPhone: Safari a veces no carga la metadata del video hasta que se
+     reproduce. Si a los 1,5 s no llegó, un play/pause silencioso la destraba
+     (mismo truco que el analizador de CoachYard). */
+  function destrabarMetadata(v) {
+    setTimeout(function () {
+      if (v.readyState >= 1 || !v.src) return;
+      var eraMudo = v.muted;
+      v.muted = true;
+      try {
+        var pr = v.play();
+        var parar = function () { try { v.pause(); } catch (e) {} v.muted = eraMudo; };
+        if (pr && pr.then) pr.then(parar).catch(parar); else parar();
+      } catch (e) { v.muted = eraMudo; }
+    }, 1500);
   }
 
   function removeVideo() {
@@ -1002,15 +1034,17 @@
     catch (e) { try { mediaRecorder = new MediaRecorder(webcamStream); } catch (e2) { showStatus('webcamStatus', 'Tu navegador no soporta grabación de video. Sube un archivo en su lugar.', 'error'); return; } }
     mediaRecorder.ondataavailable = function (e) { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = function () {
-      var blob = new Blob(recordedChunks, { type: 'video/webm' });
+      var tipoRec = (mediaRecorder && mediaRecorder.mimeType ? mediaRecorder.mimeType.split(';')[0] : '') || 'video/webm';
+      var blob = new Blob(recordedChunks, { type: tipoRec });
       if (blob.size > 50 * 1024 * 1024) { showStatus('webcamStatus', 'La grabación supera 50MB. Graba un clip más corto.', 'error'); return; }
-      currentVideoFile = new File([blob], 'swing-recording.webm', { type: 'video/webm' });
+      currentVideoFile = new File([blob], 'swing-recording.' + (tipoRec.indexOf('mp4') >= 0 ? 'mp4' : 'webm'), { type: tipoRec });
       var url = URL.createObjectURL(blob), player = $('webcamRecordedPlayer');
       player.src = url;
       $('webcamPreview').classList.add('visible');
       $('webcamAnalyzeBtn').disabled = true;
       showStatus('webcamStatus', 'Preparando grabación y extrayendo frames…', 'info');
-      player.onloadeddata = function () { extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview', 'webcamAnalyzeBtn', 'webcamStatus'); };
+      player.onloadeddata = function () { player.onloadeddata = null; extractFrames(player, 'webcamFramesGrid', 'webcamFramesPreview', 'webcamAnalyzeBtn', 'webcamStatus'); };
+      destrabarMetadata(player);
     };
     mediaRecorder.start(); isRecording = true; recSeconds = 0;
     $('recTime').textContent = '0:00';

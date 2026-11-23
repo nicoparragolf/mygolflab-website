@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Motor de swing (pose + fases + mediciones)
    Archivo: /js/mgl-swing-motor.js
-   Versión: 1.2 · 2026-11-23  ·  más robusto en Safari / iPhone
+   Versión: 1.3 · 2026-11-23  ·  iPhone: videos grandes
 
    ── v1.2: NUNCA QUEDARSE PEGADO ─────────────────────────────────────────────
    · El detector ya no se precarga al abrir la página (en algunos equipos
@@ -82,7 +82,7 @@
   if (typeof window === 'undefined') return;
   if (window.MGL_MOTOR) return;
 
-  var VERSION = '1.2';
+  var VERSION = '1.3';
   var ES_SAFARI = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent || '');
   var TIMEOUT_DETECTOR = 30000;
   var MAX_TRAMO = 30;        // segundos máximos del tramo a analizar
@@ -808,7 +808,12 @@
   async function huella(file) {
     try {
       if (!file || !window.crypto || !crypto.subtle) return null;
-      var buf = await file.arrayBuffer();
+      /* Videos grandes (iPhone 4K): se usa el inicio, el final y el tamaño,
+         para no cargar cientos de MB en la memoria del teléfono */
+      var MB8 = 8 * 1024 * 1024;
+      var buf = file.size > 64 * 1024 * 1024
+        ? await new Blob([file.slice(0, MB8), file.slice(file.size - MB8), String(file.size)]).arrayBuffer()
+        : await file.arrayBuffer();
       var h = await crypto.subtle.digest('SHA-256', buf);
       return Array.prototype.map.call(new Uint8Array(h), function (b) {
         return ('0' + b.toString(16)).slice(-2);
