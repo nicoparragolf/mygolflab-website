@@ -1,7 +1,15 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Motor de swing (pose + fases + mediciones)
    Archivo: /js/mgl-swing-motor.js
-   Versión: 1.0 · 2026-11-23
+   Versión: 1.1 · 2026-11-23  ·  recorte del video
+
+   ── v1.1: RECORTE ANTES DE ANALIZAR ─────────────────────────────────────────
+   Igual que el analizador de CoachYard: al elegir o grabar un video aparece
+   una tira de cuadros con bordes que se arrastran para dejar solo el swing.
+   No se re-codifica nada (es instantáneo): solo se marca el tramo, y el motor
+   analiza únicamente ese tramo, así que además el análisis queda más rápido.
+   "Usar video completo" analiza todo como antes. El tramo puede durar hasta
+   30 s, y el video original ahora puede durar hasta 3 minutos.
 
    ── QUÉ RESUELVE ────────────────────────────────────────────────────────────
    Antes, coach-ai.html sacaba 6 imágenes a intervalos iguales de TODO el clip.
@@ -63,7 +71,8 @@
   if (typeof window === 'undefined') return;
   if (window.MGL_MOTOR) return;
 
-  var VERSION = '1.0';
+  var VERSION = '1.1';
+  var MAX_TRAMO = 30;        // segundos máximos del tramo a analizar
 
   /* ═════════════════════════════════════════════════════════════════════════
      CONFIGURACIÓN
@@ -590,8 +599,10 @@
   /* ═════════════════════════════════════════════════════════════════════════
      ANÁLISIS COMPLETO DE UN VIDEO
      ═════════════════════════════════════════════════════════════════════════ */
-  async function analizarVideo(video, alAvanzar) {
+  async function analizarVideo(video, alAvanzar, rango) {
     var dur = video.duration;
+    var A = (rango && rango.a > 0) ? rango.a : 0;
+    var B = (rango && rango.b > A && rango.b < dur) ? rango.b : dur;
     var W = video.videoWidth, H = video.videoHeight;
     if (!(dur > 0) || !W || !H) return { ok: false, motivo: 'video_ilegible' };
     try { video.pause(); } catch (e) {}
@@ -602,8 +613,8 @@
     }
 
     /* 1 · Pasada gruesa sobre todo el clip */
-    var paso = Math.max(PASO_GRUESO, dur / MAX_GRUESO), tiempos = [];
-    for (var t = 0.02; t < dur - 0.02; t += paso) tiempos.push(r3(t));
+    var paso = Math.max(PASO_GRUESO, (B - A) / MAX_GRUESO), tiempos = [];
+    for (var t = A + 0.02; t < B - 0.02; t += paso) tiempos.push(r3(t));
     var gruesas = await muestrear(video, pose, tiempos, avance(0, 0.45, 'Buscando tu swing en el video'));
     var Sg = construirSerie(gruesas);
     if (!Sg) return { ok: false, motivo: 'sin_cuerpo' };
@@ -612,7 +623,7 @@
 
     /* 2 · Pasada fina solo sobre el swing */
     var tA = Sg.t[Fg.idx.P1], tTop = Sg.t[Fg.idx.P4], tImp = Sg.t[Fg.idx.P7], tFin = Sg.t[Fg.idx.P10];
-    var ini = Math.max(0.01, tA - 0.3), fin = Math.min(dur - 0.01, tFin + 0.3);
+    var ini = Math.max(A + 0.01, tA - 0.3), fin = Math.min(B - 0.01, tFin + 0.3);
     var zIni = Math.max(ini, tTop - 0.2), zFin = Math.min(fin, tImp + 0.25);
     var finos = {};
     for (t = ini; t <= fin; t += (t >= zIni && t <= zFin) ? PASO_FINO : PASO_MEDIO) finos[r3(t)] = true;
@@ -655,6 +666,7 @@
       vista: vista,
       vistaDetectada: vistaDet,
       duracion: dur,
+      tramo: { a: r3(A), b: r3(B) },
       cuadros: gruesas.length + nuevas.length,
       tasaDeteccion: r1(S.tasaDeteccion * 100),
       fases: FASES.map(function (f) { return { id: f.id, etiqueta: f.etiqueta, t: r3(S.t[F.idx[f.id]]) }; }),
@@ -742,14 +754,15 @@
      MÉTODO BÁSICO (respaldo si el detector no carga)
      Igual al original, pero respetando la orientación del video.
      ═════════════════════════════════════════════════════════════════════════ */
-  async function extraerBasico(video) {
-    var dur = video.duration, W = video.videoWidth, H = video.videoHeight;
+  async function extraerBasico(video, rango) {
+    var W = video.videoWidth, H = video.videoHeight;
+    var A = rango ? rango.a : 0, dur = (rango ? rango.b : video.duration) - A;
     var esc = Math.min(1, LADO_MAX_IMG / Math.max(W, H));
     var c = document.createElement('canvas');
     c.width = Math.round(W * esc); c.height = Math.round(H * esc);
     var g = c.getContext('2d'), out = [], negros = 0;
     for (var i = 0; i < 6; i++) {
-      var t = (dur / 7) * (i + 1);
+      var t = A + (dur / 7) * (i + 1);
       var ok = await buscar(video, t);
       var data = '';
       if (ok) {
@@ -842,6 +855,31 @@
       '.mgl-nivel.severo{color:#ef4444}.mgl-nivel.no_evaluable{color:var(--text-muted)}' +
       '.diagnosis-frame img{aspect-ratio:auto!important;max-height:340px;object-fit:contain!important;background:#000}' +
       '.frames-mini img{aspect-ratio:auto!important;width:auto}' +
+      /* recorte */
+      '.mgl-trim{margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card)}' +
+      '.mgl-trtitle{display:flex;align-items:baseline;gap:8px;margin:0 2px 10px;font-size:.85rem;color:var(--text-muted)}' +
+      '.mgl-trtitle b{font-family:var(--font-heading);font-weight:700;font-size:1rem;letter-spacing:.5px;text-transform:uppercase;color:var(--accent,#2dd4bf)}' +
+      '.mgl-trrow{display:flex;align-items:stretch;gap:8px;margin-bottom:6px}' +
+      '.mgl-trplay{width:46px;flex:0 0 auto;border-radius:10px;background:transparent;border:1px solid var(--border);color:var(--text-secondary,#ddd);display:flex;align-items:center;justify-content:center;cursor:pointer}' +
+      '.mgl-trplay svg{width:20px;height:20px}' +
+      '.mgl-trstrip{flex:1;min-width:0;height:58px;padding:0 18px;touch-action:none;cursor:pointer}' +
+      '.mgl-trtrack{position:relative;height:100%}' +
+      '.mgl-trfilm{position:absolute;left:0;right:0;top:4px;bottom:4px;overflow:hidden;background:#1c1c1c}' +
+      '.mgl-trfilm canvas{display:block;width:100%;height:100%}' +
+      '.mgl-trdim{position:absolute;top:4px;bottom:4px;background:rgba(0,0,0,.62);pointer-events:none}' +
+      '.mgl-trframe{position:absolute;top:0;bottom:0;border-top:4px solid var(--accent,#2dd4bf);border-bottom:4px solid var(--accent,#2dd4bf);pointer-events:none}' +
+      '.mgl-trgrip{position:absolute;top:-4px;bottom:-4px;width:18px;background:var(--accent,#2dd4bf);color:#06251f;display:flex;align-items:center;justify-content:center}' +
+      '.mgl-trgrip svg{width:12px;height:12px}' +
+      '.mgl-trgrip.l{left:-18px;border-radius:8px 0 0 8px}.mgl-trgrip.r{right:-18px;border-radius:0 8px 8px 0}' +
+      '.mgl-trph{position:absolute;top:-2px;bottom:-2px;width:4px;margin-left:-2px;background:#fff;border-radius:3px;box-shadow:0 0 5px rgba(0,0,0,.75);pointer-events:none}' +
+      '.mgl-trinfo{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text-muted);font-variant-numeric:tabular-nums;margin:0 2px 12px 56px;min-height:20px}' +
+      '.mgl-trinfo b{color:var(--accent,#2dd4bf);font-family:var(--font-heading);font-size:1rem}' +
+      '.mgl-trinfo.largo b{color:#ef4444}' +
+      '.mgl-tractions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}' +
+      '.mgl-tractions button{flex:1;min-width:140px;padding:12px 16px;border-radius:10px;font-family:var(--font-heading);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:.85rem;cursor:pointer}' +
+      '.mgl-trfull{background:transparent;border:1px solid var(--border);color:var(--text-secondary,#ddd)}' +
+      '.mgl-trok{background:var(--accent,#2dd4bf);border:1px solid var(--accent,#2dd4bf);color:#06251f}' +
+      '.mgl-trok:disabled,.mgl-trfull:disabled{opacity:.4;cursor:not-allowed}' +
       '.mgl-aviso{margin:0 0 16px;padding:10px 14px;border-radius:8px;border:1px solid var(--accent,#2dd4bf);' +
         'font-size:.85rem;color:var(--text-secondary)}';
     var st = document.createElement('style');
@@ -924,6 +962,227 @@
     error: 'El detector de movimiento no se pudo cargar.'
   };
 
+  /* ═════════════════════════════════════════════════════════════════════════
+     RECORTE (misma experiencia que el analizador de CoachYard)
+     Tira de cuadros con bordes que se arrastran. Al mover un borde el video
+     muestra ese cuadro; en el medio, mueve la línea blanca. No re-codifica:
+     solo devuelve el tramo {a, b} en segundos.
+     ═════════════════════════════════════════════════════════════════════════ */
+  var RECORTE = null;   // recorte abierto: {cerrar}
+
+  function fmtT(t) {
+    if (!isFinite(t) || t < 0) t = 0;
+    var m = Math.floor(t / 60), s = t - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2);
+  }
+
+  var ICO_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  var ICO_PAUSA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+  var ICO_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+  var ICO_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
+
+  /* Contenedor del video según el panel de frames que llamó */
+  function contenedorVideo(previewId) {
+    if (previewId === 'webcamFramesPreview') return document.getElementById('webcamPreview');
+    return document.getElementById('videoPreview');
+  }
+
+  function pedirRecorte(video, previewId) {
+    if (RECORTE) RECORTE.cerrar(null);
+    return new Promise(function (resolve) {
+      var dur = video.duration;
+      var cont = contenedorVideo(previewId);
+      if (!cont || !(dur > 0)) { resolve({ a: 0, b: dur }); return; }
+
+      var T = { a: 0, b: Math.min(dur, MAX_TRAMO), dur: dur, film: null, raf: 0, jugando: false };
+
+      var panel = document.createElement('div');
+      panel.className = 'mgl-trim';
+      panel.innerHTML =
+        '<div class="mgl-trtitle"><b>Recortar</b><span>Arrastra los bordes para dejar solo el swing</span></div>' +
+        '<div class="mgl-trrow">' +
+          '<button type="button" class="mgl-trplay" aria-label="Ver tramo">' + ICO_PLAY + '</button>' +
+          '<div class="mgl-trstrip"><div class="mgl-trtrack">' +
+            '<div class="mgl-trfilm"><canvas></canvas></div>' +
+            '<div class="mgl-trdim" data-l></div><div class="mgl-trdim" data-r style="right:0"></div>' +
+            '<div class="mgl-trframe"><span class="mgl-trgrip l">' + ICO_L + '</span><span class="mgl-trgrip r">' + ICO_R + '</span></div>' +
+            '<div class="mgl-trph"></div>' +
+          '</div></div>' +
+        '</div>' +
+        '<div class="mgl-trinfo"><span data-ta>0:00.00</span><span>Tramo: <b data-len>0:00.00</b></span><span data-tb>0:00.00</span></div>' +
+        '<div class="mgl-tractions">' +
+          '<button type="button" class="mgl-trfull">Usar video completo</button>' +
+          '<button type="button" class="mgl-trok">Listo, analizar tramo</button>' +
+        '</div>';
+      cont.appendChild(panel);
+
+      function q(sel) { return panel.querySelector(sel); }
+      var btnPlay = q('.mgl-trplay'), strip = q('.mgl-trstrip'), track = q('.mgl-trtrack');
+      var frame = q('.mgl-trframe'), dimL = q('[data-l]'), dimR = q('[data-r]'), head = q('.mgl-trph');
+      var info = q('.mgl-trinfo'), btnFull = q('.mgl-trfull'), btnOk = q('.mgl-trok');
+
+      if (dur > MAX_TRAMO) { btnFull.disabled = true; btnFull.title = 'El video completo dura más de ' + MAX_TRAMO + ' s'; }
+
+      function dibujar() {
+        var pa = T.a / dur * 100, pb = T.b / dur * 100;
+        frame.style.left = pa + '%'; frame.style.width = (pb - pa) + '%';
+        dimL.style.left = '0'; dimL.style.width = pa + '%';
+        dimR.style.width = (100 - pb) + '%';
+        var t = Math.max(T.a, Math.min(T.b, video.currentTime || 0));
+        head.style.left = (t / dur * 100) + '%';
+        q('[data-ta]').textContent = fmtT(T.a);
+        q('[data-tb]').textContent = fmtT(T.b);
+        q('[data-len]').textContent = fmtT(T.b - T.a);
+        var largo = (T.b - T.a) > MAX_TRAMO + 0.01;
+        info.classList.toggle('largo', largo);
+        btnOk.disabled = largo;
+        btnOk.textContent = largo ? 'Máximo ' + MAX_TRAMO + ' s' : 'Listo, analizar tramo';
+      }
+
+      function ir(t) { try { video.currentTime = Math.max(0, Math.min(dur - 0.01, t)); } catch (e) {} dibujar(); }
+
+      /* Reproducir solo el tramo, en loop */
+      function pausar() {
+        T.jugando = false; cancelAnimationFrame(T.raf);
+        try { video.pause(); } catch (e) {}
+        btnPlay.innerHTML = ICO_PLAY;
+      }
+      function tick() {
+        if (!T.jugando) return;
+        if (video.currentTime >= T.b - 0.02 || video.ended) { try { video.currentTime = T.a; } catch (e) {} }
+        dibujar();
+        T.raf = requestAnimationFrame(tick);
+      }
+      btnPlay.onclick = function () {
+        if (T.jugando) { pausar(); return; }
+        if (video.currentTime < T.a || video.currentTime >= T.b - 0.05) { try { video.currentTime = T.a; } catch (e) {} }
+        var pr = video.play();
+        if (pr && pr.catch) pr.catch(function () {});
+        T.jugando = true; btnPlay.innerHTML = ICO_PAUSA;
+        tick();
+      };
+
+      /* Arrastre: cerca de un borde lo mueve; en el medio mueve la línea blanca */
+      var modo = null;
+      function geo(e) {
+        var r = track.getBoundingClientRect(), x = e.clientX - r.left;
+        return { x: x, w: r.width, t: Math.max(0, Math.min(1, x / r.width)) * dur };
+      }
+      strip.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        var g = geo(e), xa = T.a / dur * g.w, xb = T.b / dur * g.w;
+        var cA = g.x >= xa - 28 && g.x <= xa + 10, cB = g.x >= xb - 10 && g.x <= xb + 28;
+        if (cA && cB) modo = Math.abs(g.x - xa) <= Math.abs(g.x - xb) ? 'a' : 'b';
+        else modo = cA ? 'a' : (cB ? 'b' : 'head');
+        pausar();
+        try { strip.setPointerCapture(e.pointerId); } catch (err) {}
+        mover(e);
+      });
+      function mover(e) {
+        if (!modo) return;
+        var t = geo(e).t, gap = Math.min(0.8, dur / 4);
+        if (modo === 'a') { T.a = Math.max(0, Math.min(t, T.b - gap)); ir(T.a); }
+        else if (modo === 'b') { T.b = Math.min(dur, Math.max(t, T.a + gap)); ir(T.b); }
+        else ir(Math.max(T.a, Math.min(T.b, t)));
+      }
+      strip.addEventListener('pointermove', mover);
+      function soltar() { modo = null; }
+      strip.addEventListener('pointerup', soltar);
+      strip.addEventListener('pointercancel', soltar);
+
+      function cerrar(valor) {
+        pausar();
+        matarTira(T);
+        window.removeEventListener('resize', alRedim);
+        if (panel.parentNode) panel.parentNode.removeChild(panel);
+        if (RECORTE === ctl) RECORTE = null;
+        resolve(valor);
+      }
+      var ctl = { cerrar: cerrar };
+      RECORTE = ctl;
+
+      btnFull.onclick = function () { cerrar({ a: 0, b: dur }); };
+      btnOk.onclick = function () {
+        cerrar({ a: Math.round(T.a * 1000) / 1000, b: Math.round(T.b * 1000) / 1000 });
+      };
+
+      var tr = null;
+      function alRedim() { clearTimeout(tr); tr = setTimeout(function () { construirTira(T, video, q('canvas'), q('.mgl-trfilm')); }, 250); }
+      window.addEventListener('resize', alRedim);
+
+      dibujar();
+      ir(0.001);
+      construirTira(T, video, q('canvas'), q('.mgl-trfilm'));
+    });
+  }
+
+  /* Tira de cuadros: un <video> oculto salta a N momentos del clip y pinta
+     cada cuadro. Si el navegador no coopera, la tira queda gris y el recorte
+     igual funciona. */
+  function matarTira(T) {
+    if (!T || !T.film) return;
+    var f = T.film; T.film = null;
+    clearTimeout(f.to);
+    var fv = f.v;
+    fv.onloadeddata = fv.onseeked = fv.onerror = null;
+    try { fv.pause(); } catch (e) {}
+    fv.removeAttribute('src'); try { fv.load(); } catch (e) {}
+    if (fv.parentNode) fv.parentNode.removeChild(fv);
+  }
+
+  function construirTira(T, video, cv, box) {
+    matarTira(T);
+    var W = box.clientWidth, H = box.clientHeight;
+    if (!W || !H || !video.currentSrc && !video.src) return;
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    var c = cv.getContext('2d');
+    c.fillStyle = '#1c1c1c'; c.fillRect(0, 0, cv.width, cv.height);
+    var vw = video.videoWidth || 720, vh = video.videoHeight || 1280;
+    var tw = cv.height * vw / vh, n = Math.max(1, Math.min(24, Math.ceil(cv.width / tw)));
+    tw = cv.width / n;
+    var fv = document.createElement('video');
+    fv.muted = true; fv.setAttribute('muted', ''); fv.playsInline = true;
+    fv.setAttribute('playsinline', ''); fv.setAttribute('webkit-playsinline', '');
+    fv.preload = 'auto';
+    fv.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px';
+    document.body.appendChild(fv);
+    var film = { v: fv, to: null }; T.film = film;
+    var i = 0, dur = T.dur;
+    function vivo() { return T.film === film; }
+    function pintar() {
+      var sw = fv.videoWidth, sh = fv.videoHeight; if (!sw || !sh) return;
+      var want = tw / cv.height, sx = 0, sy = 0, cw = sw, ch = sh;
+      if (sw / sh > want) { cw = sh * want; sx = (sw - cw) / 2; } else { ch = sw / want; sy = (sh - ch) / 2; }
+      c.drawImage(fv, sx, sy, cw, ch, Math.round(i * tw), 0, Math.ceil(tw) + 1, cv.height);
+    }
+    function sig() {
+      if (!vivo()) return;
+      if (i >= n) { matarTira(T); return; }
+      fv.onseeked = function () {
+        if (!vivo()) return;
+        requestAnimationFrame(function () {
+          if (!vivo()) return;
+          try { pintar(); } catch (e) { matarTira(T); return; }
+          i++; sig();
+        });
+      };
+      try { fv.currentTime = Math.min(dur - 0.05, (i + 0.5) * dur / n); } catch (e) { matarTira(T); }
+    }
+    fv.onloadeddata = function () {
+      fv.onloadeddata = null;
+      if (!vivo()) return;
+      /* Safari no entrega cuadros hasta reproducir: play/pause silencioso */
+      var go = function () { try { fv.pause(); } catch (e) {} sig(); };
+      try { var pr = fv.play(); if (pr && pr.then) pr.then(go).catch(go); else go(); } catch (e) { go(); }
+    };
+    fv.onerror = function () { matarTira(T); };
+    film.to = setTimeout(function () { matarTira(T); }, 20000);
+    fv.src = video.currentSrc || video.src;
+    try { fv.load(); } catch (e) {}
+  }
+
+
   /* ── Reemplazo de extractFrames() de coach-ai.html ── */
   async function extractFramesMotor(videoEl, gridId, previewId, btnId, statusId) {
     window.extractedFrames = []; window.frameTimes = [];
@@ -943,12 +1202,21 @@
     var file = window.currentVideoFile;
     var hashP = huella(file);
 
+    /* ── Recorte: el jugador deja solo el swing ── */
+    window.clearStatus(statusId);
+    var rango = await pedirRecorte(videoEl, previewId);
+    if (!rango) return;   // se eligió otro video mientras tanto
+    var hashBase = hashP;
+    hashP = hashBase.then(function (h) {
+      return h ? h + '@' + rango.a.toFixed(2) + '-' + rango.b.toFixed(2) : null;
+    });
+
     var res = null, motivo = null;
     try {
       window.showStatus(statusId, 'Cargando el detector de movimiento…', 'info');
       res = await analizarVideo(videoEl, function (p, msg) {
         window.showStatus(statusId, msg + '… ' + Math.round(p * 100) + '%', 'info');
-      });
+      }, rango);
       if (!res.ok) { motivo = res.motivo; res = null; }
     } catch (e) {
       console.warn('[MGL motor] Falló el análisis de pose:', e);
@@ -987,7 +1255,7 @@
     }
 
     /* ── Respaldo: método básico ── */
-    var b = await extraerBasico(videoEl);
+    var b = await extraerBasico(videoEl, rango);
     if (b.negros >= 5) {
       window.showStatus(statusId, 'El video se ve en negro al procesarlo (problema de códec). Exporta como MP4 H.264 e inténtalo otra vez.', 'error');
       return;

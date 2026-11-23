@@ -469,7 +469,7 @@
           <button type="button" class="drop-zone" id="dropZone" aria-label="Subir video: arrastra un archivo o presiona para seleccionar">
             <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
             <h3>Arrastra tu video aquí</h3>
-            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · 2–30s)<br>Un solo swing · cuerpo completo en cuadro · cámara fija · ideal 60 fps</p>
+            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · hasta 3 min, después recortas el swing)<br>Un solo swing · cuerpo completo en cuadro · cámara fija · ideal 60 fps</p>
             <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
           </button>
           <div class="video-preview" id="videoPreview">
@@ -879,8 +879,8 @@
     };
     player.onloadedmetadata = function () {
       var dur = player.duration;
-      if (dur && dur !== Infinity && (dur < 2 || dur > 30)) {
-        showStatus('uploadStatus', 'El video dura ' + dur.toFixed(1) + 's. Para un buen análisis usa un clip de 2 a 30 segundos con un solo swing.', 'error');
+      if (dur && dur !== Infinity && (dur < 1 || dur > 180)) {
+        showStatus('uploadStatus', 'El video dura ' + dur.toFixed(1) + 's. Usa un video de hasta 3 minutos; después recortas solo el swing.', 'error');
         return;
       }
       showStatus('uploadStatus', 'Preparando video y extrayendo frames…', 'info');
