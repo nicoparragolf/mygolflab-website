@@ -326,7 +326,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
         estado: 'ok',
         mensaje: 'El backend del Coach IA está vivo y funcionando.',
-        version_endpoint: '5.1',
+        version_endpoint: '5.2',
+        max_duracion_s: 300,
         verificacion_sesion: process.env.COACH_AUTH === 'off' ? 'DESACTIVADA' : 'activa',
         mapeo_pilares: 'activo',
         modelo_configurado: MODEL,

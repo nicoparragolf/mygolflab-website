@@ -827,9 +827,17 @@
 
     /* ── Llamada al backend ── */
     analysisController = new AbortController();
+    /* 4 min: con 9 imágenes el análisis puede pasar del minuto
+       (el servidor permite hasta 300 s, ver vercel.json) */
     var timeout = setTimeout(function () {
       if (analysisController) analysisController.abort();
-    }, 90000);
+    }, 240000);
+    var tituloCarga = document.querySelector('#analysisLoading h3');
+    var tituloOriginal = tituloCarga ? tituloCarga.textContent : '';
+    var avisoLargo = setTimeout(function () {
+      if (tituloCarga) tituloCarga.textContent = 'Análisis a fondo en curso… puede tardar hasta 2 minutos';
+    }, 40000);
+    function restaurarTitulo() { clearTimeout(avisoLargo); if (tituloCarga) tituloCarga.textContent = tituloOriginal; }
 
     try {
       var response = await fetch('/api/coach', {
@@ -842,6 +850,7 @@
         })
       });
       clearTimeout(timeout);
+      restaurarTitulo();
       if (!response.ok) {
         var errSrv = null, etapa = null;
         try { var cuerpoErr = await response.json(); errSrv = cuerpoErr.error; etapa = cuerpoErr.etapa;
@@ -916,6 +925,7 @@
 
     } catch (err) {
       clearTimeout(timeout);
+      restaurarTitulo();
       $('analysisLoading').classList.remove('visible');
       $('questionnaireSection').classList.add('visible');
       /* v4.1: siempre se muestra la causa real y el código, para poder diagnosticar */

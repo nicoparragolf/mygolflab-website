@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/coach.js": {
-      "maxDuration": 60
+      "maxDuration": 300
     },
     "api/pago-crear.js": {
       "maxDuration": 30
