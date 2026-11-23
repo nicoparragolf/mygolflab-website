@@ -469,7 +469,7 @@
           <button type="button" class="drop-zone" id="dropZone" aria-label="Subir video: arrastra un archivo o presiona para seleccionar">
             <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 16V3m0 0l4 4m-4-4L8 7"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
             <h3>Arrastra tu video aquí</h3>
-            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · 2–30s)</p>
+            <p>o haz click para seleccionar — MP4, MOV, WebM (máx 50MB · 2–30s)<br>Un solo swing · cuerpo completo en cuadro · cámara fija · ideal 60 fps</p>
             <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm">
           </button>
           <div class="video-preview" id="videoPreview">
@@ -481,7 +481,7 @@
             </div>
           </div>
           <div class="frames-preview" id="framesPreview">
-            <div class="frames-label">Frames extraídos para análisis</div>
+            <div class="frames-label">Fases detectadas de tu swing</div>
             <div class="frames-grid" id="framesGrid"></div>
           </div>
           <div class="status-msg" id="uploadStatus" role="alert" aria-live="assertive"></div>
@@ -519,7 +519,7 @@
             <div class="video-preview-inner"><video id="webcamRecordedPlayer" controls playsinline></video></div>
           </div>
           <div class="frames-preview" id="webcamFramesPreview">
-            <div class="frames-label">Frames extraídos para análisis</div>
+            <div class="frames-label">Fases detectadas de tu swing</div>
             <div class="frames-grid" id="webcamFramesGrid"></div>
           </div>
           <div class="status-msg" id="webcamStatus" role="alert" aria-live="assertive"></div>
@@ -556,7 +556,7 @@
           <!-- Consentimiento de privacidad -->
           <div class="consent-box">
             <input type="checkbox" id="consentCheck" onchange="updateConsent()">
-            <label for="consentCheck">Entiendo que se extraerán imágenes (frames) de mi video y se procesarán con un servicio de inteligencia artificial para generar el análisis. <a href="/es/privacidad.html" target="_blank" rel="noopener">Ver política de privacidad</a>.</label>
+            <label for="consentCheck">Entiendo que mi video se analiza en este dispositivo para detectar las posiciones del swing, y que esas imágenes y mediciones se procesarán con un servicio de inteligencia artificial para generar el análisis. <a href="/es/privacidad.html" target="_blank" rel="noopener">Ver política de privacidad</a>.</label>
           </div>
 
           <div class="q-actions">
@@ -575,7 +575,7 @@
         <div class="loading-spinner" aria-hidden="true"></div>
         <h3 style="font-family:var(--font-heading);font-size:1.1rem;font-weight:600;margin-bottom:20px;text-transform:uppercase;letter-spacing:1.5px;">Coach IA está analizando tu swing...</h3>
         <div class="loading-steps">
-          <div class="loading-step active" id="step1"><span class="loading-step-dot"></span>Extrayendo frames clave del video</div>
+          <div class="loading-step active" id="step1"><span class="loading-step-dot"></span>Leyendo tus 9 posiciones y mediciones</div>
           <div class="loading-step" id="step2"><span class="loading-step-dot"></span>Analizando postura y alineación</div>
           <div class="loading-step" id="step3"><span class="loading-step-dot"></span>Evaluando mecánica del swing</div>
           <div class="loading-step" id="step4"><span class="loading-step-dot"></span>Generando diagnóstico y correcciones</div>
@@ -1367,6 +1367,7 @@
   renderHistory();
   </script>
 
+<script src="/js/mgl-swing-motor.js"></script>
 <script src="/js/mgl-fase-a.js"></script>
 <script src="/js/mgl-chat.js"></script>
   

@@ -1,7 +1,28 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · FASE A — Taxonomía de diagnósticos
    Archivo: /js/mgl-fase-a.js
-   Versión: 3.2  ·  2026-07-30  (Fase A + Fase B)
+   Versión: 4.0  ·  2026-11-23  (Fase A + Fase B + Motor de swing)
+
+   ── v4.0: ANÁLISIS DEL SWING COMPLETO ─────────────────────────────────────
+   Trabaja junto a /js/mgl-swing-motor.js (debe cargarse ANTES que este).
+   1. Las imágenes ya no son 6 tomas a intervalos iguales: son las 9
+      posiciones detectadas (P1…P10) y se le entregan a Claude en orden
+      cronológico, cada una con su código de fase.
+   2. Se agregan al prompt las MEDICIONES del motor (sway, early extension,
+      tempo, etc.) como evidencia. El estado de cada componente medido parte
+      del nivel medido.
+   3. El análisis anterior ya no "ancla" el resultado: se compara contra la
+      evidencia actual y, si existen, contra las mediciones anteriores.
+   4. Mismo video → mismo análisis: si el archivo ya se analizó (misma
+      huella), se muestra el resultado guardado sin volver a llamar a la IA.
+   5. Se guardan en Supabase las mediciones, las fases y la huella
+      (columnas nuevas: correr sql/swing_motor.sql). Si las columnas aún no
+      existen, el guardado sigue funcionando como antes.
+   6. frame_referencia ahora llega como código de fase ("P7") y se traduce
+      al índice de la imagen.
+   7. Mensajes claros si la sesión expiró (401) o falta plan Pro (403).
+   Si el motor no está o no pudo detectar el swing, todo funciona igual
+   que en la v3.2 con las 6 imágenes básicas.
 
    ── v3.2: VIÑETAS Y MANO DOMINANTE ────────────────────────────────────────
    Dos cambios, los dos para el jugador:
@@ -56,7 +77,13 @@
 (function () {
   'use strict';
 
-  var VERSION = '3.2';
+  var VERSION = '4.0';
+
+  /* ¿Este análisis viene del motor de swing? */
+  function swingMotor() {
+    var s = window.MGL_SWING;
+    return (s && s.modo === 'motor' && window.MGL_MOTOR) ? s : null;
+  }
 
   /* ═════════════════════════════════════════════════════════════════════════
      BLOQUE 1 · TAXONOMÍA
@@ -219,8 +246,16 @@
     };
 
     /* Frame de referencia (acepta el nombre nuevo y el viejo) */
-    var fr = parseInt(diag.frame_ref != null ? diag.frame_ref : diag.frame_referencia, 10);
-    if (fr >= 1 && fr <= 6) out.frame_ref = fr;
+    /* Puede venir como código de fase ("P7") o como número */
+    var rawFr = diag.frame_ref != null ? diag.frame_ref : diag.frame_referencia;
+    var fr = null;
+    if (typeof rawFr === 'string' && /^\s*p\d+\s*$/i.test(rawFr) && window.MGL_MOTOR) {
+      fr = window.MGL_MOTOR.indiceDeFase(rawFr);
+    } else {
+      fr = parseInt(rawFr, 10);
+    }
+    var maxFr = (window.extractedFrames && window.extractedFrames.length) || 6;
+    if (fr >= 1 && fr <= Math.max(6, maxFr)) out.frame_ref = fr;
 
     /* Resolver drills primero: son la fuente más confiable para el rescate */
     var seen = {};
@@ -400,9 +435,21 @@
       html += '<p class="eval-summary">' + esc(partes.join(' · ')) + '</p>';
     }
 
-    html += '<p class="score-disclaimer">El puntaje es una guía orientativa basada en 6 imágenes ' +
-            'de una sola cámara, no una medición precisa. Concéntrate en los diagnósticos ' +
-            'y sus correcciones.</p>';
+    if (result.__repetido) {
+      html += '<p class="mgl-aviso">Este mismo video ya lo habías analizado el ' +
+              esc(new Date(result.date).toLocaleDateString('es-CL')) + '. Te mostramos ese ' +
+              'resultado para que sea consistente. Para un análisis nuevo, graba otro swing.</p>';
+    }
+
+    var nImgs = (typeof extractedFrames !== 'undefined' && extractedFrames.length) || 6;
+    html += '<p class="score-disclaimer">El puntaje es una guía orientativa basada en ' + nImgs +
+            ' posiciones de tu swing' + (result.motor ? ' y ' + result.motor.metricas.length +
+            ' mediciones de tu cuerpo' : '') + ', tomadas con una sola cámara. ' +
+            'Concéntrate en los diagnósticos y sus correcciones.</p>';
+
+    if (result.motor && window.MGL_MOTOR) {
+      html += window.MGL_MOTOR.htmlMedidas(result.motor.metricas, 'Lo que medimos en tu swing');
+    }
 
     (result.diagnosticos || []).forEach(function (diag, i) {
 
@@ -432,8 +479,9 @@
       /* ── Frame de referencia ── */
       var frameIdx = parseInt(diag.frame_ref != null ? diag.frame_ref : diag.frame_referencia, 10);
       var frameHtml = '';
-      if (frameIdx >= 1 && frameIdx <= 6 &&
-          typeof extractedFrames !== 'undefined' && extractedFrames[frameIdx - 1]) {
+      if (frameIdx >= 1 && frameIdx <= 9 &&
+          typeof extractedFrames !== 'undefined' && extractedFrames[frameIdx - 1] &&
+          typeof FRAME_LABELS !== 'undefined' && FRAME_LABELS[frameIdx - 1]) {
         frameHtml = '<figure class="diagnosis-frame">' +
           '<button type="button" onclick="seekPreview(' + (frameIdx - 1) + ')" ' +
           'aria-label="Ver este momento en el video">' +
@@ -510,7 +558,16 @@
      ═════════════════════════════════════════════════════════════════════════ */
 
   function buildPromptText(ctx) {
-    return 'Analiza estos 6 frames de mi swing de golf.' + ctx +
+    var sm = swingMotor();
+    var intro = sm
+      ? 'Analiza mi swing de golf. Recibiste ' + extractedFrames.length + ' imágenes de las posiciones ' +
+        'detectadas (P1 a P10, en orden cronológico) y las mediciones del video completo.'
+      : 'Analiza estos ' + ((typeof extractedFrames !== 'undefined' && extractedFrames.length) || 6) +
+        ' frames de mi swing de golf.';
+    var formatoRef = sm
+      ? '"frame_referencia":"<código de la fase donde mejor se ve el problema: P1|P2|P3|P4|P5|P6|P7|P8|P10, o null>",'
+      : '"frame_referencia":<1-' + ((typeof extractedFrames !== 'undefined' && extractedFrames.length) || 6) + ' o null>,';
+    return intro + ctx +
 
       '\n\nCATÁLOGO DE DRILLS DISPONIBLES (recomienda SOLO ids de esta lista, 1 a 3 por ' +
       'diagnóstico, eligiendo los que ataquen el error detectado). ' +
@@ -592,7 +649,7 @@
         '"puntos":["<viñeta corta 1>","<viñeta corta 2>"],' +
       '"que_pasa":"<causa raíz, 2-3 oraciones>",' +
         '"como_corregirlo":"<instrucciones concretas>",' +
-        '"frame_referencia":<1-6 o null>,' +
+        formatoRef +
         '"drills_recomendados":["<id exacto del catálogo>"]}]}';
   }
 
@@ -628,22 +685,29 @@
     resetLoadingSteps();
     animateLoadingSteps();
 
-    /* ── Frames como imágenes ── */
+    /* ── Imágenes ──
+       Con el motor: en orden cronológico y rotuladas con su código de fase.
+       Sin el motor: como antes, en el orden en que se extrajeron. */
+    var sm = swingMotor();
     var imageContent = [];
-    extractedFrames.forEach(function (frame, i) {
+    function pushImg(dataURL) {
       imageContent.push({
         type: 'image',
-        source: {
-          type: 'base64',
-          media_type: 'image/jpeg',
-          data: frame.replace('data:image/jpeg;base64,', '')
-        }
+        source: { type: 'base64', media_type: 'image/jpeg', data: dataURL.replace('data:image/jpeg;base64,', '') }
       });
-      imageContent.push({
-        type: 'text',
-        text: 'Frame ' + (i + 1) + ': ' + (FRAME_LABELS[i] || 'Posición ' + (i + 1))
+    }
+    if (sm) {
+      sm.imagenes.forEach(function (im) {
+        imageContent.push({ type: 'text', text: im.fase + ' · ' + im.etiqueta.replace(/^P\d+\s*/, '') +
+          ' (segundo ' + im.t.toFixed(2) + ' del video):' });
+        pushImg(im.limpio);
       });
-    });
+    } else {
+      extractedFrames.forEach(function (frame, i) {
+        pushImg(frame);
+        imageContent.push({ type: 'text', text: 'Frame ' + (i + 1) + ': ' + (FRAME_LABELS[i] || 'Posición ' + (i + 1)) });
+      });
+    }
 
     /* ── Contexto ── */
     var angleText = cameraAngle === 'face'
@@ -651,8 +715,13 @@
       : 'desde la línea de tiro (down-the-line)';
 
     var ctx = '\n\nÁNGULO DE CÁMARA: ' + angleText + ' (toma esto en cuenta para el análisis).';
-    ctx += '\n\nNOTA: los 6 frames están tomados a intervalos aproximadamente iguales; ' +
-           'identifica tú mismo la fase real de cada uno.';
+    if (sm) {
+      ctx += window.MGL_MOTOR.bloquePrompt(sm);
+    } else {
+      ctx += '\n\nNOTA: estas imágenes están tomadas a intervalos aproximadamente iguales del video ' +
+             '(no se pudo detectar el swing automáticamente); identifica tú mismo la fase real de cada una ' +
+             'y no hay mediciones disponibles.';
+    }
 
     /* ── MANO DOMINANTE ──
        Es el dato que más cambia el análisis. Sin él, en un video de frente
@@ -718,16 +787,41 @@
                  }).join('\n') + '\n';
         }
 
-        ctx += 'Fallas narradas entonces:\n' + lineas +
-               '\n\nEvalúa explícitamente si cada una de esas fallas PERSISTE, MEJORÓ o se ' +
-               'RESOLVIÓ, y menciónalo en el resumen. Si una falla persiste, usa EXACTAMENTE ' +
-               'el mismo "componente" y el mismo título técnico que antes. No inventes fallas ' +
-               'nuevas solo por variar, y no cambies el estado de un componente sin una razón ' +
-               'visible en los frames.';
+        ctx += 'Fallas narradas entonces:\n' + lineas + '\n';
+
+        var prevMed = await medicionesAnteriores();
+        if (prevMed && prevMed.metricas && prevMed.metricas.length) {
+          ctx += 'Mediciones de entonces (' + new Date(prevMed.fecha).toLocaleDateString('es-CL') +
+                 ', vista ' + (prevMed.vista === 'dtl' ? 'línea de tiro' : 'de frente') + '):\n' +
+                 prevMed.metricas.map(function (m) {
+                   return '  ' + m.nombre + ': ' + m.texto + ' (' + m.nivel + ')';
+                 }).join('\n') + '\n' +
+                 'Si la vista es la misma, compara número contra número y dilo en el resumen ' +
+                 '(ej.: "tu early extension bajó de 12% a 6% del torso").\n';
+        }
+
+        ctx += '\nEl estado de cada componente se decide con la evidencia de ESTE video, no con el ' +
+               'análisis anterior. Úsalo solo para comparar: di en el resumen qué falla PERSISTE, ' +
+               'MEJORÓ o se RESOLVIÓ. Si una falla persiste, usa el mismo "componente" y el mismo ' +
+               'título técnico que antes para que el jugador pueda seguir su progreso.';
       }
     } catch (e) {
       console.warn('[MGL] No se pudo leer el análisis anterior:', e);
     }
+
+    /* ── Mismo video ya analizado → mismo resultado ── */
+    try {
+      var repetido = await buscarRepetido(window.MGL_SWING && window.MGL_SWING.hash);
+      if (repetido) {
+        console.log('%c[MGL] Este video ya fue analizado · se muestra el resultado guardado', 'color:#2dd4bf');
+        var copia = JSON.parse(JSON.stringify(repetido));
+        copia.__repetido = true;
+        if (sm) copia.motor = { metricas: sm.metricas, vista: sm.vista };
+        $('analysisLoading').classList.remove('visible');
+        renderResults(copia);
+        return;
+      }
+    } catch (e) { /* si falla, se analiza normalmente */ }
 
     var promptText = buildPromptText(ctx);
 
@@ -748,7 +842,13 @@
         })
       });
       clearTimeout(timeout);
-      if (!response.ok) throw new Error('HTTP ' + response.status);
+      if (!response.ok) {
+        var errSrv = null;
+        try { errSrv = (await response.json()).error; } catch (e) {}
+        var eh = new Error('HTTP ' + response.status);
+        eh.status = response.status; eh.mensaje = errSrv;
+        throw eh;
+      }
 
       var data = await response.json();
       var raw = (data.content || []).map(function (c) { return c.text || ''; }).join('');
@@ -777,6 +877,7 @@
       }
 
       result.score = Math.max(1, Math.min(100, parseInt(result.score, 10) || 50));
+      if (sm) result.motor = { metricas: sm.metricas, vista: sm.vista };
       window.__ultimo = result;
 
       console.log('%c[MGL] Evaluación de los 8 componentes', 'color:var(--c2dd4bf,#2dd4bf);font-weight:bold');
@@ -810,7 +911,9 @@
       $('questionnaireSection').classList.add('visible');
       var msg = (err && err.name === 'AbortError')
         ? 'El análisis tardó demasiado o fue cancelado. Inténtalo de nuevo.'
-        : 'Hubo un error al analizar el swing. Revisa tu conexión e inténtalo de nuevo.';
+        : (err && (err.status === 401 || err.status === 403 || err.status === 413) && err.mensaje)
+          ? err.mensaje
+          : 'Hubo un error al analizar el swing. Revisa tu conexión e inténtalo de nuevo.';
       showStatus('consentHint', msg, 'error');
       console.error('[MGL] Error en analyzeSwing:', err);
     } finally {
@@ -938,7 +1041,8 @@
     }
 
     /* 2 · El análisis */
-    var ins = await c.from('swing_analyses').insert({
+    var sm = swingMotor();
+    var fila = {
       id: analysisId,
       user_id: u.id,
       camera_angle: (typeof cameraAngle !== 'undefined' ? cameraAngle : 'face'),
@@ -947,11 +1051,29 @@
       resumen: result.resumen,
       frame_paths: rutas,
       frame_times: (typeof frameTimes !== 'undefined' ? frameTimes : []),
-      prompt_version: 'v3',
+      prompt_version: sm ? 'v5-motor' : 'v4-basico',
       input_handicap: (meta && meta.handicap) || null,
       input_problema: (meta && meta.problema) || null,
       input_objetivo: (meta && meta.objetivo) || null
-    });
+    };
+    /* Columnas nuevas (sql/swing_motor.sql). Si aún no existen, se reintenta sin ellas. */
+    var extra = {
+      video_hash: (window.MGL_SWING && window.MGL_SWING.hash) || null,
+      motor_version: sm ? sm.version : null,
+      metricas: sm ? sm.metricas : null,
+      fases: sm ? { vista: sm.vista, vista_detectada: sm.vistaDetectada, fases: sm.fases,
+                    tiempos: sm.tiempos, componentes: sm.componentes, calidad: sm.calidad } : null
+    };
+    var filaCompleta = {};
+    Object.keys(fila).forEach(function (k) { filaCompleta[k] = fila[k]; });
+    Object.keys(extra).forEach(function (k) { filaCompleta[k] = extra[k]; });
+
+    var ins = await c.from('swing_analyses').insert(filaCompleta);
+    if (ins.error && /column|schema cache/i.test(ins.error.message || '')) {
+      console.warn('[MGL] Faltan las columnas del motor en swing_analyses (corre sql/swing_motor.sql). ' +
+                   'Se guarda sin mediciones.');
+      ins = await c.from('swing_analyses').insert(fila);
+    }
     if (ins.error) {
       console.error('[MGL] Error al guardar el análisis:', ins.error.message);
       guardarLocal(result);
@@ -1013,6 +1135,40 @@
     return analysisId;
   }
 
+
+  /* ═══ MEDICIONES DEL ÚLTIMO ANÁLISIS (para comparar número contra número) ═══
+     Consulta aparte para que, si la columna aún no existe, el historial
+     siga cargando normal. */
+  async function medicionesAnteriores() {
+    var c = db(), u = await usuario();
+    if (!c || !u) return null;
+    try {
+      var r = await c.from('swing_analyses')
+        .select('created_at, metricas, fases')
+        .eq('user_id', u.id).not('metricas', 'is', null)
+        .order('created_at', { ascending: false }).limit(1);
+      if (r.error || !r.data || !r.data.length) return null;
+      var a = r.data[0];
+      return { fecha: a.created_at, metricas: a.metricas, vista: a.fases && a.fases.vista };
+    } catch (e) { return null; }
+  }
+
+  /* ═══ ¿ESTE MISMO VIDEO YA SE ANALIZÓ? ═══ */
+  async function buscarRepetido(hash) {
+    if (!hash) return null;
+    var c = db(), u = await usuario();
+    if (!c || !u) return null;
+    try {
+      var r = await c.from('swing_analyses').select('id')
+        .eq('user_id', u.id).eq('video_hash', hash)
+        .order('created_at', { ascending: false }).limit(1);
+      if (r.error || !r.data || !r.data.length) return null;
+      if (!CACHE_LISTA) await cargarHistorial();
+      var id = r.data[0].id;
+      for (var i = 0; i < CACHE.length; i++) if (CACHE[i].id === id) return CACHE[i];
+      return null;
+    } catch (e) { return null; }
+  }
 
   /* ═══ LEER EL HISTORIAL DESDE LA NUBE ═══ */
   async function cargarHistorial(limite) {
@@ -1168,6 +1324,15 @@
     /* Recupera las imágenes guardadas, si las hay */
     window.extractedFrames = await firmarFrames(item.frame_paths);
     window.frameTimes = [];
+    /* Etiquetas según de qué versión es el análisis guardado */
+    if (window.extractedFrames.length === 9 && window.MGL_MOTOR) {
+      window.FRAME_LABELS = window.MGL_MOTOR.fases.slice()
+        .sort(function (a, b) { return a.orden - b.orden; })
+        .map(function (f) { return f.etiqueta; });
+    } else {
+      window.FRAME_LABELS = ['Setup/Address', 'Takeaway', 'Top del backswing',
+                             'Transición/Downswing', 'Impacto', 'Follow-through'];
+    }
 
     $('uploadSection').style.display = 'none';
     if ($('recordGuide')) $('recordGuide').style.display = 'none';

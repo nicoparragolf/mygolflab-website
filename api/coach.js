@@ -1,7 +1,20 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab · Backend del Coach IA
    Archivo: /api/coach.js
-   Versión: 4.1 · 2026-07-30  ·  mapeo componente → pilar
+   Versión: 5.0 · 2026-11-23  ·  evidencia medida + sesión obligatoria
+
+   ── v5.0: SWING COMPLETO Y SEGURIDAD ──────────────────────────────────────
+   1. El frontend (js/mgl-swing-motor.js) ahora recorre el video completo con
+      detección de pose y manda las 9 posiciones detectadas (P1…P10) más
+      mediciones numéricas. El system prompt explica cómo usar esa evidencia:
+      el estado de un componente medido parte del nivel medido y solo se
+      mueve con una razón visible que se debe explicar.
+   2. SESIÓN OBLIGATORIA: antes cualquiera que conociera la URL podía usar
+      el endpoint (y gastar créditos de Anthropic). Ahora se exige el token
+      de sesión de Supabase (header Authorization) y plan Pro/Elite vigente,
+      con la misma regla que js/auth-guard.js.
+      Emergencia: la variable de entorno COACH_AUTH=off en Vercel desactiva
+      la verificación sin tocar código.
 
    ── v4.1: MAPEO FIJO DE COMPONENTES A PILARES ─────────────────────────────
    Hasta ahora el prompt definía los 4 pilares por un lado y los 8 componentes
@@ -52,7 +65,10 @@
    REQUIERE: variable de entorno ANTHROPIC_API_KEY en Vercel.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+import { userFromToken, SUPABASE_URL, SUPABASE_ANON_KEY } from './_pagos.js';
+
 const MODEL = 'claude-sonnet-5';
+const PLANES_CON_ACCESO = ['pro', 'elite'];   // igual que js/auth-guard.js
 
 const MAX_TOKENS_SWING = 8000;   // deja espacio para el razonamiento + el JSON
 const MAX_TOKENS_CHAT  = 3000;
@@ -102,9 +118,32 @@ siempre el mismo pilar: de eso depende que el jugador vea su progreso de
 forma coherente entre un análisis y el siguiente.
 
 ════ CÓMO ANALIZAR ════
-Recibirás 6 frames tomados a intervalos aproximadamente iguales del video.
-NO asumas que cada frame corresponde a una fase específica: identifica tú
-mismo qué fase muestra cada uno. Si un frame no aporta, ignóralo.
+Normalmente recibirás las POSICIONES DETECTADAS del swing, en orden
+cronológico, cada una rotulada con su código: P1 Setup, P2 Takeaway,
+P3 Mitad del backswing, P4 Top, P5 Transición, P6 Pre-impacto, P7 Impacto,
+P8 Release, P10 Finish. Fueron elegidas por un detector de pose que recorrió
+el video completo, así que confía en el rótulo de cada imagen.
+
+Junto a ellas viene un bloque "EVIDENCIA MEDIDA" con mediciones del cuerpo
+del jugador a lo largo de todo el swing. Úsalo así:
+· Para un componente CON medición, su estado parte del nivel medido (si hay
+  varias mediciones del mismo componente, la más grave). Puedes moverlo como
+  máximo UN nivel, y solo si las imágenes muestran con claridad algo que la
+  medición no captura; en ese caso explícalo en "que_pasa".
+· Si una medición dice "no evaluable" o su confianza es baja, apóyate en
+  las imágenes.
+· Los componentes SIN medición (normalmente cara, path en face-on, conexión,
+  distancia) se evalúan mirando las imágenes, con la misma honestidad de
+  siempre.
+· Cuando narres una falla medida, cita el número en lenguaje simple
+  ("tu pelvis se acerca a la bola unos 6 cm entre el setup y el impacto").
+  Nunca inventes números que no estén en la evidencia.
+· Las mediciones son del cuerpo. El palo, la cara y el path del palo no se
+  miden: sobre eso habla solo de lo que se ve en las imágenes.
+
+Si en cambio recibes imágenes SIN rótulo de fase y sin evidencia medida
+(modo básico), están tomadas a intervalos aproximadamente iguales: identifica
+tú mismo qué fase muestra cada una e ignora las que no aporten.
 
 Considera el ángulo de cámara indicado:
 · Face-on (de frente): útil para low point, tilts laterales, transferencia
@@ -158,10 +197,12 @@ Usa estas anclas. No inventes tu propia escala.
 
 CONSISTENCIA: dos análisis del mismo swing deben dar el mismo estado en los
 8 componentes y un score similar. Aplica la rúbrica de forma literal y
-repetible; no busques variedad en tus respuestas ni en tu redacción. Si se te
-entrega un análisis anterior del mismo jugador, evalúa explícitamente si cada
-falla persiste, mejoró o se resolvió, y mantén la misma clasificación para las
-fallas que sigan presentes.
+repetible; no busques variedad en tus respuestas ni en tu redacción. La misma
+evidencia medida debe llevar siempre al mismo estado.
+Si se te entrega un análisis anterior del mismo jugador, úsalo SOLO para
+comparar: el estado actual lo decide la evidencia de este video. Di si cada
+falla persiste, mejoró o se resolvió (con números si hay mediciones de ambas
+fechas) y usa el mismo nombre técnico para las fallas que sigan presentes.
 
 NOMBRES DE LAS FALLAS: usa la terminología estándar del golf, no descripciones
 propias. Di "early extension", no "se para de golpe". Di "reverse spine", no
@@ -227,6 +268,46 @@ Es una conversación, no un manual: nada de listas interminables.`;
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   VERIFICACIÓN DE ACCESO
+   ═══════════════════════════════════════════════════════════════════════════ */
+function normalizarPlan(v) {
+  return String(v || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+async function verificarAcceso(req) {
+  var token = String((req.headers && req.headers.authorization) || '').replace(/^Bearer\s+/i, '');
+  if (!token) {
+    return { ok: false, status: 401, motivo: 'sin token',
+             error: 'Tu sesión expiró. Vuelve a iniciar sesión para usar el Coach IA.' };
+  }
+  var user = null;
+  try { user = await userFromToken(token); } catch (e) { user = null; }
+  if (!user || !user.id) {
+    return { ok: false, status: 401, motivo: 'token inválido',
+             error: 'Tu sesión expiró. Vuelve a iniciar sesión para usar el Coach IA.' };
+  }
+  try {
+    var r = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=plan,pro_expires_at&id=eq.' +
+                        encodeURIComponent(user.id), {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + token }
+    });
+    var filas = r.ok ? await r.json() : [];
+    var p = filas && filas[0];
+    var plan = normalizarPlan(p && p.plan);
+    var vigente = !(p && p.pro_expires_at) || new Date(p.pro_expires_at) > new Date();
+    if (!p || PLANES_CON_ACCESO.indexOf(plan) < 0 || !vigente) {
+      return { ok: false, status: 403, motivo: 'plan ' + (plan || 'sin perfil') + (vigente ? '' : ' vencido'),
+               error: 'El Coach IA es parte del plan Pro o Elite. Revisa tu suscripción.' };
+    }
+  } catch (e) {
+    return { ok: false, status: 503, motivo: 'no se pudo leer el perfil: ' + e.message,
+             error: 'No pudimos verificar tu plan. Inténtalo de nuevo en unos segundos.' };
+  }
+  return { ok: true, userId: user.id };
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
    HANDLER
    ═══════════════════════════════════════════════════════════════════════════ */
 export default async function handler(req, res) {
@@ -245,7 +326,8 @@ export default async function handler(req, res) {
       return res.status(200).json({
         estado: 'ok',
         mensaje: 'El backend del Coach IA está vivo y funcionando.',
-        version_endpoint: '4.1',
+        version_endpoint: '5.0',
+        verificacion_sesion: process.env.COACH_AUTH === 'off' ? 'DESACTIVADA' : 'activa',
         mapeo_pilares: 'activo',
         modelo_configurado: MODEL,
         clave_api_presente: !!process.env.ANTHROPIC_API_KEY,
@@ -268,7 +350,7 @@ export default async function handler(req, res) {
     try {
       res.setHeader('Access-Control-Allow-Origin', 'https://mygolflab.golf');
       res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     } catch (e) { /* si falla, seguimos igual */ }
 
     /* ── Clave de API ── */
@@ -278,6 +360,16 @@ export default async function handler(req, res) {
         error: 'Configuración incompleta en el servidor: falta ANTHROPIC_API_KEY.',
         etapa: 'clave'
       });
+    }
+
+    /* ── Sesión y plan ──
+       Misma regla que js/auth-guard.js: plan pro o elite, y vigente. */
+    if (process.env.COACH_AUTH !== 'off') {
+      var acceso = await verificarAcceso(req);
+      if (!acceso.ok) {
+        console.warn('[coach] acceso rechazado · ' + acceso.motivo);
+        return res.status(acceso.status).json({ error: acceso.error, etapa: 'acceso' });
+      }
     }
 
     /* ── Cuerpo de la petición, midiendo el tamaño ── */
