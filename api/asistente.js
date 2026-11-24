@@ -121,7 +121,7 @@ const TOOLS = [
   },
   {
     name: 'abrir_pagina',
-    description: 'Lleva al coach a una página de CoachYard. Úsala solo si el coach lo pide o si la tarea no se puede hacer desde el chat (metas, planes de entrenamiento, rondas de torneo, subir videos).',
+    description: 'Lleva al coach a una página de CoachYard. Úsala solo si el coach lo pide o si la tarea no se puede hacer desde el chat (metas, planes de entrenamiento, subir videos).',
     input_schema: {
       type: 'object',
       properties: {
@@ -167,8 +167,9 @@ ${lista}
 · Después de que una acción se guarda, confírmalo en una frase corta. No repitas
   todo el contenido. Si el coach canceló, acéptalo sin insistir.
 · Nunca digas que guardaste algo si la herramienta no devolvió ok.
-· Metas, planes de entrenamiento, rondas de torneo y subir videos todavía no
+· Metas, planes de entrenamiento y subir videos todavía no
   se pueden hacer desde el chat: dilo en una línea y ofrece abrir la página.
+· Las rondas de torneo y estadísticas todavía no existen en CoachYard: si las piden, dilo en una línea.
 
 ════ CÓMO REDACTAS UN EVENTO ════
 · Título: corto, específico. Ej: "Postura · posición de pelota", "Wedges 50–80 m".
