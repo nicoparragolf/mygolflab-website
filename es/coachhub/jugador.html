@@ -561,7 +561,7 @@
       <input id="np_email" type="email" placeholder="Opcional, pero recomendado">
       <div class="hint">Cuando el alumno se registre con este email, su cuenta queda vinculada a esta ficha y podrá ver su propio timeline.</div>
     </div>
-    <div class="field-row">
+    <div class="field-row" style="grid-template-columns:1fr">   <!-- una columna mientras el nivel de estadística está oculto -->
       <div class="field">
         <label>Categoría</label>
         <select id="np_cat">
@@ -574,7 +574,7 @@
           <option value="senior">Senior</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" style="display:none"><!-- estadísticas aún no desarrolladas: oculto por ahora -->
         <label>Nivel de estadística</label>
         <select id="np_tier">
           <option value="basico" selected>Básico</option>
@@ -935,7 +935,7 @@ var EVENT_TYPES = {
   clase:                {label:'Clase',                         color:'var(--teal)',   coachOnly:true, icon:'M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z'},
   video_analisis:       {label:'Video Análisis',                color:'var(--purple)', coachOnly:true, icon:'M3 5h18v14H3z M10 9l5 3-5 3z'},
   launch_monitor:       {label:'Sesión de Launch Monitor',      color:'var(--blue)',   device:true,    icon:'M3 12h4l3-8 4 16 3-8h4'},
-  ronda_torneo:         {label:'Ronda de Torneo',               color:'var(--gold)',   ronda:true,     icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
+  ronda_torneo:         {label:'Ronda de Torneo',               color:'var(--gold)',   ronda:true, oculto:true /* estadísticas aún no desarrolladas */, icon:'M6 4h12v6a6 6 0 01-12 0z M9 20h6 M12 16v4'},
   rutina_calentamiento: {label:'Rutina de Calentamiento',       color:'var(--orange)', icon:'M12 3a9 9 0 100 18 9 9 0 000-18 M12 7v5l4 2'},
   preparacion_fisica:   {label:'Preparación Física',            color:'var(--teal)',   icon:'M6 7v10 M18 7v10 M4 12h16 M2 9v6 M22 9v6'},
   meta_objetivo:        {label:'Meta / Objetivo',               color:'var(--gold)',   special:'meta', icon:'M12 12m-9 0a9 9 0 1018 0a9 9 0 10-18 0 M12 12m-4 0a4 4 0 108 0a4 4 0 10-8 0'},
@@ -2197,11 +2197,9 @@ function renderProfile(){
     + '</h1>'
     + '<div class="phero-badges">'
     +   '<span class="badge cat">'+esc(CAT_LABEL[p.category]||p.category)+'</span>'
-    +   '<span class="badge tier">Stats: '+esc(TIER_LABEL[p.stats_tier]||p.stats_tier)+'</span>'
     +   '<span class="badge hcp">HCP '+hcp+'</span>'
     +   ((p.city||p.country) ? '<span class="badge hcp">'+esc([p.city, p.country==='Otro'?'':(window.MGL_PAISES?MGL_PAISES.nombre(p.country):p.country)].filter(Boolean).join(', '))+'</span>' : '')
     +   linkBadge
-    +   '<a class="badge msgbtn" href="/es/coachhub/mensajes.html?player='+encodeURIComponent(p.id)+'">'+(IS_COACH?'Enviar mensaje':'Escribir a mi coach')+'</a>'
     + '</div></div>'
     + '<div class="phero-stats">'
     +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
@@ -2752,6 +2750,7 @@ function typeOptions(selected){
   Object.keys(EVENT_TYPES).forEach(function(t){
     var cfg=EVENT_TYPES[t];
     if(!IS_COACH && cfg.coachOnly && t!==selected) return;
+    if(cfg.oculto && t!==selected) return;   // tipos pausados (ej. Ronda de Torneo): solo al editar uno ya creado
     html+='<option value="'+t+'"'+(t===selected?' selected':'')+'>'+cfg.label+'</option>';
   });
   // si estamos editando un evento de un tipo ya retirado, lo dejamos
