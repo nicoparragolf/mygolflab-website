@@ -27,7 +27,17 @@ import requests
 
 API = "https://api.appstoreconnect.apple.com"
 BUNDLE_ID = "golf.mygolflab.coachhub"
-VERSION = "1.0"
+import re as _re
+# La versión sale del proyecto iOS (MARKETING_VERSION), así no hay que tocarla aquí
+try:
+    VERSION = _re.search(r"MARKETING_VERSION = ([0-9.]+);",
+                         open("app-movil/ios/App/App.xcodeproj/project.pbxproj").read()).group(1)
+except Exception:
+    VERSION = "1.0"
+# "Novedades" (obligatorio desde la segunda versión). Actualizar en cada versión nueva.
+NOVEDADES = """• Nueva pantalla de inicio de CoachYard.
+• CoachYard, presented by MyGolfLab: ahora ves a nuestros auspiciadores (GolfChile, Titleist y FootJoy) al iniciar sesión.
+• Mejoras de estabilidad y rendimiento."""
 NOMBRES = ["CoachYard", "CoachYard Golf", "CoachYard: Golf Coaching"]
 SUBTITULO = "Tu academia de golf en la app"
 PRIVACY_URL = "https://mygolflab.golf/es/privacidad.html"
@@ -267,6 +277,10 @@ def main():
     vlocs = call("GET", f"/appStoreVersions/{vid}/appStoreVersionLocalizations")["data"]
     textos = {"description": DESCRIPCION, "keywords": PALABRAS, "supportUrl": SUPPORT_URL,
               "marketingUrl": MARKETING_URL, "promotionalText": PROMO}
+    ya_publicada = any(estado(v) in ("READY_FOR_DISTRIBUTION", "READY_FOR_SALE", "REPLACED_WITH_NEW_VERSION")
+                       for v in vers if v["id"] != vid)
+    if ya_publicada:
+        textos["whatsNew"] = NOVEDADES
     if not vlocs:
         vlocs = [call("POST", "/appStoreVersionLocalizations", {"data": {
             "type": "appStoreVersionLocalizations", "attributes": dict(textos, locale=locale),
