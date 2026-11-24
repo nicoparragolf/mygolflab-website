@@ -48,6 +48,7 @@ for (const t of TAMANOS) {
   if (err) { console.error('login', err); process.exit(1); }
   for (const [n, u] of PANTALLAS) {
     try {
+      await page.goto('about:blank');
       // como en la app: dentro del marco app.html
       await page.goto(BASE + '/es/coachhub/app.html#' + encodeURIComponent(u), { waitUntil: 'load', timeout: 60000 });
       await page.waitForTimeout(6000);
