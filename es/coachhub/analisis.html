@@ -485,7 +485,7 @@ async function init(){
 
   PANES.A.el = $('vidA'); PANES.B.el = $('vidB');
   setupVideoEvents('A'); setupVideoEvents('B');
-  buildTools(); buildSpeeds(); renderLanes(); syncPlayBtn();
+  buildTools(); buildSpeeds(); renderLanes(); syncPlayBtn(); cyLogo();
   requestAnimationFrame(loop);
 
   if(PLAYER) await loadVideos();
@@ -1472,8 +1472,21 @@ function drawCYMark(c, cx, cy, size){
   });
   c.restore();
 }
+// logo oficial de CoachYard (letras con fondo transparente)
+var CY_LOGO = null;
+function cyLogo(){
+  if(CY_LOGO) return CY_LOGO;
+  CY_LOGO = new Promise(function(res){
+    var im=new Image();
+    im.onload=function(){ res(im.naturalWidth ? im : null); };
+    im.onerror=function(){ res(null); };
+    im.src='/es/img/coachyard-logo.png';
+  });
+  return CY_LOGO;
+}
 async function snapBlob(){
-  try{ await document.fonts.load('40px "Bebas Neue"'); }catch(e){}
+  var logo = await cyLogo();
+  try{ if(!logo) await document.fonts.load('40px "Bebas Neue"'); }catch(e){}
   var W=canvas.width, H=canvas.height;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var c=cv.getContext('2d');
@@ -1483,12 +1496,15 @@ async function snapBlob(){
   // la foto o en el formato de las historias)
   var m=Math.max(26, Math.round(Math.min(W, H)*0.055));   // alto del isotipo
   var pad=Math.round(m*0.55);
-  var fs=Math.round(m*0.72);
-  c.font=fs+'px "Bebas Neue", "Barlow Condensed", sans-serif';
-  if(c.letterSpacing!==undefined) c.letterSpacing=Math.round(fs*0.08)+'px';
-  var wC=c.measureText('COACH').width, wY=c.measureText('YARD').width;
   var gap=Math.round(m*0.3);
-  var totalW=m+gap+wC+wY;
+  var lh=Math.round(m*0.52), lw=0, fs=0, wC=0;
+  if(logo){ lw=lh*logo.naturalWidth/logo.naturalHeight; }
+  else {
+    fs=Math.round(m*0.72);
+    c.font=fs+'px "Bebas Neue", "Barlow Condensed", sans-serif';
+    wC=c.measureText('COACH').width; lw=wC+c.measureText('YARD').width;
+  }
+  var totalW=m+gap+lw;
   var x0=W-pad-totalW, cy=pad+m/2;
 
   // velo suave que se desvanece desde la esquina, para que se lea sobre cielo claro
@@ -1500,12 +1516,14 @@ async function snapBlob(){
   c.globalAlpha=0.78;
   c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=m*0.18;
   drawCYMark(c, x0+m/2, cy, m);
-  c.textAlign='left'; c.textBaseline='middle';
-  var tx=x0+m+gap, ty=cy+fs*0.06;
-  c.fillStyle='#ffffff'; c.fillText('COACH', tx, ty);
-  c.fillStyle='#D4C5A9'; c.fillText('YARD', tx+wC, ty);
+  var tx=x0+m+gap;
+  if(logo){ c.drawImage(logo, tx, cy-lh/2, lw, lh); }
+  else {
+    c.textAlign='left'; c.textBaseline='middle';
+    c.fillStyle='#F5F2EC'; c.fillText('COACH', tx, cy);
+    c.fillStyle='#BE9A57'; c.fillText('YARD', tx+wC, cy);
+  }
   c.globalAlpha=1; c.shadowBlur=0;
-  if(c.letterSpacing!==undefined) c.letterSpacing='0px';
 
   return await new Promise(function(resolve, reject){
     try{ cv.toBlob(function(b){ if(b) resolve(b); else reject(new Error('imagen vacía')); }, 'image/jpeg', 0.93); }
