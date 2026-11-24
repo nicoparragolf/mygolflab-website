@@ -199,7 +199,13 @@
     return sw;
   }
 
+  // MyGolfLab todavía no está listo: desde CoachYard no se muestra el selector
+  // "MyGolfLab | CoachYard" (ni a jugadores, ni a coaches "ambos", ni en la vitrina).
+  // Para volver a mostrarlo, cambiar a true.
+  var MGL_VISIBLE_EN_HUB = false;
+
   function buildSwitch(loggedIn, hubHref) {
+    if (PRODUCT === 'hub' && !MGL_VISIBLE_EN_HUB) return;
     var hdr = document.getElementById('siteHeader');
     if (!hdr || hdr.querySelector('.prod-switch')) return;
     var brand = hdr.querySelector('.brand, .logo');
