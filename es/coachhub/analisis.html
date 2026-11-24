@@ -485,7 +485,7 @@ async function init(){
 
   PANES.A.el = $('vidA'); PANES.B.el = $('vidB');
   setupVideoEvents('A'); setupVideoEvents('B');
-  buildTools(); buildSpeeds(); renderLanes(); syncPlayBtn(); snapLogos();
+  buildTools(); buildSpeeds(); renderLanes(); syncPlayBtn();
   requestAnimationFrame(loop);
 
   if(PLAYER) await loadVideos();
@@ -1442,7 +1442,7 @@ function onRecStop(){
 
 // ============================================================
 // CAPTURA: foto de lo que se ve en el escenario (videos + dibujos)
-// con una franja abajo: presented by MyGolfLab + auspiciadores.
+// con la marca de CoachYard desvanecida arriba a la derecha.
 // En la app abre la hoja nativa (Guardar imagen → Fotos, WhatsApp…);
 // en Safari/Chrome del teléfono usa compartir; en el computador descarga.
 // ============================================================
@@ -1451,71 +1451,62 @@ function snapName(){
   var quien = PLAYER ? '-'+playerFullName(PLAYER).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') : '';
   return 'coachyard'+quien+'-'+todayISO()+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())+'.jpg';
 }
-// Auspiciadores que van en la franja de la captura. Logos en blanco con
-// fondo transparente; si un archivo no está, ese logo simplemente no sale.
-var SNAP_SPONSORS = [
-  {src:'/es/img/sponsors/golfchile-blanco.png', alt:'GolfChile'},
-  {src:'/es/img/sponsors/titleist-blanco.png',  alt:'Titleist'},
-  {src:'/es/img/sponsors/footjoy-blanco.png',   alt:'FootJoy'}
-];
-var SNAP_LOGOS = null;
-function snapLogos(){
-  if(SNAP_LOGOS) return SNAP_LOGOS;
-  SNAP_LOGOS = Promise.all(SNAP_SPONSORS.map(function(sp){
-    return new Promise(function(res){
-      var im=new Image();
-      im.onload=function(){ res(im.naturalWidth ? im : null); };
-      im.onerror=function(){ res(null); };
-      im.src=sp.src;
-    });
-  })).then(function(l){ return l.filter(Boolean); });
-  return SNAP_LOGOS;
+// Isotipo de CoachYard (órbitas doradas + pelota), dibujado en vectores
+// para que salga nítido a cualquier tamaño. size = diámetro total.
+function drawCYMark(c, cx, cy, size){
+  var k=size/344; // 344 = diámetro del anillo exterior en el ícono original
+  c.save();
+  c.lineWidth=Math.max(1.2, 9*k);
+  c.strokeStyle='#D4C5A9';
+  c.beginPath(); c.arc(cx, cy, 172*k, 0, Math.PI*2); c.stroke();
+  c.beginPath(); c.arc(cx, cy, 126*k, 0, Math.PI*2); c.stroke();
+  c.strokeStyle='#8a7e63';
+  c.beginPath(); c.arc(cx, cy, 77*k, 0, Math.PI*2); c.stroke();
+  c.fillStyle='#F0B860';
+  c.beginPath(); c.arc(cx+122*k, cy-122*k, 19*k, 0, Math.PI*2); c.fill();
+  c.fillStyle='#f4f1ea';
+  c.beginPath(); c.arc(cx, cy, 41*k, 0, Math.PI*2); c.fill();
+  c.fillStyle='#cfc9bc';
+  [[-20,-9],[-4,-20],[15,-14],[-12,10],[4,19],[18,6]].forEach(function(d){
+    c.beginPath(); c.arc(cx+d[0]*k, cy+d[1]*k, 5*k, 0, Math.PI*2); c.fill();
+  });
+  c.restore();
 }
 async function snapBlob(){
-  var logos = await snapLogos();
-  try{ await Promise.all([document.fonts.load('40px "Bebas Neue"'), document.fonts.load('600 20px "Barlow Condensed"')]); }catch(e){}
-  // la comparación tal cual + franja de marca abajo
+  try{ await document.fonts.load('40px "Bebas Neue"'); }catch(e){}
   var W=canvas.width, H=canvas.height;
-  var BH=Math.max(64, Math.round(Math.min(W*0.13, H*0.1)));
-  var cv=document.createElement('canvas'); cv.width=W; cv.height=H+BH;
+  var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var c=cv.getContext('2d');
   c.drawImage(canvas, 0, 0);
-  c.fillStyle='#0a0a0a'; c.fillRect(0, H, W, BH);
-  c.fillStyle='#D4C5A9'; c.fillRect(0, H, W, Math.max(2, Math.round(BH/34)));
-  var pad=Math.round(BH*0.32), mid=H+BH/2;
 
-  // izquierda: "presented by" + MYGOLFLAB
-  var small=Math.round(BH*0.2), big=Math.round(BH*0.42);
-  c.textAlign='left'; c.textBaseline='alphabetic';
-  c.font='600 '+small+'px "Barlow Condensed", Barlow, sans-serif';
-  c.fillStyle='rgba(255,255,255,.6)';
-  if(c.letterSpacing!==undefined) c.letterSpacing=Math.round(small*0.18)+'px';
-  c.fillText('PRESENTED BY', pad, mid - big*0.42);
-  if(c.letterSpacing!==undefined) c.letterSpacing=Math.round(big*0.06)+'px';
-  c.font=big+'px "Bebas Neue", "Barlow Condensed", sans-serif';
-  var x=pad, yb=mid + big*0.62;
-  [['MY','#ffffff'],['GOLF','#2dd4bf'],['LAB','#ffffff']].forEach(function(t){
-    c.fillStyle=t[1]; c.fillText(t[0], x, yb); x+=c.measureText(t[0]).width;
-  });
+  // marca de agua arriba a la derecha (abajo se puede cortar al recortar
+  // la foto o en el formato de las historias)
+  var m=Math.max(26, Math.round(Math.min(W, H)*0.055));   // alto del isotipo
+  var pad=Math.round(m*0.55);
+  var fs=Math.round(m*0.72);
+  c.font=fs+'px "Bebas Neue", "Barlow Condensed", sans-serif';
+  if(c.letterSpacing!==undefined) c.letterSpacing=Math.round(fs*0.08)+'px';
+  var wC=c.measureText('COACH').width, wY=c.measureText('YARD').width;
+  var gap=Math.round(m*0.3);
+  var totalW=m+gap+wC+wY;
+  var x0=W-pad-totalW, cy=pad+m/2;
+
+  // velo suave que se desvanece desde la esquina, para que se lea sobre cielo claro
+  var R=Math.max(totalW, m)*1.6;
+  var g=c.createRadialGradient(W, 0, 0, W, 0, R);
+  g.addColorStop(0,'rgba(0,0,0,.42)'); g.addColorStop(0.6,'rgba(0,0,0,.16)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=g; c.fillRect(W-R, 0, R, R);
+
+  c.globalAlpha=0.78;
+  c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=m*0.18;
+  drawCYMark(c, x0+m/2, cy, m);
+  c.textAlign='left'; c.textBaseline='middle';
+  var tx=x0+m+gap, ty=cy+fs*0.06;
+  c.fillStyle='#ffffff'; c.fillText('COACH', tx, ty);
+  c.fillStyle='#D4C5A9'; c.fillText('YARD', tx+wC, ty);
+  c.globalAlpha=1; c.shadowBlur=0;
   if(c.letterSpacing!==undefined) c.letterSpacing='0px';
-  var leftEnd = Math.max(x, pad + 10);
 
-  // derecha: auspiciadores, alineados a la derecha y achicados si no caben
-  if(logos.length){
-    var gap=Math.round(BH*0.4), lh=Math.round(BH*0.36);
-    var ws=logos.map(function(im){ return lh*im.naturalWidth/im.naturalHeight; });
-    var total=ws.reduce(function(a,b){ return a+b; },0)+gap*(logos.length-1);
-    var room=W-leftEnd-pad*2;
-    var f = total>room ? Math.max(0.4, room/total) : 1;
-    var lx=W-pad-total*f;
-    c.globalAlpha=0.92;
-    logos.forEach(function(im,i){
-      var w=ws[i]*f, h=lh*f;
-      c.drawImage(im, lx, mid-h/2, w, h);
-      lx+=w+gap*f;
-    });
-    c.globalAlpha=1;
-  }
   return await new Promise(function(resolve, reject){
     try{ cv.toBlob(function(b){ if(b) resolve(b); else reject(new Error('imagen vacía')); }, 'image/jpeg', 0.93); }
     catch(e){ reject(e); }
