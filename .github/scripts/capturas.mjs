@@ -2,7 +2,8 @@
 //  CoachYard · Capturas de pantalla para el App Store
 //
 //  Abre la web como la ve la app en un iPhone 6.5" (414×896 a 3x → 1242×2688,
-//  el tamaño que Apple acepta como obligatorio) con la cuenta de prueba
+//  el tamaño que Apple acepta como obligatorio) y en un iPad 13" (1024×1366 a 2x
+//  → 2048×2732, en capturas/ipad/) con la cuenta de prueba
 //  revision@coachyard.golf, y guarda los PNG en ./capturas/.
 //
 //  Uso: DEMO_PASSWORD=... node .github/scripts/capturas.mjs
@@ -31,47 +32,61 @@ if (!PASS) {
   process.exit(0);
 }
 
-fs.mkdirSync('capturas', { recursive: true });
+fs.mkdirSync('capturas/ipad', { recursive: true });
 const browser = await chromium.launch();
-const ctx = await browser.newContext({
-  viewport: { width: 414, height: 896 },
-  deviceScaleFactor: 3,
-  // isMobile:false → el ancho queda fijo en 414 (en modo móvil Chrome agranda la página si algo oculto sobresale y la foto sale corrida)
-  isMobile: false,
-  hasTouch: true,
-  locale: 'es-CL',
-  timezoneId: 'America/Santiago',
-  colorScheme: 'dark',
-  // "CoachHubApp" hace que la web se comporte como dentro de la app (oculta lo que es solo web)
-  userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CoachHubApp',
-});
-const page = await ctx.newPage();
 
-// Inicia sesión con la cuenta de prueba (la sesión queda en localStorage)
-await page.goto(BASE + '/es/coachhub/entrar.html', { waitUntil: 'networkidle' });
-const err = await page.evaluate(async ([u, k, e, p]) => {
-  const c = window.supabase.createClient(u, k);
-  const r = await c.auth.signInWithPassword({ email: e, password: p });
-  return r.error ? r.error.message : null;
-}, [SB_URL, SB_ANON, EMAIL, PASS]);
-if (err) { console.error('❌ No se pudo iniciar sesión:', err); process.exit(1); }
+async function sacar(dir, viewport, deviceScaleFactor, userAgent) {
+  const ctx = await browser.newContext({
+    viewport, screen: viewport, deviceScaleFactor,
+    // isMobile:false → el ancho queda fijo (en modo móvil Chrome agranda la página si algo oculto sobresale y la foto sale corrida)
+    isMobile: false,
+    hasTouch: true,
+    locale: 'es-CL',
+    timezoneId: 'America/Santiago',
+    colorScheme: 'dark',
+    // "CoachHubApp" hace que la web se comporte como dentro de la app (oculta lo que es solo web)
+    userAgent,
+  });
+  const page = await ctx.newPage();
 
-let ok = 0;
-for (const p of PANTALLAS) {
-  try {
-    await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
-    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
-    await page.waitForTimeout(3000);
-    // sin barras de scroll ni avisos flotantes en la foto
-    await page.addStyleTag({ content: 'html,body{overflow-x:hidden!important}::-webkit-scrollbar{display:none!important}.toast,#toast{display:none!important}' });
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(300);
-    await page.screenshot({ path: 'capturas/' + p.archivo, fullPage: false });
-    console.log('📸', p.archivo);
-    ok++;
-  } catch (e) {
-    console.log('⚠️ ', p.archivo, e.message);
+  // Inicia sesión con la cuenta de prueba (la sesión queda en localStorage)
+  await page.goto(BASE + '/es/coachhub/entrar.html', { waitUntil: 'networkidle' });
+  const err = await page.evaluate(async ([u, k, e, p]) => {
+    const c = window.supabase.createClient(u, k);
+    const r = await c.auth.signInWithPassword({ email: e, password: p });
+    try { localStorage.setItem('mgl-rol', 'coach'); } catch (x) {}
+    return r.error ? r.error.message : null;
+  }, [SB_URL, SB_ANON, EMAIL, PASS]);
+  if (err) { console.error('❌ No se pudo iniciar sesión:', err); process.exit(1); }
+
+  let ok = 0;
+  for (const p of PANTALLAS) {
+    try {
+      await page.goto('about:blank');
+      await page.goto(BASE + p.url, { waitUntil: 'load', timeout: 60000 });
+      await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+      await page.waitForTimeout(5000);
+      // sin barras de scroll ni avisos flotantes en la foto (también dentro de las pestañas del marco)
+      const css = 'html,body{overflow-x:hidden!important}::-webkit-scrollbar{display:none!important}.toast,#toast{display:none!important}';
+      for (const fr of page.frames()) {
+        await fr.addStyleTag({ content: css }).catch(() => {});
+        await fr.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
+      }
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: dir + p.archivo, fullPage: false });
+      console.log('📸', dir + p.archivo);
+      ok++;
+    } catch (e) {
+      console.log('⚠️ ', dir + p.archivo, e.message);
+    }
   }
+  await ctx.close();
+  return ok;
 }
+
+const okPhone = await sacar('capturas/', { width: 414, height: 896 }, 3,
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CoachHubApp');
+const okPad = await sacar('capturas/ipad/', { width: 1024, height: 1366 }, 2,
+  'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CoachHubApp');
 await browser.close();
-if (ok < 3) { console.error('❌ Apple pide al menos 3 capturas y solo salieron', ok); process.exit(1); }
+if (okPhone < 3 || okPad < 3) { console.error('❌ Apple pide al menos 3 capturas por equipo y salieron', okPhone, '(iPhone) y', okPad, '(iPad)'); process.exit(1); }

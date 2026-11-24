@@ -35,8 +35,7 @@ try:
 except Exception:
     VERSION = "1.0"
 # "Novedades" (obligatorio desde la segunda versión). Actualizar en cada versión nueva.
-NOVEDADES = """• Nueva pantalla de inicio de CoachYard.
-• CoachYard, presented by MyGolfLab: ahora ves a nuestros auspiciadores (GolfChile, Titleist y FootJoy) al iniciar sesión.
+NOVEDADES = """• CoachYard ahora también para iPad, con pantallas adaptadas a la pantalla grande.
 • Mejoras de estabilidad y rendimiento."""
 NOMBRES = ["CoachYard", "CoachYard Golf", "CoachYard: Golf Coaching"]
 SUBTITULO = "Tu academia de golf en la app"
@@ -47,6 +46,7 @@ COPYRIGHT = "2026 Smooth Golf Co. SPA"
 CONTACTO = {"contactFirstName": "Nicolás", "contactLastName": "Parra", "contactEmail": "n.parrarecart@gmail.com"}
 DEMO_EMAIL = "revision@coachyard.golf"
 TIPO_CAPTURA = "APP_IPHONE_65"   # 6.5" (1242×2688): Apple lo acepta como tamaño obligatorio
+TIPO_CAPTURA_IPAD = "APP_IPAD_PRO_3GEN_129"   # iPad 13" (2048×2732): obligatorio desde que la app es también para iPad
 
 PROMO = ("Todo el historial de tus alumnos en un solo lugar: clases, videos, análisis de swing, "
          "metas y mensajes. Hecho por coaches, para coaches.")
@@ -336,52 +336,54 @@ def main():
         faltantes.append("secret DEMO_PASSWORD (clave de la cuenta de prueba)")
     print("5. ✅ Datos de revisión" + ("" if DEMO_PASSWORD else " (sin clave de prueba)"))
 
-    # ── 6. Capturas ──
-    archivos = sorted(glob.glob("capturas/*.png"))
+    # ── 6. Capturas (iPhone en capturas/, iPad en capturas/ipad/) ──
     loc0 = vlocs[0]["id"]
     sets = call("GET", f"/appStoreVersionLocalizations/{loc0}/appScreenshotSets")["data"]
-    sset = next((s for s in sets if s["attributes"]["screenshotDisplayType"] == TIPO_CAPTURA), None)
-    if archivos:
-        if not sset:
-            sset = call("POST", "/appScreenshotSets", {"data": {"type": "appScreenshotSets",
-                        "attributes": {"screenshotDisplayType": TIPO_CAPTURA},
-                        "relationships": {"appStoreVersionLocalization": {"data": {
-                            "type": "appStoreVersionLocalizations", "id": loc0}}}}})["data"]
-        for viejo in call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]:
-            call("DELETE", f"/appScreenshots/{viejo['id']}")
-        for f in archivos:
-            data = open(f, "rb").read()
-            sc = call("POST", "/appScreenshots", {"data": {"type": "appScreenshots",
-                      "attributes": {"fileName": os.path.basename(f), "fileSize": len(data)},
-                      "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": sset["id"]}}}}})["data"]
-            for op in sc["attributes"]["uploadOperations"]:
-                h = {x["name"]: x["value"] for x in op.get("requestHeaders", [])}
-                trozo = data[op["offset"]:op["offset"] + op["length"]]
-                r = requests.request(op["method"], op["url"], headers=h, data=trozo, timeout=120)
-                if r.status_code >= 300:
-                    print(f"❌ Subiendo {f}: {r.status_code} {r.text[:300]}")
+    for tipo, patron, nombre in ((TIPO_CAPTURA, "capturas/*.png", "iPhone"),
+                                 (TIPO_CAPTURA_IPAD, "capturas/ipad/*.png", "iPad")):
+        archivos = sorted(glob.glob(patron))
+        sset = next((s for s in sets if s["attributes"]["screenshotDisplayType"] == tipo), None)
+        if archivos:
+            if not sset:
+                sset = call("POST", "/appScreenshotSets", {"data": {"type": "appScreenshotSets",
+                            "attributes": {"screenshotDisplayType": tipo},
+                            "relationships": {"appStoreVersionLocalization": {"data": {
+                                "type": "appStoreVersionLocalizations", "id": loc0}}}}})["data"]
+            for viejo in call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]:
+                call("DELETE", f"/appScreenshots/{viejo['id']}")
+            for f in archivos:
+                data = open(f, "rb").read()
+                sc = call("POST", "/appScreenshots", {"data": {"type": "appScreenshots",
+                          "attributes": {"fileName": os.path.basename(f), "fileSize": len(data)},
+                          "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": sset["id"]}}}}})["data"]
+                for op in sc["attributes"]["uploadOperations"]:
+                    h = {x["name"]: x["value"] for x in op.get("requestHeaders", [])}
+                    trozo = data[op["offset"]:op["offset"] + op["length"]]
+                    r = requests.request(op["method"], op["url"], headers=h, data=trozo, timeout=120)
+                    if r.status_code >= 300:
+                        print(f"❌ Subiendo {f}: {r.status_code} {r.text[:300]}")
+                        raise SystemExit(1)
+                call("PATCH", f"/appScreenshots/{sc['id']}", {"data": {"type": "appScreenshots", "id": sc["id"],
+                     "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
+                print(f"6. 📸 {nombre}: {os.path.basename(f)} subida")
+            # esperar a que Apple las procese
+            for _ in range(30):
+                scs = call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]
+                estados = [((s["attributes"].get("assetDeliveryState") or {}).get("state")) for s in scs]
+                if all(e == "COMPLETE" for e in estados):
+                    break
+                if any(e == "FAILED" for e in estados):
+                    errs = [(s["attributes"].get("assetDeliveryState") or {}).get("errors") for s in scs]
+                    print("❌ Apple rechazó una captura:", errs)
                     raise SystemExit(1)
-            call("PATCH", f"/appScreenshots/{sc['id']}", {"data": {"type": "appScreenshots", "id": sc["id"],
-                 "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(data).hexdigest()}}})
-            print(f"6. 📸 {os.path.basename(f)} subida")
-        # esperar a que Apple las procese
-        for _ in range(30):
-            scs = call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]
-            estados = [((s["attributes"].get("assetDeliveryState") or {}).get("state")) for s in scs]
-            if all(e == "COMPLETE" for e in estados):
-                break
-            if any(e == "FAILED" for e in estados):
-                errs = [(s["attributes"].get("assetDeliveryState") or {}).get("errors") for s in scs]
-                print("❌ Apple rechazó una captura:", errs)
-                raise SystemExit(1)
-            time.sleep(5)
-        print(f"   ✅ {len(archivos)} capturas listas")
-    else:
-        n = len(call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]) if sset else 0
-        if n >= 3:
-            print(f"6. ✅ Ya hay {n} capturas")
+                time.sleep(5)
+            print(f"   ✅ {len(archivos)} capturas de {nombre} listas")
         else:
-            faltantes.append("capturas de pantalla (mínimo 3)")
+            n = len(call("GET", f"/appScreenshotSets/{sset['id']}/appScreenshots")["data"]) if sset else 0
+            if n >= 3:
+                print(f"6. ✅ Ya hay {n} capturas de {nombre}")
+            else:
+                faltantes.append(f"capturas de {nombre} (mínimo 3)")
 
     # ── 7. Enviar a revisión ──
     print()
