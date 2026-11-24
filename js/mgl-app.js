@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    MyGolfLab / CoachYard · Ajustes cuando la web corre dentro de la app
    Archivo: /js/mgl-app.js
-   Versión: 1.4 · 2026-11-12 (la pantalla ya no se desliza de lado ni rebota entera)
+   Versión: 1.5 · 2026-11-24 (sin zoom automático al escribir en el iPhone)
 
    La app de CoachYard (carpeta app-movil/, hecha con Capacitor) carga esta
    misma web. En el navegador normal este script no hace nada.
@@ -57,6 +57,10 @@
       + '@supports (overflow:clip){html.en-app,html.en-app body{overflow-x:clip}}';
     if (plataforma === 'ios') {
       css += 'html.en-ios a[href*="pricing.html"],html.en-ios .solo-web-ios{display:none!important}';
+      // El iPhone hace zoom solo al tocar un campo con letra menor a 16px
+      // (ej. "Escribe un mensaje…"). Ese zoom agranda toda la app y desde ahí
+      // la pantalla queda más ancha y se mueve de lado a lado. Con 16px no hay zoom.
+      css += 'html.en-ios input:not([type=checkbox]):not([type=radio]):not([type=range]),html.en-ios textarea,html.en-ios select{font-size:max(16px,1em)!important}';
     }
     var st = document.createElement('style');
     st.id = 'mgl-app-css';
