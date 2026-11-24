@@ -30,16 +30,19 @@
     --red-bg:rgba(239,68,68,.1); --red:var(--cfca5a5,#fca5a5);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%}
+  html,body{min-height:100%}
+  /* Columna con scroll: centrada si cabe, y si no cabe se puede bajar (antes el centrado cortaba arriba y abajo).
+     Margen superior respeta la barra de estado del iPhone (safe-area). */
   body{
     font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-    padding:1.5rem;position:relative;overflow-x:hidden;
+    min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:calc(env(safe-area-inset-top, 0px) + 2.5rem) 1.5rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+    position:relative;overflow-x:hidden;overflow-y:auto;
   }
   .bg-decoration{position:fixed;inset:0;pointer-events:none;z-index:0}
   .bg-decoration::before{content:'';position:absolute;top:-15%;right:-10%;width:520px;height:520px;background:radial-gradient(circle,rgba(var(--r212_197_169,212,197,169),.08) 0%,transparent 70%);border-radius:50%}
 
-  .wrap{position:relative;z-index:1;width:100%;max-width:400px;animation:fadeIn .5s ease both}
+  .wrap{position:relative;z-index:1;width:100%;max-width:400px;margin-top:auto;margin-bottom:auto;animation:fadeIn .5s ease both}
   @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
   .logo{text-align:center;margin-bottom:2rem}
@@ -94,8 +97,8 @@
   .marcas-mgl{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.08em;line-height:1;margin-top:.25rem}
   .marcas-mgl span{color:#2dd4bf}   /* teal de MyGolfLab (en CoachYard --teal es dorado) */
   .marcas-label{font-family:'Barlow Condensed',sans-serif;font-size:.64rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted2);margin-top:1.3rem}
-  .marcas-logos{display:flex;align-items:center;justify-content:center;gap:1.6rem;flex-wrap:wrap;margin-top:.8rem}
-  .marcas-logos img{height:26px;width:auto;display:block;opacity:.85}
+  .marcas-logos{display:flex;align-items:center;justify-content:center;gap:1.1rem;flex-wrap:wrap;margin-top:.8rem}
+  .marcas-logos img{height:23px;width:auto;display:block;opacity:.85}
 
   .tabs{display:flex;gap:4px;background:var(--elevated);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:1.3rem}
   .tab{flex:1;padding:.6rem;border:none;background:transparent;color:var(--muted2);font-family:'Barlow Condensed';font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;border-radius:9px;cursor:pointer}
@@ -242,7 +245,7 @@
 
   </div>
 
-  <p class="footer">CoachYard y MyGolfLab comparten tu cuenta — son productos distintos, un solo login.<br>¿Buscas entrenar por tu cuenta con IA? <a href="/es/login.html">Entra a MyGolfLab</a></p>
+  <!-- (MyGolfLab oculto por ahora: no se enlaza desde CoachYard) -->
 
   <!-- presented by MyGolfLab + auspiciadores (si falta un logo, se oculta solo) -->
   <div class="marcas">

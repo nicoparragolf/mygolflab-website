@@ -57,7 +57,16 @@
   .avatar{width:36px;height:36px;border-radius:50%;background:var(--teal-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:700;color:#1C1709;overflow:hidden;cursor:pointer;flex:0 0 auto}
   .avatar img{width:100%;height:100%;object-fit:cover}
 
-  .wrap{max-width:1200px;margin:0 auto;padding:26px 20px calc(60px + env(safe-area-inset-bottom))}
+  .wrap{max-width:1200px;margin:0 auto;padding:26px 20px 30px}
+  /* Footer: presented by MyGolfLab + auspiciadores (lo más abajo del dashboard) */
+  .marcas{max-width:1200px;margin:0 auto;padding:6px 20px calc(130px + env(safe-area-inset-bottom));text-align:center}   /* espacio para la esfera del asistente y el menú inferior */
+  .marcas-in{border-top:1px solid var(--border,#262626);padding-top:26px}
+  .marcas-by{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--muted,#777)}
+  .marcas-mgl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em;line-height:1;margin-top:4px}
+  .marcas-mgl span{color:#2dd4bf}
+  .marcas-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--muted,#777);margin-top:20px}
+  .marcas-logos{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:12px}
+  .marcas-logos img{height:23px;width:auto;display:block;opacity:.85}
   .hello h1{font-family:'Bebas Neue';font-size:44px;letter-spacing:1px;line-height:1}
   .hello p{color:var(--muted);margin-top:6px;font-size:15px}
 
@@ -181,6 +190,20 @@
 <div class="wrap" id="wrap">
   <div class="loading">Cargando tu dashboard…</div>
 </div>
+
+<!-- presented by MyGolfLab + auspiciadores (si falta un logo, se oculta solo) -->
+<footer class="marcas">
+  <div class="marcas-in">
+    <div class="marcas-by">Presented by</div>
+    <div class="marcas-mgl">MYGOLF<span>LAB</span></div>
+    <div class="marcas-label">Con el apoyo de</div>
+    <div class="marcas-logos">
+      <img class="logo-claro-inv" src="/es/img/sponsors/golfchile-blanco.png" alt="GolfChile" loading="lazy" onerror="this.remove()">
+      <img class="logo-claro-inv" src="/es/img/sponsors/titleist-blanco.png" alt="Titleist" loading="lazy" onerror="this.remove()">
+      <img class="logo-claro-inv" src="/es/img/sponsors/footjoy-blanco.png" alt="FootJoy" loading="lazy" onerror="this.remove()">
+    </div>
+  </div>
+</footer>
 
 <div class="toast" id="toast"></div>
 

@@ -323,14 +323,13 @@ function render(name, photo, st){
       + tile('/es/coachhub/analisis.html?from=dash','Analizar swing','Dibuja sobre el video, compara swings y graba tu explicación.',IC.analyze)
       + tile('/es/coachhub/vitrina.html#ofertas','Mis ofertas','Lo que vendes en tu vitrina: análisis, paquetes y planes.',IC.store)
       + tile('/es/coachhub/pricing.html','Suscripción','Tu plan de CoachYard, alumnos incluidos y facturación.',IC.card)
-      + (ROLE==='ambos' ? tile('/es/dashboard.html','Ir a MyGolfLab','Tu entrenamiento como jugador: Coach IA y Training Lab.',IC.ai) : tile('/es/coachhub/dashboard.html','Dashboard','Lo que necesita tu atención hoy.',IC.dash));
+      + tile('/es/coachhub/dashboard.html','Dashboard','Lo que necesita tu atención hoy.',IC.dash);   // (Ir a MyGolfLab: oculto por ahora)
   } else {
     h+= tile('/es/coachhub/jugador.html','Mi perfil','Tu timeline, videos y notas de tu coach.',IC.user)
       + tile('/es/coachhub/clases.html','Mis clases','Las clases que pediste y su estado.',IC.lesson)
       + tile('/es/coachhub/contenido.html','Mi contenido','Las colecciones de tips que compraste.',IC.content)
       + tile('/es/coachhub/mensajes.html','Mensajes','Escríbele a tu coach.',IC.msg,st.unread)
-      + tile('/es/coaches/','Coaches','Encuentra un coach y toma clases online.',IC.search)
-      + tile('/es/dashboard.html','Ir a MyGolfLab','Coach IA, Biblioteca y Training Lab.',IC.ai);
+      + tile('/es/coaches/','Coaches','Encuentra un coach y toma clases online.',IC.search);   // (Ir a MyGolfLab: oculto por ahora)
   }
   h+= '<button class="tile danger" onclick="logout()"><div><h3>Cerrar sesión</h3><p>Salir de tu cuenta en este dispositivo.</p></div><div class="ic">'+IC.logout+'</div></button>';
   h+='</div>';
