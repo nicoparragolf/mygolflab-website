@@ -44,6 +44,8 @@
     (document.head || document.documentElement).appendChild(sCam);
   }
   var ALWAYS = !!(script && script.getAttribute('data-switch') === 'always');
+  // ¿Corre dentro del marco de la app? (mgl-marco.js va antes en el <head>)
+  var EN_MARCO = !!window.MGL_EN_MARCO;
 
   // ── 1. Estilos (se inyectan de inmediato para que no parpadee el color) ──
   var css = ''
@@ -130,8 +132,10 @@
       + '@keyframes mglIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}'
       + '@media (max-width:480px){#siteHeader #roleChip{display:none !important}}'
       // ── menú inferior (solo teléfono / app) ──
+      // En la app (marco) el menú inferior se ve en cualquier ancho: en el iPad
+      // también, vertical u horizontal. En el navegador, solo hasta 900 px.
       + '.mgl-tabs,.mgl-tabspace{display:none}'
-      + '@media (max-width:900px){'
+      + (EN_MARCO ? '@media all{' : '@media (max-width:900px){')
       // la barra baja casi hasta el borde: se mete en la zona de la rayita de inicio del iPhone (sin taparla del todo)
       +   'html.mgl-has-tabs{--mgl-tab-b:max(6px, calc(env(safe-area-inset-bottom) - 20px));--mgl-tab-h:calc(70px + var(--mgl-tab-b))}'
       +   'html.mgl-has-tabs .mgl-tabspace{display:block;flex:0 0 auto;height:var(--mgl-tab-h)}'
@@ -167,6 +171,16 @@
       // los avisos flotantes de cada página suben para no quedar detrás del menú
       +   'html.mgl-has-tabs .toast{bottom:calc(var(--mgl-tab-h) + 16px) !important}'
       + '}';
+    if (EN_MARCO) {
+      css += ''
+        // iPad: el menú inferior no se estira a todo el ancho, queda centrado
+        + '@media (min-width:700px){.mgl-tabs{left:50%;right:auto;width:600px;max-width:calc(100% - 20px);transform:translateX(-50%)}}'
+        // con pantalla ancha el menú de texto del header sobra (está el inferior):
+        // campana y avatar quedan a la derecha, como en el teléfono
+        + '@media (min-width:901px){#siteHeader .nav-links:not(.mobile-open){display:none !important}'
+        +   '#siteHeader .nav-inner #navAvatar,#siteHeader .nav-inner .avatar{margin-left:auto}'
+        +   '#siteHeader .mgl-bell{margin-left:auto}#siteHeader .mgl-bell + #navAvatar,#siteHeader .mgl-bell + .avatar{margin-left:6px !important}}';
+    }
   }
 
   var style = document.createElement('style');
