@@ -4,7 +4,7 @@
    Versión: 1.0 · 2026-11-04
 
    Lo carga mgl-products.js solo para coaches, en todas las páginas de
-   CoachYard. Dibuja una esfera flotante que se puede arrastrar (se pega al
+   CoachYard. Dibuja al Caddie (personaje flotante) que se puede arrastrar (se pega al
    borde más cercano y recuerda dónde quedó) y, al tocarla, un chat.
 
    El coach pide cosas en lenguaje normal ("crea una clase para Clemente..."),
@@ -103,40 +103,28 @@
   // ESTILOS
   // ═════════════════════════════════════════════════════════════════════
   var css = ''
-    // esfera
-    + '.mgl-orb{position:fixed;z-index:46;width:60px;height:60px;border-radius:50%;cursor:grab;touch-action:none;'
+    // Caddie (botón flotante con el personaje)
+    + '.mgl-orb{position:fixed;z-index:46;width:62px;height:62px;border-radius:50%;cursor:grab;touch-action:none;'
     +   '-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;'
-    +   'background:radial-gradient(circle at 34% 28%,#3a3222 0%,#16130d 55%,#070707 100%);'
-    +   'border:1.5px solid rgba(212,197,169,.75);'
-    +   'box-shadow:0 10px 26px rgba(0,0,0,.6),0 0 22px rgba(212,197,169,.28),inset 0 2px 3px rgba(255,255,255,.12);'
-    +   'transition:left .28s cubic-bezier(.2,.8,.2,1),top .28s cubic-bezier(.2,.8,.2,1),transform .15s,opacity .2s;overflow:hidden}'
+    +   'box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 18px rgba(212,197,169,.25);'
+    +   'transition:left .28s cubic-bezier(.2,.8,.2,1),top .28s cubic-bezier(.2,.8,.2,1),transform .15s,opacity .2s}'
+    + '.mgl-orb svg{width:100%;height:100%;display:block;border-radius:50%}'
     + '.mgl-orb.drag{transition:none;cursor:grabbing;transform:scale(1.08)}'
     + '.mgl-orb.oculto{opacity:0;pointer-events:none;transform:scale(.6)}'
-    // Sin filter:blur — en el iPhone un blur animado se vuelve a pintar en cada
-    // cuadro (y más aún bajo un modal con fondo desenfocado). El borde suave
-    // ahora lo da una máscara fija; el giro y el latido son solo transform/opacity,
-    // que el teléfono mueve sin repintar.
-    + '.mgl-orb .core{position:absolute;inset:9px;border-radius:50%;will-change:transform;'
-    +   '-webkit-mask-image:radial-gradient(circle,#000 52%,transparent 72%);mask-image:radial-gradient(circle,#000 52%,transparent 72%);'
-    +   'background:conic-gradient(from 0deg,#f5e7c4,#b8975a,#2b2416,#d4c5a9,#8a6f3e,#f5e7c4);animation:mglOrbGiro 7s linear infinite;opacity:.9}'
-    + '.mgl-orb .core2{position:absolute;inset:15px;border-radius:50%;will-change:transform,opacity;'
-    +   'background:radial-gradient(circle,#fff6dc 0%,rgba(212,197,169,.6) 38%,rgba(212,197,169,.18) 58%,transparent 72%);animation:mglOrbLatido 3.2s ease-in-out infinite}'
-    + '.mgl-orb .brillo{position:absolute;left:12px;top:8px;width:22px;height:12px;border-radius:50%;'
-    +   'background:radial-gradient(ellipse,rgba(255,255,255,.55),transparent 70%);transform:rotate(-20deg)}'
-    + '.mgl-orb.pensando .core{animation-duration:1.4s}'
-    + '.mgl-orb.pensando .core2{animation-duration:1s}'
-    + '@keyframes mglOrbGiro{to{transform:rotate(360deg)}}'
-    + '@keyframes mglOrbLatido{0%,100%{transform:scale(.85);opacity:.75}50%{transform:scale(1.08);opacity:1}}'
-    // La esfera se queda quieta cuando no se ve o estorba: teclado abierto
-    // (mgl-kb), pestaña oculta del marco (mgl-dormida), pestaña del navegador
-    // oculta, o un modal abierto encima (ahí además se esconde).
-    + 'html.mgl-kb .mgl-orb .core,html.mgl-kb .mgl-orb .core2,'
-    +   'html.mgl-dormida .mgl-orb .core,html.mgl-dormida .mgl-orb .core2,'
-    +   'html.mgl-quieto .mgl-orb .core,html.mgl-quieto .mgl-orb .core2{animation-play-state:paused}'
+    // vida: parpadea y cada tanto se acomoda la gorra; pensando = asiente rápido
+    // (solo transform/opacity: el teléfono no repinta)
+    + '.mgl-orb .ojos{transform-origin:32px 34px;animation:cyParpadeo 4.6s infinite}'
+    + '.mgl-orb .cy-cabeza{transform-origin:32px 40px;animation:cyMira 7s ease-in-out infinite}'
+    + '.mgl-orb.pensando .cy-cabeza{animation:cyPiensa .7s ease-in-out infinite}'
+    + '@keyframes cyParpadeo{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}'
+    + '@keyframes cyMira{0%,70%,100%{transform:rotate(0)}78%{transform:rotate(-5deg)}86%{transform:rotate(3deg)}}'
+    + '@keyframes cyPiensa{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(1.4px) rotate(-3deg)}}'
+    // Quieto cuando no se ve o estorba: teclado abierto (mgl-kb), pestaña oculta
+    // del marco (mgl-dormida) o del navegador (mgl-quieto); con un modal encima se esconde.
+    + 'html.mgl-kb .mgl-orb *,html.mgl-dormida .mgl-orb *,html.mgl-quieto .mgl-orb *{animation-play-state:paused!important}'
     + 'body:has(.overlay.show) .mgl-orb,html.mgl-kb .mgl-orb:not(.mgl-orb-mini){visibility:hidden}'
-    + '@media (prefers-reduced-motion:reduce){.mgl-orb .core,.mgl-orb .core2{animation:none}}'
-    + '.mgl-orb-mini{width:30px;height:30px;border-width:1px;position:relative;flex:0 0 auto;cursor:default}'
-    + '.mgl-orb-mini .core{inset:4px}.mgl-orb-mini .core2{inset:8px}.mgl-orb-mini .brillo{left:6px;top:4px;width:11px;height:6px}'
+    + '@media (prefers-reduced-motion:reduce){.mgl-orb *{animation:none!important}}'
+    + '.mgl-orb-mini{width:32px;height:32px;position:relative;flex:0 0 auto;cursor:default;box-shadow:none}'
     // panel
     + '.mgl-asis{position:fixed;z-index:70;right:20px;bottom:20px;width:400px;height:min(640px,calc(100vh - 40px));'
     +   'display:flex;flex-direction:column;background:var(--c121212,#121212);border:1px solid var(--c2a2a2a,#2a2a2a);border-radius:22px;'
@@ -206,8 +194,12 @@
   st.textContent = css;
   document.head.appendChild(st);
 
+  var CADDIE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true"> <defs> <radialGradient id="cyBgX" cx="50%" cy="35%" r="70%"> <stop offset="0" stop-color="#3A3222"/><stop offset="1" stop-color="#141210"/> </radialGradient> <clipPath id="cyClX"><circle cx="32" cy="32" r="30"/></clipPath> </defs> <circle cx="32" cy="32" r="31" fill="url(#cyBgX)"/> <g clip-path="url(#cyClX)"> <g transform="rotate(-18 46 40)"> <rect x="40.5" y="27" width="11" height="34" rx="4" fill="#8C6A3F"/> <rect x="40.5" y="33" width="11" height="3" fill="#D4C5A9"/> <rect x="40.5" y="50" width="11" height="2.5" fill="#D4C5A9" opacity=".8"/> <rect x="41.5" y="18" width="2" height="11" fill="#B8B8B8"/> <rect x="45" y="16" width="2" height="13" fill="#B8B8B8"/> <rect x="48.5" y="19" width="2" height="10" fill="#B8B8B8"/> <rect x="40.2" y="15.5" width="5" height="3.6" rx="1.8" fill="#E6E2DA"/> <rect x="44.3" y="13.2" width="4.6" height="3.6" rx="1.2" fill="#2A2A2A"/> <rect x="48" y="16.8" width="4.4" height="3.2" rx="1.6" fill="#E6E2DA"/> </g> <path d="M11 64 C12 50 20 45 32 45 C44 45 52 50 53 64 Z" fill="#2B2619"/> <path d="M20 64 L22 49 C25 47 28 46.5 32 46.5 C36 46.5 39 47 42 49 L44 64 Z" fill="#F4EFE6"/> <path d="M22.2 53.5 L41.8 53.5" stroke="#D4C5A9" stroke-width="1.6"/> <text x="32" y="61.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="7" fill="#2B2619">CY</text> <path d="M38.5 46.2 L46.5 50.5" stroke="#5C4527" stroke-width="2.8" stroke-linecap="round"/> <g class="cy-cabeza"><rect x="28.5" y="38" width="7" height="8" rx="3" fill="#D9A57A"/> <circle cx="32" cy="31" r="10" fill="#E8B98F"/> <circle cx="22.3" cy="32" r="2" fill="#D9A57A"/> <circle cx="41.7" cy="32" r="2" fill="#D9A57A"/> <path d="M21.5 29 C21.5 20 26 17.5 32 17.5 C38 17.5 42.5 20 42.5 29 Z" fill="#D4C5A9"/> <path d="M17.5 29.6 C19 27.4 27 26.6 33 27 C38.5 27.4 42.6 28.2 43 29.2 C40 31.2 34 31.8 28 31.6 C22.5 31.4 18.6 30.8 17.5 29.6 Z" fill="#B9A982"/> <circle cx="32" cy="17.8" r="1.2" fill="#B9A982"/> <g class="ojos" fill="#2A221A"> <ellipse cx="28" cy="34" rx="1.25" ry="1.6"/> <ellipse cx="36" cy="34" rx="1.25" ry="1.6"/> </g> <path d="M28.8 37.4 Q32 39.6 35.2 37.4" stroke="#7A4A2E" stroke-width="1.3" fill="none" stroke-linecap="round"/> <circle cx="25.8" cy="36.6" r="1.4" fill="#E79B7E" opacity=".45"/> <circle cx="38.2" cy="36.6" r="1.4" fill="#E79B7E" opacity=".45"/> </g></g> <circle cx="32" cy="32" r="31" fill="none" stroke="#D4C5A9" stroke-width="1.6" opacity=".9"/> </svg>';
+  var nCaddie = 0;
   function orbHTML(extra) {
-    return '<div class="mgl-orb ' + (extra || '') + '"><div class="core"></div><div class="core2"></div><div class="brillo"></div></div>';
+    nCaddie++;
+    var dib = CADDIE_SVG.replace(/cyBgX/g, 'cyBg' + nCaddie).replace(/cyClX/g, 'cyCl' + nCaddie);
+    return '<div class="mgl-orb ' + (extra || '') + '">' + dib + '</div>';
   }
 
   // ═════════════════════════════════════════════════════════════════════
