@@ -37,6 +37,19 @@ for (const t of TAMANOS) {
     locale: 'es-CL', timezoneId: 'America/Santiago', colorScheme: 'dark',
     userAgent: 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 CoachHubApp',
   });
+  // Archivos del sitio reemplazados por la versión en prueba (carpeta override/ = raíz del sitio)
+  const OV = new URL('./override/', import.meta.url).pathname;
+  if (fs.existsSync(OV)) {
+    await ctx.route(/mygolflab\.golf\//, async (route) => {
+      const u = new URL(route.request().url());
+      const f = OV + u.pathname.replace(/^\//, '');
+      if (fs.existsSync(f) && fs.statSync(f).isFile()) {
+        const ct = f.endsWith('.js') ? 'application/javascript' : f.endsWith('.css') ? 'text/css' : 'text/html; charset=utf-8';
+        return route.fulfill({ status: 200, body: fs.readFileSync(f), headers: { 'content-type': ct, 'cache-control': 'no-store' } });
+      }
+      return route.continue();
+    });
+  }
   const page = await ctx.newPage();
   await page.goto(BASE + '/es/coachhub/entrar.html', { waitUntil: 'networkidle' });
   const err = await page.evaluate(async ([u, k, e, p]) => {
