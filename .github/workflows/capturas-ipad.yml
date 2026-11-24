@@ -1,0 +1,28 @@
+# Capturas de prueba en tamaño iPad (solo para revisar el diseño). Corre al subir a ramas ipad-*
+name: Capturas iPad (prueba)
+on:
+  push:
+    branches: ['ipad-*']
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Sitio a fotografiar'
+        default: 'https://mygolflab.golf'
+jobs:
+  capturas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: |
+          npm install --no-save --no-package-lock playwright@1
+          npx playwright install --with-deps chromium
+      - env:
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+          BASE: ${{ inputs.base || vars.BASE_IPAD || 'https://mygolflab.golf' }}
+        run: node .github/scripts/capturas-ipad.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: capturas-ipad, path: capturas-ipad/ }
