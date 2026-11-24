@@ -21,6 +21,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/mgl-products.js" data-product="hub"></script>
 <script src="/js/mgl-borrar-cuenta.js"></script>
+<script src="/js/mgl-foto-perfil.js"></script>
 <style>
   :root{
     --bg:var(--c0a0a0a,#0a0a0a); --bg2:var(--c111111,#111); --card:var(--c141414,#141414); --card2:var(--c1a1a1a,#1a1a1a);
@@ -88,6 +89,7 @@
   .pbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
   .pbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1px solid var(--border2);background:var(--card2);font-family:'Barlow Condensed';font-weight:700;font-size:14.5px;letter-spacing:.5px;text-transform:uppercase}
   .pbtn svg{width:16px;height:16px}
+  button.pbtn{cursor:pointer;color:inherit}
   .pbtn:hover{border-color:var(--teal-dim)}
   .pbtn.primary{background:var(--teal);border-color:var(--teal);color:#1C1709}
   .pbtn.primary:hover{filter:brightness(1.06)}
@@ -172,6 +174,7 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var BUCKET = 'coach-public';
 
 var USER=null, ROLE='jugador', IS_COACH=false, CP=null;
+var LAST={ name:'', photo:'', stats:null };   // para volver a pintar al cambiar la foto
 
 // ============================================================
 // UTILIDADES
@@ -263,7 +266,20 @@ async function init(){
   if(photo) av.innerHTML='<img src="'+esc(photo)+'" alt="">';
   else av.textContent=initialsOf(name).charAt(0);
 
+  LAST={ name:name, photo:photo, stats:stats };
   render(name, photo, stats);
+}
+
+// Foto del jugador (el coach la cambia desde su vitrina)
+function cambiarFoto(){
+  if(!window.MGLFoto) return;
+  MGLFoto.abrir({ sb:sb, user:USER, actual:LAST.photo, onCambio:function(url){
+    LAST.photo=url||'';
+    var av=$('navAvatar');
+    if(url) av.innerHTML='<img src="'+esc(url)+'" alt="">'; else av.textContent=initialsOf(LAST.name).charAt(0);
+    render(LAST.name, LAST.photo, LAST.stats);
+    if(typeof toast==='function') toast(url?'Foto actualizada':'Foto quitada');
+  } });
 }
 
 // ============================================================
@@ -276,7 +292,7 @@ function render(name, photo, st){
   var vitrinaUrl = (IS_COACH && CP && CP.slug) ? 'https://mygolflab.golf/es/coaches/perfil.html?c='+encodeURIComponent(CP.slug) : '';
   var linkCard = IS_COACH;
   h+='<div class="pcard'+(linkCard?' link':'')+'"'+(linkCard?' onclick="MGLnav.href=\'/es/coachhub/vitrina.html\'"':'')+'>'
-    + '<div class="pphoto"'+(IS_COACH?' title="Cambiar foto" onclick="event.stopPropagation();MGLnav.href=\'/es/coachhub/vitrina.html#foto\'"':'')+'>'+(photo?'<img src="'+esc(photo)+'" alt="">':esc(initialsOf(name)))+(IS_COACH?'<span class="pcam">'+IC.cam+'</span>':'')+'</div>'
+    + '<div class="pphoto" title="Cambiar foto" onclick="event.stopPropagation();'+(IS_COACH?'MGLnav.href=\'/es/coachhub/vitrina.html#foto\'':'cambiarFoto()')+'">'+(photo?'<img src="'+esc(photo)+'" alt="">':esc(initialsOf(name)))+'<span class="pcam">'+IC.cam+'</span></div>'
     + '<div class="pinfo">'
     +   '<div class="pname">'+esc(name)+'</div>'
     +   '<div class="prole">'
@@ -293,7 +309,8 @@ function render(name, photo, st){
     +   (IS_COACH ? '<div class="pbtns">'
           + '<a class="pbtn primary" href="/es/coachhub/vitrina.html" onclick="event.stopPropagation()">'+IC.edit+'Editar perfil</a>'
           + (vitrinaUrl ? '<a class="pbtn" href="'+esc(vitrinaUrl)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+IC.ext+'Ver como alumno</a>' : '')
-          + '</div>' : '')
+          + '</div>'
+        : '<div class="pbtns"><button class="pbtn primary" type="button" onclick="cambiarFoto()">'+IC.cam+(photo?'Cambiar foto':'Agregar foto')+'</button></div>')
     + '</div>'
     + (linkCard ? '<div class="chev" title="Editar perfil">'+IC.chev+'</div>' : '')
     + '</div>';
