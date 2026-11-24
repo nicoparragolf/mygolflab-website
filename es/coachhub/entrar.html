@@ -46,8 +46,9 @@
   @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
   .logo{text-align:center;margin-bottom:2rem}
-  .logo-icon{width:60px;height:60px;margin:0 auto .9rem;position:relative}
-  .logo-icon svg{width:100%;height:100%}
+  .logo-icon{width:72px;height:72px;margin:0 auto 1rem;position:relative}
+  /* ícono de la app (órbitas), con la misma esquina redondeada del iPhone */
+  .logo-icon img{width:100%;height:100%;display:block;border-radius:22.5%;box-shadow:0 8px 24px rgba(0,0,0,.25)}
   .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.06em}
   .logo-text span{color:var(--teal)}
   .logo-tag{font-size:.82rem;color:var(--muted2);margin-top:.3rem}
@@ -125,15 +126,7 @@
 
 <div class="wrap">
   <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="48" fill="#2A2518"/>
-        <line x1="42" y1="18" x2="42" y2="80" stroke="#D4C5A9" stroke-width="4"/>
-        <ellipse cx="42" cy="80" rx="14" ry="3.2" fill="#B9A982"/>
-        <polygon points="42,18 76,32 42,44" fill="#F0B860"/>
-        <circle cx="42" cy="55" r="4.5" fill="#2A2518" stroke="#D4C5A9" stroke-width="2.5"/>
-      </svg>
-    </div>
+    <div class="logo-icon"><img src="/es/coachhub/icon-192.png" alt="CoachYard" width="72" height="72"></div>
     <div class="logo-text">COACH<span>YARD</span></div>
     <p class="logo-tag">by MyGolfLab</p>
   </div>
