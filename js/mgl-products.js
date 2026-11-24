@@ -646,7 +646,13 @@
         var rolAntes = localStorage.getItem('mgl-rol');
         localStorage.setItem('mgl-rol', role === 'jugador' ? 'jugador' : 'coach');
         var rolNuevo = localStorage.getItem('mgl-rol');
-        if (window.MGL_EN_MARCO && rolAntes && rolAntes !== rolNuevo) { window.parent.location.reload(); return; }
+        // Si el marco se armó con otro rol (o sin rol, la primera vez que se abre
+        // la app recién instalada), se rearma con el correcto.
+        var rolMarco = null;
+        try { rolMarco = window.parent.MGLShell && window.parent.MGLShell.rol ? window.parent.MGLShell.rol() : null; } catch (e2) {}
+        if (window.MGL_EN_MARCO && ((rolMarco && rolMarco !== rolNuevo) || (!rolMarco && rolAntes && rolAntes !== rolNuevo))) {
+          window.parent.location.reload(); return;
+        }
       } catch (e) {}
       setupTabs(role === 'coach' || role === 'ambos');
       setupAvatar(sb, session, role === 'coach' || role === 'ambos');
