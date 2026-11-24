@@ -8,6 +8,8 @@ on:
       base:
         description: 'Sitio a fotografiar'
         default: 'https://mygolflab.golf'
+permissions:
+  contents: write
 jobs:
   capturas:
     runs-on: ubuntu-latest
@@ -23,6 +25,12 @@ jobs:
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
           BASE: ${{ inputs.base || vars.BASE_IPAD || 'https://mygolflab.golf' }}
         run: node .github/scripts/capturas-ipad.mjs
+      - name: Guardar capturas en la rama capturas-ipad-out
+        if: always()
+        run: |
+          cd capturas-ipad && git init -q && git checkout -q -b capturas-ipad-out
+          git -c user.name=ci -c user.email=ci@local add -A && git -c user.name=ci -c user.email=ci@local commit -qm "capturas $GITHUB_SHA"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" capturas-ipad-out
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: capturas-ipad, path: capturas-ipad/ }
