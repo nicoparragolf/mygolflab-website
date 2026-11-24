@@ -30,16 +30,19 @@
     --red-bg:rgba(239,68,68,.1); --red:var(--cfca5a5,#fca5a5);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%}
+  html,body{min-height:100%}
+  /* Columna con scroll: centrada si cabe, y si no cabe se puede bajar (antes el centrado cortaba arriba y abajo).
+     Margen superior respeta la barra de estado del iPhone (safe-area). */
   body{
     font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-    padding:1.5rem;position:relative;overflow-x:hidden;
+    min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:calc(env(safe-area-inset-top, 0px) + 2.5rem) 1.5rem calc(env(safe-area-inset-bottom, 0px) + 2rem);
+    position:relative;overflow-x:hidden;overflow-y:auto;
   }
   .bg-decoration{position:fixed;inset:0;pointer-events:none;z-index:0}
   .bg-decoration::before{content:'';position:absolute;top:-15%;right:-10%;width:520px;height:520px;background:radial-gradient(circle,rgba(var(--r212_197_169,212,197,169),.08) 0%,transparent 70%);border-radius:50%}
 
-  .wrap{position:relative;z-index:1;width:100%;max-width:400px;animation:fadeIn .5s ease both}
+  .wrap{position:relative;z-index:1;width:100%;max-width:400px;margin-top:auto;margin-bottom:auto;animation:fadeIn .5s ease both}
   @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
   .logo{text-align:center;margin-bottom:2rem}
