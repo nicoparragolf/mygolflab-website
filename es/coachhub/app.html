@@ -27,7 +27,8 @@
 <style>
   html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--c0a0a0a,#0a0a0a);overscroll-behavior:none}
   .mrc{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px);
-       width:100%;height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+       width:1px;min-width:100%;max-width:100%;   /* iOS estira los iframes al ancho del contenido: así quedan del ancho de la pantalla */
+       height:calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
        border:0;display:block;visibility:hidden;background:var(--c0a0a0a,#0a0a0a);z-index:1}
   .mrc.on{visibility:visible;z-index:2}
   .mrc.on.entra{animation:mrcIn .16s ease-out}
