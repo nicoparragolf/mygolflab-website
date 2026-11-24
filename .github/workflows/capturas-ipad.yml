@@ -23,7 +23,7 @@ jobs:
           npx playwright install --with-deps chromium
       - env:
           DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
-          BASE: ${{ inputs.base || vars.BASE_IPAD || 'https://mygolflab.golf' }}
+          BASE: ${{ inputs.base || vars.BASE_IPAD || 'https://mygolflab-gn57xzqtu-nicoparragolfs-projects.vercel.app' }}
         run: node .github/scripts/capturas-ipad.mjs
       - name: Guardar capturas en la rama capturas-ipad-out
         if: always()
