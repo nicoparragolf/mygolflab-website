@@ -148,10 +148,24 @@
       if (!t) { location.href = win.location.href; return 'fuera'; }
       if (t !== tab) {
         var url = win.location.href;
-        // la pestaña de origen vuelve a lo que tenía
         var f = marcos[tab];
-        setTimeout(function () { if (f) f.src = ultima[tab] || RAIZ[tab]; }, 0);
-        this.abrir(url, 'link');
+        var antes = ultima[tab];
+        if (antes) {
+          // la pestaña de origen vuelve a lo que tenía
+          setTimeout(function () { if (f) f.src = antes; }, 0);
+        } else {
+          // La pestaña nunca llegó a cargar su página: la página la mandó a otra
+          // (ej. dashboard.html manda al alumno a jugador.html). Si se recarga,
+          // vuelve a redirigir y queda en un ciclo que tira al usuario a esa
+          // pestaña una y otra vez. Se descarta y se vuelve a crear solo si la toca.
+          setTimeout(function () {
+            if (f && f.parentNode) f.parentNode.removeChild(f);
+            if (marcos[tab] === f) delete marcos[tab];
+          }, 0);
+        }
+        // Solo se cambia de pestaña si la redirección vino de la que se está viendo,
+        // nunca desde una que se precarga en segundo plano.
+        if (activa === tab || !activa) this.abrir(url, 'link');
         return 'movido';
       }
       ultima[tab] = win.location.href;
@@ -159,6 +173,8 @@
       return 'ok';
     },
     activa: function () { return activa; },
+    // Rol con el que se armaron las pestañas ('jugador' o 'coach')
+    rol: function () { return esCoach ? 'coach' : 'jugador'; },
     recargarTodo: function () { location.reload(); }
   };
 
