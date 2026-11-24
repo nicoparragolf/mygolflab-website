@@ -161,22 +161,7 @@ def patch_tolerante(path, tipo, oid, attrs):
     return False
 
 
-def main():
-    # ── App ──
-    apps = call("GET", f"/apps?filter[bundleId]={BUNDLE_ID}")["data"]
-    if not apps:
-        print(f"❌ No existe una app con bundle ID {BUNDLE_ID}.")
-        raise SystemExit(1)
-    app = apps[0]
-    app_id = app["id"]
-    locale = app["attributes"].get("primaryLocale") or "es-MX"
-    print(f"App: {app['attributes']['name']} ({app_id}) · idioma {locale}")
-
-    # ── 1. App Info: nombre, subtítulo, privacidad, categoría ──
-    infos = call("GET", f"/apps/{app_id}/appInfos")["data"]
-    info = next((i for i in infos if (i["attributes"].get("state") or i["attributes"].get("appStoreState"))
-                 not in ("READY_FOR_DISTRIBUTION", "READY_FOR_SALE")), infos[0])
-    iid = info["id"]
+def configurar_info(iid):
     locs = call("GET", f"/appInfos/{iid}/appInfoLocalizations")["data"]
     for l in locs:
         hecho = False
@@ -215,6 +200,28 @@ def main():
         print("2.", "✅ Clasificación por edad lista" if ok else "⚠️ Clasificación por edad incompleta")
         if not ok:
             avisos.append("clasificación por edad: revisarla a mano en App Information")
+
+
+def main():
+    # ── App ──
+    apps = call("GET", f"/apps?filter[bundleId]={BUNDLE_ID}")["data"]
+    if not apps:
+        print(f"❌ No existe una app con bundle ID {BUNDLE_ID}.")
+        raise SystemExit(1)
+    app = apps[0]
+    app_id = app["id"]
+    locale = app["attributes"].get("primaryLocale") or "es-MX"
+    print(f"App: {app['attributes']['name']} ({app_id}) · idioma {locale}")
+
+    # ── 1. App Info: nombre, subtítulo, privacidad, categoría ──
+    infos = call("GET", f"/apps/{app_id}/appInfos")["data"]
+    info = next((i for i in infos if (i["attributes"].get("state") or i["attributes"].get("appStoreState"))
+                 not in ("READY_FOR_DISTRIBUTION", "READY_FOR_SALE")), None)
+    if info is None:
+        # Con la app ya publicada, nombre/categoría/edad quedan bloqueados hasta que haya una versión nueva en preparación
+        print("1. ⏭️  Información general publicada (sin cambios): nombre, categoría y edad se mantienen")
+    else:
+        configurar_info(info["id"])
 
     # ── 3. Precio (gratis) y disponibilidad ──
     ps = call("GET", f"/apps/{app_id}/appPriceSchedule?include=manualPrices", fatal=False)
