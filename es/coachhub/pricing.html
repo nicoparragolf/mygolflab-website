@@ -197,12 +197,21 @@
   }
   @media (max-width: 480px) { .footer-top { grid-template-columns: 1fr; } }
 
+  .content:has(.pricing-grid){max-width:1240px}
+  .pricing-grid{grid-template-columns:repeat(4,1fr)!important;gap:1.1rem!important}
+  @media(max-width:1100px){.pricing-grid{grid-template-columns:repeat(2,1fr)!important}}
+  @media(max-width:640px){.pricing-grid{grid-template-columns:1fr!important}}
   .price-note{min-height:18px;font-size:13px;color:var(--text-muted);margin-top:4px}
   .trial-box{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(240,184,96,.12),rgba(240,184,96,.03));border:1px solid rgba(240,184,96,.4);border-radius:18px;padding:22px 24px;margin:0 auto 34px;max-width:1000px}
   .trial-ic{flex:0 0 auto;width:58px;height:58px;border-radius:50%;background:rgba(240,184,96,.15);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:30px}
   .trial-copy{flex:1}.trial-copy h3{margin:0 0 4px;font-family:'Barlow Condensed',sans-serif;font-size:24px}
   .trial-copy p{margin:0;color:var(--text-secondary);font-size:15px;line-height:1.5}
   .trial-cta{white-space:nowrap}
+  .cupos{display:inline-block;margin:2px 0 8px;padding:3px 10px;border-radius:20px;background:rgba(240,184,96,.14);color:var(--gold);font-weight:700;font-size:13px}
+  .cupos:empty{display:none}
+  .plan-cta.cargando{opacity:.6;pointer-events:none}
+  .pay-msg{max-width:700px;margin:0 auto 24px;padding:12px 16px;border-radius:12px;background:rgba(224,106,106,.12);border:1px solid rgba(224,106,106,.4);color:#f0b4b4;text-align:center;font-size:14px}
+  .pay-msg:empty{display:none}
   .founder-box{border-color:rgba(240,184,96,.4)!important}
   .code-box{max-width:520px;margin:10px auto 50px;text-align:center}
   .code-box label{display:block;color:var(--text-secondary);font-size:14px;margin-bottom:10px}
@@ -262,6 +271,7 @@
       <span id="label-yearly">Anual</span>
       <span class="save-badge">2 meses gratis</span>
     </div>
+    <div class="pay-msg" id="payMsg"></div>
     <p class="pricing-disclaimer" id="monedaNota">Precios en dólares (USD). En Chile se cobran en pesos chilenos, IVA incluido.</p>
 
     <!-- PRICING CARDS -->
@@ -317,6 +327,28 @@
       </div>
       <div class="pricing-card">
         <div class="plan-header">
+          <h3 class="plan-name">Pro+</h3>
+          <p class="plan-tagline">Para el coach con agenda llena</p>
+        </div>
+        <div class="plan-price">
+          <div class="price-row">
+            <span class="price-currency" data-usd="USD" data-clp="$">USD</span>
+            <span class="price-amount" data-usd-m="29" data-usd-y="290" data-clp-m="26990" data-clp-y="269900">29</span>
+            <span class="price-period">/mes</span>
+          </div>
+          <div class="price-note" data-plan="pro_plus"></div>
+        </div>
+        <div class="plan-capacity">Hasta 40 alumnos activos</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Hasta 40 alumnos activos</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
+        </ul>
+        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta secondary">Empezar prueba gratis</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-header">
           <h3 class="plan-name">Academia</h3>
           <p class="plan-tagline">Para academias y equipos de coaches</p>
         </div>
@@ -331,7 +363,7 @@
         <div class="plan-capacity">Alumnos ilimitados · 3 coaches incluidos</div>
         <hr class="plan-divider">
         <ul class="plan-features">
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro+</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Alumnos ilimitados</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>3 coaches incluidos (US$15 por coach adicional)</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Soporte prioritario</span></li>
@@ -348,7 +380,8 @@
       </div>
       <div class="bundle-copy">
         <h3>Precio de Coach Fundador: 40% menos</h3>
-        <p>Para los primeros 50 coaches: <strong id="precioFundador">US$5 · US$11 · US$29 al mes</strong> (Starter, Pro y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.</p>
+        <div class="cupos" id="cuposFundador"></div>
+        <p>Para los primeros 50 coaches: <strong id="precioFundador">US$5 · US$11 · US$17 · US$29 al mes</strong> (Starter, Pro, Pro+ y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.</p>
       </div>
     </div>
 
@@ -521,8 +554,8 @@
         ? 'Precios en pesos chilenos, IVA incluido.'
         : 'Precios en dólares (USD). En Chile se cobran en pesos chilenos.';
       document.getElementById('precioFundador').textContent = enChile
-        ? '$5.390 · $10.790 · $26.990 al mes'
-        : 'US$5 · US$11 · US$29 al mes';
+        ? '$5.390 · $10.790 · $16.190 · $26.990 al mes'
+        : 'US$5 · US$11 · US$17 · US$29 al mes';
     }
     pintarPrecios();
 
@@ -560,6 +593,64 @@
       }
       document.getElementById('codigoBtn').addEventListener('click', validar);
       inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') validar(); });
+    })();
+
+
+    // ── Elegir plan: coach con sesión → inscribe su tarjeta en Flow; sin sesión → crea su cuenta ──
+    (function () {
+      var SB_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+      var c = window.supabase.createClient(SB_URL, SB_KEY, { auth: { autoRefreshToken: false } });
+      var sesion = null, esCoach = false;
+      c.auth.getSession().then(function (r) {
+        sesion = r.data && r.data.session;
+        if (!sesion) return;
+        return c.rpc('mgl_coach_estado').then(function (e) {
+          esCoach = !!(e.data && e.data.tiene_plan);
+          if (!esCoach) return;
+          var est = e.data;
+          document.querySelectorAll('.pricing-card').forEach(function (card) {
+            var nota = card.querySelector('.price-note');
+            var plan = nota && nota.getAttribute('data-plan');
+            var btn = card.querySelector('.plan-cta');
+            if (!btn || !plan) return;
+            if (est.plan === plan && est.provider) { btn.textContent = 'Tu plan actual'; btn.classList.add('cargando'); }
+            else btn.textContent = est.provider ? 'Cambiar a ' + card.querySelector('.plan-name').textContent : 'Elegir ' + card.querySelector('.plan-name').textContent;
+          });
+        });
+      });
+
+      document.querySelectorAll('.pricing-card .plan-cta').forEach(function (btn) {
+        btn.addEventListener('click', function (ev) {
+          if (!sesion || !esCoach) return;   // sin sesión: sigue el link a crear cuenta
+          ev.preventDefault();
+          var nota = btn.closest('.pricing-card').querySelector('.price-note');
+          var plan = nota && nota.getAttribute('data-plan');
+          var msg = document.getElementById('payMsg'); msg.textContent = '';
+          btn.classList.add('cargando');
+          fetch('/api/suscripcion?accion=iniciar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + sesion.access_token },
+            body: JSON.stringify({ plan: plan, periodo: isYearly ? 'anual' : 'mensual' })
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d.url) { location.href = d.url; return; }
+            btn.classList.remove('cargando');
+            msg.textContent = d.error || 'No se pudo iniciar el pago. Inténtalo de nuevo.';
+            msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }).catch(function () {
+            btn.classList.remove('cargando');
+            msg.textContent = 'No se pudo conectar. Revisa tu internet e inténtalo de nuevo.';
+          });
+        });
+      });
+
+      // Cupos de Coach Fundador
+      c.rpc('mgl_cupos_fundador').then(function (r) {
+        var d = r.data; var el = document.getElementById('cuposFundador');
+        if (!d || !el) return;
+        if (!d.abierto || d.quedan <= 0) { var box = document.querySelector('.founder-box'); if (box) box.style.display = 'none'; return; }
+        el.textContent = d.quedan === 1 ? 'Queda 1 cupo' : 'Quedan ' + d.quedan + ' de ' + d.total + ' cupos';
+      });
     })();
 
     document.querySelectorAll('.faq-question').forEach(function(btn) {

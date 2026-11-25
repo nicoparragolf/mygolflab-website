@@ -6,6 +6,7 @@
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
 <script src="/js/cy-plan.js"></script>
+<script src="/js/cy-iap.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mi cuenta · CoachYard</title>
 <meta name="robots" content="noindex">
@@ -300,14 +301,16 @@ function cambiarFoto(){
 // MI PLAN (js/cy-plan.js + RPC mgl_coach_estado / mgl_canjear_codigo)
 // En la app de iPhone no se muestran precios ni botones de pago (regla de Apple).
 // ============================================================
-var CY_NOMBRE_PLAN = { prueba:'Prueba gratis', starter:'Starter', pro:'Pro', academia:'Academia', cortesia:'Cortesía' };
+var CY_NOMBRE_PLAN = { prueba:'Prueba gratis', starter:'Starter', pro:'Pro', pro_plus:'Pro+', academia:'Academia', cortesia:'Cortesía' };
 function pintarMiPlan(e){
   var box=$('cyMiPlan'); if(!box) return;
   if(!e || !e.tiene_plan){ box.innerHTML=''; return; }
   var ios = CY_PLAN.enIOSApp();
   var estadoTxt, chip;
   if(e.plan==='cortesia'){ estadoTxt='Acceso completo sin vencimiento'; chip='ok'; }
-  else if(e.status==='trialing' && e.activo){ estadoTxt='Te '+(e.dias_prueba===1?'queda 1 día':'quedan '+e.dias_prueba+' días')+' de prueba'; chip='warn'; }
+  else if(e.status==='trialing' && e.activo){ estadoTxt=(e.provider?'Prueba: tu primer cobro es en ':'Te quedan ')+(e.dias_prueba===1?'1 día':e.dias_prueba+' días')+(e.provider?'':' de prueba'); chip=e.provider?'ok':'warn'; }
+  else if(e.status==='canceled' && e.activo){ estadoTxt='Cancelado: activo hasta el '+new Date(e.current_period_end).toLocaleDateString('es-CL'); chip='warn'; }
+  else if(e.status==='past_due'){ estadoTxt='No pudimos cobrar tu tarjeta: revisa tu forma de pago'; chip='warn'; }
   else if(e.activo){ estadoTxt='Activo'+(e.current_period_end?' · se renueva el '+new Date(e.current_period_end).toLocaleDateString('es-CL'):''); chip='ok'; }
   else { estadoTxt='No activo: puedes ver todo, pero no crear contenido nuevo'; chip='warn'; }
   var tope = e.max_alumnos==null ? 'sin límite' : e.max_alumnos;
@@ -324,11 +327,43 @@ function pintarMiPlan(e){
     h+='<div class="cyp-form"><input id="cyCodigo" placeholder="¿Tienes un código de descuento?" autocapitalize="characters" maxlength="30">'
       + '<button class="pbtn primary" type="button" onclick="canjearCodigo()">Aplicar</button></div>';
   }
-  if(!ios && e.plan!=='cortesia') h+='<a class="pbtn primary cyp-cta" href="/es/coachhub/pricing.html">'+(e.activo && e.status!=='trialing'?'Cambiar de plan':'Ver planes')+'</a>';
+  // Forma de pago
+  if(e.provider==='flow'){
+    h+='<div class="cyp-cod">Pagas con tarjeta'+(e.tarjeta?' terminada en <b>'+esc(e.tarjeta)+'</b>':'')+' · '+(e.billing_period==='anual'?'anual':'mensual')
+      + (e.cancela_al_final && e.current_period_end ? '<br>Se cancela el '+new Date(e.current_period_end).toLocaleDateString('es-CL')+'. Hasta ese día sigues con todo.' : '')
+      + '</div>';
+  } else if(e.provider==='apple'){
+    h+='<div class="cyp-cod">Pagas con el App Store'+(e.cancela_al_final?' · cancelada, sigue activa hasta el '+(e.current_period_end?new Date(e.current_period_end).toLocaleDateString('es-CL'):'fin del período'):'')+'</div>';
+  }
+  if(ios){
+    // App de iPhone: compras con Apple (pantalla de planes) o administrar la suscripción del App Store
+    if(e.provider==='apple') h+='<a class="pbtn cyp-cta" href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener">Administrar en el App Store</a>';
+    else if(e.plan!=='cortesia' && e.provider!=='flow' && window.CY_IAP && CY_IAP.disponible()) h+='<a class="pbtn primary cyp-cta" href="/es/coachhub/planes-app.html">Ver planes</a>';
+  } else if(e.plan!=='cortesia'){
+    if(e.provider==='apple') h+='<div class="cyp-cod">Para cambiar o cancelar tu plan, entra a Ajustes → tu nombre → Suscripciones en tu iPhone.</div>';
+    else h+='<a class="pbtn primary cyp-cta" href="/es/coachhub/pricing.html">'+(e.provider==='flow'?'Cambiar de plan':'Ver planes')+'</a>';
+    if(e.provider==='flow' && !e.cancela_al_final && (e.status==='active'||e.status==='trialing')) h+='<button class="pbtn cyp-cta" type="button" onclick="cancelarSuscripcion()">Cancelar suscripción</button>';
+  }
   if(e.es_admin) h+='<a class="pbtn cyp-cta" href="/es/coachhub/admin-codigos.html">Administrar códigos de descuento</a>';
   h+='</div>';
   box.innerHTML=h;
 }
+async function cancelarSuscripcion(){
+  if(!confirm('¿Cancelar tu suscripción? Sigues con todo hasta el final del período que ya pagaste y no se te cobra de nuevo.')) return;
+  var ss=await sb.auth.getSession(); var tk=ss.data.session && ss.data.session.access_token;
+  var r=await fetch('/api/suscripcion?accion=cancelar',{ method:'POST', headers:{ Authorization:'Bearer '+tk } });
+  var d=await r.json().catch(function(){ return {}; });
+  if(!r.ok){ toast(d.error||'No se pudo cancelar'); return; }
+  toast('Suscripción cancelada');
+  var e=await CY_PLAN.refrescar(); pintarMiPlan(e);
+}
+// Vuelta desde Flow después de inscribir la tarjeta
+(function(){
+  var q=new URLSearchParams(location.search).get('suscripcion'); if(!q) return;
+  var txt={ ok:'¡Listo! Tu plan quedó activo.', tarjeta_rechazada:'La tarjeta no se pudo inscribir. Prueba con otra.', error:'No se pudo completar el pago. Inténtalo de nuevo.' }[q];
+  setTimeout(function(){ if(txt) toast(txt); if(window.CY_PLAN) CY_PLAN.refrescar().then(pintarMiPlan); },800);
+  try{ history.replaceState(null,'',location.pathname); }catch(e){}
+})();
 var CY_MOTIVOS = { no_existe:'Ese código no existe.', inactivo:'Ese código ya no está activo.', vencido:'Ese código venció.', agotado:'Ese código ya se usó el máximo de veces.', ya_uso_codigo:'Ya aplicaste un código a tu cuenta.', no_es_coach:'Los códigos son para cuentas de coach.', sin_sesion:'Inicia sesión de nuevo.' };
 async function canjearCodigo(){
   var inp=$('cyCodigo'); var cod=(inp.value||'').trim().toUpperCase();
