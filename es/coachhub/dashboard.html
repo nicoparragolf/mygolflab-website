@@ -5,6 +5,7 @@
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Dashboard · CoachYard</title>
 <meta name="robots" content="noindex">
@@ -441,7 +442,8 @@ function render(){
     + '<div class="sec" id="secPend"></div>'
     + '<div class="sec" id="secStats"></div>';
 
-  $('wrap').innerHTML = html;
+  $('wrap').innerHTML = '<div id="cyPlanBanner"></div>' + html;
+  if(window.CY_PLAN) CY_PLAN.listo(function(){ CY_PLAN.pintarBanner(); });
   renderMessages(); renderPending(); renderStats();
 }
 
