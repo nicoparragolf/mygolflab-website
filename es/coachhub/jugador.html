@@ -168,6 +168,64 @@
   .subnav button{background:none;border:none;color:var(--muted);font-family:'Barlow Condensed';font-weight:600;font-size:17px;text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
   .subnav button.on{color:var(--teal);border-bottom-color:var(--teal)}
 
+  /* ===== Dashboard del alumno (vista Resumen) ===== */
+  .ficha{background:linear-gradient(165deg,#1c1913 0%,#0a0a0a 72%);border:1px solid #2b2619;border-radius:20px;padding:18px;color:#f5f5f5}
+  .ficha-top{display:flex;gap:16px;align-items:flex-end}
+  .ficha-foto{width:112px;height:140px;border-radius:16px;flex-shrink:0;overflow:hidden;background:linear-gradient(170deg,#4a4030,#141210);border:1px solid #3a3222;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;box-sizing:border-box;font-family:'Bebas Neue';font-size:40px;line-height:1;color:#D4C5A9}
+  .ficha-foto.conimg{padding:0}
+  .ficha-foto img{width:100%;height:100%;object-fit:cover;display:block}
+  .ficha-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+  .ficha-badge{align-self:flex-start;font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:#0a0a0a;background:#D4C5A9;padding:3px 9px;border-radius:7px}
+  .ficha-nombre{font-family:'Bebas Neue';font-size:40px;line-height:.92;letter-spacing:.5px;color:#f5f5f5;overflow-wrap:anywhere}
+  .ficha-sub{font-size:13.5px;color:#a3a3a3}
+  .ficha-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .ficha-acc .phero-edit{border-color:#3a3222;color:#bdbdbd}
+  .ficha-acc .badge.link-on,.ficha-acc .badge.link-off{background:transparent;color:#bdbdbd;border-color:#3a3222}
+  .ficha-acc .badge.link-on{color:#D4C5A9}
+  .ficha-datos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid #2b2619;margin-top:16px;padding-top:14px;text-align:center}
+  .ficha-datos > div + div{border-left:1px solid #2b2619}
+  .ficha-datos .n{font-family:'Bebas Neue';font-size:28px;line-height:1;color:#D4C5A9}
+  .ficha-datos .l{font-size:10.5px;color:#a3a3a3;letter-spacing:.8px;text-transform:uppercase;margin-top:4px}
+
+  .ptabs{display:flex;gap:4px;margin:18px 0 18px;padding:4px;background:var(--card2);border:1px solid var(--border);border-radius:14px}
+  .ptabs button{flex:1;min-width:0;background:none;border:none;border-radius:10px;padding:10px 4px;color:var(--muted);font-family:'Barlow Condensed';font-weight:700;font-size:16px;letter-spacing:.6px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+  .ptabs button.on{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+
+  .dsec{margin-bottom:22px}
+  .dsec-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .dsec-head h3{font-family:'Barlow Condensed';font-weight:700;font-size:15px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+  .dlink{background:none;border:none;padding:0;color:var(--teal);font-family:'Barlow Condensed';font-weight:600;font-size:16px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .dacc{display:flex;gap:8px;margin-bottom:22px}
+  .dacc button{flex:1}
+  .dvids .mthumb{width:150px}
+  .dvids .vfecha{position:absolute;left:9px;bottom:8px;color:#f5f5f5;font-size:13px;text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none}
+  .dvacio{background:var(--card);border:1px dashed var(--border2);border-radius:14px;padding:18px;color:var(--muted);font-size:14px;text-align:center}
+  .dnota{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer}
+  .dnota .txt{font-size:15px;line-height:1.45;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .dnota .meta{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+  .dmes{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:10px}
+  .dmes-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 16px;background:none;border:none;color:var(--text);cursor:pointer;text-align:left}
+  .dmes-head .mn{font-family:'Bebas Neue';font-size:25px;letter-spacing:.5px;line-height:1}
+  .dmes-head .ms{font-size:12.5px;color:var(--muted);white-space:nowrap}
+  .dmes-head .ms .hito{color:var(--gold)}
+  .dmes-head .flecha{display:inline-block;transition:transform .15s;margin-left:4px}
+  .dmes.abierto .dmes-head .flecha{transform:rotate(180deg)}
+  .dmes-body{display:none}
+  .dmes.abierto .dmes-body{display:block}
+  .dev{display:flex;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--border);cursor:pointer}
+  .dev:hover{background:var(--card2)}
+  .dev .dia{width:36px;text-align:center;flex-shrink:0}
+  .dev .dia b{display:block;font-family:'Bebas Neue';font-size:22px;line-height:1;font-weight:400}
+  .dev .dia span{font-size:10.5px;color:var(--muted);text-transform:uppercase}
+  .dev .barra{width:3px;align-self:stretch;border-radius:3px;flex-shrink:0}
+  .dev .info{flex:1;min-width:0}
+  .dev .t{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dev .s{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dev .estrella{color:var(--gold);flex-shrink:0}
+  .dver{width:100%;margin-top:4px}
+  .tl-event.resaltado .tl-card{box-shadow:0 0 0 2px var(--teal)}
+
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
   .chip{background:var(--card);border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed';font-weight:500;font-size:14px;padding:6px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
   .chip:hover{border-color:var(--border2);color:var(--text)}
@@ -903,7 +961,7 @@ var PENDING = [];
 var QUICK_EVENT = null;
 var METRIC_DEFS = [];
 var METRIC_BY_KEY = {};
-var VIEW = 'timeline';
+var VIEW = 'resumen';   // resumen (dashboard) | timeline | galeria | notas
 var FILTER_TYPE = 'all';
 var FILTER_PILLAR = 'all';
 var FILTER_AREA = 'all';     // full_swing | short_game | putting | fisico | estrategia
@@ -1181,7 +1239,7 @@ async function init(){
       await selectPlayer(pid, {noHistory:true});
       history.replaceState({player:pid},'',window.location.href);
       var vw=qp.get('view');
-      if(vw==='galeria' || vw==='notas'){ VIEW=vw; renderProfile(); }
+      if(vw==='galeria' || vw==='notas' || vw==='timeline'){ VIEW=vw; renderProfile(); }
     } else {
       showEmptyCoachPanel();
     }
@@ -1229,6 +1287,7 @@ async function initModoJugador(){
   SEL = (sm.data) ? sm.data : r.data;
   SEL.email = r.data.email; SEL.user_id = r.data.user_id; SEL.coach_id = r.data.coach_id;
   SEL.city = r.data.city || null; SEL.country = r.data.country || null;
+  SEL.birthdate = r.data.birthdate || null; SEL.home_club = r.data.home_club || null;
 
   await loadAll(SEL.id);
   renderProfile();
@@ -1247,7 +1306,8 @@ async function loadMetricDefs(){
 async function loadPlayers(){
   // 1) Las fichas que son MÍAS, leídas de la tabla base (protegida por RLS).
   //    Esta es la lista de verdad: define qué jugadores puede ver este coach.
-  var lk = await sb.from('players').select('id,email,user_id,coach_id,category,city,country').eq('coach_id',USER.id);
+  var lk = await sb.from('players').select('id,email,user_id,coach_id,category,city,country,birthdate,home_club').eq('coach_id',USER.id);
+  if(lk.error) lk = await sb.from('players').select('id,email,user_id,coach_id,category,city,country').eq('coach_id',USER.id);
   // si todavía no se corrió coach_hub_jugador_lugar.sql, se lee sin ciudad/país
   if(lk.error && /city|country/i.test(errMsg(lk.error))) lk = await sb.from('players').select('id,email,user_id,coach_id,category').eq('coach_id',USER.id);
   if(lk.error){
@@ -1270,6 +1330,8 @@ async function loadPlayers(){
     p.coach_id= mine[p.id].coach_id;
     p.city    = mine[p.id].city || null;
     p.country = mine[p.id].country || null;
+    p.birthdate = mine[p.id].birthdate || null;
+    p.home_club = mine[p.id].home_club || null;
   });
   renderRoster();
 }
@@ -1408,7 +1470,7 @@ async function selectPlayer(id, opts){
   }
   SEL = nuevo;
   COACH_ID = USER.id;
-  VIEW='timeline'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all'; GAL_AREA='all'; GAL_KIND='all';
+  VIEW='resumen'; FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all'; GAL_AREA='all'; GAL_KIND='all';
   marcarRevisado(id);
   renderRoster();
   document.getElementById('mainPanel').innerHTML='<div class="loading">Cargando perfil...</div>';
@@ -2190,32 +2252,42 @@ function renderProfile(){
           : '<span class="badge link-off" onclick="editarEmail()">+ Vincular cuenta</span>');
   }
 
-  var html='<div class="phero">'
-    + '<div class="phero-av">'+av+'</div>'
-    + '<div class="phero-id"><h1>'+esc(p.first_name+' '+p.last_name)
-    +   (IS_COACH ? '<button class="phero-edit" onclick="editarJugador()" title="Editar datos del alumno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Editar perfil</button>' : '')
-    + '</h1>'
-    + '<div class="phero-badges">'
-    +   '<span class="badge cat">'+esc(CAT_LABEL[p.category]||p.category)+'</span>'
-    +   '<span class="badge hcp">HCP '+hcp+'</span>'
-    +   ((p.city||p.country) ? '<span class="badge hcp">'+esc([p.city, p.country==='Otro'?'':(window.MGL_PAISES?MGL_PAISES.nombre(p.country):p.country)].filter(Boolean).join(', '))+'</span>' : '')
-    +   linkBadge
-    + '</div></div>'
-    + '<div class="phero-stats">'
-    +   '<div class="pstat"><div class="n">'+dias+'</div><div class="l">días entrenando</div></div>'
-    +   '<div class="pstat"><div class="n">'+(p.total_eventos||0)+'</div><div class="l">eventos</div></div>'
-    +   '<div class="pstat"><div class="n">'+Object.keys(MEDIA_BY_ID).length+'</div><div class="l">videos y fotos</div></div>'
+  var lugar = [p.city, p.country==='Otro'?'':(window.MGL_PAISES&&p.country?MGL_PAISES.nombre(p.country):p.country)].filter(Boolean).join(', ');
+  var sub = p.home_club || lugar;
+  var edad = edadDe(p.birthdate);
+  var estado = p.status==='pausado' ? 'Pausado' : 'Activo';
+  var nMedia = Object.keys(MEDIA_BY_ID).length;
+
+  var html='<div class="ficha">'
+    + '<div class="ficha-top">'
+    +   '<div class="ficha-foto'+(p.photo_url?' conimg':'')+'">'+av+'</div>'
+    +   '<div class="ficha-id">'
+    +     '<span class="ficha-badge">'+esc(CAT_LABEL[p.category]||p.category||'Jugador')+' · '+estado+'</span>'
+    +     '<div class="ficha-nombre">'+esc(p.first_name||'')+'<br>'+esc(p.last_name||'')+'</div>'
+    +     (sub?'<div class="ficha-sub">'+esc(sub)+'</div>':'')
+    +   '</div>'
+    + '</div>'
+    + (IS_COACH ? '<div class="ficha-acc">'
+        + '<button class="phero-edit" onclick="editarJugador()" title="Editar datos del alumno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>Editar perfil</button>'
+        + linkBadge + '</div>' : '')
+    + '<div class="ficha-datos">'
+    +   '<div><div class="n">'+hcp+'</div><div class="l">HCP</div></div>'
+    +   '<div><div class="n">'+(edad!=null?edad:'—')+'</div><div class="l">Edad</div></div>'
+    +   '<div><div class="n">'+dias+'</div><div class="l">Días</div></div>'
+    +   '<div><div class="n">'+contarClases()+'</div><div class="l">Clases</div></div>'
     + '</div></div>';
 
-  html+='<div class="subnav">'
+  html+='<div class="ptabs">'
+    + '<button class="'+(VIEW==='resumen'?'on':'')+'" onclick="setView(\'resumen\')">Resumen</button>'
     + '<button class="'+(VIEW==='timeline'?'on':'')+'" onclick="setView(\'timeline\')">Timeline</button>'
-    + '<button class="'+(VIEW==='galeria'?'on':'')+'" onclick="setView(\'galeria\')">Galería'+(Object.keys(MEDIA_BY_ID).length?' ('+Object.keys(MEDIA_BY_ID).length+')':'')+'</button>'
-    + '<button class="'+(VIEW==='notas'?'on':'')+'" onclick="setView(\'notas\')">Notas'+(NOTES.length?' ('+NOTES.length+')':'')+'</button>'
+    + '<button class="'+(VIEW==='galeria'?'on':'')+'" onclick="setView(\'galeria\')">Galería</button>'
+    + '<button class="'+(VIEW==='notas'?'on':'')+'" onclick="setView(\'notas\')">Notas</button>'
     + '</div>';
 
   html+='<div id="viewBox"></div>';
   document.getElementById('mainPanel').innerHTML=html;
-  if(VIEW==='timeline')      renderTimeline();
+  if(VIEW==='resumen')       renderResumen();
+  else if(VIEW==='timeline') renderTimeline();
   else if(VIEW==='galeria')  renderGallery();
   else if(VIEW==='metas')    renderGoals();
   else if(VIEW==='planes')   renderPlans();
@@ -2225,7 +2297,170 @@ function renderProfile(){
   // ("Ver el plan y su avance" / "Ver metas"), que sigue llamando a estas
   // mismas vistas. Métricas también queda fuera del subnav por ahora.
 }
-function setView(v){ VIEW=v; renderProfile(); }
+function setView(v){
+  VIEW=v; renderProfile();
+  // al cambiar de pestaña, que la vista nueva parta arriba de las pestañas
+  var t=document.querySelector('.ptabs');
+  if(t && t.getBoundingClientRect().top<0) t.scrollIntoView({block:'start'});
+}
+
+// ============================================================
+// RESUMEN — el dashboard que se ve al entrar al perfil
+// ============================================================
+var MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+var MES_ABIERTO = {};   // meses del historial que el usuario abrió o cerró
+
+function edadDe(fecha){
+  if(!fecha) return null;
+  var p=String(fecha).split('-'); if(p.length<3) return null;
+  var hoy=new Date(), e=hoy.getFullYear()-Number(p[0]);
+  var m=hoy.getMonth()+1-Number(p[1]);
+  if(m<0 || (m===0 && hoy.getDate()<Number(p[2]))) e--;
+  return (e>0 && e<120) ? e : null;
+}
+function contarClases(){
+  var n=0; EVENTS.forEach(function(e){ if(e.event_type==='clase') n++; });
+  if(!n && SEL && SEL.total_clases) n=SEL.total_clases;
+  return n;
+}
+function fechaCorta(d){
+  if(!d) return '';
+  var p=String(d).slice(0,10).split('-'); if(p.length<3) return '';
+  var hoy=new Date();
+  var iso=hoy.getFullYear()+'-'+String(hoy.getMonth()+1).padStart(2,'0')+'-'+String(hoy.getDate()).padStart(2,'0');
+  if(String(d).slice(0,10)===iso) return 'Hoy';
+  var t=Number(p[2])+' '+MESES_CORTO[Number(p[1])-1];
+  if(Number(p[0])!==hoy.getFullYear()) t+=' '+p[0].slice(2);
+  return t;
+}
+
+function renderResumen(){
+  var box=document.getElementById('viewBox');
+  if(!box) return;
+  var html='';
+
+  // acciones rápidas
+  html+='<div class="dacc">'
+    + '<button class="btn-primary" onclick="openEventModal()">'+(IS_COACH?'+ Evento':'+ Agregar')+'</button>'
+    + '<button class="btn-ghost" onclick="openNoteModal()">+ Nota</button>'
+    + '</div>';
+
+  // últimos videos
+  var items=galleryItems();
+  html+='<div class="dsec"><div class="dsec-head"><h3>Últimos videos</h3>'
+    + (items.length?'<button class="dlink" onclick="setView(\'galeria\')">Galería ('+items.length+') ›</button>':'')
+    + '</div>';
+  if(items.length){
+    html+='<div class="tl-media dvids"><button class="mnav prev" onclick="railScroll(this,-1)">&#10094;</button><div class="mrail">';
+    items.slice(0,10).forEach(function(it){
+      var m=it.m;
+      html+='<div class="mthumb" data-media="'+esc(m.id)+'" onclick="openLightbox(\''+m.id+'\')">'
+        + (m.media_type==='video'
+            ? '<div class="play"><svg viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5l11 7-11 7z"/></svg></div>'
+            : '')
+        + '<span class="vfecha">'+esc(fechaCorta(it.fecha))+'</span>'
+        + '</div>';
+    });
+    html+='</div><button class="mnav next" onclick="railScroll(this,1)">&#10095;</button></div>';
+  } else {
+    html+='<div class="dvacio">Todavía no hay videos. Se suben desde <b>+ Evento</b> y aparecen acá.</div>';
+  }
+  html+='</div>';
+
+  // última nota
+  if(NOTES.length){
+    var n=NOTES[0];
+    var deCoach = n.created_by===COACH_ID;
+    html+='<div class="dsec"><div class="dsec-head"><h3>Última nota</h3>'
+      + '<button class="dlink" onclick="setView(\'notas\')">Notas ('+NOTES.length+') ›</button></div>'
+      + '<div class="dnota" onclick="setView(\'notas\')"><div class="txt">'+esc(n.content||'')+'</div>'
+      + '<div class="meta">'+(deCoach?'Coach':'Jugador')+' · '+esc(fechaCorta(n.created_at))+'</div></div></div>';
+  }
+
+  // historial por mes
+  html+='<div class="dsec"><div class="dsec-head"><h3>Historial</h3>'
+    + (EVENTS.length?'<button class="dlink" onclick="setView(\'timeline\')">Timeline ›</button>':'')
+    + '</div>';
+  if(!EVENTS.length){
+    html+='<div class="dvacio">'+(IS_COACH
+      ? 'Este perfil aún no tiene eventos. Registra el primero con <b>+ Evento</b>.'
+      : 'Todavía no hay nada acá. Sube un video de tu swing o registra una práctica para empezar.')+'</div>';
+  } else {
+    var grupos=[], porMes={};
+    EVENTS.forEach(function(e){
+      var k=String(e.event_date||'').slice(0,7) || 'sin';
+      if(!porMes[k]){ porMes[k]={k:k, ev:[]}; grupos.push(porMes[k]); }
+      porMes[k].ev.push(e);
+    });
+    var anioActual=new Date().getFullYear();
+    grupos.forEach(function(g,i){
+      var abierto = (g.k in MES_ABIERTO) ? MES_ABIERTO[g.k] : i===0;
+      var nombre='Sin fecha';
+      if(g.k!=='sin'){
+        var y=Number(g.k.slice(0,4)), mm=Number(g.k.slice(5,7));
+        nombre=MESES[mm-1]+(y!==anioActual?' '+y:'');
+      }
+      var clases=0, vids=0, hitos=0;
+      g.ev.forEach(function(e){
+        if(e.event_type==='clase') clases++;
+        vids+=(MEDIA_BY_EVENT[e.id]||[]).length;
+        if(e.is_milestone) hitos++;
+      });
+      var res=[];
+      if(hitos) res.push('<span class="hito">★ '+hitos+' hito'+(hitos>1?'s':'')+'</span>');
+      if(clases) res.push(clases+' clase'+(clases>1?'s':''));
+      else res.push(g.ev.length+' evento'+(g.ev.length>1?'s':''));
+      if(vids) res.push(vids+' video'+(vids>1?'s':''));
+
+      html+='<div class="dmes'+(abierto?' abierto':'')+'" data-mes="'+g.k+'">'
+        + '<button class="dmes-head" onclick="toggleMes(this)"><span class="mn">'+esc(nombre)+'</span>'
+        + '<span class="ms">'+res.join(' · ')+' <span class="flecha">⌄</span></span></button>'
+        + '<div class="dmes-body">';
+      g.ev.forEach(function(e){
+        var cfg=tipoCfg(e.event_type);
+        var p=String(e.event_date||'').split('-');
+        var dia=p.length===3?Number(p[2]):'';
+        var ds='';
+        if(p.length===3){ var dt=new Date(Number(p[0]),Number(p[1])-1,Number(p[2])); ds=DIAS_CORTO[dt.getDay()]; }
+        var nm=(MEDIA_BY_EVENT[e.id]||[]).length;
+        var det=[cfg.label];
+        if(e.area && AREA_LABEL[e.area]) det.push(AREA_LABEL[e.area]);
+        if(nm) det.push(nm+(nm>1?' archivos':' archivo'));
+        html+='<div class="dev" onclick="verEnTimeline(\''+e.id+'\')">'
+          + '<div class="dia"><b>'+dia+'</b><span>'+ds+'</span></div>'
+          + '<div class="barra" style="background:'+cfg.color+'"></div>'
+          + '<div class="info"><div class="t">'+esc(e.title||cfg.label)+'</div><div class="s">'+esc(det.join(' · '))+'</div></div>'
+          + (e.is_milestone?'<span class="estrella">★</span>':'')
+          + '</div>';
+      });
+      html+='</div></div>';
+    });
+    html+='<button class="btn-ghost dver" onclick="setView(\'timeline\')">Ver timeline completo</button>';
+  }
+  html+='</div>';
+
+  box.innerHTML=html;
+  hydrateThumbs();
+}
+function toggleMes(btn){
+  var c=btn.parentNode;
+  var ab=!c.classList.contains('abierto');
+  c.classList.toggle('abierto',ab);
+  MES_ABIERTO[c.getAttribute('data-mes')]=ab;
+}
+// abre el timeline completo y lleva la vista hasta ese evento
+function verEnTimeline(id){
+  FILTER_TYPE='all'; FILTER_PILLAR='all'; FILTER_AREA='all';
+  VIEW='timeline'; renderProfile();
+  var el=document.getElementById('ev-'+id);
+  if(el){
+    el.scrollIntoView({block:'center'});
+    el.classList.add('resaltado');
+    setTimeout(function(){ el.classList.remove('resaltado'); },1800);
+  }
+}
 
 // ============================================================
 // GALERÍA — todos los videos y fotos del jugador en un solo lugar
@@ -2473,7 +2708,7 @@ function renderTimeline(){
     if(e.event_type==='plan_asignado')  atajo='<button class="tl-link" onclick="setView(\'planes\')">Ver el plan y su avance</button>';
     if(e.event_type==='objetivo_creado'||e.event_type==='objetivo_logrado') atajo='<button class="tl-link" onclick="setView(\'metas\')">Ver metas</button>';
     if(e.event_type==='ronda_torneo' && window.MGLRondas) atajo=MGLRondas.summaryHTML(e.id);
-    html+='<div class="tl-event'+ms+'">'
+    html+='<div class="tl-event'+ms+'" id="ev-'+esc(e.id)+'">'
        + '<div class="tl-dot">'+icon(cfg.icon,cfg.color)+'</div>'
        + '<div class="tl-card">'
        +   '<div class="tl-top"><div class="tl-title">'+esc(e.title)+'</div>'
