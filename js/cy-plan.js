@@ -178,7 +178,8 @@
     if (abierta) return;
     abierta = true;
     ponerCss();
-    var ios = enIOSApp();
+    var ios = enIOSApp() && !(window.CY_IAP && CY_IAP.disponible());   // con compras de Apple se usan los textos normales
+    var enApp = enIOSApp();
     var titulo, texto, ic = '⛳';
     var tope = estado && estado.max_alumnos;
 
@@ -201,7 +202,9 @@
     var html = '<div class="cy-box" role="dialog" aria-modal="true">'
       + '<div class="cy-ic">' + ic + '</div>'
       + '<h3></h3><p></p>';
-    if (!ios) html += '<a class="cy-btn pri" target="_top" href="' + PRECIOS + '">Ver planes</a>';
+    // En la app de iPhone solo se ofrece comprar si están activas las compras de Apple
+    if (!enApp) html += '<a class="cy-btn pri" target="_top" href="' + PRECIOS + '">Ver planes</a>';
+    else if (!ios) html += '<a class="cy-btn pri" href="/es/coachhub/planes-app.html">Ver planes</a>';
     html += '<button class="cy-btn sec" type="button">Cerrar</button></div>';
     ov.innerHTML = html;
     ov.querySelector('h3').textContent = titulo;
