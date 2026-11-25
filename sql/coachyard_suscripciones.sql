@@ -5,7 +5,7 @@
 -- Qué hace:
 --   1. coach_subscriptions: un registro por coach con su plan y estado.
 --      Todo coach nuevo parte con prueba de 15 días y máximo 3 alumnos.
---   2. Límites por plan: prueba 3 · starter 8 · pro 25 · academia/cortesía sin límite.
+--   2. Límites por plan: prueba 3 · starter 8 · pro 25 · pro+ 40 · academia/cortesía sin límite.
 --   3. Bloqueo real en la base de datos (no solo en pantalla):
 --      - crear o reactivar alumnos sobre el límite → error CY_LIMITE_ALUMNOS
 --      - el coach sin plan activo no puede crear eventos, videos, notas,
@@ -72,7 +72,7 @@ create policy code_redemptions_ver on public.code_redemptions
 create table if not exists public.coach_subscriptions (
   coach_id           uuid primary key references auth.users(id) on delete cascade,
   plan               text not null default 'prueba'
-                       check (plan in ('prueba','starter','pro','academia','cortesia')),
+                       check (plan in ('prueba','starter','pro','pro_plus','academia','cortesia')),
   status             text not null default 'trialing'
                        check (status in ('trialing','active','past_due','canceled','expired')),
   trial_ends_at      timestamptz,
@@ -98,6 +98,7 @@ returns int language sql immutable as $$
     when 'prueba'  then 3
     when 'starter' then 8
     when 'pro'     then 25
+    when 'pro_plus' then 40
     else null      -- academia y cortesía: sin límite
   end
 $$;
@@ -223,7 +224,9 @@ returns trigger language plpgsql security definer set search_path = public as $$
 begin
   if new.role in ('coach','ambos') then
     insert into public.coach_subscriptions (coach_id, plan, status, trial_ends_at)
-    values (new.id, 'prueba', 'trialing', now() + interval '15 days')
+    -- Mientras el cobro no esté listo: prueba hasta el 31-01-2027 o 15 días, lo que sea más largo
+    values (new.id, 'prueba', 'trialing',
+            greatest(now() + interval '15 days', timestamptz '2027-01-31 23:59:00-03'))
     on conflict (coach_id) do nothing;
   end if;
   return new;
@@ -349,3 +352,8 @@ grant execute on function public.mgl_canjear_codigo(text)  to authenticated;
 grant execute on function public.mgl_admin_codigos()       to authenticated;
 grant execute on function public.mgl_admin_resumen()       to authenticated;
 revoke execute on function public.mgl_codigo_valido(text)  from anon, authenticated, public;
+
+-- Para cambiar si el plan existente ya tenía la regla antigua:
+alter table public.coach_subscriptions drop constraint if exists coach_subscriptions_plan_check;
+alter table public.coach_subscriptions add constraint coach_subscriptions_plan_check
+  check (plan in ('prueba','starter','pro','pro_plus','academia','cortesia'));

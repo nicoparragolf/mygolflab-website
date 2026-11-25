@@ -300,7 +300,7 @@ function cambiarFoto(){
 // MI PLAN (js/cy-plan.js + RPC mgl_coach_estado / mgl_canjear_codigo)
 // En la app de iPhone no se muestran precios ni botones de pago (regla de Apple).
 // ============================================================
-var CY_NOMBRE_PLAN = { prueba:'Prueba gratis', starter:'Starter', pro:'Pro', academia:'Academia', cortesia:'Cortesía' };
+var CY_NOMBRE_PLAN = { prueba:'Prueba gratis', starter:'Starter', pro:'Pro', pro_plus:'Pro+', academia:'Academia', cortesia:'Cortesía' };
 function pintarMiPlan(e){
   var box=$('cyMiPlan'); if(!box) return;
   if(!e || !e.tiene_plan){ box.innerHTML=''; return; }
