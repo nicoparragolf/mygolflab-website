@@ -17,6 +17,9 @@
     },
     "api/contenido-pagar.js": {
       "maxDuration": 30
+    },
+    "api/suscripcion.js": {
+      "maxDuration": 30
     }
   },
   "redirects": [
@@ -56,6 +59,12 @@
       "source": "/privacy",
       "destination": "/es/privacidad.html",
       "permanent": false
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/suscripcion?accion=sincronizar",
+      "schedule": "0 12 * * *"
     }
   ]
 }

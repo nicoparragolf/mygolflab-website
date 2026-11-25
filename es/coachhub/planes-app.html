@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="/js/mgl-marco.js"></script>
+<script src="/js/mgl-tema.js"></script>
+<script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js"></script>
+<script src="/js/cy-iap.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Planes · CoachYard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/mgl-app.js"></script>
+<!--
+  CoachYard · Planes dentro de la app de iPhone/iPad (compras de Apple vía RevenueCat)
+  Cumple lo que pide Apple en una pantalla de suscripción: nombre y precio de
+  cada plan, período, que se renueva solo, cómo cancelar, Restaurar compras y
+  links a Términos y Privacidad. Los precios vienen del App Store (moneda local).
+  En la web esta página no ofrece compras: manda a la página de precios.
+  Sin template literals.
+-->
+<style>
+  :root{--bg:var(--c0a0a0a,#0a0a0a);--card:var(--c141414,#141414);--card2:var(--c1a1a1a,#1a1a1a);--border:var(--c262626,#262626);--txt:var(--cf5f5f5,#f5f5f5);--muted:var(--ca3a3a3,#a3a3a3);--gold:#F0B860}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 90px)}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .back{color:var(--muted);text-decoration:none;font-size:15px}
+  h1{font-family:'Barlow Condensed';font-size:34px;margin:8px 0 4px;letter-spacing:.02em}
+  .sub{color:var(--muted);font-size:15px;line-height:1.45;margin:0 0 18px}
+  .fund{display:inline-block;padding:4px 10px;border-radius:20px;background:rgba(240,184,96,.14);color:var(--gold);font-weight:700;font-size:13px;margin-bottom:14px}
+  .plan{display:block;width:100%;text-align:left;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;color:inherit;font:inherit;cursor:pointer}
+  .plan.sel{border-color:var(--gold);background:rgba(240,184,96,.06)}
+  .plan .fila{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .plan .nom{font-family:'Barlow Condensed';font-size:24px;font-weight:700}
+  .plan .pre{font-weight:700;font-size:18px;color:var(--gold);white-space:nowrap}
+  .plan .pre small{color:var(--muted);font-weight:500;font-size:13px}
+  .plan .det{color:var(--muted);font-size:14px;margin-top:4px}
+  .cta{display:block;width:100%;padding:15px;border:0;border-radius:14px;background:var(--gold);color:#111;font-weight:800;font-size:16px;margin:8px 0 10px;cursor:pointer}
+  .cta[disabled]{opacity:.55}
+  .legal{color:var(--muted);font-size:12px;line-height:1.5;margin:10px 0 16px}
+  .legal a{color:var(--muted)}
+  .links{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center;margin-top:6px}
+  .links button,.links a{background:none;border:0;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;padding:0}
+  .aviso{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;color:var(--muted);line-height:1.5}
+  .msg{min-height:20px;text-align:center;font-size:14px;margin:6px 0}
+  .msg.ok{color:var(--gold)}.msg.err{color:#e06a6a}
+</style>
+</head>
+<body>
+<div class="top"><a class="back" href="/es/coachhub/cuenta.html">‹ Mi cuenta</a></div>
+<h1>Elige tu plan</h1>
+<p class="sub">Tus alumnos nunca pagan. Elige según cuántos alumnos activos tienes.</p>
+<div id="zona"><div class="aviso">Cargando planes…</div></div>
+
+<script>
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var ALUMNOS = { starter: 'Hasta 8 alumnos activos', pro: 'Hasta 25 alumnos activos', pro_plus: 'Hasta 40 alumnos activos' };
+var PLANES = [], ELEGIDO = null, ESTADO = null;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function msg(t, ok){ var m=$('msg'); if(!m) return; m.textContent=t||''; m.className='msg '+(ok?'ok':'err'); }
+
+async function init(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ location.href='/es/coachhub/entrar.html'; return; }
+  var user = s.data.session.user;
+
+  if(!window.CY_IAP || !CY_IAP.disponible()){
+    // Web o versión de la app sin compras: no se ofrece pagar acá
+    if(window.CY_PLAN && CY_PLAN.enIOSApp()){
+      $('zona').innerHTML='<div class="aviso">Por ahora los planes se administran desde tu cuenta en la web.</div>';
+    } else {
+      location.replace('/es/coachhub/pricing.html');
+    }
+    return;
+  }
+
+  ESTADO = await new Promise(function(ok){ CY_PLAN.listo(ok); });
+  try {
+    await CY_IAP.iniciar(user.id);
+    PLANES = await CY_IAP.planes(!!(ESTADO && ESTADO.founder));
+  } catch(e){
+    $('zona').innerHTML='<div class="aviso">No se pudieron cargar los planes del App Store. Revisa tu conexión e inténtalo de nuevo.</div>';
+    return;
+  }
+  if(!PLANES.length){ $('zona').innerHTML='<div class="aviso">No hay planes disponibles en este momento.</div>'; return; }
+  ELEGIDO = PLANES.filter(function(p){ return p.plan==='pro'; })[0] || PLANES[0];
+  pintar();
+}
+
+function pintar(){
+  var h='';
+  if(ESTADO && ESTADO.founder) h+='<div class="fund">Precio de Coach Fundador</div>';
+  PLANES.forEach(function(p, i){
+    h+='<button type="button" class="plan'+(p===ELEGIDO?' sel':'')+'" onclick="elegir('+i+')">'
+      + '<div class="fila"><span class="nom">'+esc(p.nombre)+'</span><span class="pre">'+esc(p.precio)+' <small>/ '+esc(p.periodo)+'</small></span></div>'
+      + '<div class="det">'+esc(ALUMNOS[p.plan]||'')+(p.prueba?' · '+esc(p.prueba)+' gratis':'')+'</div>'
+      + '</button>';
+  });
+  var p=ELEGIDO;
+  h+='<button class="cta" id="btnComprar" type="button" onclick="comprar()">'+(p.prueba?'Empezar prueba gratis':'Suscribirme')+'</button>'
+    + '<div class="msg" id="msg"></div>'
+    + '<p class="legal">'+(p.prueba?'Gratis por '+esc(p.prueba)+'; después ':'')+esc(p.precio)+' cada '+esc(p.periodo)+'. '
+    +   'La suscripción se renueva automáticamente y se cobra a tu cuenta de Apple, salvo que la canceles al menos 24 horas antes del final del período. '
+    +   'Puedes administrarla o cancelarla en Ajustes → tu nombre → Suscripciones.</p>'
+    + '<div class="links">'
+    +   '<button type="button" onclick="restaurar()">Restaurar compras</button>'
+    +   '<button type="button" onclick="CY_IAP.canjearCodigo()">Canjear código</button>'
+    +   '<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">Términos de uso (EULA)</a>'
+    +   '<a href="/es/privacidad.html">Privacidad</a>'
+    + '</div>';
+  $('zona').innerHTML=h;
+}
+
+function elegir(i){ ELEGIDO=PLANES[i]; pintar(); }
+
+async function comprar(){
+  var b=$('btnComprar'); b.disabled=true; msg('');
+  var r=await CY_IAP.comprar(ELEGIDO.paquete);
+  b.disabled=false;
+  if(r.ok){
+    msg('¡Listo! Tu plan quedó activo.', true);
+    // El webhook de RevenueCat actualiza CoachYard; se espera unos segundos
+    setTimeout(function(){ CY_PLAN.refrescar().then(function(){ location.href='/es/coachhub/cuenta.html'; }); }, 3500);
+  } else if(!r.cancelado){
+    msg('No se pudo completar la compra. Inténtalo de nuevo.');
+  }
+}
+
+async function restaurar(){
+  msg('Buscando tus compras…', true);
+  var r=await CY_IAP.restaurar();
+  if(!r.ok){ msg('No se pudieron restaurar las compras.'); return; }
+  msg(r.activo?'Tu suscripción está activa.':'No encontramos una suscripción activa en esta cuenta de Apple.', r.activo);
+  if(r.activo) setTimeout(function(){ CY_PLAN.refrescar(); }, 3000);
+}
+
+init();
+</script>
+</body>
+</html>
