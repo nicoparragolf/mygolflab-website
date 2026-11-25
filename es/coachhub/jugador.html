@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script src="/js/mgl-foto-perfil.js"></script>
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
@@ -173,6 +174,10 @@
   .ficha-top{display:flex;gap:16px;align-items:flex-end}
   .ficha-foto{width:112px;height:140px;border-radius:16px;flex-shrink:0;overflow:hidden;background:linear-gradient(170deg,rgba(var(--r212_197_169,212,197,169),.35),rgba(var(--r212_197_169,212,197,169),.08));border:1px solid var(--border2);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;box-sizing:border-box;font-family:'Bebas Neue';font-size:40px;line-height:1;color:var(--teal)}
   .ficha-foto.conimg{padding:0}
+  .ficha-foto{position:relative}
+  .ficha-foto.editable{cursor:pointer}
+  .ficha-foto .cam{position:absolute;right:7px;bottom:7px;width:30px;height:30px;border-radius:50%;background:var(--teal);color:var(--bg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .ficha-foto .cam svg{width:16px;height:16px}
   .ficha-foto img{width:100%;height:100%;object-fit:cover;display:block}
   .ficha-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
   .ficha-badge{align-self:flex-start;font-family:'Barlow Condensed';font-weight:700;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--bg);background:var(--teal);padding:3px 9px;border-radius:7px}
@@ -638,6 +643,11 @@
           <option value="avanzado">Avanzado (SG)</option>
         </select>
       </div>
+    </div>
+    <div class="field">
+      <label>Fecha de nacimiento</label>
+      <input id="np_birth" type="date">
+      <div class="hint">Opcional. La edad del alumno se calcula sola y aparece en su ficha.</div>
     </div>
     <div class="field-row">
       <div class="field"><label>Handicap</label><input id="np_hcp" type="number" step="0.1" placeholder="Opcional"></div>
@@ -2258,7 +2268,9 @@ function renderProfile(){
 
   var html='<div class="ficha">'
     + '<div class="ficha-top">'
-    +   '<div class="ficha-foto'+(p.photo_url?' conimg':'')+'">'+av+'</div>'
+    +   '<div class="ficha-foto'+(p.photo_url?' conimg':'')+(IS_COACH?' editable" onclick="fotoAlumno()" title="Cambiar foto':'')+'">'+av
+    +     (IS_COACH?'<span class="cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>':'')
+    +   '</div>'
     +   '<div class="ficha-id">'
     +     '<span class="ficha-badge">'+esc(CAT_LABEL[p.category]||p.category||'Jugador')+' · '+estado+'</span>'
     +     '<div class="ficha-nombre">'+esc(p.first_name||'')+'<br>'+esc(p.last_name||'')+'</div>'
@@ -2899,13 +2911,32 @@ document.getElementById('btnNewPlayer').addEventListener('click',function(){
   NP_EDIT=null;
   document.getElementById('np_title').textContent='Nuevo jugador';
   document.getElementById('np_save').textContent='Crear jugador';
-  ['np_first','np_last','np_hcp','np_city','np_email'].forEach(function(id){document.getElementById(id).value='';});
+  ['np_first','np_last','np_hcp','np_city','np_email','np_birth'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('np_cat').value='amateur';
   document.getElementById('np_tier').value='basico';
   setCountry('CL');
   document.getElementById('np_since').value=todayISO();
   openModal('ovPlayer');
 });
+
+// Foto del alumno puesta por el coach (se sube a la carpeta del coach)
+function fotoAlumno(){
+  if(!IS_COACH || !SEL || !window.MGLFoto) return;
+  var id=SEL.id;
+  MGLFoto.abrir({ sb:sb, user:USER, actual:SEL.photo_url||null, titulo:'Foto del alumno',
+    carpeta: USER.id+'/jugadores/'+id,
+    guardar: async function(url){
+      var r=await sb.from('players').update({photo_url:url}).eq('id',id).eq('coach_id',USER.id);
+      return {error:r.error};
+    },
+    onCambio: function(url){
+      PLAYERS.forEach(function(x){ if(x.id===id) x.photo_url=url; });
+      if(SEL && SEL.id===id){ SEL.photo_url=url; renderProfile(); }
+      renderRoster();
+      toast(url?'Foto actualizada':'Foto quitada');
+    }
+  });
+}
 
 // Editar la ficha del alumno (solo coach): mismo formulario, precargado
 async function editarJugador(){
@@ -2924,6 +2955,7 @@ async function editarJugador(){
   document.getElementById('np_hcp').value=p.handicap_index!=null?p.handicap_index:'';
   document.getElementById('np_since').value=p.coaching_since?String(p.coaching_since).slice(0,10):todayISO();
   document.getElementById('np_city').value=p.city||'';
+  document.getElementById('np_birth').value=p.birthdate?String(p.birthdate).slice(0,10):'';
   setCountry(p.country||'CL');
   openModal('ovPlayer');
 }
@@ -2943,6 +2975,11 @@ document.getElementById('np_save').addEventListener('click',async function(){
   var hcp=document.getElementById('np_hcp').value;
   if(hcp!=='') row.handicap_index=Number(hcp);
   else if(NP_EDIT) row.handicap_index=null;
+  var nac=document.getElementById('np_birth').value;
+  if(nac){
+    if(nac>todayISO() || edadDe(nac)==null){ toast('Revisa la fecha de nacimiento',true); return; }
+    row.birthdate=nac;
+  } else if(NP_EDIT) row.birthdate=null;
 
   var btn=this; btn.disabled=true;
   var editId=NP_EDIT, r;
@@ -2968,7 +3005,7 @@ document.getElementById('np_save').addEventListener('click',async function(){
     if(upd){ SEL=upd; renderRoster(); renderProfile(); }
     return;
   }
-  ['np_first','np_last','np_hcp','np_city','np_email'].forEach(function(id){document.getElementById(id).value='';});
+  ['np_first','np_last','np_hcp','np_city','np_email','np_birth'].forEach(function(id){document.getElementById(id).value='';});
   setCountry('CL');
   toast(r.data.user_id ? 'Jugador creado y cuenta vinculada' : 'Jugador creado');
   await loadPlayers();
