@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<script src="/js/mgl-tema.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Códigos de descuento · CoachYard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!--
+  CoachYard · Panel de códigos de descuento (solo administradores: tabla mgl_admins)
+  - Crea códigos para tu círculo de coaches, embajadores o promociones.
+  - Cada código tiene un link listo para compartir: coachyard.golf/?codigo=CODIGO
+    (el código se guarda en el navegador y se aplica solo cuando el coach crea su cuenta).
+  - Muestra cuántos coaches usaron cada código y cuántos de ellos ya pagan.
+  Sin template literals.
+-->
+<style>
+  :root{--bg:var(--c0a0a0a,#0a0a0a);--card:var(--c141414,#141414);--card2:var(--c1a1a1a,#1a1a1a);--border:var(--c262626,#262626);--txt:var(--cf5f5f5,#f5f5f5);--muted:var(--ca3a3a3,#a3a3a3);--gold:#F0B860;--ok:#8fd19e;--red:#e06a6a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 80px}
+  a{color:var(--gold)}
+  h1{font-family:'Barlow Condensed';font-size:34px;margin:0 0 4px;letter-spacing:.02em}
+  .sub{color:var(--muted);margin:0 0 22px;font-size:14px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .stat .n{font-family:'Barlow Condensed';font-size:32px;font-weight:700;color:var(--gold)}
+  .stat .l{color:var(--muted);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:22px}
+  .card h2{font-family:'Barlow Condensed';font-size:24px;margin:0 0 14px}
+  .form{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;letter-spacing:.02em}
+  input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--txt);font-size:15px;font-family:inherit}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .row{display:flex;gap:8px}
+  .btn{padding:11px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--txt);font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}
+  .btn.pri{background:var(--gold);color:#111;border-color:var(--gold)}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;grid-column:1/-1}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  .code{font-family:'Barlow Condensed';font-size:20px;font-weight:700;color:var(--gold);letter-spacing:.04em}
+  .chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;border:1px solid var(--border);color:var(--muted)}
+  .chip.emb{color:var(--gold);border-color:rgba(240,184,96,.4)}
+  .chip.off{color:var(--red);border-color:rgba(224,106,106,.4)}
+  .muted{color:var(--muted);font-size:12px}
+  .gate{padding:60px 20px;text-align:center;color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:var(--gold);color:#111;padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  .tabla{overflow-x:auto}
+  @media(max-width:760px){.form{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"><div class="gate">Cargando…</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var SUPABASE_URL = 'https://yulpqupmftdjbepqiscs.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var USER = null;
+var LINK_BASE = 'https://coachyard.golf/?codigo=';
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove('show'); },2600); }
+function aleatorio(n){ var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s=''; for(var i=0;i<n;i++) s+=a.charAt(Math.floor(Math.random()*a.length)); return s; }
+
+async function init(){
+  var s = await sb.auth.getSession();
+  if(!s.data.session){ location.href='/es/coachhub/entrar.html'; return; }
+  USER = s.data.session.user;
+  var r = await sb.rpc('mgl_admin_resumen');
+  if(r.error){ $('wrap').innerHTML='<div class="gate">Esta página es solo para administradores de CoachYard.</div>'; return; }
+  pintar(r.data);
+  cargarLista();
+}
+
+function pintar(res){
+  var h='<h1>Códigos de descuento</h1>'
+    + '<p class="sub">Para coaches de tu círculo, embajadores y promociones. <a href="/es/coachhub/cuenta.html">Volver a Mi cuenta</a></p>'
+    + '<div class="stats">'
+    +   '<div class="stat"><div class="n">'+res.en_prueba+'</div><div class="l">Coaches en prueba</div></div>'
+    +   '<div class="stat"><div class="n">'+res.pagando+'</div><div class="l">Coaches pagando</div></div>'
+    +   '<div class="stat"><div class="n">'+res.fundadores+'</div><div class="l">Coaches fundadores</div></div>'
+    +   '<div class="stat"><div class="n">'+res.vencidos+'</div><div class="l">Sin plan activo</div></div>'
+    + '</div>'
+    + '<div class="card"><h2>Nuevo código</h2><div class="form">'
+    +   '<div><label>Código</label><div class="row"><input id="f_code" maxlength="30" placeholder="EJ: JUANPEREZ20" style="text-transform:uppercase"><button class="btn" type="button" onclick="generar()">Generar</button></div><div class="hint">Letras, números, guion. 3 a 30 caracteres.</div></div>'
+    +   '<div><label>Tipo</label><select id="f_tipo"><option value="circulo">Círculo (coaches que conozco)</option><option value="embajador">Embajador (redes sociales)</option><option value="promo">Promoción</option></select></div>'
+    +   '<div><label>Para quién</label><input id="f_nombre" placeholder="Nombre del coach o embajador"></div>'
+    +   '<div><label>% de descuento</label><input id="f_pct" type="number" min="0" max="100" value="20"></div>'
+    +   '<div><label>Durante cuántos meses</label><input id="f_meses" type="number" min="1" placeholder="Vacío = mientras siga suscrito"></div>'
+    +   '<div><label>Días extra de prueba</label><input id="f_dias" type="number" min="0" max="180" value="0"><div class="hint">Se suman a los 15 días.</div></div>'
+    +   '<div><label>Máximo de usos</label><input id="f_max" type="number" min="1" placeholder="Vacío = sin límite"><div class="hint">1 = código personal de un solo uso.</div></div>'
+    +   '<div><label>Vence el</label><input id="f_vence" type="date"></div>'
+    +   '<div><label>Código de oferta en App Store Connect</label><input id="f_apple" placeholder="Opcional (para la app, v1.2)"></div>'
+    +   '<div style="grid-column:1/-1"><label>Nota interna</label><input id="f_nota" placeholder="Ej: acuerdo con el embajador, campaña, etc."></div>'
+    +   '<div class="acts"><button class="btn pri" type="button" onclick="crear()">Crear código</button></div>'
+    + '</div></div>'
+    + '<div class="card"><h2>Tus códigos</h2><div class="tabla" id="lista"><div class="muted">Cargando…</div></div></div>';
+  $('wrap').innerHTML=h;
+}
+
+function generar(){
+  var nom = ($('f_nombre').value||'').toUpperCase().normalize('NFD').replace(/[^A-Z0-9]/g,'').slice(0,10);
+  var pct = parseInt($('f_pct').value,10)||0;
+  $('f_code').value = (nom || 'CY') + (pct ? pct : '') + '-' + aleatorio(4);
+}
+
+function num(id){ var v=$(id).value; return v===''?null:parseInt(v,10); }
+
+async function crear(){
+  var code=($('f_code').value||'').trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{3,30}$/.test(code)){ toast('El código debe tener 3 a 30 letras, números o guiones'); return; }
+  var pct=num('f_pct')||0;
+  if(pct<0||pct>100){ toast('El descuento va de 0 a 100%'); return; }
+  var row={
+    code:code, tipo:$('f_tipo').value, nombre:$('f_nombre').value||null, nota:$('f_nota').value||null,
+    percent_off:pct, duration_months:num('f_meses'), extra_trial_days:num('f_dias')||0,
+    max_redemptions:num('f_max'), apple_offer_ref:$('f_apple').value||null, created_by:USER.id,
+    expires_at: $('f_vence').value ? new Date($('f_vence').value+'T23:59:00-03:00').toISOString() : null
+  };
+  var r=await sb.from('discount_codes').insert(row);
+  if(r.error){ toast(/duplicate|unique/i.test(r.error.message)?'Ese código ya existe':'Error: '+r.error.message); return; }
+  toast('Código '+code+' creado');
+  ['f_code','f_nombre','f_nota','f_meses','f_max','f_vence','f_apple'].forEach(function(id){ $(id).value=''; });
+  $('f_dias').value='0';
+  cargarLista();
+}
+
+async function cargarLista(){
+  var r=await sb.rpc('mgl_admin_codigos');
+  if(r.error){ $('lista').innerHTML='<div class="muted">Error: '+esc(r.error.message)+'</div>'; return; }
+  var L=r.data||[];
+  if(!L.length){ $('lista').innerHTML='<div class="muted">Aún no hay códigos.</div>'; return; }
+  var h='<table><thead><tr><th>Código</th><th>Para</th><th>Descuento</th><th>Usos</th><th>Pagando</th><th></th></tr></thead><tbody>';
+  L.forEach(function(c){
+    var vencido = c.expires_at && new Date(c.expires_at) < new Date();
+    var desc = (c.percent_off ? c.percent_off+'%' : 'Sin %')
+      + (c.percent_off ? (c.duration_months ? ' por '+c.duration_months+(c.duration_months===1?' mes':' meses') : ' siempre') : '')
+      + (c.extra_trial_days ? '<br><span class="muted">+'+c.extra_trial_days+' días de prueba</span>' : '');
+    h+='<tr>'
+      + '<td><div class="code">'+esc(c.code)+'</div>'
+      +   '<span class="chip'+(c.tipo==='embajador'?' emb':'')+'">'+esc(c.tipo)+'</span> '
+      +   (!c.active ? '<span class="chip off">pausado</span>' : '')
+      +   (vencido ? '<span class="chip off">vencido</span>' : '')
+      +   (c.expires_at && !vencido ? '<div class="muted">vence '+new Date(c.expires_at).toLocaleDateString('es-CL')+'</div>' : '')
+      + '</td>'
+      + '<td>'+esc(c.nombre||'—')+(c.nota?'<div class="muted">'+esc(c.nota)+'</div>':'')+'</td>'
+      + '<td>'+desc+'</td>'
+      + '<td>'+c.canjes+(c.max_redemptions?' / '+c.max_redemptions:'')+'</td>'
+      + '<td>'+c.pagando+'</td>'
+      + '<td style="white-space:nowrap"><button class="btn sm" onclick="copiar(\''+esc(c.code)+'\')">Copiar link</button> '
+      +   '<button class="btn sm" onclick="pausar(\''+c.id+'\','+(c.active?'false':'true')+')">'+(c.active?'Pausar':'Activar')+'</button></td>'
+      + '</tr>';
+  });
+  h+='</tbody></table>';
+  $('lista').innerHTML=h;
+}
+
+function copiar(code){
+  var url=LINK_BASE+encodeURIComponent(code);
+  var hecho=function(){ toast('Link copiado: '+url); };
+  if(navigator.clipboard) navigator.clipboard.writeText(url).then(hecho,function(){ prompt('Copia el link:',url); });
+  else prompt('Copia el link:',url);
+}
+
+async function pausar(id, activo){
+  var r=await sb.from('discount_codes').update({ active:activo }).eq('id',id);
+  if(r.error){ toast('Error: '+r.error.message); return; }
+  toast(activo?'Código activado':'Código pausado');
+  cargarLista();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js" data-solo-codigo></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planes para Coaches | CoachYard — MyGolfLab</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -195,6 +196,21 @@
     .footer-brand { grid-column: 1 / -1; }
   }
   @media (max-width: 480px) { .footer-top { grid-template-columns: 1fr; } }
+
+  .price-note{min-height:18px;font-size:13px;color:var(--text-muted);margin-top:4px}
+  .trial-box{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(240,184,96,.12),rgba(240,184,96,.03));border:1px solid rgba(240,184,96,.4);border-radius:18px;padding:22px 24px;margin:0 auto 34px;max-width:1000px}
+  .trial-ic{flex:0 0 auto;width:58px;height:58px;border-radius:50%;background:rgba(240,184,96,.15);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:30px}
+  .trial-copy{flex:1}.trial-copy h3{margin:0 0 4px;font-family:'Barlow Condensed',sans-serif;font-size:24px}
+  .trial-copy p{margin:0;color:var(--text-secondary);font-size:15px;line-height:1.5}
+  .trial-cta{white-space:nowrap}
+  .founder-box{border-color:rgba(240,184,96,.4)!important}
+  .code-box{max-width:520px;margin:10px auto 50px;text-align:center}
+  .code-box label{display:block;color:var(--text-secondary);font-size:14px;margin-bottom:10px}
+  .code-row{display:flex;gap:8px}
+  .code-row input{flex:1;min-width:0;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:16px;text-transform:uppercase}
+  .code-msg{min-height:20px;margin-top:10px;font-size:14px}
+  .code-msg.ok{color:var(--gold)}.code-msg.err{color:#e06a6a}
+  @media(max-width:760px){.trial-box{flex-direction:column;text-align:center}}
 </style>
 </head>
 <body>
@@ -224,113 +240,126 @@
   <header class="page-header">
     <div class="eyebrow">CoachYard</div>
     <h1>Planes para coaches</h1>
-    <p>Elige el plan según el tamaño de tu cartera de alumnos. Storage de video incluido en todos — no cobramos por GB.</p>
+    <p>Prueba CoachYard gratis por 15 días con hasta 3 alumnos. Después eliges el plan según cuántos alumnos tienes. Tus alumnos nunca pagan.</p>
   </header>
 
   <main class="content">
+
+    <!-- PRUEBA GRATIS -->
+    <div class="trial-box">
+      <div class="trial-ic">15</div>
+      <div class="trial-copy">
+        <h3>15 días gratis, con todo incluido</h3>
+        <p>Analizador, videos, mensajes y Caddie sin límites durante la prueba, con hasta 3 alumnos. Si no eliges un plan al terminar, no pierdes nada: tus alumnos y videos quedan guardados.</p>
+      </div>
+      <a href="/es/coachhub/entrar.html?registro=coach" class="btn-primary trial-cta">Empezar prueba gratis</a>
+    </div>
 
     <!-- BILLING TOGGLE -->
     <div class="pricing-toggle">
       <span class="active" id="label-monthly">Mensual</span>
       <div class="toggle-switch" id="toggleSwitch"></div>
       <span id="label-yearly">Anual</span>
-      <span class="save-badge">Ahorra 20%</span>
+      <span class="save-badge">2 meses gratis</span>
     </div>
-    <p class="pricing-disclaimer">Precios de lanzamiento en USD, sujetos a ajuste durante el piloto con coaches. Se cobran a través del mismo mecanismo que usamos hoy para los planes de jugador.</p>
+    <p class="pricing-disclaimer" id="monedaNota">Precios en dólares (USD). En Chile se cobran en pesos chilenos, IVA incluido.</p>
 
     <!-- PRICING CARDS -->
     <div class="pricing-grid">
-
-      <!-- STARTER -->
       <div class="pricing-card">
         <div class="plan-header">
           <h3 class="plan-name">Starter</h3>
-          <p class="plan-tagline">Para empezar a ordenar tu cartera</p>
+          <p class="plan-tagline">Para el coach que recién parte o hace clases online</p>
         </div>
         <div class="plan-price">
           <div class="price-row">
-            <span class="price-currency">USD</span>
-            <span class="price-amount" data-monthly="19" data-yearly="15">19</span>
+            <span class="price-currency" data-usd="USD" data-clp="$">USD</span>
+            <span class="price-amount" data-usd-m="9" data-usd-y="90" data-clp-m="8990" data-clp-y="89900">9</span>
             <span class="price-period">/mes</span>
           </div>
+          <div class="price-note" data-plan="starter"></div>
         </div>
-        <div class="plan-capacity">Hasta 10 alumnos · 50GB incluidos</div>
+        <div class="plan-capacity">Hasta 8 alumnos activos</div>
         <hr class="plan-divider">
         <ul class="plan-features">
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Timeline completo por alumno</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Video en el timeline con reproducción directa</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Métricas superpuestas a hitos</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel básico</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Ficha y timeline completo de cada alumno</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Videos y fotos ilimitados en el perfil del alumno</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Analizador de swing con dibujo, comparación y voz</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Mensajes y grupos con tus alumnos</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Caddie, tu asistente con IA</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Perfil en la vitrina de coaches</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
         </ul>
-        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta secondary">Empezar con Starter</a>
+        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta secondary">Empezar prueba gratis</a>
       </div>
-
-      <!-- GROWTH -->
       <div class="pricing-card featured">
         <span class="popular-badge">Más elegido</span>
         <div class="plan-header">
-          <h3 class="plan-name">Growth</h3>
-          <p class="plan-tagline">Para el coach establecido</p>
+          <h3 class="plan-name">Pro</h3>
+          <p class="plan-tagline">Para el coach con su cartera armada</p>
         </div>
         <div class="plan-price">
           <div class="price-row">
-            <span class="price-currency">USD</span>
-            <span class="price-amount" data-monthly="49" data-yearly="39">49</span>
+            <span class="price-currency" data-usd="USD" data-clp="$">USD</span>
+            <span class="price-amount" data-usd-m="19" data-usd-y="190" data-clp-m="17990" data-clp-y="179900">19</span>
             <span class="price-period">/mes</span>
           </div>
+          <div class="price-note" data-plan="pro"></div>
         </div>
-        <div class="plan-capacity">Hasta 40 alumnos · 200GB incluidos</div>
+        <div class="plan-capacity">Hasta 25 alumnos activos</div>
         <hr class="plan-divider">
         <ul class="plan-features">
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Starter</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel intermedio</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-fuente: Trackman, Sportsbox, Upgame</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span><strong>30% de descuento</strong> en tu propia cuenta de jugador Elite</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Hasta 25 alumnos activos</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
         </ul>
-        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta primary">Suscribirse a Growth</a>
+        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta primary">Empezar prueba gratis</a>
       </div>
-
-      <!-- ACADEMY -->
       <div class="pricing-card">
         <div class="plan-header">
-          <h3 class="plan-name">Academy</h3>
-          <p class="plan-tagline">Para academias y programas</p>
+          <h3 class="plan-name">Academia</h3>
+          <p class="plan-tagline">Para academias y equipos de coaches</p>
         </div>
         <div class="plan-price">
           <div class="price-row">
-            <span class="price-currency">USD</span>
-            <span class="price-amount" data-monthly="99" data-yearly="79">99</span>
+            <span class="price-currency" data-usd="USD" data-clp="$">USD</span>
+            <span class="price-amount" data-usd-m="49" data-usd-y="490" data-clp-m="44990" data-clp-y="449900">49</span>
             <span class="price-period">/mes</span>
           </div>
+          <div class="price-note" data-plan="academia"></div>
         </div>
-        <div class="plan-capacity">Alumnos ilimitados · 750GB + overage</div>
+        <div class="plan-capacity">Alumnos ilimitados · 3 coaches incluidos</div>
         <hr class="plan-divider">
         <ul class="plan-features">
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Growth</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Estadísticas de torneo — nivel avanzado (Strokes Gained)</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Múltiples coaches en la misma academia</span></li>
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Overage de storage transparente, sin cortes de servicio</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Alumnos ilimitados</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>3 coaches incluidos (US$15 por coach adicional)</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Soporte prioritario</span></li>
         </ul>
-        <a href="mailto:hola@mygolflab.golf?subject=Coach%20Hub%20Academy" class="plan-cta secondary">Hablar con nosotros</a>
+        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta secondary">Empezar prueba gratis</a>
       </div>
 
     </div>
 
-    <!-- BUNDLE CALLOUT -->
-    <div class="bundle-box" style="display:none"><!-- descuento con MyGolfLab: oculto mientras MyGolfLab no esté listo -->
+    <!-- COACH FUNDADOR -->
+    <div class="bundle-box founder-box">
       <div class="bundle-icon">
-        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="9" cy="13" r="6" stroke="#F0B860" stroke-width="1.5"/><circle cx="17" cy="13" r="6" stroke="#F0B860" stroke-width="1.5" opacity="0.6"/></svg>
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F0B860" stroke-width="1.6"><path d="M12 2l3 6.5 7 .9-5.2 4.8 1.4 7L12 17.8 5.8 21.2l1.4-7L2 9.4l7-.9z"/></svg>
       </div>
       <div class="bundle-copy">
-        <h3>¿Coach y jugador a la vez?</h3>
-        <p>Si ya pagas CoachYard, tu propia cuenta de jugador Elite en MyGolfLab queda con 30% de descuento — para que sigas entrenando tu propio juego mientras coacheas al resto.</p>
+        <h3>Precio de Coach Fundador: 40% menos</h3>
+        <p>Para los primeros 50 coaches: <strong id="precioFundador">US$5 · US$11 · US$29 al mes</strong> (Starter, Pro y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.</p>
       </div>
-      <div class="bundle-cta">
-        <a href="/es/pricing.html" class="btn-outline" style="padding:12px 22px;">Ver planes de jugador</a>
+    </div>
+
+    <!-- CÓDIGO DE DESCUENTO -->
+    <div class="code-box">
+      <label for="codigoInput">¿Tienes un código de descuento?</label>
+      <div class="code-row">
+        <input id="codigoInput" maxlength="30" placeholder="Escribe tu código" autocapitalize="characters">
+        <button type="button" class="btn-outline" id="codigoBtn">Aplicar</button>
       </div>
+      <div class="code-msg" id="codigoMsg"></div>
     </div>
 
     <!-- FAQ -->
@@ -338,38 +367,45 @@
       <h2>Preguntas Frecuentes</h2>
 
       <div class="faq-item">
-        <button class="faq-question">¿Qué pasa si me quedo sin storage?
+        <button class="faq-question">¿Cómo funciona la prueba gratis?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="faq-answer"><p>No te cortamos el servicio. Si superas el storage incluido en tu plan, el excedente se factura de forma transparente en tu próximo ciclo — nunca te quedas sin poder subir un video a mitad de una clase.</p></div>
+        <div class="faq-answer"><p>Al crear tu cuenta de coach tienes 15 días con todas las herramientas y hasta 3 alumnos. Al terminar, eliges tu plan. Si no lo haces, tu cuenta queda en modo lectura: tú y tus alumnos siguen viendo todo, pero no puedes crear contenido nuevo hasta activar un plan.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">¿Mis alumnos tienen que pagar algo?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="faq-answer"><p>No. La suscripción de CoachYard la paga el coach. Tus alumnos tienen acceso gratuito a su propia ficha dentro de tu espacio — ver su timeline, sus videos y su progreso no tiene costo para ellos.</p></div>
+        <div class="faq-answer"><p>No. La suscripción de CoachYard la paga el coach. Tus alumnos entran gratis a su ficha para ver su timeline, sus videos y sus análisis.</p></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">¿Qué cuenta como "alumno activo"?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer"><p>Los alumnos que tienes activos en tu lista. Si archivas a un alumno que ya no ves, deja de contar para tu plan y no pierdes su historial: lo puedes reactivar cuando vuelva.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">¿Puedo cambiar de plan después?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="faq-answer"><p>Sí, puedes subir o bajar de plan en cualquier momento. Los cambios se aplican al inicio de tu próximo ciclo de facturación.</p></div>
+        <div class="faq-answer"><p>Sí, puedes subir o bajar de plan cuando quieras. Si bajas a un plan con menos alumnos, primero archiva los que ya no ves.</p></div>
       </div>
 
       <div class="faq-item">
         <button class="faq-question">¿Qué pasa con los videos de mis alumnos si cancelo?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="faq-answer"><p>Tus datos quedan disponibles por un período de gracia tras la cancelación para que puedas exportarlos o reactivar el plan. No se borra nada de inmediato.</p></div>
+        <div class="faq-answer"><p>No se borra nada. Tu cuenta queda en modo lectura y tus alumnos siguen viendo su historial. Si vuelves a activar un plan, sigues exactamente donde quedaste.</p></div>
       </div>
 
       <div class="faq-item">
-        <button class="faq-question">¿Cómo funciona el plan Academy para varios coaches?
+        <button class="faq-question">¿Cobran comisión por mis clases?
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="faq-answer"><p>El plan Academy permite invitar a otros coaches a la misma cuenta, cada uno con su propia cartera de alumnos, compartiendo el pool de storage. Ideal para academias o programas universitarios.</p></div>
+        <div class="faq-answer"><p>Nunca por tus propios alumnos. Solo cuando un alumno nuevo te encuentra y te paga a través de la vitrina de CoachYard se cobra una comisión baja (de 5% a 2% según tus clases del mes).</p></div>
       </div>
 
     </section>
@@ -452,21 +488,79 @@
       }
     })();
 
+    // ── Precios: USD por defecto; en Chile, pesos chilenos (IVA incluido) ──
     var isYearly = false;
+    var enChile = (function () {
+      try {
+        var forz = localStorage.getItem('mgl_moneda');
+        if (forz === 'CLP') return true;
+        if (forz === 'USD') return false;
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        if (['America/Santiago', 'America/Punta_Arenas', 'Pacific/Easter'].indexOf(tz) >= 0) return true;
+      } catch (e) {}
+      return (navigator.languages || [navigator.language || '']).join(',').toLowerCase().indexOf('es-cl') >= 0;
+    })();
+    function miles(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+    function pintarPrecios() {
+      document.querySelectorAll('.price-amount').forEach(function (el) {
+        var v = enChile
+          ? el.getAttribute(isYearly ? 'data-clp-y' : 'data-clp-m')
+          : el.getAttribute(isYearly ? 'data-usd-y' : 'data-usd-m');
+        el.textContent = enChile ? miles(v) : v;
+      });
+      document.querySelectorAll('.price-currency').forEach(function (el) {
+        el.textContent = enChile ? '$' : 'USD';
+      });
+      document.querySelectorAll('.price-period').forEach(function (el) {
+        el.textContent = isYearly ? '/año' : '/mes';
+      });
+      document.querySelectorAll('.price-note').forEach(function (el) {
+        el.textContent = isYearly ? 'Pagas 10 meses, usas 12' : '';
+      });
+      document.getElementById('monedaNota').textContent = enChile
+        ? 'Precios en pesos chilenos, IVA incluido.'
+        : 'Precios en dólares (USD). En Chile se cobran en pesos chilenos.';
+      document.getElementById('precioFundador').textContent = enChile
+        ? '$5.390 · $10.790 · $26.990 al mes'
+        : 'US$5 · US$11 · US$29 al mes';
+    }
+    pintarPrecios();
+
     var toggleSwitch = document.getElementById('toggleSwitch');
     var labelMonthly = document.getElementById('label-monthly');
     var labelYearly = document.getElementById('label-yearly');
-
-    toggleSwitch.addEventListener('click', function() {
+    toggleSwitch.addEventListener('click', function () {
       isYearly = !isYearly;
       toggleSwitch.classList.toggle('yearly', isYearly);
       labelMonthly.classList.toggle('active', !isYearly);
       labelYearly.classList.toggle('active', isYearly);
-
-      document.querySelectorAll('.price-amount').forEach(function(el) {
-        el.textContent = isYearly ? el.getAttribute('data-yearly') : el.getAttribute('data-monthly');
-      });
+      pintarPrecios();
     });
+
+    // ── Código de descuento: se valida acá y se aplica solo al crear la cuenta ──
+    (function () {
+      var inp = document.getElementById('codigoInput');
+      var msg = document.getElementById('codigoMsg');
+      var MOTIVOS = { no_existe: 'Ese código no existe.', inactivo: 'Ese código ya no está activo.', vencido: 'Ese código venció.', agotado: 'Ese código ya se usó el máximo de veces.' };
+      try { var guardado = localStorage.getItem('cy-codigo'); if (guardado) { inp.value = guardado; validar(); } } catch (e) {}
+      function validar() {
+        var cod = (inp.value || '').trim().toUpperCase();
+        if (!/^[A-Z0-9_-]{3,30}$/.test(cod)) { msg.className = 'code-msg err'; msg.textContent = 'Escribe un código válido.'; return; }
+        var c = window.supabase.createClient('https://yulpqupmftdjbepqiscs.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao', { auth: { persistSession: false, autoRefreshToken: false } });
+        c.rpc('mgl_codigo_info', { p_code: cod }).then(function (r) {
+          if (r.error || !r.data) { msg.className = 'code-msg err'; msg.textContent = 'No se pudo revisar el código.'; return; }
+          if (!r.data.ok) { msg.className = 'code-msg err'; msg.textContent = MOTIVOS[r.data.motivo] || 'Código no válido.'; return; }
+          try { localStorage.setItem('cy-codigo', cod); } catch (e) {}
+          var t = 'Código ' + cod + ' listo';
+          if (r.data.percent_off) t += ': ' + r.data.percent_off + '% de descuento' + (r.data.duration_months ? ' por ' + r.data.duration_months + (r.data.duration_months === 1 ? ' mes' : ' meses') : '');
+          if (r.data.extra_trial_days) t += (r.data.percent_off ? ' y ' : ': ') + r.data.extra_trial_days + ' días más de prueba';
+          msg.className = 'code-msg ok';
+          msg.textContent = t + '. Se aplica al crear tu cuenta de coach.';
+        });
+      }
+      document.getElementById('codigoBtn').addEventListener('click', validar);
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') validar(); });
+    })();
 
     document.querySelectorAll('.faq-question').forEach(function(btn) {
       btn.addEventListener('click', function() {

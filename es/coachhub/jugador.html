@@ -6,6 +6,7 @@
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Perfil del Jugador · MyGolfLab CoachYard</title>
 <link rel="manifest" href="/es/coachhub/manifest.json">
@@ -1138,7 +1139,16 @@ function toast(msg,isErr){
   t.textContent=msg; t.className='toast show'+(isErr?' err':'');
   setTimeout(function(){ t.className='toast'+(isErr?' err':''); },isErr?7000:3000);
 }
-function openModal(id){ document.getElementById(id).classList.add('show'); }
+// Plan del coach (js/cy-plan.js): antes de abrir una ventana para crear algo,
+// revisa que la prueba / plan esté activo y, para un jugador nuevo, el tope de alumnos.
+var CY_MODALES_CREAR = { ovEvent:1, ovGoal:1, ovNote:1, ovTask:1, ovPlan:1 };
+function openModal(id){
+  if(IS_COACH && window.CY_PLAN){
+    if(id==='ovPlayer' && !NP_EDIT && !CY_PLAN.puede('alumno')) return;
+    if(CY_MODALES_CREAR[id] && !CY_PLAN.puede('crear')) return;
+  }
+  document.getElementById(id).classList.add('show');
+}
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 function showError(titulo, detalle, pista){
   console.error(titulo, detalle);

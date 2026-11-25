@@ -5,6 +5,7 @@
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <title>Análisis de Swing · CoachYard</title>
 <meta name="robots" content="noindex">
@@ -467,6 +468,17 @@ async function init(){
   if(role!=='coach' && role!=='ambos'){
     $('gate').innerHTML='<p>La herramienta de análisis es solo para coaches.</p><a class="pill" href="jugador.html">Volver a mi perfil</a>';
     return;
+  }
+
+  // Plan del coach: con la prueba vencida el analizador queda bloqueado
+  // (los análisis ya guardados se siguen viendo en el perfil del alumno).
+  if(window.CY_PLAN){
+    var est = await new Promise(function(ok){ CY_PLAN.listo(ok); });
+    if(est && est.tiene_plan && !est.activo){
+      $('gate').innerHTML='<p>El analizador está disponible con un plan activo.</p><a class="pill" href="jugador.html">Ir a mis alumnos</a>';
+      CY_PLAN.mostrar('inactivo');
+      return;
+    }
   }
 
   // Con ?player= (desde el perfil o una clase) el alumno viene fijado.

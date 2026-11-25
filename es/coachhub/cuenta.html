@@ -5,6 +5,7 @@
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
+<script src="/js/cy-plan.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Mi cuenta · CoachYard</title>
 <meta name="robots" content="noindex">
@@ -111,6 +112,16 @@
   .tile .ic{flex:0 0 auto;width:46px;height:46px;border-radius:13px;background:rgba(var(--r212_197_169,212,197,169),.09);color:var(--teal);display:flex;align-items:center;justify-content:center;position:relative}
   .tile .ic svg{width:24px;height:24px}
   .tile .badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;padding:0 6px;background:var(--teal);color:#1C1709;font-family:'Barlow Condensed';font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .cyplan{background:var(--card);border:1px solid rgba(var(--r240_184_96,240,184,96),.35);border-radius:20px;padding:22px;margin-bottom:8px}
+  .cyp-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .cyp-nom{font-family:'Barlow Condensed';font-size:28px;font-weight:700;letter-spacing:.3px}
+  .cyp-est{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+  .cyp-alu{text-align:right}.cyp-alu .n{font-family:'Barlow Condensed';font-size:34px;font-weight:700;color:var(--gold,#F0B860)}
+  .cyp-alu .n span{font-size:18px;color:var(--muted)}.cyp-alu .l{color:var(--muted);font-size:13px}
+  .cyp-cod{margin-top:14px;color:var(--muted);font-size:14px}.cyp-cod b{color:var(--gold,#F0B860)}
+  .cyp-form{display:flex;gap:8px;margin-top:16px}
+  .cyp-form input{flex:1;min-width:0;background:var(--card2,#1a1a1a);border:1px solid var(--border2,#333);border-radius:12px;padding:12px 14px;color:inherit;font-size:16px;text-transform:uppercase}
+  .cyp-cta{margin-top:12px;display:inline-flex;margin-right:8px}
   .tile.danger .ic{background:rgba(var(--r224_106_106,224,106,106),.1);color:var(--red)}
   .tile.danger:hover{border-color:rgba(var(--r224_106_106,224,106,106),.45);background:var(--c171010,#171010)}
   /* apariencia */
@@ -285,6 +296,50 @@ function cambiarFoto(){
 // ============================================================
 // RENDER
 // ============================================================
+// ============================================================
+// MI PLAN (js/cy-plan.js + RPC mgl_coach_estado / mgl_canjear_codigo)
+// En la app de iPhone no se muestran precios ni botones de pago (regla de Apple).
+// ============================================================
+var CY_NOMBRE_PLAN = { prueba:'Prueba gratis', starter:'Starter', pro:'Pro', academia:'Academia', cortesia:'Cortesía' };
+function pintarMiPlan(e){
+  var box=$('cyMiPlan'); if(!box) return;
+  if(!e || !e.tiene_plan){ box.innerHTML=''; return; }
+  var ios = CY_PLAN.enIOSApp();
+  var estadoTxt, chip;
+  if(e.plan==='cortesia'){ estadoTxt='Acceso completo sin vencimiento'; chip='ok'; }
+  else if(e.status==='trialing' && e.activo){ estadoTxt='Te '+(e.dias_prueba===1?'queda 1 día':'quedan '+e.dias_prueba+' días')+' de prueba'; chip='warn'; }
+  else if(e.activo){ estadoTxt='Activo'+(e.current_period_end?' · se renueva el '+new Date(e.current_period_end).toLocaleDateString('es-CL'):''); chip='ok'; }
+  else { estadoTxt='No activo: puedes ver todo, pero no crear contenido nuevo'; chip='warn'; }
+  var tope = e.max_alumnos==null ? 'sin límite' : e.max_alumnos;
+
+  var h='<h2 class="sec">Mi plan</h2><div class="cyplan">'
+    + '<div class="cyp-top"><div><div class="cyp-nom">'+esc(CY_NOMBRE_PLAN[e.plan]||e.plan)+'</div>'
+    +   '<div class="cyp-est"><span class="chip '+chip+'">'+esc(estadoTxt)+'</span>'+(e.founder?' <span class="chip gold">Coach Fundador</span>':'')+'</div></div>'
+    +   '<div class="cyp-alu"><div class="n">'+e.alumnos+'<span>/'+tope+'</span></div><div class="l">Alumnos activos</div></div></div>';
+  if(e.codigo){
+    h+='<div class="cyp-cod">Código aplicado: <b>'+esc(e.codigo)+'</b>'
+      + (e.codigo_pct ? ' · '+e.codigo_pct+'% de descuento'+(e.codigo_meses?' por '+e.codigo_meses+(e.codigo_meses===1?' mes':' meses'):'') : '')
+      + '</div>';
+  } else if(!ios && e.plan!=='cortesia'){
+    h+='<div class="cyp-form"><input id="cyCodigo" placeholder="¿Tienes un código de descuento?" autocapitalize="characters" maxlength="30">'
+      + '<button class="pbtn primary" type="button" onclick="canjearCodigo()">Aplicar</button></div>';
+  }
+  if(!ios && e.plan!=='cortesia') h+='<a class="pbtn primary cyp-cta" href="/es/coachhub/pricing.html">'+(e.activo && e.status!=='trialing'?'Cambiar de plan':'Ver planes')+'</a>';
+  if(e.es_admin) h+='<a class="pbtn cyp-cta" href="/es/coachhub/admin-codigos.html">Administrar códigos de descuento</a>';
+  h+='</div>';
+  box.innerHTML=h;
+}
+var CY_MOTIVOS = { no_existe:'Ese código no existe.', inactivo:'Ese código ya no está activo.', vencido:'Ese código venció.', agotado:'Ese código ya se usó el máximo de veces.', ya_uso_codigo:'Ya aplicaste un código a tu cuenta.', no_es_coach:'Los códigos son para cuentas de coach.', sin_sesion:'Inicia sesión de nuevo.' };
+async function canjearCodigo(){
+  var inp=$('cyCodigo'); var cod=(inp.value||'').trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{3,30}$/.test(cod)){ toast('Escribe un código válido'); return; }
+  var r=await sb.rpc('mgl_canjear_codigo',{ p_code:cod });
+  if(r.error){ toast('No se pudo aplicar: '+(r.error.message||'error')); return; }
+  if(!r.data.ok){ toast(CY_MOTIVOS[r.data.motivo]||'No se pudo aplicar el código'); return; }
+  toast('Código aplicado'+(r.data.percent_off?': '+r.data.percent_off+'% de descuento':'')+(r.data.extra_trial_days?' y '+r.data.extra_trial_days+' días más de prueba':''));
+  var e=await CY_PLAN.refrescar(); pintarMiPlan(e);
+}
+
 function render(name, photo, st){
   var h='';
 
@@ -329,6 +384,9 @@ function render(name, photo, st){
       + '</div>';
   }
 
+  // ── Mi plan (prueba, alumnos incluidos, código de descuento) ──
+  if(IS_COACH) h+='<div id="cyMiPlan"></div>';
+
   // ── General ──
   h+='<h2 class="sec">General</h2><div class="grid">';
   if(IS_COACH){
@@ -355,6 +413,7 @@ function render(name, photo, st){
   h+='<div id="zonaCuenta"></div>';
 
   $('wrap').innerHTML=h;
+  if(IS_COACH && window.CY_PLAN) CY_PLAN.listo(pintarMiPlan);
   if(window.MGLBorrarCuenta) MGLBorrarCuenta.montar($('zonaCuenta'), { sb:sb, volverA:'/es/coachhub/entrar.html' });
 }
 
