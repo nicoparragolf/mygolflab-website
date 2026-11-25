@@ -1828,5 +1828,9 @@ window.MGL_I18N_PT = {
 "Ese código venció.": "Esse código venceu.",
 "Ese código ya se usó el máximo de veces.": "Esse código já atingiu o limite de usos.",
 "El analizador está disponible con un plan activo.": "O analisador está disponível com um plano ativo.",
-"Ir a mis alumnos": "Ir para meus alunos"
+"Ir a mis alumnos": "Ir para meus alunos",
+"Para el coach con agenda llena": "Para o coach com agenda cheia",
+"Hasta 40 alumnos activos": "Até 40 alunos ativos",
+"Todo lo de Pro+": "Tudo do Pro+",
+"(Starter, Pro, Pro+ y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.": "(Starter, Pro, Pro+ e Academia), enquanto você mantiver sua assinatura. Além disso, você aparece em destaque na vitrine com o selo de Coach Fundador."
 };

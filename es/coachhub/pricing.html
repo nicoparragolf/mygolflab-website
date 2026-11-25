@@ -197,6 +197,10 @@
   }
   @media (max-width: 480px) { .footer-top { grid-template-columns: 1fr; } }
 
+  .content:has(.pricing-grid){max-width:1240px}
+  .pricing-grid{grid-template-columns:repeat(4,1fr)!important;gap:1.1rem!important}
+  @media(max-width:1100px){.pricing-grid{grid-template-columns:repeat(2,1fr)!important}}
+  @media(max-width:640px){.pricing-grid{grid-template-columns:1fr!important}}
   .price-note{min-height:18px;font-size:13px;color:var(--text-muted);margin-top:4px}
   .trial-box{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(240,184,96,.12),rgba(240,184,96,.03));border:1px solid rgba(240,184,96,.4);border-radius:18px;padding:22px 24px;margin:0 auto 34px;max-width:1000px}
   .trial-ic{flex:0 0 auto;width:58px;height:58px;border-radius:50%;background:rgba(240,184,96,.15);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:30px}
@@ -317,6 +321,28 @@
       </div>
       <div class="pricing-card">
         <div class="plan-header">
+          <h3 class="plan-name">Pro+</h3>
+          <p class="plan-tagline">Para el coach con agenda llena</p>
+        </div>
+        <div class="plan-price">
+          <div class="price-row">
+            <span class="price-currency" data-usd="USD" data-clp="$">USD</span>
+            <span class="price-amount" data-usd-m="29" data-usd-y="290" data-clp-m="26990" data-clp-y="269900">29</span>
+            <span class="price-period">/mes</span>
+          </div>
+          <div class="price-note" data-plan="pro_plus"></div>
+        </div>
+        <div class="plan-capacity">Hasta 40 alumnos activos</div>
+        <hr class="plan-divider">
+        <ul class="plan-features">
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Hasta 40 alumnos activos</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>1 coach</span></li>
+        </ul>
+        <a href="/es/coachhub/entrar.html?registro=coach" class="plan-cta secondary">Empezar prueba gratis</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-header">
           <h3 class="plan-name">Academia</h3>
           <p class="plan-tagline">Para academias y equipos de coaches</p>
         </div>
@@ -331,7 +357,7 @@
         <div class="plan-capacity">Alumnos ilimitados · 3 coaches incluidos</div>
         <hr class="plan-divider">
         <ul class="plan-features">
-          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro</span></li>
+          <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Todo lo de Pro+</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Alumnos ilimitados</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>3 coaches incluidos (US$15 por coach adicional)</span></li>
           <li><svg class="feat-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Soporte prioritario</span></li>
@@ -348,7 +374,7 @@
       </div>
       <div class="bundle-copy">
         <h3>Precio de Coach Fundador: 40% menos</h3>
-        <p>Para los primeros 50 coaches: <strong id="precioFundador">US$5 · US$11 · US$29 al mes</strong> (Starter, Pro y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.</p>
+        <p>Para los primeros 50 coaches: <strong id="precioFundador">US$5 · US$11 · US$17 · US$29 al mes</strong> (Starter, Pro, Pro+ y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.</p>
       </div>
     </div>
 
@@ -521,8 +547,8 @@
         ? 'Precios en pesos chilenos, IVA incluido.'
         : 'Precios en dólares (USD). En Chile se cobran en pesos chilenos.';
       document.getElementById('precioFundador').textContent = enChile
-        ? '$5.390 · $10.790 · $26.990 al mes'
-        : 'US$5 · US$11 · US$29 al mes';
+        ? '$5.390 · $10.790 · $16.190 · $26.990 al mes'
+        : 'US$5 · US$11 · US$17 · US$29 al mes';
     }
     pintarPrecios();
 

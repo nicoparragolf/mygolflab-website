@@ -1826,5 +1826,9 @@ window.MGL_I18N_EN = {
 "Ese código venció.": "That code has expired.",
 "Ese código ya se usó el máximo de veces.": "That code has reached its usage limit.",
 "El analizador está disponible con un plan activo.": "The analyzer is available with an active plan.",
-"Ir a mis alumnos": "Go to my students"
+"Ir a mis alumnos": "Go to my students",
+"Para el coach con agenda llena": "For coaches with a full schedule",
+"Hasta 40 alumnos activos": "Up to 40 active students",
+"Todo lo de Pro+": "Everything in Pro+",
+"(Starter, Pro, Pro+ y Academia), mientras mantengas tu suscripción. Además apareces destacado en la vitrina con el sello de Coach Fundador.": "(Starter, Pro, Pro+ and Academy), for as long as you keep your subscription. You also get featured in the showcase with the Founding Coach badge."
 };
