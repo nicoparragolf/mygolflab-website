@@ -1,0 +1,28 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  CoachYard · Publicar una versión aprobada por Apple
+#
+#  Cuando Apple aprueba una versión con publicación manual, queda en
+#  "Pending Developer Release". Este flujo la publica en el App Store.
+#  Correrlo: pestaña Actions → "App Store · Publicar" → Run workflow.
+# ═══════════════════════════════════════════════════════════════════════════
+name: App Store · Publicar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyjwt cryptography requests
+      - name: Publicar la versión aprobada
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: python .github/scripts/appstore_publicar.py
