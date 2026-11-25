@@ -14,6 +14,12 @@
      MGLFoto.abrir({ sb: clienteSupabase, user: session.user, actual: urlActual,
                      onCambio: function(urlNueva){ ... } });
 
+   Opciones extra (para que el coach ponga la foto de un alumno):
+     carpeta: 'uid-coach/jugadores/id-ficha'  → dónde se sube la foto
+     guardar: async function(url){ return {error} }  → reemplaza el guardado
+              en la cuenta propia (url null = quitar la foto)
+     titulo:  texto del encabezado de la hoja
+
    Sin template literals.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -61,16 +67,16 @@
     var d = document.createElement('div');
     d.innerHTML = ''
       + '<div class="mfp-bg" id="mfpSheet"><div class="mfp">'
-      +   '<h3>Foto de perfil</h3>'
+      +   '<h3 id="mfpTitulo">Foto de perfil</h3>'
       +   '<div class="mfp-ph" id="mfpPh"></div>'
       +   '<button class="mfp-op" type="button" id="mfpAjustar"><span>✥</span><div><b>Ajustar la foto actual</b><small>Acercar, mover o girar</small></div></button>'
       +   '<button class="mfp-op" type="button" id="mfpElegir"><span>⬆</span><div><b id="mfpElegirT">Elegir otra foto</b><small>De la galería del teléfono o la cámara</small></div></button>'
-      +   '<button class="mfp-op danger" type="button" id="mfpQuitar"><span>✕</span><div><b>Quitar foto</b><small>Vuelven a verse tus iniciales</small></div></button>'
+      +   '<button class="mfp-op danger" type="button" id="mfpQuitar"><span>✕</span><div><b>Quitar foto</b><small>Vuelven a verse las iniciales</small></div></button>'
       +   '<div class="mfp-msg" id="mfpMsg"></div>'
       +   '<button class="mfp-x" type="button" id="mfpCerrar">Cancelar</button>'
       + '</div></div>'
       + '<div class="mfp-bg" id="mfpCrop"><div class="mfp">'
-      +   '<h3>Ajusta tu foto</h3>'
+      +   '<h3>Ajusta la foto</h3>'
       +   '<div class="mfp-stage" id="mfpStage"><canvas id="mfpCanvas" width="640" height="640"></canvas><div class="mfp-ring"></div></div>'
       +   '<div class="mfp-hint">Arrastra para mover · pellizca o usa la barra para acercar</div>'
       +   '<div class="mfp-ctrl"><span class="mfp-ic">−</span><input type="range" id="mfpZoom" min="1" max="4" step="0.01" value="1"><span class="mfp-ic">+</span>'
@@ -117,6 +123,7 @@
     O = opts || {};
     if (!O.sb || !O.user) return;
     montar();
+    $('mfpTitulo').textContent = O.titulo || 'Foto de perfil';
     if (!O.actual) { $('mfpFile').value = ''; $('mfpFile').click(); return; }   // sin foto: directo a elegir
     $('mfpPh').innerHTML = '<img src="' + esc(O.actual) + '" alt="">';
     var esGoogle = /googleusercontent\.com/.test(O.actual);
@@ -213,7 +220,7 @@
       pintar(out.getContext('2d'), 600);
       out.toBlob(async function (blob) {
         if (!blob) { b.disabled = false; msg('mfpCropMsg', 'No se pudo preparar la foto.', true); return; }
-        var path = O.user.id + '/avatar/foto-' + Date.now() + '.jpg';
+        var path = (O.carpeta || (O.user.id + '/avatar')) + '/foto-' + Date.now() + '.jpg';
         var up = await O.sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: true });
         if (up.error) { b.disabled = false; msg('mfpCropMsg', 'No se pudo subir: ' + up.error.message, true); return; }
         var url = SB_URL + '/storage/v1/object/public/' + BUCKET + '/' + path;
@@ -228,6 +235,13 @@
   async function guardar(url, msgId) {
     msgId = msgId || 'mfpMsg';
     try {
+      if (typeof O.guardar === 'function') {
+        var rg = await O.guardar(url);
+        if (rg && rg.error) throw rg.error;
+        O.actual = url;
+        if (typeof O.onCambio === 'function') O.onCambio(url);
+        return true;
+      }
       var r1 = await O.sb.auth.updateUser({ data: { avatar_url: url, picture: url } });
       if (r1.error) throw r1.error;
       var r2 = await O.sb.rpc('mgl_set_mi_foto', { p_url: url });
