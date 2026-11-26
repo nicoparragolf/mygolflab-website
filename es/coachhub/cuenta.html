@@ -371,7 +371,7 @@ async function canjearCodigo(){
   var r=await sb.rpc('mgl_canjear_codigo',{ p_code:cod });
   if(r.error){ toast('No se pudo aplicar: '+(r.error.message||'error')); return; }
   if(!r.data.ok){ toast(CY_MOTIVOS[r.data.motivo]||'No se pudo aplicar el código'); return; }
-  toast('Código aplicado'+(r.data.percent_off?': '+r.data.percent_off+'% de descuento':'')+(r.data.extra_trial_days?' y '+r.data.extra_trial_days+' días más de prueba':''));
+  toast('Código aplicado'+(r.data.percent_off?': '+r.data.percent_off+'% de descuento':'')+(r.data.extra_trial_days?' y '+r.data.extra_trial_days+' días más de prueba':'')+(r.data.trial_until?': acceso completo hasta el '+new Date(r.data.trial_until).toLocaleDateString('es-CL',{timeZone:'America/Santiago'}):''));
   var e=await CY_PLAN.refrescar(); pintarMiPlan(e);
 }
 

@@ -587,6 +587,7 @@
           var t = 'Código ' + cod + ' listo';
           if (r.data.percent_off) t += ': ' + r.data.percent_off + '% de descuento' + (r.data.duration_months ? ' por ' + r.data.duration_months + (r.data.duration_months === 1 ? ' mes' : ' meses') : '');
           if (r.data.extra_trial_days) t += (r.data.percent_off ? ' y ' : ': ') + r.data.extra_trial_days + ' días más de prueba';
+          if (r.data.trial_until) t += ((r.data.percent_off || r.data.extra_trial_days) ? ' y ' : ': ') + 'acceso completo gratis hasta el ' + new Date(r.data.trial_until).toLocaleDateString('es-CL', { timeZone: 'America/Santiago' });
           msg.className = 'code-msg ok';
           msg.textContent = t + '. Se aplica al crear tu cuenta de coach.';
         });

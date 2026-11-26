@@ -98,7 +98,8 @@ function pintar(res){
     +   '<div><label>Durante cuántos meses</label><input id="f_meses" type="number" min="1" placeholder="Vacío = mientras siga suscrito"></div>'
     +   '<div><label>Días extra de prueba</label><input id="f_dias" type="number" min="0" max="180" value="0"><div class="hint">Se suman a los 15 días.</div></div>'
     +   '<div><label>Máximo de usos</label><input id="f_max" type="number" min="1" placeholder="Vacío = sin límite"><div class="hint">1 = código personal de un solo uso.</div></div>'
-    +   '<div><label>Vence el</label><input id="f_vence" type="date"></div>'
+    +   '<div><label>Prueba completa hasta</label><input id="f_hasta" type="date"><div class="hint">Opcional. Ej: 31-01 para acceso gratis hasta esa fecha.</div></div>'
+    +   '<div><label>El código se puede usar hasta</label><input id="f_vence" type="date"></div>'
     +   '<div><label>Código de oferta en App Store Connect</label><input id="f_apple" placeholder="Opcional (para la app, v1.2)"></div>'
     +   '<div style="grid-column:1/-1"><label>Nota interna</label><input id="f_nota" placeholder="Ej: acuerdo con el embajador, campaña, etc."></div>'
     +   '<div class="acts"><button class="btn pri" type="button" onclick="crear()">Crear código</button></div>'
@@ -124,12 +125,13 @@ async function crear(){
     code:code, tipo:$('f_tipo').value, nombre:$('f_nombre').value||null, nota:$('f_nota').value||null,
     percent_off:pct, duration_months:num('f_meses'), extra_trial_days:num('f_dias')||0,
     max_redemptions:num('f_max'), apple_offer_ref:$('f_apple').value||null, created_by:USER.id,
-    expires_at: $('f_vence').value ? new Date($('f_vence').value+'T23:59:00-03:00').toISOString() : null
+    expires_at: $('f_vence').value ? new Date($('f_vence').value+'T23:59:00-03:00').toISOString() : null,
+    trial_until: $('f_hasta').value ? new Date($('f_hasta').value+'T23:59:00-03:00').toISOString() : null
   };
   var r=await sb.from('discount_codes').insert(row);
   if(r.error){ toast(/duplicate|unique/i.test(r.error.message)?'Ese código ya existe':'Error: '+r.error.message); return; }
   toast('Código '+code+' creado');
-  ['f_code','f_nombre','f_nota','f_meses','f_max','f_vence','f_apple'].forEach(function(id){ $(id).value=''; });
+  ['f_code','f_nombre','f_nota','f_meses','f_max','f_vence','f_hasta','f_apple'].forEach(function(id){ $(id).value=''; });
   $('f_dias').value='0';
   cargarLista();
 }
@@ -142,9 +144,10 @@ async function cargarLista(){
   var h='<table><thead><tr><th>Código</th><th>Para</th><th>Descuento</th><th>Usos</th><th>Pagando</th><th></th></tr></thead><tbody>';
   L.forEach(function(c){
     var vencido = c.expires_at && new Date(c.expires_at) < new Date();
-    var desc = (c.percent_off ? c.percent_off+'%' : 'Sin %')
+    var desc = (c.percent_off ? c.percent_off+'%' : (c.trial_until ? 'Acceso gratis' : 'Sin %'))
       + (c.percent_off ? (c.duration_months ? ' por '+c.duration_months+(c.duration_months===1?' mes':' meses') : ' siempre') : '')
-      + (c.extra_trial_days ? '<br><span class="muted">+'+c.extra_trial_days+' días de prueba</span>' : '');
+      + (c.extra_trial_days ? '<br><span class="muted">+'+c.extra_trial_days+' días de prueba</span>' : '')
+      + (c.trial_until ? '<br><span class="muted">Prueba completa hasta el '+new Date(c.trial_until).toLocaleDateString('es-CL',{timeZone:'America/Santiago'})+'</span>' : '');
     h+='<tr>'
       + '<td><div class="code">'+esc(c.code)+'</div>'
       +   '<span class="chip'+(c.tipo==='embajador'?' emb':'')+'">'+esc(c.tipo)+'</span> '

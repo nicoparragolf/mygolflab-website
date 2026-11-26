@@ -1,0 +1,5 @@
+-- CoachYard · prueba de 15 días para coaches nuevos + códigos con "prueba completa hasta" una fecha
+-- (ya aplicado en Supabase el 26-11-2026). Ver migración coachyard_prueba_15_y_codigo_hasta_fecha.
+-- - mgl_crear_prueba_coach(): now() + 15 días (sin la extensión al 31-01-2027)
+-- - discount_codes.trial_until: al canjear, la prueba queda hasta esa fecha (o se reabre si estaba vencida y sin plan)
+-- - Código AMIGOSNICO: círculo cercano, acceso completo hasta el 31-01-2027, 25 usos, canjeable hasta el 15-01-2027
