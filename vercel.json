@@ -24,6 +24,16 @@
   },
   "redirects": [
     {
+      "source": "/terminos",
+      "destination": "/es/terms.html",
+      "permanent": false
+    },
+    {
+      "source": "/privacidad",
+      "destination": "/es/privacidad.html",
+      "permanent": false
+    },
+    {
       "source": "/",
       "has": [
         {
