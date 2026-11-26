@@ -362,7 +362,10 @@ export default async function handler(req, res) {
 
     /* ── CORS ── */
     try {
-      res.setHeader('Access-Control-Allow-Origin', 'https://mygolflab.golf');
+      var ORIGENES = ['https://mygolflab.golf', 'https://www.mygolflab.golf', 'https://coachyard.golf', 'https://www.coachyard.golf'];
+      var origen = String(req.headers.origin || '');
+      res.setHeader('Access-Control-Allow-Origin', ORIGENES.indexOf(origen) >= 0 ? origen : 'https://mygolflab.golf');
+      res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Methods', 'POST, GET');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     } catch (e) { /* si falla, seguimos igual */ }

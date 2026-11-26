@@ -379,7 +379,7 @@ function render(name, photo, st){
   var h='';
 
   // ── Tarjeta de perfil ──
-  var vitrinaUrl = (IS_COACH && CP && CP.slug) ? 'https://mygolflab.golf/es/coaches/perfil.html?c='+encodeURIComponent(CP.slug) : '';
+  var vitrinaUrl = (IS_COACH && CP && CP.slug) ? 'https://coachyard.golf/es/coaches/perfil.html?c='+encodeURIComponent(CP.slug) : '';
   var linkCard = IS_COACH;
   h+='<div class="pcard'+(linkCard?' link':'')+'"'+(linkCard?' onclick="MGLnav.href=\'/es/coachhub/vitrina.html\'"':'')+'>'
     + '<div class="pphoto" title="Cambiar foto" onclick="event.stopPropagation();'+(IS_COACH?'MGLnav.href=\'/es/coachhub/vitrina.html#foto\'':'cambiarFoto()')+'">'+(photo?'<img src="'+esc(photo)+'" alt="">':esc(initialsOf(name)))+'<span class="pcam">'+IC.cam+'</span></div>'

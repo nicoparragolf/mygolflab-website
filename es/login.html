@@ -790,7 +790,7 @@
                         role: selectedRole,
                         plan: 'Starter'
                     },
-                    emailRedirectTo: 'https://mygolflab.golf/es/login.html'
+                    emailRedirectTo: location.origin + '/es/login.html'
                 }
             });
             setLoading('registerBtn', false);
@@ -821,7 +821,7 @@
             const { error } = await sb.auth.signInWithOAuth({
                 provider: provider,
                 options: {
-                    redirectTo: 'https://mygolflab.golf/es/login.html'
+                    redirectTo: location.origin + '/es/login.html'
                 }
             });
             if (error) alert('Error con ' + (provider === 'apple' ? 'Apple' : 'Google') + ': ' + error.message);

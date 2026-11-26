@@ -35,14 +35,122 @@
       "permanent": false
     },
     {
-      "source": "/",
+      "source": "/:path*",
       "has": [
         {
           "type": "host",
           "value": "www.coachyard.golf"
         }
       ],
-      "destination": "https://coachyard.golf/es/coachhub/index.html",
+      "destination": "https://coachyard.golf/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/es/coachhub/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coachhub/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/es/coaches/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coaches/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/es/coaches",
+      "has": [
+        {
+          "type": "host",
+          "value": "mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coaches",
+      "permanent": false
+    },
+    {
+      "source": "/es/coachhub/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coachhub/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/es/coaches/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coaches/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/es/coaches",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.mygolflab.golf"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*CoachHubApp.*"
+        }
+      ],
+      "destination": "https://coachyard.golf/es/coaches",
       "permanent": false
     },
     {

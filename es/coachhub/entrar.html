@@ -351,7 +351,7 @@
     }
     const { error } = await sb.auth.signInWithOAuth({
       provider: provider,
-      options: { redirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html' }
+      options: { redirectTo: location.origin + '/es/coachhub/entrar.html' }
     });
     if(error) showError('Error con ' + (provider === 'apple' ? 'Apple' : 'Google') + ': ' + error.message);
   }
@@ -425,7 +425,7 @@
           role: selectedRole,
           plan: 'Starter'
         },
-        emailRedirectTo: 'https://mygolflab.golf/es/coachhub/entrar.html'
+        emailRedirectTo: location.origin + '/es/coachhub/entrar.html'
       }
     });
     btn.disabled = false; btn.textContent = 'Crear mi cuenta';
