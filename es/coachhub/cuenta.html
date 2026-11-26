@@ -345,6 +345,7 @@ function pintarMiPlan(e){
     if(e.provider==='flow' && !e.cancela_al_final && (e.status==='active'||e.status==='trialing')) h+='<button class="pbtn cyp-cta" type="button" onclick="cancelarSuscripcion()">Cancelar suscripción</button>';
   }
   if(e.es_admin) h+='<a class="pbtn cyp-cta" href="/es/coachhub/admin-codigos.html">Administrar códigos de descuento</a>';
+  h+='<div class="cyp-cod" style="font-size:13px"><a href="/es/terms.html" style="color:inherit">Términos y Condiciones</a> · <a href="/es/privacidad.html" style="color:inherit">Privacidad</a></div>';
   h+='</div>';
   box.innerHTML=h;
 }
