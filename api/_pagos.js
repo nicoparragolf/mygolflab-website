@@ -13,7 +13,7 @@
      FLOW_API_URL               https://sandbox.flow.cl/api  (pruebas)
                                 https://www.flow.cl/api      (producción)
      SUPABASE_SERVICE_ROLE_KEY  Supabase → Settings → API → service_role
-     SITE_URL                   https://mygolflab.golf  (opcional)
+     SITE_URL                   https://coachyard.golf  (opcional)
      MP_ACCESS_TOKEN            Mercado Pago → Tus integraciones → Credenciales
                                 (TEST-... para pruebas, APP_USR-... producción)
      MP_WEBHOOK_SECRET          clave secreta de las notificaciones (opcional,
@@ -24,7 +24,7 @@ import crypto from 'node:crypto';
 
 export const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yulpqupmftdjbepqiscs.supabase.co';
 export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1bHBxdXBtZnRkamJlcHFpc2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDA0NjYsImV4cCI6MjA4OTcxNjQ2Nn0.e-8SEni5uxUoigXCkVM2VYm7UrHYxxVl7hPsUrZvYao';
-export const SITE_URL = (process.env.SITE_URL || 'https://mygolflab.golf').replace(/\/$/, '');
+export const SITE_URL = (process.env.SITE_URL || 'https://coachyard.golf').replace(/\/$/, '');
 
 export function config() {
   var flow = !!(process.env.FLOW_API_KEY && process.env.FLOW_SECRET_KEY && process.env.FLOW_API_URL);

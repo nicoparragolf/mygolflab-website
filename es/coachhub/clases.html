@@ -580,7 +580,7 @@ function pintarSes(){
       if(sesActiva(l) && fin>now){
         var abierto = ini-now<=900000;
         h+='<button class="btn primary sm" '+(abierto?'':'disabled ')+'onclick="unirse(\''+b.id+'\')">'+(abierto?'Unirse a la llamada':'Link 15 min antes')+'</button>';
-        h+='<a class="btn sm" target="_blank" rel="noopener" href="'+esc(MGLAgenda.linkCalendario('Clase en vivo · '+(o.title||'CoachYard'), b.starts_at, b.ends_at, 'Únete desde Mis clases en CoachYard: https://mygolflab.golf/es/coachhub/clases.html?clase='+l.id))+'">+ Calendario</a>';
+        h+='<a class="btn sm" target="_blank" rel="noopener" href="'+esc(MGLAgenda.linkCalendario('Clase en vivo · '+(o.title||'CoachYard'), b.starts_at, b.ends_at, 'Únete desde Mis clases en CoachYard: https://coachyard.golf/es/coachhub/clases.html?clase='+l.id))+'">+ Calendario</a>';
       }
       if(IS_COACH && ini<now) h+='<button class="btn sm" onclick="realizada(\''+b.id+'\')">Marcar realizada</button>';
       if(fin>now && (IS_COACH || ini-now>12*3600000) && l.status!=='por_pagar') h+='<button class="btn danger sm" onclick="cancelarSes(\''+b.id+'\')">Cancelar</button>';
