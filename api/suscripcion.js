@@ -335,6 +335,17 @@ export default async function handler(req, res) {
         planes: PLANES
       });
     }
+    if (accion === 'ping') {
+      // Revisa que las llaves de Flow funcionen, sin crear nada: pide un plan que no existe.
+      // Si Flow responde "no existe", las llaves están bien; si reclama la firma o la llave, están mal.
+      if (!cfg.medios.flow) return res.status(200).json({ flow: false, faltan: cfg.faltan });
+      try { await flowGet(cfg, 'plans/get', { planId: 'CY_PING_NO_EXISTE' }); return res.status(200).json({ flow: true, llaves: 'ok' }); }
+      catch (e) {
+        var m = String(e.message || '');
+        var malas = /apikey|api key|firma|signature|108|auth/i.test(m);
+        return res.status(200).json({ flow: true, llaves: malas ? 'incorrectas' : 'ok', ambiente: /sandbox/.test(cfg.flowUrl || process.env.FLOW_API_URL || '') ? 'sandbox' : 'produccion', detalle: m.slice(0, 160) });
+      }
+    }
     if (accion === 'revenuecat') {
       if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
       if (!cfg.serviceKey) return res.status(503).json({ error: 'Falta SUPABASE_SERVICE_ROLE_KEY' });
