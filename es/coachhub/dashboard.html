@@ -275,46 +275,91 @@ async function init(){
   // el avatar abre Mi cuenta (cerrar sesión está ahí)
   av.onclick=function(){ MGLnav.href='/es/coachhub/cuenta.html'; }; av.title='Mi cuenta'; av.style.cursor='pointer';
 
-  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  // Arranque rápido: si este coach ya entró antes en este teléfono, se pinta
+  // al tiro lo último que vio y después se actualiza con los datos frescos.
+  var cache = leerCache();
+  if(cache){ aplicarCache(cache); render(); }
+
+  // Rol, perfil de la vitrina y jugadores se piden juntos (antes, uno tras otro)
+  var r3 = await Promise.all([
+    sb.from('profiles').select('role').eq('id',USER.id).maybeSingle(),
+    sb.from('coach_profiles').select('is_published').eq('coach_id',USER.id).maybeSingle(),
+    sb.from('players').select('*').eq('coach_id',USER.id)
+  ]);
+  var pr = r3[0], cp = r3[1];
   var role = (pr.data && pr.data.role) || 'jugador';
   // el dashboard es solo para coaches: el alumno va directo a su perfil
-  if(role!=='coach' && role!=='ambos'){ window.location.replace('jugador.html'); return; }
+  if(role!=='coach' && role!=='ambos'){ borrarCache(); window.location.replace('jugador.html'); return; }
 
   // Primer ingreso del coach: antes de todo, crear su perfil de la vitrina
-  var cp = await sb.from('coach_profiles').select('is_published').eq('coach_id',USER.id).maybeSingle();
-  if(!cp.error && !cp.data){ window.location.replace('vitrina.html?onboarding=1'); return; }
+  if(!cp.error && !cp.data){ borrarCache(); window.location.replace('vitrina.html?onboarding=1'); return; }
   VITRINA_PUB = !cp.error && cp.data && cp.data.is_published;
   VITRINA_OK = !cp.error;
 
-  await loadData();
+  await loadData(r3[2]);
   render();
+  guardarCache();
 }
 
+// ── Caché local del dashboard (solo para pintar rápido al abrir) ──
+var CACHE_KEY = 'cy-dash-v1';
+function leerCache(){
+  try{
+    var c = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+    if(!c || c.uid!==USER.id) return null;
+    if(Date.now()-c.t > 7*86400000) return null;   // más de una semana: no sirve
+    return c;
+  }catch(e){ return null; }
+}
+function aplicarCache(c){
+  PLAYERS=c.players||[]; EVENTS=c.events||[]; MEDIA=c.media||[]; GOALS=c.goals||[];
+  CONVS=c.convs||{}; MSG_OK=!!c.msgOk; HAS_REVIEW=c.hasReview!==false;
+  VITRINA_PUB=c.vitPub!==false; VITRINA_OK=!!c.vitOk;
+  PBYID={}; PLAYERS.forEach(function(p){ PBYID[p.id]=p; });
+}
+function guardarCache(){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      uid:USER.id, t:Date.now(), players:PLAYERS, events:EVENTS, media:MEDIA, goals:GOALS,
+      convs:CONVS, msgOk:MSG_OK, hasReview:HAS_REVIEW, vitPub:VITRINA_PUB, vitOk:VITRINA_OK
+    }));
+  }catch(e){ borrarCache(); }   // sin espacio: simplemente no se guarda
+}
+function borrarCache(){ try{ localStorage.removeItem(CACHE_KEY); }catch(e){} }
+
 var CONVS = {}, MSG_OK = false;
-async function loadData(){
-  var rp = await sb.from('players').select('*').eq('coach_id',USER.id);
+async function loadData(rpYa){
+  var rp = rpYa || await sb.from('players').select('*').eq('coach_id',USER.id);
   PLAYERS = (rp.data||[]).filter(function(p){ return p.status!=='archivado'; });
   PLAYERS.sort(function(a,b){ return pname(a).localeCompare(pname(b)); });
   PBYID = {}; PLAYERS.forEach(function(p){ PBYID[p.id]=p; });
   var ids = PLAYERS.map(function(p){ return p.id; });
-  if(!ids.length){ EVENTS=[]; MEDIA=[]; GOALS=[]; return; }
+  if(!ids.length){ EVENTS=[]; MEDIA=[]; GOALS=[]; CONVS={}; return; }
 
+  // Las cuatro consultas van en paralelo (antes, una tras otra)
   var evCols='id,player_id,event_type,title,event_date,created_by,created_at';
-  var re = await sb.from('player_events').select(evCols+',reviewed_at').in('player_id',ids);
-  if(re.error){ HAS_REVIEW=false; re = await sb.from('player_events').select(evCols).in('player_id',ids); }
-  EVENTS = re.data||[];
-
   var mdCols='id,player_id,event_id,media_type,size_bytes,created_by,created_at';
-  var rm = await sb.from('player_media').select(mdCols+(HAS_REVIEW?',reviewed_at':'')).in('player_id',ids);
-  if(rm.error && HAS_REVIEW){ HAS_REVIEW=false; rm = await sb.from('player_media').select(mdCols).in('player_id',ids); }
-  MEDIA = rm.data||[];
+  var rr = await Promise.all([
+    sb.from('player_events').select(evCols+',reviewed_at').in('player_id',ids),
+    sb.from('player_media').select(mdCols+',reviewed_at').in('player_id',ids),
+    sb.from('player_goals').select('*').in('player_id',ids).eq('status','activa'),
+    // Mensajes: último mensaje y no leídos por alumno (si la tabla existe)
+    sb.from('coach_messages').select('player_id,sender_id,body,created_at,read_at')
+      .in('player_id',ids).order('created_at',{ascending:false}).limit(500)
+  ]);
+  var re = rr[0], rm = rr[1], rg = rr[2], rmsg = rr[3];
 
-  var rg = await sb.from('player_goals').select('*').in('player_id',ids).eq('status','activa');
+  // si falta la columna reviewed_at (migración sin correr), se repite sin ella
+  HAS_REVIEW = true;
+  if(re.error || rm.error){
+    HAS_REVIEW = false;
+    if(re.error) re = await sb.from('player_events').select(evCols).in('player_id',ids);
+    if(rm.error) rm = await sb.from('player_media').select(mdCols).in('player_id',ids);
+  }
+  EVENTS = re.data||[];
+  MEDIA = rm.data||[];
   GOALS = rg.data||[];
 
-  // Mensajes: último mensaje y no leídos por alumno (si la tabla existe)
-  var rmsg = await sb.from('coach_messages').select('player_id,sender_id,body,created_at,read_at')
-    .in('player_id',ids).order('created_at',{ascending:false}).limit(500);
   MSG_OK = !rmsg.error;
   CONVS = {};
   (rmsg.data||[]).forEach(function(m){

@@ -1221,12 +1221,19 @@ async function init(){
   if(meta.avatar_url){ av.innerHTML='<img src="'+esc(meta.avatar_url)+'">'; }
   else { av.textContent=(meta.full_name||USER.email||'?').charAt(0).toUpperCase(); }
 
-  var pr = await sb.from('profiles').select('role').eq('id',USER.id).maybeSingle();
+  // Rol, perfil de la vitrina y catálogo de métricas se piden juntos
+  // (antes, uno tras otro: cada consulta sumaba un viaje a Supabase)
+  var r3 = await Promise.all([
+    sb.from('profiles').select('role').eq('id',USER.id).maybeSingle(),
+    sb.from('coach_profiles').select('coach_id').eq('coach_id',USER.id).maybeSingle(),
+    loadMetricDefs()
+  ]);
+  var pr = r3[0];
   ROLE = (pr.data && pr.data.role) || 'jugador';
   IS_COACH = (ROLE==='coach' || ROLE==='ambos');
   if(IS_COACH){
     // primer ingreso del coach: crear su perfil de la vitrina antes de seguir
-    var cpv = await sb.from('coach_profiles').select('coach_id').eq('coach_id',USER.id).maybeSingle();
+    var cpv = r3[1];
     if(!cpv.error && !cpv.data){ window.location.replace('vitrina.html?onboarding=1'); return; }
   } else {
     document.getElementById('navCoaches').style.display='';
@@ -1245,8 +1252,6 @@ async function init(){
     document.getElementById('navHub').textContent='Mis jugadores';
     document.getElementById('navLinks').classList.add('coach');
   }
-
-  await loadMetricDefs();
 
   if(IS_COACH){
     document.getElementById('shell').classList.add('coachmode');
@@ -1497,13 +1502,17 @@ async function selectPlayer(id, opts){
 }
 
 async function loadAll(playerId){
-  await loadEvents(playerId);
-  await loadMedia(playerId);
-  await loadMetricHistory(playerId);
-  await loadGoals(playerId);
-  await loadPlans(playerId);
-  await loadNotes(playerId);
-  if(window.MGLRondas) await MGLRondas.load(playerId);
+  // Todo el perfil se carga en paralelo (antes eran 7 consultas en fila).
+  // Cada función llena su propia variable, así que no dependen entre sí.
+  await Promise.all([
+    loadEvents(playerId),
+    loadMedia(playerId),
+    loadMetricHistory(playerId),
+    loadGoals(playerId),
+    loadPlans(playerId),
+    loadNotes(playerId),
+    window.MGLRondas ? MGLRondas.load(playerId) : null
+  ]);
 }
 
 async function loadEvents(playerId){

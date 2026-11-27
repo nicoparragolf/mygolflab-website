@@ -2,6 +2,33 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script>
+/* ── Arranque rápido ──────────────────────────────────────────────────────
+   La app abre esta página. Si ya hay sesión guardada en el teléfono, se salta
+   todo (fuentes, Supabase, formulario) y va directo al marco de la app
+   (o al dashboard en el computador). Antes pasaba por entrar → dashboard →
+   app: tres páginas completas antes de ver algo.
+   No se salta si: viene de Google/Apple, hay un "volver" pendiente, se pidió
+   el registro, o ya se intentó hace pocos segundos (evita un ciclo si la
+   sesión guardada resultó vencida y el dashboard nos devolvió acá). */
+(function () {
+  try {
+    var q = location.search, h = location.hash;
+    if (/[?&](registro|volver|code|error)=/.test(q) || /access_token|error/.test(h)) return;
+    if (localStorage.getItem('mgl_volver') || localStorage.getItem('mgl_pending_role')) return;
+    var tok = JSON.parse(localStorage.getItem('sb-yulpqupmftdjbepqiscs-auth-token') || 'null');
+    if (!tok || !tok.refresh_token) return;
+    var antes = Number(sessionStorage.getItem('cy-salto') || 0);
+    if (Date.now() - antes < 15000) return;
+    sessionStorage.setItem('cy-salto', String(Date.now()));
+    var cap = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    var tel = cap || /CoachHubApp/.test(navigator.userAgent || '') ||
+      Math.min(screen.width || 9999, screen.height || 9999) <= 600;
+    document.documentElement.style.visibility = 'hidden';
+    location.replace(tel ? '/es/coachhub/app.html' : '/es/coachhub/dashboard.html');
+  } catch (e) {}
+})();
+</script>
 <script src="/js/mgl-marco.js"></script>
 <script src="/js/mgl-tema.js"></script>
 <script src="/js/mgl-i18n.js"></script>
